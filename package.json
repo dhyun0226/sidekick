@@ -7,18 +7,19 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "clean": "rm -rf .nuxt node_modules/.vite node_modules/.cache",
+    "clean:all": "rm -rf .nuxt node_modules/.vite node_modules/.cache node_modules package-lock.json",
+    "fresh": "npm run clean:all && npm install && npm run dev"
   },
   "dependencies": {
     "@nuxtjs/supabase": "^2.0.2",
     "@nuxtjs/tailwindcss": "^6.14.0",
-    "@pinia/nuxt": "^0.11.3",
+    "@pinia/nuxt": "0.8.0",
     "@vite-pwa/nuxt": "^1.1.0",
     "lucide-vue-next": "^0.555.0",
-    "nuxt": "^4.2.1",
-    "pinia": "^3.0.4",
-    "vue": "^3.5.25",
-    "vue-router": "^4.6.3"
+    "nuxt": "^3.15.0",
+    "pinia": "2.2.8"
   },
   "devDependencies": {
     "vite-tsconfig-paths": "^5.1.4"

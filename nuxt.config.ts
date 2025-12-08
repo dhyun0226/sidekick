@@ -1,18 +1,9 @@
 // nuxt.config.ts
 import { defineNuxtConfig } from 'nuxt/config'
-import { fileURLToPath } from 'url' // 👈 1. 이 줄이 반드시 있어야 합니다.
 
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
-
-  // 👈 2. 별칭(Alias)을 직접 명시합니다.
-  // 시스템의 절대 경로로 강제 매핑하므로 경로를 못 찾을 수가 없습니다.
-  alias: {
-    '@': fileURLToPath(new URL('./', import.meta.url)),
-    '~': fileURLToPath(new URL('./', import.meta.url)),
-    'assets': fileURLToPath(new URL('./assets', import.meta.url)),
-  },
 
   modules: [
     '@nuxtjs/tailwindcss',
@@ -21,12 +12,24 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt'
   ],
 
-  // 👈 3. alias 설정에 따라 css 경로를 지정합니다.
-  css: ['@/assets/css/main.css'],
+  css: ['~/assets/css/main.css'],
 
-  supabase: {
-    redirect: false
+  // ✅ 환경 변수 연결 (Supabase 오류 해결 핵심)
+  runtimeConfig: {
+    public: {
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseKey: process.env.SUPABASE_KEY
+    }
   },
+
+  // Supabase 설정
+  supabase: {
+    redirect: false,
+    url: process.env.SUPABASE_URL,
+    key: process.env.SUPABASE_KEY
+  },
+
+  // PWA 설정
   pwa: {
     manifest: {
       name: 'Sidekick',
@@ -37,19 +40,13 @@ export default defineNuxtConfig({
       display: 'standalone',
       orientation: 'portrait',
       icons: [
-        {
-          src: 'pwa-192x192.png',
-          sizes: '192x192',
-          type: 'image/png'
-        },
-        {
-          src: 'pwa-512x512.png',
-          sizes: '512x512',
-          type: 'image/png'
-        }
+        { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+        { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' }
       ]
     }
   },
+
+  // HTML Head
   app: {
     head: {
       charset: 'utf-8',

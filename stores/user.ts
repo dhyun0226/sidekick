@@ -24,47 +24,6 @@ export const useUserStore = defineStore('user', () => {
         }
     }
 
-    const signIn = async (email: string, password: string) => {
-        const client = getClient()
-        const { error } = await client.auth.signInWithPassword({
-            email,
-            password
-        })
-        if (error) throw error
-        await fetchProfile()
-        getRouter().push('/')
-    }
-
-    const signUp = async (email: string, password: string, nickname: string) => {
-        const client = getClient()
-        const { data, error } = await client.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    nickname
-                }
-            }
-        })
-        if (error) throw error
-
-        // Create profile record
-        if (data.user) {
-            const { error: profileError } = await client
-                .from('users')
-                .insert({
-                    id: data.user.id,
-                    nickname: nickname,
-                    avatar_url: '' // Default empty
-                })
-
-            if (profileError) console.error('Profile creation failed:', profileError)
-        }
-
-        await fetchProfile()
-        getRouter().push('/')
-    }
-
     const signOut = async () => {
         const client = getClient()
         await client.auth.signOut()
@@ -77,19 +36,35 @@ export const useUserStore = defineStore('user', () => {
         const { error } = await client.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo: window.location.origin
+                redirectTo: `${window.location.origin}/auth/callback`
             }
         })
         if (error) throw error
+    }
+
+    const updateProfile = async (nickname: string, avatarUrl?: string) => {
+        const user = getUser()
+        if (!user.value) throw new Error('User not authenticated')
+
+        const client = getClient()
+        const { error } = await client
+            .from('users')
+            .update({
+                nickname,
+                ...(avatarUrl && { avatar_url: avatarUrl })
+            })
+            .eq('id', user.value.id)
+
+        if (error) throw error
+        await fetchProfile()
     }
 
     return {
         user: computed(() => getUser().value),
         profile,
         fetchProfile,
-        signIn,
-        signUp,
         signOut,
-        signInWithOAuth
+        signInWithOAuth,
+        updateProfile
     }
 })
