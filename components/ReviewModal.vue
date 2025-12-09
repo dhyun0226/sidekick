@@ -10,19 +10,32 @@
         <p class="text-sm text-zinc-400">이 책은 어떠셨나요?</p>
       </div>
 
-      <!-- Star Rating -->
-      <div class="flex justify-center gap-2 mb-6">
-        <button 
-          v-for="star in 5" 
-          :key="star"
-          @click="rating = star"
-          class="transition-transform hover:scale-110"
-        >
-          <Star 
-            :size="32" 
-            :class="star <= rating ? 'text-lime-400 fill-lime-400' : 'text-zinc-700'" 
-          />
-        </button>
+      <!-- Star Rating (0.5 increments) -->
+      <div class="mb-6">
+        <div class="flex justify-center gap-2 mb-2">
+          <div
+            v-for="star in 5"
+            :key="star"
+            @click="handleStarClick(star, $event)"
+            class="relative cursor-pointer transition-transform hover:scale-110"
+            style="width: 32px; height: 32px;"
+          >
+            <!-- Background (empty star) -->
+            <Star :size="32" class="absolute inset-0 text-zinc-700" />
+
+            <!-- Foreground (filled star with clip) -->
+            <div
+              class="absolute inset-0 overflow-hidden"
+              :style="{ width: getStarFillWidth(star) }"
+            >
+              <Star :size="32" class="text-lime-400 fill-lime-400" />
+            </div>
+          </div>
+        </div>
+        <!-- Rating Display -->
+        <div v-if="rating > 0" class="text-center text-sm text-lime-400 font-medium">
+          {{ rating.toFixed(1) }}점
+        </div>
       </div>
 
       <!-- Review Text -->
@@ -40,10 +53,10 @@
         >
           나중에
         </button>
-        <button 
+        <button
           @click="submitReview"
           class="flex-1 py-3 bg-lime-400 text-black rounded-xl font-bold hover:bg-lime-300 transition-colors disabled:opacity-50"
-          :disabled="rating === 0"
+          :disabled="rating < 0.5"
         >
           기록하기
         </button>
@@ -80,5 +93,31 @@ const submitReview = () => {
   emit('submit', { rating: rating.value, content: content.value })
   rating.value = 0
   content.value = ''
+}
+
+// Handle half-star clicks
+const handleStarClick = (star: number, event: MouseEvent) => {
+  const target = event.currentTarget as HTMLElement
+  const rect = target.getBoundingClientRect()
+  const clickX = event.clientX - rect.left
+  const starWidth = rect.width
+
+  // Left half = 0.5, Right half = 1.0
+  if (clickX < starWidth / 2) {
+    rating.value = star - 0.5
+  } else {
+    rating.value = star
+  }
+}
+
+// Calculate fill width for each star
+const getStarFillWidth = (star: number): string => {
+  const diff = rating.value - (star - 1)
+
+  if (diff <= 0) return '0%'
+  if (diff >= 1) return '100%'
+
+  // Partial fill (0.5 = 50%)
+  return `${diff * 100}%`
 }
 </script>
