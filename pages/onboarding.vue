@@ -132,8 +132,11 @@ const canSubmit = computed(() =>
 )
 
 onMounted(async () => {
+  // 현재 로그인한 유저 가져오기
+  const { data: { user: currentUser } } = await client.auth.getUser()
+
   // 사용자가 로그인하지 않았으면 로그인 페이지로
-  if (!user.value) {
+  if (!currentUser) {
     router.push('/login')
     return
   }
@@ -142,7 +145,7 @@ onMounted(async () => {
   const { data: existingProfile } = await client
     .from('users')
     .select('*')
-    .eq('id', user.value.id)
+    .eq('id', currentUser.id)
     .maybeSingle()
 
   if (existingProfile && existingProfile.nickname) {
@@ -152,12 +155,12 @@ onMounted(async () => {
   }
 
   // OAuth 프로바이더의 프로필 이미지는 미리보기로 표시 (사용자가 선택 가능)
-  if (user.value.user_metadata?.avatar_url) {
-    avatarPreview.value = user.value.user_metadata.avatar_url
-    avatarUrl.value = user.value.user_metadata.avatar_url
-  } else if (user.value.user_metadata?.picture) {
-    avatarPreview.value = user.value.user_metadata.picture
-    avatarUrl.value = user.value.user_metadata.picture
+  if (currentUser.user_metadata?.avatar_url) {
+    avatarPreview.value = currentUser.user_metadata.avatar_url
+    avatarUrl.value = currentUser.user_metadata.avatar_url
+  } else if (currentUser.user_metadata?.picture) {
+    avatarPreview.value = currentUser.user_metadata.picture
+    avatarUrl.value = currentUser.user_metadata.picture
   }
 })
 
@@ -197,9 +200,14 @@ const handleFileSelect = (event: Event) => {
 
 // 프로필 저장
 const handleSubmit = async () => {
-  // user.value와 user.value.id 모두 체크
-  if (!canSubmit.value || !user.value || !user.value.id) {
-    console.error('User not authenticated or ID missing')
+  if (!canSubmit.value) {
+    return
+  }
+
+  // 현재 로그인한 유저 가져오기
+  const { data: { user: currentUser } } = await client.auth.getUser()
+  if (!currentUser) {
+    console.error('User not authenticated')
     alert('로그인 정보가 없습니다. 다시 로그인해주세요.')
     router.push('/login')
     return
@@ -215,43 +223,51 @@ const handleSubmit = async () => {
     if (avatarFile.value) {
       uploading.value = true
 
-      const fileExt = avatarFile.value.name.split('.').pop()
-      const fileName = `${user.value.id}-${Date.now()}.${fileExt}`
-      const filePath = `avatars/${fileName}`
+      try {
+        const fileExt = avatarFile.value.name.split('.').pop()
+        const fileName = `${Date.now()}.${fileExt}`
+        // RLS 정책에 맞게 사용자 ID 폴더 안에 저장
+        const filePath = `${currentUser.id}/${fileName}`
 
-      const { data: uploadData, error: uploadError } = await client.storage
-        .from('avatars')
-        .upload(filePath, avatarFile.value, {
-          cacheControl: '3600',
-          upsert: true
-        })
+        console.log('[Onboarding] Uploading avatar to:', filePath)
 
-      uploading.value = false
-
-      if (uploadError) {
-        console.error('Avatar upload error:', uploadError)
-        // 버킷이 없거나 업로드 실패 시: OAuth 아바타 또는 null 사용
-        console.log('Using OAuth avatar or null instead')
-      } else {
-        // 업로드 성공: Public URL 생성
-        const { data: { publicUrl } } = client.storage
+        const { data: uploadData, error: uploadError } = await client.storage
           .from('avatars')
-          .getPublicUrl(filePath)
+          .upload(filePath, avatarFile.value, {
+            cacheControl: '3600',
+            upsert: true
+          })
 
-        finalAvatarUrl = publicUrl
-        console.log('Avatar uploaded successfully:', publicUrl)
+        if (uploadError) {
+          console.error('[Onboarding] Avatar upload error:', uploadError)
+          // Storage 버킷이 없거나 업로드 실패 → OAuth 아바타 사용
+          console.warn('[Onboarding] Using OAuth avatar as fallback')
+          uploading.value = false
+        } else {
+          // 업로드 성공: Public URL 생성
+          const { data: { publicUrl } } = client.storage
+            .from('avatars')
+            .getPublicUrl(filePath)
+
+          finalAvatarUrl = publicUrl
+          console.log('[Onboarding] Avatar uploaded successfully:', publicUrl)
+          uploading.value = false
+        }
+      } catch (err) {
+        console.error('[Onboarding] Unexpected upload error:', err)
+        uploading.value = false
       }
     }
 
     // 2. users 테이블의 프로필 UPDATE (트리거가 이미 row 생성함)
-    console.log('Updating profile for user:', user.value.id)
+    console.log('Updating profile for user:', currentUser.id)
     const { error: updateError } = await client
       .from('users')
       .update({
         nickname: nickname.value.trim(),
         avatar_url: finalAvatarUrl
       })
-      .eq('id', user.value.id)
+      .eq('id', currentUser.id)
 
     if (updateError) {
       throw updateError

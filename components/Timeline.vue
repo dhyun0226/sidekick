@@ -143,11 +143,51 @@ const toggleSpoiler = (id: string) => {
   }
 }
 
-const toggleLike = (id: string) => {
-  const comment = props.comments.find(c => c.id === id)
-  if (comment) {
-    comment.isLiked = !comment.isLiked
-    comment.likes = (comment.likes || 0) + (comment.isLiked ? 1 : -1)
+const client = useSupabaseClient()
+const user = useSupabaseUser()
+
+const toggleLike = async (commentId: string) => {
+  // 현재 로그인한 유저 가져오기
+  const { data: { user: currentUser } } = await client.auth.getUser()
+  if (!currentUser) return
+
+  try {
+    const comment = props.comments.find(c => c.id === commentId)
+    if (!comment) return
+
+    // 이미 좋아요를 눌렀는지 확인
+    const { data: existingReaction } = await client
+      .from('reactions')
+      .select('*')
+      .eq('comment_id', commentId)
+      .eq('user_id', currentUser.id)
+      .eq('type', 'like')
+      .maybeSingle()
+
+    if (existingReaction) {
+      // 좋아요 취소
+      await client
+        .from('reactions')
+        .delete()
+        .eq('id', existingReaction.id)
+
+      comment.isLiked = false
+      comment.likes = (comment.likes || 1) - 1
+    } else {
+      // 좋아요 추가
+      await client
+        .from('reactions')
+        .insert({
+          comment_id: commentId,
+          user_id: currentUser.id,
+          type: 'like'
+        })
+
+      comment.isLiked = true
+      comment.likes = (comment.likes || 0) + 1
+    }
+  } catch (error) {
+    console.error('Like toggle error:', error)
   }
 }
 
@@ -160,20 +200,54 @@ const toggleReplyForm = (id: string) => {
   }
 }
 
-const submitReply = (parentId: string) => {
+const emit = defineEmits(['replySubmitted'])
+
+const submitReply = async (parentId: string) => {
   if (!replyContent.value.trim()) return
-  
-  const comment = props.comments.find(c => c.id === parentId)
-  if (comment) {
-    if (!comment.replies) comment.replies = []
-    comment.replies.push({
-      id: Date.now().toString(),
-      user: { nickname: '나', avatar_url: '' }, // Mock current user
-      content: replyContent.value,
-      created_at: new Date().toISOString()
+
+  // 현재 로그인한 유저 가져오기
+  const { data: { user: currentUser } } = await client.auth.getUser()
+  if (!currentUser) return
+
+  try {
+    const parentComment = props.comments.find(c => c.id === parentId)
+    if (!parentComment) return
+
+    // 대댓글 작성
+    const { data: newReply, error } = await client
+      .from('comments')
+      .insert({
+        group_book_id: parentComment.group_book_id,
+        user_id: currentUser.id,
+        parent_id: parentId,
+        content: replyContent.value,
+        position_pct: parentComment.position_pct // 부모 댓글과 같은 위치
+      })
+      .select('*, user:users(*)')
+      .single()
+
+    if (error) {
+      console.error('Reply submit error:', error)
+      throw error
+    }
+
+    // UI 업데이트
+    if (!parentComment.replies) parentComment.replies = []
+    parentComment.replies.push({
+      id: newReply.id,
+      user: newReply.user,
+      content: newReply.content,
+      created_at: newReply.created_at
     })
+
     activeReplyId.value = null
     replyContent.value = ''
+
+    emit('replySubmitted')
+
+  } catch (error) {
+    console.error('Reply error:', error)
+    alert('답글 작성에 실패했습니다.')
   }
 }
 

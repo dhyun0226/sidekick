@@ -17,9 +17,9 @@
       <!-- Social Login Buttons -->
       <div class="space-y-3 pt-8">
         <button
-          @click="signInWithOAuth('google')"
+          @click="signInWithGoogle"
           :disabled="loading"
-          class="w-full py-3.5 px-4 bg-white hover:bg-gray-50 text-gray-900 rounded-xl font-bold transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 shadow-lg"
+          class="w-full py-4 px-4 bg-white hover:bg-gray-50 text-gray-900 rounded-xl font-bold transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 shadow-lg"
         >
           <svg class="w-5 h-5" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -27,18 +27,8 @@
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
           </svg>
-          <span v-if="loading === 'google'">로그인 중...</span>
+          <span v-if="loading">로그인 중...</span>
           <span v-else>구글로 시작하기</span>
-        </button>
-
-        <button
-          @click="signInWithOAuth('kakao')"
-          :disabled="loading"
-          class="w-full py-3.5 px-4 bg-[#FEE500] hover:bg-[#FDD835] text-[#000000] rounded-xl font-bold transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 shadow-lg"
-        >
-          <MessageCircle :size="20" class="fill-current" />
-          <span v-if="loading === 'kakao'">로그인 중...</span>
-          <span v-else>카카오로 시작하기</span>
         </button>
       </div>
 
@@ -52,7 +42,7 @@
           </div>
           <div class="space-y-1">
             <p class="text-sm font-medium text-zinc-300">간편하고 안전한 소셜 로그인</p>
-            <p class="text-xs text-zinc-500">구글 또는 카카오 계정으로 3초 만에 시작하세요. 별도의 비밀번호 관리가 필요 없습니다.</p>
+            <p class="text-xs text-zinc-500">구글 계정으로 3초 만에 시작하세요. 별도의 비밀번호 관리가 필요 없습니다.</p>
           </div>
         </div>
       </div>
@@ -94,23 +84,54 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { MessageCircle } from 'lucide-vue-next'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 
+const router = useRouter()
 const userStore = useUserStore()
-const loading = ref<string | null>(null)
+const client = useSupabaseClient()
+const loading = ref(false)
 
-const signInWithOAuth = async (provider: 'google' | 'kakao') => {
-  loading.value = provider
+// 이미 로그인된 사용자는 홈으로 리다이렉트
+onMounted(async () => {
+  const { data: { session } } = await client.auth.getSession()
+  if (session) {
+    router.push('/')
+  }
+})
+
+const signInWithGoogle = async () => {
+  loading.value = true
 
   try {
-    await userStore.signInWithOAuth(provider)
+    const { error } = await client.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        }
+      }
+    })
+
+    if (error) {
+      throw error
+    }
     // OAuth 리다이렉트가 발생하므로 여기는 실행되지 않음
   } catch (e: any) {
-    console.error('OAuth error:', e)
-    alert(`로그인 실패: ${e.message}`)
-    loading.value = null
+    console.error('Google OAuth error:', e)
+
+    let errorMessage = '로그인에 실패했습니다.'
+    if (e.message.includes('popup')) {
+      errorMessage = '팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요.'
+    } else if (e.message.includes('network')) {
+      errorMessage = '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.'
+    }
+
+    alert(errorMessage)
+    loading.value = false
   }
 }
 </script>

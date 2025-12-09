@@ -58,9 +58,19 @@
     </div>
 
     <!-- FAB: Create Group -->
-    <button class="fixed bottom-6 right-6 w-14 h-14 bg-lime-400 rounded-full flex items-center justify-center shadow-lg shadow-lime-400/20 text-black hover:bg-lime-300 transition-colors z-40">
+    <button
+      @click="createGroupModalOpen = true"
+      class="fixed bottom-6 right-6 w-14 h-14 bg-lime-400 rounded-full flex items-center justify-center shadow-lg shadow-lime-400/20 text-black hover:bg-lime-300 transition-colors z-40"
+    >
       <Plus :size="24" />
     </button>
+
+    <!-- Create Group Modal -->
+    <CreateGroupModal
+      :isOpen="createGroupModalOpen"
+      @close="createGroupModalOpen = false"
+      @created="handleGroupCreated"
+    />
   </div>
 </template>
 
@@ -70,6 +80,12 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { User, Plus } from 'lucide-vue-next'
 import NotificationCenter from '~/components/NotificationCenter.vue'
+import CreateGroupModal from '~/components/CreateGroupModal.vue'
+
+// 인증 미들웨어 적용
+definePageMeta({
+  middleware: ['auth']
+})
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -77,9 +93,12 @@ const client = useSupabaseClient()
 
 const groups = ref<any[]>([])
 const loading = ref(true)
+const createGroupModalOpen = ref(false)
 
 const fetchGroups = async () => {
-  if (!userStore.user) return
+  // 현재 로그인한 유저 ID 가져오기
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) return
 
   loading.value = true
   try {
@@ -93,7 +112,7 @@ const fetchGroups = async () => {
           name
         )
       `)
-      .eq('user_id', userStore.user.id)
+      .eq('user_id', user.id)
 
     if (error) throw error
 
@@ -143,7 +162,13 @@ const fetchGroups = async () => {
 }
 
 onMounted(async () => {
+  console.log('[Index] Component mounted')
+  console.log('[Index] userStore.user:', userStore.user)
+  console.log('[Index] userStore.profile before fetch:', userStore.profile)
+
   await userStore.fetchProfile()
+
+  console.log('[Index] userStore.profile after fetch:', userStore.profile)
   await fetchGroups()
 })
 
@@ -152,6 +177,14 @@ const getDaysSince = (dateStr: string) => {
   const now = new Date().getTime()
   const diff = now - start
   return Math.floor(diff / (1000 * 60 * 60 * 24))
+}
+
+const handleGroupCreated = async (newGroup: any) => {
+  console.log('[Index] New group created:', newGroup)
+  // 그룹 목록 새로고침
+  await fetchGroups()
+  // 새로 생성된 그룹으로 이동
+  router.push(`/group/${newGroup.id}`)
 }
 </script>
 

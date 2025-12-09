@@ -91,6 +91,11 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { ChevronLeft, User, Camera, LogOut } from 'lucide-vue-next'
 
+// 인증 미들웨어 적용
+definePageMeta({
+  middleware: ['auth']
+})
+
 const router = useRouter()
 const userStore = useUserStore()
 const client = useSupabaseClient()
@@ -101,44 +106,58 @@ const totalBooks = ref(0)
 const totalGroups = ref(0)
 
 const fetchStats = async () => {
-  if (!userStore.user) return
+  // 현재 로그인한 유저 ID 가져오기
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) return
 
   // 1. Total Books (Reviews count)
   const { count: reviewCount } = await client
     .from('reviews')
     .select('*', { count: 'exact', head: true })
-    .eq('user_id', userStore.user.id)
-  
+    .eq('user_id', user.id)
+
   totalBooks.value = reviewCount || 0
 
   // 2. Total Groups
   const { count: groupCount } = await client
     .from('group_members')
     .select('*', { count: 'exact', head: true })
-    .eq('user_id', userStore.user.id)
-  
+    .eq('user_id', user.id)
+
   totalGroups.value = groupCount || 0
 }
 
 onMounted(async () => {
+  console.log('[Profile] Component mounted')
+  console.log('[Profile] userStore.user:', userStore.user)
+  console.log('[Profile] userStore.profile before fetch:', userStore.profile)
+
   await userStore.fetchProfile()
+
+  console.log('[Profile] userStore.profile after fetch:', userStore.profile)
   if (userStore.profile) {
     nickname.value = userStore.profile.nickname || ''
+    console.log('[Profile] Nickname set to:', nickname.value)
+  } else {
+    console.log('[Profile] No profile found after fetch!')
   }
   await fetchStats()
 })
 
 const saveProfile = async () => {
-  if (!userStore.user) return
+  // 현재 로그인한 유저 ID 가져오기
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) return
+
   loading.value = true
-  
+
   const { error } = await client
     .from('users')
     .update({ nickname: nickname.value })
-    .eq('id', userStore.user.id)
+    .eq('id', user.id)
 
   loading.value = false
-  
+
   if (error) {
     alert('프로필 저장 실패: ' + error.message)
   } else {

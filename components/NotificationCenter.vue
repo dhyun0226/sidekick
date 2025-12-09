@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <!-- Bell Icon -->
-    <button @click="isOpen = !isOpen" class="relative text-zinc-400 hover:text-white transition-colors p-2">
+    <button @click="toggleOpen" class="relative text-zinc-400 hover:text-white transition-colors p-2">
       <Bell :size="24" />
       <span v-if="unreadCount > 0" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#09090b]"></span>
     </button>
@@ -14,54 +14,193 @@
       </div>
 
       <div class="max-h-80 overflow-y-auto">
-        <div v-if="notifications.length === 0" class="p-8 text-center text-zinc-500 text-xs">
+        <!-- Loading State -->
+        <div v-if="loading" class="p-8 text-center text-zinc-500 text-xs">
+          <div class="w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          로딩 중...
+        </div>
+
+        <!-- Empty State -->
+        <div v-else-if="notifications.length === 0" class="p-8 text-center text-zinc-500 text-xs">
           새로운 알림이 없습니다.
         </div>
-        
-        <div 
-          v-for="noti in notifications" 
-          :key="noti.id" 
+
+        <!-- Notifications List -->
+        <div
+          v-else
+          v-for="noti in notifications"
+          :key="noti.id"
+          @click="handleNotificationClick(noti)"
           class="flex gap-3 p-4 hover:bg-zinc-800/50 transition-colors cursor-pointer border-b border-zinc-800/50 last:border-0"
           :class="{ 'bg-zinc-800/20': !noti.is_read }"
         >
           <div class="w-8 h-8 rounded-full bg-zinc-700 flex-shrink-0 flex items-center justify-center">
             <MessageCircle v-if="noti.type === 'reply'" :size="14" class="text-blue-400" />
-            <Heart v-else-if="noti.type === 'like'" :size="14" class="text-red-400" />
+            <Heart v-else-if="noti.type === 'reaction'" :size="14" class="text-red-400" />
             <Info v-else :size="14" class="text-lime-400" />
           </div>
-          <div>
+          <div class="flex-1 min-w-0">
             <p class="text-sm text-zinc-200 leading-snug">
-              <span class="font-bold">{{ noti.sender }}</span>님이 
-              <span v-if="noti.type === 'reply'">회원님의 글에 답글을 남겼습니다.</span>
-              <span v-else-if="noti.type === 'like'">회원님의 글을 좋아합니다.</span>
-              <span v-else>{{ noti.content }}</span>
+              <strong class="font-bold">{{ noti.title }}</strong>
             </p>
-            <p class="text-[10px] text-zinc-500 mt-1">{{ noti.timeAgo }}</p>
+            <p v-if="noti.message" class="text-xs text-zinc-400 mt-1">{{ noti.message }}</p>
+            <p class="text-[10px] text-zinc-500 mt-1">{{ formatTimeAgo(noti.created_at) }}</p>
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Backdrop for closing -->
     <div v-if="isOpen" class="fixed inset-0 z-40" @click="isOpen = false"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { Bell, MessageCircle, Heart, Info } from 'lucide-vue-next'
 
+const router = useRouter()
+const client = useSupabaseClient()
+const user = useSupabaseUser()
+
 const isOpen = ref(false)
-const unreadCount = ref(2)
+const loading = ref(false)
+const notifications = ref<any[]>([])
 
-const notifications = ref([
-  { id: '1', type: 'reply', sender: '영희', content: '', timeAgo: '방금 전', is_read: false },
-  { id: '2', type: 'like', sender: '철수', content: '', timeAgo: '10분 전', is_read: false },
-  { id: '3', type: 'notice', sender: 'Sidekick', content: '새로운 기능이 추가되었습니다!', timeAgo: '1시간 전', is_read: true },
-])
+const unreadCount = computed(() =>
+  notifications.value.filter(n => !n.is_read).length
+)
 
-const markAllRead = () => {
-  unreadCount.value = 0
-  notifications.value.forEach(n => n.is_read = true)
+const toggleOpen = async () => {
+  isOpen.value = !isOpen.value
+
+  if (isOpen.value && notifications.value.length === 0) {
+    await fetchNotifications()
+  }
 }
+
+const fetchNotifications = async () => {
+  // 현재 로그인한 유저 가져오기
+  const { data: { user: currentUser } } = await client.auth.getUser()
+  if (!currentUser) return
+
+  loading.value = true
+
+  try {
+    const { data, error } = await client
+      .from('notifications')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(20)
+
+    if (error) {
+      console.error('Notifications fetch error:', error)
+      return
+    }
+
+    notifications.value = data || []
+  } catch (error) {
+    console.error('Notifications error:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const markAllRead = async () => {
+  // 현재 로그인한 유저 가져오기
+  const { data: { user: currentUser } } = await client.auth.getUser()
+  if (!currentUser) return
+
+  const { error } = await client
+    .from('notifications')
+    .update({ is_read: true })
+    .eq('user_id', currentUser.id)
+    .eq('is_read', false)
+
+  if (!error) {
+    notifications.value.forEach(n => n.is_read = true)
+  }
+}
+
+const handleNotificationClick = async (noti: any) => {
+  // Mark as read
+  if (!noti.is_read) {
+    await client
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', noti.id)
+
+    noti.is_read = true
+  }
+
+  // Navigate to link
+  if (noti.link) {
+    isOpen.value = false
+    router.push(noti.link)
+  }
+}
+
+const formatTimeAgo = (dateStr: string) => {
+  const now = new Date().getTime()
+  const time = new Date(dateStr).getTime()
+  const diff = now - time
+
+  const minutes = Math.floor(diff / 60000)
+  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+
+  if (minutes < 1) return '방금 전'
+  if (minutes < 60) return `${minutes}분 전`
+  if (hours < 24) return `${hours}시간 전`
+  if (days < 7) return `${days}일 전`
+  return new Date(dateStr).toLocaleDateString()
+}
+
+// Realtime subscription for new notifications
+onMounted(async () => {
+  // 현재 로그인한 유저 가져오기
+  const { data: { user: currentUser } } = await client.auth.getUser()
+  if (!currentUser) return
+
+  const channel = client
+    .channel('notifications')
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${currentUser.id}`
+      },
+      (payload) => {
+        console.log('New notification:', payload)
+        notifications.value.unshift(payload.new as any)
+      }
+    )
+    .subscribe()
+
+  // Cleanup on unmount
+  onUnmounted(() => {
+    client.removeChannel(channel)
+  })
+})
 </script>
+
+<style scoped>
+@keyframes scale-up {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-up {
+  animation: scale-up 0.15s ease-out;
+}
+</style>

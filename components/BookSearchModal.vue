@@ -123,23 +123,27 @@ const reset = () => {
   chapters.value = [{ title: 'Chapter 1', startPage: 1 }]
 }
 
+const { searchBooks: searchBooksAPI } = useBookSearch()
+
 const searchBooks = async () => {
-  if (!query.value) return
+  if (!query.value || query.value.trim().length === 0) return
+
   loading.value = true
-  
-  // Mock API Call
-  setTimeout(() => {
-    searchResults.value = [
-      { isbn: '9788936434120', title: '소년이 온다', author: '한강', publisher: '창비', cover: 'https://image.aladin.co.kr/product/4086/97/cover500/8936434128_1.jpg' },
-      { isbn: '9788936433598', title: '채식주의자', author: '한강', publisher: '창비', cover: 'https://image.aladin.co.kr/product/124/0/cover500/8936433598_2.jpg' },
-      { isbn: '9791191891287', title: '트렌드 코리아 2025', author: '김난도 외', publisher: '미래의창', cover: 'https://image.aladin.co.kr/product/34769/53/cover500/k592934773_1.jpg' }
-    ]
+
+  try {
+    searchResults.value = await searchBooksAPI(query.value)
+  } catch (error: any) {
+    console.error('Search error:', error)
+    alert(error.message || '책 검색 중 오류가 발생했습니다.')
+    searchResults.value = []
+  } finally {
     loading.value = false
-  }, 500)
+  }
 }
 
 const selectBook = (book: any) => {
   selectedBook.value = book
+  totalPages.value = book.totalPages || null
   step.value = 2
 }
 

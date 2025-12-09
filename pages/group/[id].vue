@@ -216,7 +216,10 @@
           </div>
 
           <div class="mt-auto pt-6 border-t border-zinc-800">
-            <button class="w-full py-3 text-red-400 bg-red-400/10 rounded-xl font-medium hover:bg-red-400/20 transition-colors flex items-center justify-center gap-2">
+            <button
+              @click="leaveGroup"
+              class="w-full py-3 text-red-400 bg-red-400/10 rounded-xl font-medium hover:bg-red-400/20 transition-colors flex items-center justify-center gap-2"
+            >
               <LogOut :size="16" />
               그룹 나가기
             </button>
@@ -254,6 +257,11 @@ import SmartSlider from '~/components/SmartSlider.vue'
 import BookSearchModal from '~/components/BookSearchModal.vue'
 import ReviewModal from '~/components/ReviewModal.vue'
 import { Menu, Search, Plus, Settings, Share2, ChevronLeft, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X } from 'lucide-vue-next'
+
+// 인증 미들웨어 적용
+definePageMeta({
+  middleware: ['auth']
+})
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -423,25 +431,32 @@ const submitComment = async () => {
 }
 
 const handleReviewSubmit = async (data: any) => {
-  if (!currentBook.value) return
+  if (!currentBook.value || !userStore.user) return
 
-  const { error } = await client.from('reviews').insert({
-    user_id: userStore.user.id,
-    book_id: currentBook.value.book.id, // Assuming reviews are per book, or per group_book? Schema says book_id.
-    rating: data.rating,
-    content: data.content
-  })
+  try {
+    // Upsert review (insert or update)
+    const { error } = await client
+      .from('reviews')
+      .upsert({
+        user_id: userStore.user.id,
+        book_id: currentBook.value.isbn, // ISBN is the book_id
+        rating: data.rating,
+        content: data.content
+      }, {
+        onConflict: 'user_id,book_id'
+      })
 
-  if (error) {
-    alert('리뷰 저장 실패: ' + error.message)
-  } else {
+    if (error) {
+      console.error('Review save error:', error)
+      throw error
+    }
+
     reviewModalOpen.value = false
-    alert('리뷰가 저장되었습니다!')
-    
-    // Optional: Mark group_book as done for this user? 
-    // Currently group_book status is shared for the group. 
-    // If "Finished Mode" is personal, we might need a local state or a separate tracking table.
-    // For MVP, we just save the review.
+    alert('리뷰가 저장되었습니다! 🎉')
+
+  } catch (error: any) {
+    console.error('Review error:', error)
+    alert('리뷰 저장 실패: ' + (error.message || '알 수 없는 오류'))
   }
 }
 
@@ -454,8 +469,74 @@ const openSearchModal = () => {
   searchModalOpen.value = true
 }
 
-const handleBookAdd = (data: any) => {
-  console.log('New book added:', data)
+const handleBookAdd = async (data: any) => {
+  console.log('[Group] Adding book:', data)
+
+  try {
+    // 1. books 테이블에 책이 없으면 추가
+    const { data: existingBook, error: bookCheckError } = await client
+      .from('books')
+      .select('*')
+      .eq('isbn', data.book.isbn)
+      .maybeSingle()
+
+    if (bookCheckError) {
+      console.error('Book check error:', bookCheckError)
+    }
+
+    if (!existingBook) {
+      // 새 책 추가
+      const { error: bookInsertError } = await client
+        .from('books')
+        .insert({
+          isbn: data.book.isbn,
+          title: data.book.title,
+          author: data.book.author,
+          publisher: data.book.publisher,
+          cover_url: data.book.cover,
+          total_pages: data.totalPages,
+          official_toc: data.toc
+        })
+
+      if (bookInsertError) {
+        console.error('Book insert error:', bookInsertError)
+        throw new Error('책 정보 저장에 실패했습니다.')
+      }
+    }
+
+    // 2. 현재 읽고 있는 책을 'done'으로 변경
+    await client
+      .from('group_books')
+      .update({ status: 'done', finished_at: new Date().toISOString() })
+      .eq('group_id', groupId)
+      .eq('status', 'reading')
+
+    // 3. group_books에 새 책 추가
+    const { error: groupBookError } = await client
+      .from('group_books')
+      .insert({
+        group_id: groupId,
+        isbn: data.book.isbn,
+        toc_snapshot: data.toc,
+        status: 'reading'
+      })
+
+    if (groupBookError) {
+      console.error('Group book insert error:', groupBookError)
+      throw new Error('그룹에 책 추가에 실패했습니다.')
+    }
+
+    console.log('[Group] Book added successfully')
+
+    // 4. 데이터 새로고침
+    await fetchData()
+
+    alert('새 책이 추가되었습니다! 🎉')
+
+  } catch (error: any) {
+    console.error('[Group] Book add error:', error)
+    alert(error.message || '책 추가 중 오류가 발생했습니다.')
+  }
 }
 
 const saveGroupName = async () => {
@@ -470,9 +551,59 @@ const toggleMemberMenu = (memberId: string) => {
   activeMemberMenu.value = activeMemberMenu.value === memberId ? null : memberId
 }
 
-const promoteMember = (memberId: string) => { /* ... implementation ... */ }
-const kickMember = (memberId: string) => { /* ... implementation ... */ }
-const copyInviteLink = () => { /* ... implementation ... */ }
+const promoteMember = async (memberId: string) => {
+  if (!confirm('이 멤버를 관리자로 승격하시겠습니까?')) return
+
+  const { error } = await client
+    .from('group_members')
+    .update({ role: 'admin' })
+    .eq('group_id', groupId)
+    .eq('user_id', memberId)
+
+  if (error) {
+    alert('권한 변경에 실패했습니다.')
+  } else {
+    await fetchData()
+    alert('관리자로 승격되었습니다.')
+  }
+  activeMemberMenu.value = null
+}
+
+const kickMember = async (memberId: string) => {
+  if (!confirm('정말로 이 멤버를 강제 퇴장시키겠습니까?')) return
+
+  const { error } = await client
+    .from('group_members')
+    .delete()
+    .eq('group_id', groupId)
+    .eq('user_id', memberId)
+
+  if (error) {
+    alert('멤버 강퇴에 실패했습니다.')
+  } else {
+    await fetchData()
+    alert('멤버가 퇴장되었습니다.')
+  }
+  activeMemberMenu.value = null
+}
+
+const copyInviteLink = async () => {
+  if (!group.value?.invite_code) {
+    alert('초대 코드를 불러올 수 없습니다.')
+    return
+  }
+
+  const inviteLink = `${window.location.origin}/join/${group.value.invite_code}`
+
+  try {
+    await navigator.clipboard.writeText(inviteLink)
+    alert('초대 링크가 복사되었습니다!\n친구들에게 공유해보세요.')
+  } catch (err) {
+    console.error('Clipboard error:', err)
+    // Fallback: show link in alert
+    prompt('초대 링크를 복사하세요:', inviteLink)
+  }
+}
 
 const jumpToChapter = (startPct: number) => {
   viewProgress.value = startPct
@@ -483,10 +614,53 @@ const isCurrentChapter = (chapter: any) => {
   return viewProgress.value >= chapter.start && viewProgress.value < chapter.end
 }
 
-const openReviewModalForEdit = (book: any) => {
-  reviewInitialData.value = { rating: 0, content: '' } // Reset or fetch real review
+const openReviewModalForEdit = async (book: any) => {
+  if (!userStore.user) return
+
+  // Fetch existing review
+  const { data: existingReview } = await client
+    .from('reviews')
+    .select('*')
+    .eq('user_id', userStore.user.id)
+    .eq('book_id', book.id)
+    .maybeSingle()
+
+  reviewInitialData.value = existingReview
+    ? { rating: existingReview.rating, content: existingReview.content || '' }
+    : { rating: 0, content: '' }
+
   reviewModalOpen.value = true
   drawerOpen.value = false
+}
+
+const leaveGroup = async () => {
+  if (!userStore.user) return
+
+  // Check if user is the only admin
+  const admins = members.value.filter(m => m.role === 'admin')
+  if (admins.length === 1 && admins[0].id === userStore.user.id) {
+    alert('그룹의 유일한 관리자입니다. 다른 멤버를 관리자로 지정한 후 나가주세요.')
+    return
+  }
+
+  if (!confirm('정말로 이 그룹에서 나가시겠습니까?')) return
+
+  try {
+    const { error } = await client
+      .from('group_members')
+      .delete()
+      .eq('group_id', groupId)
+      .eq('user_id', userStore.user.id)
+
+    if (error) throw error
+
+    alert('그룹에서 나갔습니다.')
+    router.push('/')
+
+  } catch (error) {
+    console.error('Leave group error:', error)
+    alert('그룹 나가기에 실패했습니다.')
+  }
 }
 </script>
 
