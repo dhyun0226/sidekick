@@ -4,7 +4,7 @@
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" @click="close"></div>
 
     <!-- Modal Content -->
-    <div class="bg-zinc-900 w-full max-w-[480px] rounded-t-3xl sm:rounded-2xl p-6 pointer-events-auto max-h-[90dvh] overflow-y-auto shadow-2xl border border-zinc-800">
+    <div class="relative z-10 bg-zinc-900 w-full max-w-[480px] rounded-t-3xl sm:rounded-2xl p-6 pointer-events-auto max-h-[90dvh] overflow-y-auto shadow-2xl border border-zinc-800">
       
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
@@ -28,9 +28,9 @@
         </div>
 
         <div class="space-y-2 mt-4">
-          <div v-if="loading" class="text-center py-8 text-zinc-500">검색중...</div>
-          <div 
-            v-for="book in searchResults" 
+          <div v-if="loading && searchResults.length === 0" class="text-center py-8 text-zinc-500">검색중...</div>
+          <div
+            v-for="book in searchResults"
             :key="book.isbn"
             @click="selectBook(book)"
             class="flex gap-4 p-3 rounded-xl hover:bg-zinc-800 cursor-pointer transition-colors"
@@ -41,6 +41,17 @@
               <p class="text-sm text-zinc-400 truncate">{{ book.author }}</p>
               <p class="text-xs text-zinc-500 mt-1">{{ book.publisher }}</p>
             </div>
+          </div>
+
+          <!-- Load More Button -->
+          <div v-if="hasMore && searchResults.length > 0" class="pt-4">
+            <button
+              @click="loadMore"
+              :disabled="loading"
+              class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ loading ? '로딩중...' : '더보기 (20개 더)' }}
+            </button>
           </div>
         </div>
       </div>
@@ -108,6 +119,8 @@ const totalPages = ref<number | null>(null)
 const chapters = ref<{ title: string; startPage: number }[]>([
   { title: 'Chapter 1', startPage: 1 }
 ])
+const currentStart = ref(1)
+const hasMore = ref(false)
 
 const close = () => {
   emit('close')
@@ -121,6 +134,8 @@ const reset = () => {
   selectedBook.value = null
   totalPages.value = null
   chapters.value = [{ title: 'Chapter 1', startPage: 1 }]
+  currentStart.value = 1
+  hasMore.value = false
 }
 
 const { searchBooks: searchBooksAPI } = useBookSearch()
@@ -128,14 +143,38 @@ const { searchBooks: searchBooksAPI } = useBookSearch()
 const searchBooks = async () => {
   if (!query.value || query.value.trim().length === 0) return
 
+  // Reset for new search
+  currentStart.value = 1
+  searchResults.value = []
   loading.value = true
 
   try {
-    searchResults.value = await searchBooksAPI(query.value)
+    const results = await searchBooksAPI(query.value, currentStart.value)
+    searchResults.value = results.books
+    hasMore.value = results.hasMore
   } catch (error: any) {
     console.error('Search error:', error)
     alert(error.message || '책 검색 중 오류가 발생했습니다.')
     searchResults.value = []
+    hasMore.value = false
+  } finally {
+    loading.value = false
+  }
+}
+
+const loadMore = async () => {
+  if (!query.value || loading.value) return
+
+  currentStart.value += 20
+  loading.value = true
+
+  try {
+    const results = await searchBooksAPI(query.value, currentStart.value)
+    searchResults.value = [...searchResults.value, ...results.books]
+    hasMore.value = results.hasMore
+  } catch (error: any) {
+    console.error('Load more error:', error)
+    alert(error.message || '더보기 중 오류가 발생했습니다.')
   } finally {
     loading.value = false
   }

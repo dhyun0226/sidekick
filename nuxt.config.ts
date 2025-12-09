@@ -16,6 +16,11 @@ export default defineNuxtConfig({
 
   // ✅ 환경 변수 연결 (Supabase 오류 해결 핵심)
   runtimeConfig: {
+    // 서버 사이드 전용 (클라이언트에 노출되지 않음)
+    naverClientId: process.env.NAVER_CLIENT_ID,
+    naverClientSecret: process.env.NAVER_CLIENT_SECRET,
+
+    // 클라이언트 사이드 (브라우저에 노출됨)
     public: {
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_KEY
