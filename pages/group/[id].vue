@@ -3,14 +3,19 @@
     <!-- Header -->
     <header class="fixed top-0 left-0 right-0 z-40 bg-black/80 backdrop-blur-md border-b border-zinc-800">
       <div class="max-w-[480px] mx-auto flex justify-between items-center px-4 h-14">
-        <button @click="drawerOpen = true" class="text-zinc-400 hover:text-white">
-          <Menu :size="24" />
-        </button>
+        <div class="flex items-center gap-2">
+          <button @click="router.push('/')" class="text-zinc-400 hover:text-white" title="홈으로">
+            <ChevronLeft :size="24" />
+          </button>
+          <button @click="drawerOpen = true" class="text-zinc-400 hover:text-white" title="메뉴">
+            <Menu :size="24" />
+          </button>
+        </div>
         <div class="flex flex-col items-center">
           <h1 class="text-sm font-bold text-zinc-100">{{ groupName }}</h1>
-          <span class="text-[10px] text-zinc-400">{{ bookTitle }}</span>
+          <span v-if="currentBook" class="text-[10px] text-zinc-400">{{ bookTitle }}</span>
         </div>
-        <button class="text-zinc-400 hover:text-white">
+        <button class="text-zinc-400 hover:text-white opacity-0 pointer-events-none">
           <Search :size="24" />
         </button>
       </div>
@@ -18,12 +23,30 @@
 
     <!-- Timeline Content -->
     <div class="pt-16 pb-32 min-h-screen">
-      <Timeline :comments="comments" :readProgress="readProgress" />
+      <!-- 책이 없을 때 Empty State -->
+      <div v-if="!currentBook" class="flex flex-col items-center justify-center min-h-[60vh] px-4">
+        <div class="text-6xl mb-4">📖</div>
+        <h2 class="text-xl font-bold text-white mb-2">책을 선택해주세요</h2>
+        <p class="text-sm text-zinc-400 text-center mb-6 max-w-xs">
+          왼쪽 상단 메뉴에서<br />"새 책 시작하기"를 눌러 함께 읽을 책을 선택하세요!
+        </p>
+        <button
+          @click="drawerOpen = true"
+          class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-colors flex items-center gap-2"
+        >
+          <Menu :size="20" />
+          메뉴 열기
+        </button>
+      </div>
+
+      <!-- 책이 있을 때 Timeline 표시 -->
+      <Timeline v-else :comments="comments" :readProgress="readProgress" />
     </div>
 
-    <!-- Smart Slider (Footer) -->
-    <SmartSlider 
-      v-model="viewProgress" 
+    <!-- Smart Slider (Footer) - 책이 있을 때만 표시 -->
+    <SmartSlider
+      v-if="currentBook"
+      v-model="viewProgress"
       :toc="toc"
       @change="handleSliderChange"
       @write="handleWrite"
@@ -82,7 +105,9 @@
 
           <div class="mb-8">
             <h3 class="text-xs font-bold text-lime-400 mb-3 uppercase tracking-wider">Now Reading</h3>
-            <div class="flex gap-3 bg-zinc-800/50 p-3 rounded-xl border border-zinc-700 mb-4">
+
+            <!-- 책이 있을 때 -->
+            <div v-if="currentBook" class="flex gap-3 bg-zinc-800/50 p-3 rounded-xl border border-zinc-700 mb-4">
               <img :src="bookCover" class="w-12 h-16 object-cover rounded bg-zinc-700" />
               <div>
                 <div class="font-bold text-zinc-200 text-sm">{{ bookTitle }}</div>
@@ -90,10 +115,23 @@
               </div>
             </div>
 
-            <!-- Chapter Navigation (New) -->
-            <div class="space-y-1 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
-              <button 
-                v-for="(chapter, index) in toc" 
+            <!-- 책이 없을 때 Empty State -->
+            <div v-else class="flex flex-col items-center justify-center p-6 bg-zinc-800/30 rounded-xl border border-dashed border-zinc-700 mb-4">
+              <div class="text-4xl mb-3">📚</div>
+              <p class="text-sm text-zinc-400 text-center mb-4">아직 읽고 있는 책이 없어요</p>
+              <button
+                @click="openSearchModal"
+                class="px-4 py-2 bg-lime-400 text-black text-xs font-bold rounded-lg hover:bg-lime-300 transition-colors flex items-center gap-1"
+              >
+                <Plus :size="14" />
+                책 시작하기
+              </button>
+            </div>
+
+            <!-- Chapter Navigation (책이 있을 때만 표시) -->
+            <div v-if="currentBook && toc.length > 0" class="space-y-1 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
+              <button
+                v-for="(chapter, index) in toc"
                 :key="index"
                 @click="jumpToChapter(chapter.start)"
                 class="w-full text-left px-3 py-2 rounded-lg text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors flex justify-between items-center group"
@@ -156,14 +194,17 @@
           <div class="space-y-6 flex-1">
             <div>
               <label class="block text-xs font-bold text-zinc-500 mb-2 uppercase">그룹 이름</label>
-              <div class="flex gap-2">
-                <input 
-                  v-model="editingGroupName" 
-                  type="text" 
-                  class="flex-1 bg-zinc-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
-                />
-                <button @click="saveGroupName" class="bg-lime-400 text-black px-4 rounded-xl font-bold hover:bg-lime-300">저장</button>
-              </div>
+              <input
+                v-model="editingGroupName"
+                type="text"
+                class="w-full bg-zinc-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400 mb-3"
+              />
+              <button
+                @click="saveGroupName"
+                class="w-full bg-lime-400 text-black py-2.5 rounded-xl font-bold hover:bg-lime-300 transition-colors text-sm"
+              >
+                그룹 이름 저장
+              </button>
             </div>
 
             <div>
@@ -215,7 +256,18 @@
             </div>
           </div>
 
-          <div class="mt-auto pt-6 border-t border-zinc-800">
+          <div class="mt-auto pt-6 border-t border-zinc-800 space-y-3">
+            <!-- 그룹 삭제 (관리자만) -->
+            <button
+              v-if="isAdmin"
+              @click="deleteGroup"
+              class="w-full py-3 text-red-500 bg-red-500/10 rounded-xl font-bold hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2 border border-red-500/20"
+            >
+              <X :size="16" />
+              그룹 영구 삭제
+            </button>
+
+            <!-- 그룹 나가기 -->
             <button
               @click="leaveGroup"
               class="w-full py-3 text-red-400 bg-red-400/10 rounded-xl font-medium hover:bg-red-400/20 transition-colors flex items-center justify-center gap-2"
@@ -264,6 +316,7 @@ definePageMeta({
 })
 
 const route = useRoute()
+const router = useRouter()
 const userStore = useUserStore()
 const client = useSupabaseClient()
 
@@ -294,8 +347,14 @@ const bookTitle = computed(() => currentBook.value?.book?.title || 'No Book Sele
 const bookAuthor = computed(() => currentBook.value?.book?.author || '')
 const bookCover = computed(() => currentBook.value?.book?.cover_url || '')
 const toc = computed(() => currentBook.value?.toc_snapshot || []) // Use snapshot or default
-const currentUserId = computed(() => userStore.user?.id)
-const isAdmin = computed(() => members.value.find(m => m.id === currentUserId.value)?.role === 'admin')
+const currentUserId = computed(() => userStore.profile?.id)
+const isAdmin = computed(() => {
+  const userId = currentUserId.value
+  if (!userId) return false
+  const member = members.value.find(m => m.id === userId)
+  console.log('[Group] isAdmin check:', { userId, member, role: member?.role })
+  return member?.role === 'admin'
+})
 const editingGroupName = ref('')
 
 // Fetch Data
@@ -412,11 +471,11 @@ const handleWrite = () => {
 }
 
 const submitComment = async () => {
-  if (!newCommentContent.value.trim() || !currentBook.value) return
+  if (!newCommentContent.value.trim() || !currentBook.value || !currentUserId.value) return
 
   const { error } = await client.from('comments').insert({
     group_book_id: currentBook.value.id,
-    user_id: userStore.user.id,
+    user_id: currentUserId.value,
     content: newCommentContent.value,
     position_pct: viewProgress.value, // Comment at current view position
     anchor_text: null // MVP: No text selection yet
@@ -434,11 +493,13 @@ const handleReviewSubmit = async (data: any) => {
   if (!currentBook.value || !userStore.user) return
 
   try {
+    if (!currentUserId.value) return
+
     // Upsert review (insert or update)
     const { error } = await client
       .from('reviews')
       .upsert({
-        user_id: userStore.user.id,
+        user_id: currentUserId.value,
         book_id: currentBook.value.isbn, // ISBN is the book_id
         rating: data.rating,
         content: data.content
@@ -540,10 +601,34 @@ const handleBookAdd = async (data: any) => {
 }
 
 const saveGroupName = async () => {
-  const { error } = await client.from('groups').update({ name: editingGroupName.value }).eq('id', groupId)
-  if (!error) {
-    group.value.name = editingGroupName.value
+  if (!editingGroupName.value.trim()) {
+    alert('그룹 이름을 입력해주세요.')
+    return
+  }
+
+  if (editingGroupName.value.trim().length < 2) {
+    alert('그룹 이름은 2글자 이상이어야 합니다.')
+    return
+  }
+
+  try {
+    const { error } = await client
+      .from('groups')
+      .update({ name: editingGroupName.value.trim() })
+      .eq('id', groupId)
+
+    if (error) {
+      console.error('Group name update error:', error)
+      alert('그룹 이름 변경에 실패했습니다: ' + error.message)
+      return
+    }
+
+    group.value.name = editingGroupName.value.trim()
+    alert('그룹 이름이 변경되었습니다!')
     showSettings.value = false
+  } catch (err) {
+    console.error('Unexpected error:', err)
+    alert('예상치 못한 오류가 발생했습니다.')
   }
 }
 
@@ -617,11 +702,13 @@ const isCurrentChapter = (chapter: any) => {
 const openReviewModalForEdit = async (book: any) => {
   if (!userStore.user) return
 
+  if (!currentUserId.value) return
+
   // Fetch existing review
   const { data: existingReview } = await client
     .from('reviews')
     .select('*')
-    .eq('user_id', userStore.user.id)
+    .eq('user_id', currentUserId.value)
     .eq('book_id', book.id)
     .maybeSingle()
 
@@ -633,12 +720,59 @@ const openReviewModalForEdit = async (book: any) => {
   drawerOpen.value = false
 }
 
+const deleteGroup = async () => {
+  if (!isAdmin.value) {
+    alert('관리자만 그룹을 삭제할 수 있습니다.')
+    return
+  }
+
+  // 멤버 수 확인
+  const memberCount = members.value.length
+
+  // 첫 번째 확인
+  const confirmMsg = memberCount > 1
+    ? `이 그룹에는 ${memberCount}명의 멤버가 있습니다.\n그룹을 삭제하면 모든 데이터(책, 댓글, 리뷰 등)가 영구적으로 삭제됩니다.\n\n정말로 삭제하시겠습니까?`
+    : `그룹을 삭제하면 모든 데이터가 영구적으로 삭제됩니다.\n\n정말로 삭제하시겠습니까?`
+
+  if (!confirm(confirmMsg)) return
+
+  // 두 번째 확인 (안전장치)
+  const groupNameToConfirm = group.value?.name || ''
+  const userInput = prompt(`정말로 삭제하려면 그룹 이름을 입력하세요:\n\n"${groupNameToConfirm}"`)
+
+  if (userInput !== groupNameToConfirm) {
+    alert('그룹 이름이 일치하지 않습니다. 삭제가 취소되었습니다.')
+    return
+  }
+
+  try {
+    console.log('[Group] Deleting group:', groupId)
+
+    const { error } = await client
+      .from('groups')
+      .delete()
+      .eq('id', groupId)
+
+    if (error) {
+      console.error('Group delete error:', error)
+      alert('그룹 삭제에 실패했습니다: ' + error.message)
+      return
+    }
+
+    alert('그룹이 삭제되었습니다.')
+    router.push('/')
+  } catch (err) {
+    console.error('Unexpected error:', err)
+    alert('예상치 못한 오류가 발생했습니다.')
+  }
+}
+
 const leaveGroup = async () => {
-  if (!userStore.user) return
+  if (!currentUserId.value) return
 
   // Check if user is the only admin
   const admins = members.value.filter(m => m.role === 'admin')
-  if (admins.length === 1 && admins[0].id === userStore.user.id) {
+  if (admins.length === 1 && admins[0].id === currentUserId.value) {
     alert('그룹의 유일한 관리자입니다. 다른 멤버를 관리자로 지정한 후 나가주세요.')
     return
   }
@@ -650,7 +784,7 @@ const leaveGroup = async () => {
       .from('group_members')
       .delete()
       .eq('group_id', groupId)
-      .eq('user_id', userStore.user.id)
+      .eq('user_id', currentUserId.value)
 
     if (error) throw error
 

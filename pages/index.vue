@@ -23,9 +23,9 @@
     </header>
 
     <!-- Group List -->
-    <div class="space-y-4">
-      <div 
-        v-for="group in groups" 
+    <div v-if="groups.length > 0" class="space-y-4">
+      <div
+        v-for="group in groups"
         :key="group.id"
         @click="router.push(`/group/${group.id}`)"
         class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800 active:scale-[0.98] transition-transform cursor-pointer"
@@ -55,6 +55,22 @@
           <span class="text-sm text-zinc-500">지금은 휴식 중입니다 💤</span>
         </div>
       </div>
+    </div>
+
+    <!-- Empty State: No Groups -->
+    <div v-else class="flex flex-col items-center justify-center min-h-[50vh] px-4">
+      <div class="text-6xl mb-4">👥</div>
+      <h2 class="text-xl font-bold text-white mb-2">첫 그룹을 만들어보세요!</h2>
+      <p class="text-sm text-zinc-400 text-center mb-6 max-w-xs">
+        친구들과 함께 책을 읽고<br />생각을 나눌 수 있는 공간을 만들어보세요
+      </p>
+      <button
+        @click="createGroupModalOpen = true"
+        class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-colors flex items-center gap-2"
+      >
+        <Plus :size="20" />
+        첫 그룹 만들기
+      </button>
     </div>
 
     <!-- FAB: Create Group -->
