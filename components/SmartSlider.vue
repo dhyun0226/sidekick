@@ -1,11 +1,11 @@
 <template>
-  <div class="fixed bottom-0 left-0 right-0 z-50">
+  <div class="fixed bottom-0 left-0 right-0 z-50 overflow-visible">
     <!-- Glassmorphism Container -->
-    <div class="max-w-[480px] mx-auto bg-black/80 backdrop-blur-md border-t border-zinc-800 pb-safe">
+    <div class="max-w-[480px] mx-auto bg-black/80 backdrop-blur-md border-t border-zinc-800 pb-safe overflow-visible">
       
       <!-- Slider Area -->
-      <div 
-        class="relative h-16 w-full cursor-pointer touch-none select-none"
+      <div
+        class="relative h-16 w-full cursor-pointer touch-none select-none overflow-visible"
         @pointerdown="handlePointerDown"
         @pointermove="handlePointerMove"
         @pointerup="handlePointerUp"
@@ -50,10 +50,10 @@
         </div>
 
         <!-- Tooltip (Visible on Drag) -->
-        <div 
+        <div
           v-if="isDragging"
-          class="absolute -top-12 -translate-x-1/2 bg-zinc-800 text-zinc-100 px-3 py-1.5 rounded-lg text-xs font-medium shadow-xl border border-zinc-700 whitespace-nowrap pointer-events-none animate-fade-in-up"
-          :style="{ left: `${currentPct}%` }"
+          class="absolute -top-12 bg-zinc-800 text-zinc-100 px-3 py-1.5 rounded-lg text-xs font-medium shadow-xl border border-zinc-700 whitespace-nowrap pointer-events-none animate-fade-in-up"
+          :style="tooltipPositionStyle"
         >
           <span class="text-lime-400 mr-1">{{ Math.round(currentPct) }}%</span>
           {{ currentChapterName }}
@@ -119,8 +119,54 @@ const currentPct = computed(() => isDragging.value ? localPct.value : props.mode
 
 const currentChapterName = computed(() => {
   const pct = currentPct.value
-  const found = chapters.value.find(c => pct >= c.start && pct < c.end)
+
+  // Find chapter where pct is within range
+  const found = chapters.value.find((c, index) => {
+    const isLast = index === chapters.value.length - 1
+    // For last chapter, include the end point
+    if (isLast) {
+      return pct >= c.start && pct <= c.end
+    } else {
+      return pct >= c.start && pct < c.end
+    }
+  })
+
+  // If no chapter found and we're before the first chapter, show first chapter name
+  if (!found && chapters.value.length > 0) {
+    if (pct < chapters.value[0].start) {
+      return chapters.value[0].title
+    }
+  }
+
   return found ? found.title : 'End'
+})
+
+// Dynamic tooltip positioning to prevent clipping at edges
+const tooltipPositionStyle = computed(() => {
+  const pct = currentPct.value
+
+  if (pct < 10) {
+    // Left edge: anchor to left side, no transform
+    return {
+      left: `${pct}%`,
+      transform: 'translateX(0)',
+      right: 'auto'
+    }
+  } else if (pct > 90) {
+    // Right edge: anchor to right side instead of left
+    return {
+      right: `${100 - pct}%`,
+      transform: 'translateX(0)',
+      left: 'auto'
+    }
+  } else {
+    // Middle: centered
+    return {
+      left: `${pct}%`,
+      transform: 'translateX(-50%)',
+      right: 'auto'
+    }
+  }
 })
 
 const updatePosition = (event: PointerEvent) => {

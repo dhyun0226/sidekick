@@ -87,13 +87,81 @@
           </div>
         </div>
 
-        <button 
-          @click="confirmBook"
-          class="w-full bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          :disabled="!totalPages || totalPages <= 0"
-        >
-          책장에 추가하기
-        </button>
+        <div class="flex gap-3">
+          <button
+            @click="step = 1"
+            class="flex-1 bg-zinc-800 text-white font-medium py-4 rounded-xl hover:bg-zinc-700 transition-colors"
+          >
+            ← 이전
+          </button>
+          <button
+            @click="goToStep3"
+            class="flex-1 bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="!totalPages || totalPages <= 0"
+          >
+            다음 →
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Date Selection -->
+      <div v-if="step === 3 && selectedBook" class="space-y-6">
+        <div class="flex gap-4 items-center p-4 bg-zinc-800/50 rounded-xl">
+          <img :src="selectedBook.cover" class="w-12 h-16 object-cover rounded" />
+          <div>
+            <h3 class="font-bold text-zinc-200 text-sm">{{ selectedBook.title }}</h3>
+            <p class="text-xs text-zinc-400">{{ selectedBook.author }}</p>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <div class="text-3xl mb-2">📅</div>
+          <h3 class="text-lg font-bold text-zinc-100 mb-1">독서 기간 설정</h3>
+          <p class="text-xs text-zinc-500">함께 읽을 기간을 정해보세요</p>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-zinc-400 mb-2">시작일</label>
+            <input
+              v-model="startDate"
+              type="date"
+              class="w-full bg-zinc-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-zinc-400 mb-2">종료일 (목표)</label>
+            <input
+              v-model="endDate"
+              type="date"
+              :min="startDate"
+              class="w-full bg-zinc-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+            />
+          </div>
+
+          <div v-if="startDate && endDate" class="p-3 bg-lime-400/10 border border-lime-400/30 rounded-lg">
+            <p class="text-sm text-lime-400 text-center">
+              💡 {{ calculateDays() }}일 독서 계획
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            @click="step = 2"
+            class="flex-1 bg-zinc-800 text-white font-medium py-4 rounded-xl hover:bg-zinc-700 transition-colors"
+          >
+            ← 이전
+          </button>
+          <button
+            @click="confirmBook"
+            class="flex-1 bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="!startDate || !endDate"
+          >
+            시작하기! 🚀
+          </button>
+        </div>
       </div>
 
     </div>
@@ -122,6 +190,21 @@ const chapters = ref<{ title: string; startPage: number }[]>([
 const currentStart = ref(1)
 const hasMore = ref(false)
 
+// Step 3: Date selection - Initialize with default dates
+const getDefaultDates = () => {
+  const today = new Date()
+  const monthLater = new Date(today)
+  monthLater.setMonth(monthLater.getMonth() + 1)
+  return {
+    start: today.toISOString().split('T')[0],
+    end: monthLater.toISOString().split('T')[0]
+  }
+}
+
+const defaults = getDefaultDates()
+const startDate = ref(defaults.start)
+const endDate = ref(defaults.end)
+
 const close = () => {
   emit('close')
   reset()
@@ -136,6 +219,11 @@ const reset = () => {
   chapters.value = [{ title: 'Chapter 1', startPage: 1 }]
   currentStart.value = 1
   hasMore.value = false
+
+  // Reset dates to defaults (today + 1 month)
+  const newDefaults = getDefaultDates()
+  startDate.value = newDefaults.start
+  endDate.value = newDefaults.end
 }
 
 const { searchBooks: searchBooksAPI } = useBookSearch()
@@ -194,9 +282,23 @@ const removeChapter = (idx: number) => {
   chapters.value.splice(idx, 1)
 }
 
+const goToStep3 = () => {
+  if (!totalPages.value || totalPages.value <= 0) return
+  step.value = 3
+}
+
+const calculateDays = () => {
+  if (!startDate.value || !endDate.value) return 0
+  const start = new Date(startDate.value)
+  const end = new Date(endDate.value)
+  const diffTime = Math.abs(end.getTime() - start.getTime())
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return diffDays
+}
+
 const confirmBook = () => {
   if (!totalPages.value) return
-  
+
   // Convert pages to %
   const toc = chapters.value.map((c, i) => {
     const nextStart = chapters.value[i + 1]?.startPage || totalPages.value!
@@ -212,7 +314,9 @@ const confirmBook = () => {
   emit('confirm', {
     book: selectedBook.value,
     totalPages: totalPages.value,
-    toc
+    toc,
+    startDate: startDate.value,
+    endDate: endDate.value
   })
   close()
 }

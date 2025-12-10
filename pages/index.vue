@@ -44,8 +44,23 @@
             <span class="text-xs text-lime-400 font-medium mb-1">Currently Reading</span>
             <h3 class="font-bold text-zinc-200 line-clamp-1">{{ group.currentBook.title }}</h3>
             <p class="text-xs text-zinc-400">{{ group.currentBook.author }}</p>
-            <div class="mt-2 text-xs text-zinc-500">
-              D+{{ getDaysSince(group.currentBook.created_at) }}
+            <div class="mt-2 text-xs flex items-center gap-1">
+              <span v-if="group.currentBook.target_end_date"
+                class="font-bold"
+                :class="{
+                  'text-red-400': getDaysRemaining(group.currentBook.target_end_date) <= 7 && getDaysRemaining(group.currentBook.target_end_date) > 0,
+                  'text-orange-400': getDaysRemaining(group.currentBook.target_end_date) > 7 && getDaysRemaining(group.currentBook.target_end_date) <= 14,
+                  'text-lime-400': getDaysRemaining(group.currentBook.target_end_date) > 14,
+                  'text-red-500': getDaysRemaining(group.currentBook.target_end_date) <= 0
+                }"
+              >
+                {{ getDaysRemaining(group.currentBook.target_end_date) > 0 ? `D-${getDaysRemaining(group.currentBook.target_end_date)}` : getDaysRemaining(group.currentBook.target_end_date) === 0 ? 'D-Day!' : `D+${Math.abs(getDaysRemaining(group.currentBook.target_end_date))}` }}
+              </span>
+              <span v-if="group.currentBook.target_end_date" class="text-zinc-600">·</span>
+              <span v-if="group.currentBook.target_end_date" class="text-zinc-500">
+                {{ formatTargetDate(group.currentBook.target_end_date) }}까지
+              </span>
+              <span v-else class="text-zinc-500">D+{{ getDaysSince(group.currentBook.created_at) }}</span>
             </div>
           </div>
         </div>
@@ -141,6 +156,8 @@ const fetchGroups = async () => {
           .from('group_books')
           .select(`
             created_at,
+            target_start_date,
+            target_end_date,
             books (
               title,
               author,
@@ -163,7 +180,9 @@ const fetchGroups = async () => {
           members: { length: count || 0 }, // Mocking array structure for template compatibility
           currentBook: bookData ? {
             ...bookData.books,
-            created_at: bookData.created_at
+            created_at: bookData.created_at,
+            target_start_date: bookData.target_start_date,
+            target_end_date: bookData.target_end_date
           } : null
         }
       })
@@ -193,6 +212,21 @@ const getDaysSince = (dateStr: string) => {
   const now = new Date().getTime()
   const diff = now - start
   return Math.floor(diff / (1000 * 60 * 60 * 24))
+}
+
+const formatTargetDate = (dateStr: string) => {
+  const date = new Date(dateStr)
+  const year = date.getFullYear() % 100
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  return `${year}.${month}.${day}`
+}
+
+const getDaysRemaining = (targetDateStr: string) => {
+  const target = new Date(targetDateStr).getTime()
+  const now = new Date().getTime()
+  const diff = target - now
+  return Math.ceil(diff / (1000 * 60 * 60 * 24))
 }
 
 const handleGroupCreated = async (newGroup: any) => {

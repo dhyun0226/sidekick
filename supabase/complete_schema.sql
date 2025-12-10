@@ -38,6 +38,7 @@ drop policy if exists "Authenticated users can update books." on public.books;
 drop policy if exists "Group Books viewable by members." on public.group_books;
 drop policy if exists "Group members can add books." on public.group_books;
 drop policy if exists "Group members can update books." on public.group_books;
+drop policy if exists "Admins can delete group books" on public.group_books;
 
 drop policy if exists "Comments viewable by group members." on public.comments;
 drop policy if exists "Group members can comment." on public.comments;
@@ -58,7 +59,12 @@ drop policy if exists "System/Users can insert notifications." on public.notific
 drop policy if exists "Users can update own notifications (mark read)." on public.notifications;
 drop policy if exists "Users can delete own notifications." on public.notifications;
 
+drop policy if exists "Users can view all progress in their groups" on public.user_reading_progress;
+drop policy if exists "Users can insert own progress" on public.user_reading_progress;
+drop policy if exists "Users can update own progress" on public.user_reading_progress;
+
 drop table if exists public.notifications cascade;
+drop table if exists public.user_reading_progress cascade;
 drop table if exists public.reactions cascade;
 drop table if exists public.reviews cascade;
 drop table if exists public.comments cascade;
@@ -71,6 +77,7 @@ drop table if exists public.users cascade;
 drop function if exists public.handle_new_user() cascade;
 drop function if exists public.create_notification_on_comment_reply() cascade;
 drop function if exists public.create_notification_on_reaction() cascade;
+drop function if exists public.update_updated_at_column() cascade;
 
 -- =============================================
 -- 3. TABLES
@@ -128,6 +135,8 @@ create table public.group_books (
   status text check (status in ('reading', 'done')) default 'reading' not null,
   started_at timestamp with time zone default timezone('utc'::text, now()) not null,
   finished_at timestamp with time zone,
+  target_start_date date, -- Group reading start goal
+  target_end_date date, -- Group reading end goal
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -145,7 +154,20 @@ create table public.comments (
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- 3.7 Reactions (Likes, etc.)
+-- 3.7 User Reading Progress (Individual Progress Tracking)
+create table public.user_reading_progress (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.users(id) on delete cascade not null,
+  group_book_id uuid references public.group_books(id) on delete cascade not null,
+  progress_pct float not null default 0 check (progress_pct >= 0 and progress_pct <= 100),
+  last_read_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  finished_at timestamp with time zone, -- When user finished reading (100%)
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  unique(user_id, group_book_id)
+);
+
+-- 3.8 Reactions (Likes, etc.)
 create table public.reactions (
   id uuid default uuid_generate_v4() primary key,
   user_id uuid references public.users(id) on delete cascade not null,
@@ -155,7 +177,7 @@ create table public.reactions (
   unique(user_id, comment_id, type)
 );
 
--- 3.8 Reviews (Star Rating & Content)
+-- 3.9 Reviews (Star Rating & Content)
 create table public.reviews (
   id uuid default uuid_generate_v4() primary key,
   user_id uuid references public.users(id) on delete cascade not null,
@@ -167,7 +189,7 @@ create table public.reviews (
   unique(user_id, book_id)
 );
 
--- 3.9 Notifications
+-- 3.10 Notifications
 create table public.notifications (
   id uuid default uuid_generate_v4() primary key,
   user_id uuid references public.users(id) on delete cascade not null, -- Receiver
@@ -210,6 +232,9 @@ create index idx_comments_group_book on public.comments(group_book_id);
 create index idx_comments_user on public.comments(user_id);
 create index idx_comments_parent on public.comments(parent_id);
 create index idx_comments_position on public.comments(position_pct);
+
+-- User Reading Progress
+create index idx_user_reading_progress_user_book on public.user_reading_progress(user_id, group_book_id);
 
 -- Reactions
 create index idx_reactions_comment on public.reactions(comment_id);
@@ -360,6 +385,9 @@ create trigger update_group_books_updated_at before update on public.group_books
 create trigger update_comments_updated_at before update on public.comments
   for each row execute procedure public.update_updated_at_column();
 
+create trigger update_user_reading_progress_updated_at before update on public.user_reading_progress
+  for each row execute procedure public.update_updated_at_column();
+
 create trigger update_reviews_updated_at before update on public.reviews
   for each row execute procedure public.update_updated_at_column();
 
@@ -374,6 +402,7 @@ alter table public.group_members enable row level security;
 alter table public.books enable row level security;
 alter table public.group_books enable row level security;
 alter table public.comments enable row level security;
+alter table public.user_reading_progress enable row level security;
 alter table public.reactions enable row level security;
 alter table public.reviews enable row level security;
 alter table public.notifications enable row level security;
@@ -567,6 +596,18 @@ create policy "Group members can update books."
     )
   );
 
+-- Admins can delete group books
+create policy "Admins can delete group books"
+  on public.group_books for delete
+  using (
+    exists (
+      select 1 from public.group_members gm
+      where gm.group_id = group_books.group_id
+        and gm.user_id = auth.uid()
+        and gm.role = 'admin'
+    )
+  );
+
 -- =============================================
 -- 6.6 COMMENTS POLICIES
 -- =============================================
@@ -608,7 +649,34 @@ create policy "Users can delete own comments."
   using (auth.uid() = user_id);
 
 -- =============================================
--- 6.7 REACTIONS POLICIES
+-- 6.7 USER READING PROGRESS POLICIES
+-- =============================================
+
+-- Group members can view all progress in their groups
+create policy "Users can view all progress in their groups."
+  on public.user_reading_progress for select
+  using (
+    exists (
+      select 1 from public.group_books gb
+      join public.group_members gm on gb.group_id = gm.group_id
+      where gb.id = user_reading_progress.group_book_id
+        and gm.user_id = auth.uid()
+    )
+  );
+
+-- Users can insert their own progress
+create policy "Users can insert own progress."
+  on public.user_reading_progress for insert
+  with check (auth.uid() = user_id);
+
+-- Users can update their own progress
+create policy "Users can update own progress."
+  on public.user_reading_progress for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- =============================================
+-- 6.8 REACTIONS POLICIES
 -- =============================================
 
 -- Group members can view reactions
@@ -644,7 +712,7 @@ create policy "Users can remove own reactions."
   using (auth.uid() = user_id);
 
 -- =============================================
--- 6.8 REVIEWS POLICIES
+-- 6.9 REVIEWS POLICIES
 -- =============================================
 
 -- Anyone can view reviews
@@ -672,7 +740,7 @@ create policy "Users can delete own reviews."
   using (auth.uid() = user_id);
 
 -- =============================================
--- 6.9 NOTIFICATIONS POLICIES
+-- 6.10 NOTIFICATIONS POLICIES
 -- =============================================
 
 -- Users can only view their own notifications
