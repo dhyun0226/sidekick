@@ -45,6 +45,7 @@
         :comments="comments"
         :readProgress="readProgress"
         :viewProgress="viewProgress"
+        :currentUserId="currentUserId"
         @modalOpen="commentModalOpen = true"
         @modalClose="commentModalOpen = false"
         @writeComment="handleWriteFromModal"
@@ -874,7 +875,7 @@ const fetchData = async () => {
 const fetchComments = async (groupBookId: string) => {
   const { data } = await client
     .from('comments')
-    .select('*, user:users(*)')
+    .select('id, user_id, content, anchor_text, position_pct, created_at, parent_id, group_book_id, user:users(*)')
     .eq('group_book_id', groupBookId)
     .order('position_pct', { ascending: true })
     .order('created_at', { ascending: true })
@@ -965,12 +966,13 @@ const saveProgress = async (progress: number) => {
   }
 
   try {
-    const finishedAt = progress >= 100 ? new Date().toISOString() : null
+    const roundedProgress = Math.round(progress)
+    const finishedAt = roundedProgress >= 100 ? new Date().toISOString() : null
 
     console.log('Saving progress:', {
       user_id: currentUserId.value,
       group_book_id: currentBook.value.id,
-      progress_pct: progress
+      progress_pct: roundedProgress
     })
 
     const { data, error } = await client
@@ -978,7 +980,7 @@ const saveProgress = async (progress: number) => {
       .upsert({
         user_id: currentUserId.value,
         group_book_id: currentBook.value.id,
-        progress_pct: progress,
+        progress_pct: roundedProgress,
         last_read_at: new Date().toISOString(),
         finished_at: finishedAt
       }, {
@@ -1065,9 +1067,9 @@ const submitComment = async () => {
     group_book_id: currentBook.value.id,
     user_id: currentUserId.value,
     content: newCommentContent.value.trim(),
-    position_pct: viewProgress.value,
+    position_pct: Math.round(viewProgress.value),
     anchor_text: newAnchorText.value.trim() || null
-  }).select('*, user:users(*)').single()
+  }).select('id, user_id, content, anchor_text, position_pct, created_at, parent_id, group_book_id, user:users(*)').single()
 
   if (error) {
     alert('댓글 작성 실패: ' + error.message)

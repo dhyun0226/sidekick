@@ -45,13 +45,37 @@
             <span class="text-[10px] text-zinc-600">{{ formatDate(comment.created_at) }}</span>
           </div>
 
-          <!-- Content -->
-          <div class="rounded-xl bg-zinc-900 text-zinc-200 text-sm leading-relaxed mb-2">
+          <!-- Content (View Mode) -->
+          <div v-if="editingCommentId !== comment.id" class="rounded-xl bg-zinc-900 text-zinc-200 text-sm leading-relaxed mb-2">
             {{ comment.content }}
           </div>
 
-          <!-- Actions (Like & Reply) -->
-          <div class="flex items-center gap-4">
+          <!-- Content (Edit Mode) -->
+          <div v-else class="mb-2">
+            <textarea
+              v-model="editContent"
+              class="w-full bg-zinc-800 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400 resize-none"
+              rows="3"
+              @keydown.esc="cancelEdit"
+            ></textarea>
+            <div class="flex gap-2 mt-2">
+              <button
+                @click="saveEdit(comment.id)"
+                class="px-3 py-1 bg-lime-400 text-black text-xs font-medium rounded-lg hover:bg-lime-300"
+              >
+                저장
+              </button>
+              <button
+                @click="cancelEdit"
+                class="px-3 py-1 bg-zinc-700 text-white text-xs font-medium rounded-lg hover:bg-zinc-600"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+
+          <!-- Actions (Like & Reply & Edit & Delete) -->
+          <div v-if="editingCommentId !== comment.id" class="flex items-center gap-4">
             <button
               @click.stop="toggleLike(comment.id)"
               class="flex items-center gap-1 text-xs text-zinc-500 hover:text-red-400 transition-colors"
@@ -67,6 +91,24 @@
             >
               <MessageCircle :size="14" />
               <span>답글</span>
+            </button>
+
+            <button
+              v-if="isOwnComment(comment)"
+              @click.stop="startEdit(comment)"
+              class="flex items-center gap-1 text-xs text-zinc-500 hover:text-blue-400 transition-colors"
+            >
+              <Edit2 :size="14" />
+              <span>수정</span>
+            </button>
+
+            <button
+              v-if="isOwnComment(comment)"
+              @click.stop="confirmDelete(comment.id)"
+              class="flex items-center gap-1 text-xs text-zinc-500 hover:text-red-400 transition-colors"
+            >
+              <Trash2 :size="14" />
+              <span>삭제</span>
             </button>
           </div>
 
@@ -85,13 +127,57 @@
           </div>
 
           <!-- Nested Replies -->
-          <div v-if="comment.replies && comment.replies.length > 0" class="mt-3 ml-4 space-y-2 border-l-2 border-zinc-800 pl-3">
+          <div v-if="comment.replies && comment.replies.length > 0" class="mt-3 ml-4 space-y-3 border-l-2 border-zinc-800 pl-3">
             <div v-for="reply in comment.replies" :key="reply.id" class="text-sm">
               <div class="flex items-center gap-2 mb-1">
                 <span class="text-xs text-zinc-400 font-bold">{{ reply.user.nickname }}</span>
                 <span class="text-[10px] text-zinc-600">{{ formatDate(reply.created_at) }}</span>
               </div>
-              <p class="text-zinc-300 text-xs">{{ reply.content }}</p>
+
+              <!-- Reply Content (View Mode) -->
+              <p v-if="editingReplyId !== reply.id" class="text-zinc-300 text-xs mb-1">{{ reply.content }}</p>
+
+              <!-- Reply Content (Edit Mode) -->
+              <div v-else class="mb-2">
+                <textarea
+                  v-model="editReplyContent"
+                  class="w-full bg-zinc-800 text-white text-xs rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400 resize-none"
+                  rows="2"
+                  @keydown.esc="cancelReplyEdit"
+                ></textarea>
+                <div class="flex gap-2 mt-2">
+                  <button
+                    @click="saveReplyEdit(reply.id)"
+                    class="px-2 py-1 bg-lime-400 text-black text-[10px] font-medium rounded hover:bg-lime-300"
+                  >
+                    저장
+                  </button>
+                  <button
+                    @click="cancelReplyEdit"
+                    class="px-2 py-1 bg-zinc-700 text-white text-[10px] font-medium rounded hover:bg-zinc-600"
+                  >
+                    취소
+                  </button>
+                </div>
+              </div>
+
+              <!-- Reply Actions -->
+              <div v-if="editingReplyId !== reply.id && isOwnReply(reply)" class="flex items-center gap-3 mt-1">
+                <button
+                  @click="startReplyEdit(reply)"
+                  class="flex items-center gap-1 text-[10px] text-zinc-500 hover:text-blue-400 transition-colors"
+                >
+                  <Edit2 :size="12" />
+                  <span>수정</span>
+                </button>
+                <button
+                  @click="confirmDeleteReply(reply.id)"
+                  class="flex items-center gap-1 text-[10px] text-zinc-500 hover:text-red-400 transition-colors"
+                >
+                  <Trash2 :size="12" />
+                  <span>삭제</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -116,7 +202,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { ChevronLeft, Heart, MessageCircle, Send, PenLine } from 'lucide-vue-next'
+import { ChevronLeft, Heart, MessageCircle, Send, PenLine, Edit2, Trash2 } from 'lucide-vue-next'
 
 interface User {
   nickname: string
@@ -126,6 +212,7 @@ interface User {
 interface Reply {
   id: string
   user: User
+  user_id: string
   content: string
   created_at: string
 }
@@ -133,6 +220,7 @@ interface Reply {
 interface Comment {
   id: string
   user: User
+  user_id: string
   content: string
   position_pct: number
   created_at: string
@@ -147,12 +235,19 @@ const props = defineProps<{
   anchorText: string
   position: number
   comments: Comment[]
+  currentUserId: string | null
 }>()
 
 const emit = defineEmits(['close', 'writeComment'])
 
 const activeReplyId = ref<string | null>(null)
 const replyContent = ref('')
+
+// Edit state
+const editingCommentId = ref<string | null>(null)
+const editingReplyId = ref<string | null>(null)
+const editContent = ref('')
+const editReplyContent = ref('')
 
 const client = useSupabaseClient()
 
@@ -235,7 +330,7 @@ const submitReply = async (parentId: string) => {
         user_id: currentUser.id,
         parent_id: parentId,
         content: replyContent.value,
-        position_pct: parentComment.position_pct
+        position_pct: Math.round(parentComment.position_pct)
       })
       .select('*, user:users(*)')
       .single()
@@ -250,6 +345,7 @@ const submitReply = async (parentId: string) => {
     parentComment.replies.push({
       id: newReply.id,
       user: newReply.user,
+      user_id: currentUser.id,
       content: newReply.content,
       created_at: newReply.created_at
     })
@@ -274,6 +370,156 @@ const handleWriteComment = () => {
 
 const formatDate = (dateStr: string) => {
   return new Date(dateStr).toLocaleDateString()
+}
+
+// Permission checks
+const isOwnComment = (comment: Comment) => {
+  return props.currentUserId && props.currentUserId === comment.user_id
+}
+
+const isOwnReply = (reply: Reply) => {
+  return props.currentUserId && props.currentUserId === reply.user_id
+}
+
+// Comment edit functions
+const startEdit = (comment: Comment) => {
+  editingCommentId.value = comment.id
+  editContent.value = comment.content
+}
+
+const saveEdit = async (commentId: string) => {
+  if (!editContent.value.trim()) return
+
+  try {
+    const { error } = await client
+      .from('comments')
+      .update({ content: editContent.value })
+      .eq('id', commentId)
+
+    if (error) {
+      console.error('Comment update error:', error)
+      throw error
+    }
+
+    // Update local state
+    const comment = props.comments.find(c => c.id === commentId)
+    if (comment) {
+      comment.content = editContent.value
+    }
+
+    // Exit edit mode
+    editingCommentId.value = null
+    editContent.value = ''
+  } catch (error) {
+    console.error('Save edit error:', error)
+    alert('댓글 수정에 실패했습니다.')
+  }
+}
+
+const cancelEdit = () => {
+  editingCommentId.value = null
+  editContent.value = ''
+}
+
+// Reply edit functions
+const startReplyEdit = (reply: Reply) => {
+  editingReplyId.value = reply.id
+  editReplyContent.value = reply.content
+}
+
+const saveReplyEdit = async (replyId: string) => {
+  if (!editReplyContent.value.trim()) return
+
+  try {
+    const { error } = await client
+      .from('comments')
+      .update({ content: editReplyContent.value })
+      .eq('id', replyId)
+
+    if (error) {
+      console.error('Reply update error:', error)
+      throw error
+    }
+
+    // Update local state
+    for (const comment of props.comments) {
+      if (comment.replies) {
+        const reply = comment.replies.find(r => r.id === replyId)
+        if (reply) {
+          reply.content = editReplyContent.value
+          break
+        }
+      }
+    }
+
+    // Exit edit mode
+    editingReplyId.value = null
+    editReplyContent.value = ''
+  } catch (error) {
+    console.error('Save reply edit error:', error)
+    alert('답글 수정에 실패했습니다.')
+  }
+}
+
+const cancelReplyEdit = () => {
+  editingReplyId.value = null
+  editReplyContent.value = ''
+}
+
+// Delete functions
+const confirmDelete = async (commentId: string) => {
+  if (!confirm('이 댓글을 삭제하시겠습니까?')) return
+
+  try {
+    const { error } = await client
+      .from('comments')
+      .delete()
+      .eq('id', commentId)
+
+    if (error) {
+      console.error('Comment delete error:', error)
+      throw error
+    }
+
+    // Remove from local state
+    const index = props.comments.findIndex(c => c.id === commentId)
+    if (index !== -1) {
+      props.comments.splice(index, 1)
+    }
+  } catch (error) {
+    console.error('Delete error:', error)
+    alert('댓글 삭제에 실패했습니다.')
+  }
+}
+
+const confirmDeleteReply = async (replyId: string) => {
+  if (!confirm('이 답글을 삭제하시겠습니까?')) return
+
+  try {
+    const { error } = await client
+      .from('comments')
+      .delete()
+      .eq('id', replyId)
+
+    if (error) {
+      console.error('Reply delete error:', error)
+      throw error
+    }
+
+    // Remove from local state
+    for (const comment of props.comments) {
+      if (comment.replies) {
+        const index = comment.replies.findIndex(r => r.id === replyId)
+        if (index !== -1) {
+          comment.replies.splice(index, 1)
+          break
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Delete reply error:', error)
+    alert('답글 삭제에 실패했습니다.')
+  }
 }
 </script>
 
