@@ -23,6 +23,36 @@
 
     <!-- Timeline Content -->
     <div class="pt-16 pb-32 min-h-screen">
+      <!-- Member Progress Section (책이 있을 때만 표시) -->
+      <div v-if="currentBook" class="max-w-[480px] mx-auto px-4 mt-4 mb-4">
+        <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
+          <button
+            @click="showMemberProgress = !showMemberProgress"
+            class="w-full flex justify-between items-center"
+          >
+            <span class="text-sm font-medium text-zinc-400">멤버 진행도</span>
+            <ChevronDown :class="{ 'rotate-180': showMemberProgress }" :size="16" class="text-zinc-400 transition-transform" />
+          </button>
+
+          <div v-if="showMemberProgress" class="mt-4 space-y-3">
+            <div v-for="member in sortedMembersWithProgress" :key="member.id" class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-zinc-700 overflow-hidden flex-shrink-0">
+                <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
+              </div>
+              <div class="flex-1">
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-zinc-300">{{ member.nickname }}</span>
+                  <span class="text-lime-400 font-mono">{{ member.progress }}%</span>
+                </div>
+                <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                  <div class="h-full bg-lime-400 transition-all duration-300" :style="{ width: `${member.progress}%` }"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 책이 없을 때 Empty State -->
       <div v-if="!currentBook" class="flex flex-col items-center justify-center min-h-[60vh] px-4">
         <div class="text-6xl mb-4">📖</div>
@@ -645,14 +675,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import Timeline from '~/components/Timeline.vue'
 import SmartSlider from '~/components/SmartSlider.vue'
 import BookSearchModal from '~/components/BookSearchModal.vue'
 import ReviewModal from '~/components/ReviewModal.vue'
-import { Menu, Search, Plus, Settings, Share2, ChevronLeft, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X } from 'lucide-vue-next'
+import { Menu, Search, Plus, Settings, Share2, ChevronLeft, ChevronDown, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X } from 'lucide-vue-next'
 
 // 인증 미들웨어 적용
 definePageMeta({
@@ -689,6 +719,7 @@ const editChapters = ref<{ title: string; startPage: number }[]>([{ title: 'Chap
 const readProgress = ref(0)
 const viewProgress = ref(0)
 const activeMemberMenu = ref<string | null>(null)
+const showMemberProgress = ref(false)
 
 // Data Refs
 const group = ref<any>(null)
@@ -696,6 +727,7 @@ const currentBook = ref<any>(null)
 const members = ref<any[]>([])
 const comments = ref<any[]>([])
 const historyBooks = ref<any[]>([])
+const memberProgress = ref<any[]>([])
 
 const groupId = route.params.id as string
 
@@ -783,6 +815,17 @@ const isAdmin = computed(() => {
 const commentCount = computed(() => comments.value.length)
 const editingGroupName = ref('')
 
+// Sorted members with progress
+const sortedMembersWithProgress = computed(() => {
+  return members.value.map(member => {
+    const progressData = memberProgress.value.find(p => p.user_id === member.id)
+    return {
+      ...member,
+      progress: progressData?.progress_pct || 0
+    }
+  }).sort((a, b) => b.progress - a.progress) // Sort by progress descending
+})
+
 // Fetch Data
 const fetchData = async () => {
   if (!userStore.user) return
@@ -825,6 +868,8 @@ const fetchData = async () => {
     // Fetch Comments for this book
     await fetchComments(bookData.id)
 
+    // Note: Member progress는 섹션 열렸을 때 fetch (조건부 로딩)
+
     // 3-1. Load user's reading progress
     const userId = currentUserId.value
     if (userId) {
@@ -851,6 +896,7 @@ const fetchData = async () => {
     // No reading book found
     currentBook.value = null
     comments.value = []
+    memberProgress.value = []
     readProgress.value = 0
     viewProgress.value = 0
   }
@@ -881,12 +927,46 @@ const fetchComments = async (groupBookId: string) => {
     .order('created_at', { ascending: true })
 
   if (data) {
-    comments.value = data
+    // Fetch reactions for all comments
+    const commentIds = data.map(c => c.id)
+
+    // Get reaction counts for all comments
+    const { data: reactionCounts } = await client
+      .from('reactions')
+      .select('comment_id')
+      .in('comment_id', commentIds)
+      .eq('type', 'like')
+
+    // Get user's likes
+    const userId = currentUserId.value
+    const { data: userLikes } = userId ? await client
+      .from('reactions')
+      .select('comment_id')
+      .in('comment_id', commentIds)
+      .eq('user_id', userId)
+      .eq('type', 'like') : { data: [] }
+
+    // Count likes per comment
+    const likeCounts: Record<string, number> = {}
+    reactionCounts?.forEach(r => {
+      likeCounts[r.comment_id] = (likeCounts[r.comment_id] || 0) + 1
+    })
+
+    // Check which comments user liked
+    const userLikedSet = new Set(userLikes?.map(r => r.comment_id) || [])
+
+    // Add likes and isLiked to comments
+    comments.value = data.map(comment => ({
+      ...comment,
+      likes: likeCounts[comment.id] || 0,
+      isLiked: userLikedSet.has(comment.id)
+    }))
   }
 }
 
 // Realtime Subscription
 let realtimeChannel: any = null
+let progressChannel: any = null
 
 onMounted(async () => {
   await userStore.fetchProfile()
@@ -935,10 +1015,70 @@ onMounted(async () => {
       }
     )
     .subscribe()
+
+  // Note: Member progress subscription은 섹션 열렸을 때만 시작 (조건부 구독)
+})
+
+// 조건부 구독: 멤버 진행도 섹션 열렸을 때만 Realtime 구독
+watch(showMemberProgress, async (isOpen) => {
+  if (isOpen && currentBook.value && !progressChannel) {
+    console.log('[Progress Realtime] 🔔 구독 시작')
+
+    // 섹션 열림 → 최신 데이터 fetch
+    const { data: progressData } = await client
+      .from('user_reading_progress')
+      .select('*')
+      .eq('group_book_id', currentBook.value.id)
+
+    if (progressData) {
+      memberProgress.value = progressData
+      console.log('[Progress Realtime] 최신 데이터 로드:', progressData.length, '명')
+    }
+
+    // Realtime 구독 시작
+    progressChannel = client.channel('public:user_reading_progress')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to INSERT and UPDATE
+          schema: 'public',
+          table: 'user_reading_progress',
+          filter: `group_book_id=eq.${currentBook.value.id}`
+        },
+        async (payload) => {
+          console.log('[Progress Realtime] 업데이트 받음:', payload)
+
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            const updatedProgress = payload.new
+
+            // Update memberProgress array
+            const index = memberProgress.value.findIndex(p => p.user_id === updatedProgress.user_id)
+            if (index >= 0) {
+              // Update existing (본인 것은 이미 optimistic으로 업데이트됨)
+              if (updatedProgress.user_id !== currentUserId.value) {
+                memberProgress.value[index] = updatedProgress
+              }
+            } else {
+              // Add new
+              memberProgress.value.push(updatedProgress)
+            }
+          }
+        }
+      )
+      .subscribe()
+
+  } else if (!isOpen && progressChannel) {
+    console.log('[Progress Realtime] 🔇 구독 해제')
+
+    // 섹션 닫힘 → 구독 해제
+    client.removeChannel(progressChannel)
+    progressChannel = null
+  }
 })
 
 onUnmounted(() => {
   if (realtimeChannel) client.removeChannel(realtimeChannel)
+  if (progressChannel) client.removeChannel(progressChannel)
 })
 
 // Actions
@@ -952,11 +1092,32 @@ const handleSliderChange = async (val: number) => {
     }
   }
 
+  // Optimistic Update: 즉시 memberProgress 업데이트
+  if (currentBook.value && currentUserId.value) {
+    const roundedProgress = Math.round(val)
+    const index = memberProgress.value.findIndex(p => p.user_id === currentUserId.value)
+
+    if (index >= 0) {
+      // 기존 진행도 업데이트
+      memberProgress.value[index].progress_pct = roundedProgress
+      memberProgress.value[index].last_read_at = new Date().toISOString()
+    } else {
+      // 새 진행도 추가 (첫 진행도 기록)
+      memberProgress.value.push({
+        user_id: currentUserId.value,
+        group_book_id: currentBook.value.id,
+        progress_pct: roundedProgress,
+        last_read_at: new Date().toISOString(),
+        finished_at: null
+      })
+    }
+  }
+
   // Save progress to DB (debounced)
   if (progressSaveTimeout) clearTimeout(progressSaveTimeout)
   progressSaveTimeout = setTimeout(async () => {
     await saveProgress(val)
-  }, 1000) // Save after 1 second of no change
+  }, 2000) // Save after 2 seconds (DB 부담 절감)
 }
 
 const saveProgress = async (progress: number) => {
@@ -965,11 +1126,15 @@ const saveProgress = async (progress: number) => {
     return
   }
 
-  try {
-    const roundedProgress = Math.round(progress)
-    const finishedAt = roundedProgress >= 100 ? new Date().toISOString() : null
+  const roundedProgress = Math.round(progress)
+  const finishedAt = roundedProgress >= 100 ? new Date().toISOString() : null
 
-    console.log('Saving progress:', {
+  // 현재 값 백업 (Rollback용)
+  const index = memberProgress.value.findIndex(p => p.user_id === currentUserId.value)
+  const previousProgress = index >= 0 ? memberProgress.value[index].progress_pct : 0
+
+  try {
+    console.log('[Progress] Saving to DB:', {
       user_id: currentUserId.value,
       group_book_id: currentBook.value.id,
       progress_pct: roundedProgress
@@ -989,12 +1154,28 @@ const saveProgress = async (progress: number) => {
       .select()
 
     if (error) {
-      console.error('Progress save error:', error)
+      console.error('[Progress] Save failed:', error)
+
+      // Rollback: 실패하면 이전 값으로 복구
+      if (index >= 0) {
+        memberProgress.value[index].progress_pct = previousProgress
+        console.log('[Progress] Rolled back to:', previousProgress)
+      }
+
+      // 사용자에게 알림 (조용히)
+      console.warn('⚠️ 진행도 저장 실패. 다음 업데이트에서 재시도됩니다.')
     } else {
-      console.log('Progress saved successfully:', data)
+      console.log('[Progress] Saved successfully:', data)
+      // Optimistic update가 이미 되어있으므로 추가 업데이트 불필요
     }
   } catch (error) {
-    console.error('Save progress error:', error)
+    console.error('[Progress] Save error:', error)
+
+    // Rollback on exception
+    if (index >= 0) {
+      memberProgress.value[index].progress_pct = previousProgress
+      console.log('[Progress] Rolled back to:', previousProgress)
+    }
   }
 }
 

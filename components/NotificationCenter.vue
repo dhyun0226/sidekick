@@ -10,7 +10,14 @@
     <div v-if="isOpen" class="absolute right-0 top-12 w-80 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-scale-up origin-top-right">
       <div class="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
         <h3 class="font-bold text-white text-sm">알림</h3>
-        <button @click="markAllRead" class="text-xs text-lime-400 hover:text-lime-300">모두 읽음</button>
+        <div class="flex items-center gap-2">
+          <button @click="markAllRead" class="text-xs text-lime-400 hover:text-lime-300">모두 읽음</button>
+          <span class="text-zinc-700">|</span>
+          <button @click="deleteAll" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1">
+            <Trash2 :size="12" />
+            모두 삭제
+          </button>
+        </div>
       </div>
 
       <div class="max-h-80 overflow-y-auto">
@@ -30,22 +37,31 @@
           v-else
           v-for="noti in notifications"
           :key="noti.id"
-          @click="handleNotificationClick(noti)"
-          class="flex gap-3 p-4 hover:bg-zinc-800/50 transition-colors cursor-pointer border-b border-zinc-800/50 last:border-0"
+          class="flex gap-3 p-4 hover:bg-zinc-800/50 transition-colors border-b border-zinc-800/50 last:border-0 group relative"
           :class="{ 'bg-zinc-800/20': !noti.is_read }"
         >
-          <div class="w-8 h-8 rounded-full bg-zinc-700 flex-shrink-0 flex items-center justify-center">
-            <MessageCircle v-if="noti.type === 'reply'" :size="14" class="text-blue-400" />
-            <Heart v-else-if="noti.type === 'reaction'" :size="14" class="text-red-400" />
-            <Info v-else :size="14" class="text-lime-400" />
+          <div @click="handleNotificationClick(noti)" class="flex gap-3 flex-1 cursor-pointer">
+            <div class="w-8 h-8 rounded-full bg-zinc-700 flex-shrink-0 flex items-center justify-center">
+              <MessageCircle v-if="noti.type === 'reply'" :size="14" class="text-blue-400" />
+              <Heart v-else-if="noti.type === 'reaction'" :size="14" class="text-red-400" />
+              <Info v-else :size="14" class="text-lime-400" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-zinc-200 leading-snug">
+                <strong class="font-bold">{{ noti.title }}</strong>
+              </p>
+              <p v-if="noti.message" class="text-xs text-zinc-400 mt-1">{{ noti.message }}</p>
+              <p class="text-[10px] text-zinc-500 mt-1">{{ formatTimeAgo(noti.created_at) }}</p>
+            </div>
           </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm text-zinc-200 leading-snug">
-              <strong class="font-bold">{{ noti.title }}</strong>
-            </p>
-            <p v-if="noti.message" class="text-xs text-zinc-400 mt-1">{{ noti.message }}</p>
-            <p class="text-[10px] text-zinc-500 mt-1">{{ formatTimeAgo(noti.created_at) }}</p>
-          </div>
+          <!-- Delete Button -->
+          <button
+            @click.stop="deleteNotification(noti.id)"
+            class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-zinc-500 hover:text-red-400"
+            title="삭제"
+          >
+            <X :size="16" />
+          </button>
         </div>
       </div>
     </div>
@@ -56,9 +72,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Bell, MessageCircle, Heart, Info } from 'lucide-vue-next'
+import { Bell, MessageCircle, Heart, Info, X, Trash2 } from 'lucide-vue-next'
 
 const router = useRouter()
 const client = useSupabaseClient()
@@ -139,6 +155,34 @@ const handleNotificationClick = async (noti: any) => {
   if (noti.link) {
     isOpen.value = false
     router.push(noti.link)
+  }
+}
+
+const deleteNotification = async (notiId: string) => {
+  const { error } = await client
+    .from('notifications')
+    .delete()
+    .eq('id', notiId)
+
+  if (!error) {
+    // Remove from local array
+    notifications.value = notifications.value.filter(n => n.id !== notiId)
+  }
+}
+
+const deleteAll = async () => {
+  if (!confirm('모든 알림을 삭제하시겠습니까?')) return
+
+  const { data: { user: currentUser } } = await client.auth.getUser()
+  if (!currentUser) return
+
+  const { error } = await client
+    .from('notifications')
+    .delete()
+    .eq('user_id', currentUser.id)
+
+  if (!error) {
+    notifications.value = []
   }
 }
 

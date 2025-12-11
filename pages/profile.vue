@@ -36,7 +36,7 @@
 
       <!-- Profile Image -->
       <div class="flex flex-col items-center gap-4">
-        <div class="relative group cursor-pointer">
+        <div class="relative group cursor-pointer" @click="triggerFileInput">
           <div class="w-24 h-24 rounded-full bg-zinc-800 overflow-hidden border-2 border-zinc-700 group-hover:border-lime-400 transition-colors">
             <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
             <div v-else class="w-full h-full flex items-center justify-center text-zinc-500">
@@ -44,10 +44,20 @@
             </div>
           </div>
           <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
-            <Camera :size="24" class="text-white" />
+            <div v-if="uploadingAvatar" class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <Camera v-else :size="24" class="text-white" />
           </div>
         </div>
-        <p class="text-xs text-zinc-500">프로필 사진 변경</p>
+        <p class="text-xs text-zinc-500">{{ uploadingAvatar ? '업로드 중...' : '프로필 사진 변경' }}</p>
+
+        <!-- Hidden File Input -->
+        <input
+          ref="fileInput"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          class="hidden"
+          @change="handleAvatarUpload"
+        />
       </div>
 
       <!-- Form -->
@@ -102,8 +112,10 @@ const client = useSupabaseClient()
 
 const nickname = ref('')
 const loading = ref(false)
+const uploadingAvatar = ref(false)
 const totalBooks = ref(0)
 const totalGroups = ref(0)
+const fileInput = ref<HTMLInputElement | null>(null)
 
 const fetchStats = async () => {
   // 현재 로그인한 유저 ID 가져오기
@@ -163,6 +175,112 @@ const saveProfile = async () => {
   } else {
     alert('프로필이 저장되었습니다.')
     await userStore.fetchProfile() // Refresh store
+  }
+}
+
+const triggerFileInput = () => {
+  fileInput.value?.click()
+}
+
+const handleAvatarUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+
+  if (!file) return
+
+  // Validate file type
+  const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+  if (!validTypes.includes(file.type)) {
+    alert('JPG, PNG, WEBP 형식의 이미지만 업로드 가능합니다.')
+    return
+  }
+
+  // Validate file size (2MB limit)
+  const maxSize = 2 * 1024 * 1024 // 2MB
+  if (file.size > maxSize) {
+    alert('파일 크기는 2MB 이하여야 합니다.')
+    return
+  }
+
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) {
+    alert('로그인이 필요합니다.')
+    return
+  }
+
+  uploadingAvatar.value = true
+
+  try {
+    // File name: {userId}/avatar.{extension}
+    const fileExt = file.name.split('.').pop()
+    const filePath = `${user.id}/avatar.${fileExt}`
+
+    console.log('[Avatar Upload] Uploading to:', filePath)
+
+    // Delete old avatar if exists
+    const { data: oldFiles } = await client.storage
+      .from('avatars')
+      .list(user.id)
+
+    if (oldFiles && oldFiles.length > 0) {
+      const filesToDelete = oldFiles.map(f => `${user.id}/${f.name}`)
+      await client.storage
+        .from('avatars')
+        .remove(filesToDelete)
+      console.log('[Avatar Upload] Deleted old avatars:', filesToDelete)
+    }
+
+    // Upload new avatar
+    const { data: uploadData, error: uploadError } = await client.storage
+      .from('avatars')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true
+      })
+
+    if (uploadError) {
+      console.error('[Avatar Upload] Upload error:', uploadError)
+      throw uploadError
+    }
+
+    console.log('[Avatar Upload] Upload successful:', uploadData)
+
+    // Get public URL
+    const { data: urlData } = client.storage
+      .from('avatars')
+      .getPublicUrl(filePath)
+
+    const avatarUrl = urlData.publicUrl
+
+    console.log('[Avatar Upload] Public URL:', avatarUrl)
+
+    // Update user profile
+    const { error: updateError } = await client
+      .from('users')
+      .update({ avatar_url: avatarUrl })
+      .eq('id', user.id)
+
+    if (updateError) {
+      console.error('[Avatar Upload] Profile update error:', updateError)
+      throw updateError
+    }
+
+    console.log('[Avatar Upload] Profile updated successfully')
+
+    // Refresh user store
+    await userStore.fetchProfile()
+
+    alert('프로필 사진이 변경되었습니다! 🎉')
+
+  } catch (error: any) {
+    console.error('[Avatar Upload] Error:', error)
+    alert('업로드 실패: ' + (error.message || '알 수 없는 오류'))
+  } finally {
+    uploadingAvatar.value = false
+    // Reset file input
+    if (fileInput.value) {
+      fileInput.value.value = ''
+    }
   }
 }
 
