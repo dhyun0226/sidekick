@@ -149,7 +149,7 @@ create table public.comments (
   parent_id uuid references public.comments(id) on delete cascade, -- For replies
   content text not null,
   anchor_text text, -- Selected text being commented on
-  position_pct float not null check (position_pct >= 0 and position_pct <= 100),
+  position_pct integer not null check (position_pct >= 0 and position_pct <= 100),
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -159,7 +159,7 @@ create table public.user_reading_progress (
   id uuid default uuid_generate_v4() primary key,
   user_id uuid references public.users(id) on delete cascade not null,
   group_book_id uuid references public.group_books(id) on delete cascade not null,
-  progress_pct float not null default 0 check (progress_pct >= 0 and progress_pct <= 100),
+  progress_pct integer not null default 0 check (progress_pct >= 0 and progress_pct <= 100),
   last_read_at timestamp with time zone default timezone('utc'::text, now()) not null,
   finished_at timestamp with time zone, -- When user finished reading (100%)
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,

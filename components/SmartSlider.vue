@@ -25,13 +25,14 @@
           ></div>
         </div>
 
-        <!-- Ruler Ticks -->
-        <div class="absolute inset-0 flex items-end justify-between px-4 pb-2 pointer-events-none">
-          <div 
-            v-for="i in 20" 
-            :key="i" 
-            class="w-px bg-zinc-700"
-            :class="i % 5 === 0 ? 'h-3' : 'h-1.5'"
+        <!-- Ruler Ticks (5% intervals) -->
+        <div class="absolute inset-0 pb-2 pointer-events-none">
+          <div
+            v-for="i in 21"
+            :key="i"
+            class="absolute bottom-0 w-px bg-zinc-700"
+            :class="(i - 1) % 2 === 0 ? 'h-3' : 'h-1.5'"
+            :style="{ left: `${(i - 1) * 5}%` }"
           ></div>
         </div>
 
@@ -98,6 +99,7 @@ const emit = defineEmits(['update:modelValue', 'change', 'write'])
 const sliderRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 const localPct = ref(props.modelValue)
+const lastPct = ref(props.modelValue) // Track last value for haptic feedback
 
 // Mock TOC if not provided
 const defaultToc: Chapter[] = [
@@ -169,15 +171,32 @@ const tooltipPositionStyle = computed(() => {
   }
 })
 
+// Haptic feedback function
+const triggerHaptic = () => {
+  // Check if Vibration API is available (mobile devices)
+  if ('vibrate' in navigator) {
+    navigator.vibrate(10) // Light haptic feedback (10ms)
+  }
+}
+
 const updatePosition = (event: PointerEvent) => {
   if (!sliderRef.value) return
-  
+
   const rect = sliderRef.value.getBoundingClientRect()
   const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width))
   const pct = (x / rect.width) * 100
-  
-  localPct.value = pct
-  emit('update:modelValue', pct)
+
+  // Snap to integer (0, 1, 2, ..., 100)
+  const roundedPct = Math.round(pct)
+
+  // Trigger haptic feedback when value changes
+  if (roundedPct !== lastPct.value) {
+    triggerHaptic()
+    lastPct.value = roundedPct
+  }
+
+  localPct.value = roundedPct
+  emit('update:modelValue', roundedPct)
 }
 
 const handlePointerDown = (event: PointerEvent) => {
