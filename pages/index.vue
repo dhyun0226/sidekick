@@ -3,18 +3,18 @@
     <!-- Header -->
     <header class="flex justify-between items-center py-6">
       <div class="flex items-center gap-3">
-        <div 
+        <div
           @click="router.push('/profile')"
-          class="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden border border-zinc-700 cursor-pointer hover:border-lime-400 transition-colors"
+          class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-300 dark:border-zinc-700 cursor-pointer hover:border-lime-400 transition-colors"
         >
           <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
-          <div v-else class="w-full h-full flex items-center justify-center text-zinc-500">
+          <div v-else class="w-full h-full flex items-center justify-center text-zinc-600 dark:text-zinc-500">
             <User :size="20" />
           </div>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-white">My Groups</h1>
-          <p class="text-xs text-zinc-400">오늘도 함께 읽어볼까요?</p>
+          <h1 class="text-lg font-bold text-zinc-900 dark:text-white">My Groups</h1>
+          <p class="text-xs text-zinc-600 dark:text-zinc-400">오늘도 함께 읽어볼까요?</p>
         </div>
       </div>
       <div class="flex gap-4">
@@ -28,22 +28,22 @@
         v-for="group in groups"
         :key="group.id"
         @click="router.push(`/group/${group.id}`)"
-        class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800 active:scale-[0.98] transition-transform cursor-pointer"
+        class="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-300 dark:border-zinc-800 active:scale-[0.98] transition-transform cursor-pointer"
       >
         <div class="flex justify-between items-start mb-4">
-          <h2 class="text-lg font-bold text-zinc-100">{{ group.name }}</h2>
-          <span class="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded-full">
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-zinc-100">{{ group.name }}</h2>
+          <span class="text-xs text-zinc-600 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full">
             멤버 {{ group.members?.length || 0 }}명
           </span>
         </div>
 
         <!-- Current Book Card -->
-        <div v-if="group.currentBook" class="flex gap-4 bg-black/40 rounded-xl p-3">
-          <img :src="group.currentBook.cover_url" class="w-16 h-24 object-cover rounded shadow-lg bg-zinc-800" />
+        <div v-if="group.currentBook" class="flex gap-4 bg-zinc-100 dark:bg-black/40 rounded-xl p-3">
+          <img :src="group.currentBook.cover_url" class="w-16 h-24 object-cover rounded shadow-lg bg-zinc-200 dark:bg-zinc-800" />
           <div class="flex flex-col justify-center">
             <span class="text-xs text-lime-400 font-medium mb-1">Currently Reading</span>
-            <h3 class="font-bold text-zinc-200 line-clamp-1">{{ group.currentBook.title }}</h3>
-            <p class="text-xs text-zinc-400">{{ group.currentBook.author }}</p>
+            <h3 class="font-bold text-zinc-800 dark:text-zinc-200 line-clamp-1">{{ group.currentBook.title }}</h3>
+            <p class="text-xs text-zinc-600 dark:text-zinc-400">{{ group.currentBook.author }}</p>
             <div class="mt-2 text-xs flex items-center gap-1">
               <span v-if="group.currentBook.target_end_date"
                 class="font-bold"
@@ -56,18 +56,18 @@
               >
                 {{ getDaysRemaining(group.currentBook.target_end_date) > 0 ? `D-${getDaysRemaining(group.currentBook.target_end_date)}` : getDaysRemaining(group.currentBook.target_end_date) === 0 ? 'D-Day!' : `D+${Math.abs(getDaysRemaining(group.currentBook.target_end_date))}` }}
               </span>
-              <span v-if="group.currentBook.target_end_date" class="text-zinc-600">·</span>
-              <span v-if="group.currentBook.target_end_date" class="text-zinc-500">
+              <span v-if="group.currentBook.target_end_date" class="text-zinc-500 dark:text-zinc-600">·</span>
+              <span v-if="group.currentBook.target_end_date" class="text-zinc-600 dark:text-zinc-500">
                 {{ formatTargetDate(group.currentBook.target_end_date) }}까지
               </span>
-              <span v-else class="text-zinc-500">D+{{ getDaysSince(group.currentBook.created_at) }}</span>
+              <span v-else class="text-zinc-600 dark:text-zinc-500">D+{{ getDaysSince(group.currentBook.created_at) }}</span>
             </div>
           </div>
         </div>
 
         <!-- Empty State -->
-        <div v-else class="flex items-center justify-center h-24 bg-zinc-800/30 rounded-xl border border-dashed border-zinc-700">
-          <span class="text-sm text-zinc-500">지금은 휴식 중입니다 💤</span>
+        <div v-else class="flex items-center justify-center h-24 bg-zinc-100 dark:bg-zinc-800/30 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700">
+          <span class="text-sm text-zinc-600 dark:text-zinc-500">지금은 휴식 중입니다 💤</span>
         </div>
       </div>
     </div>
@@ -75,8 +75,8 @@
     <!-- Empty State: No Groups -->
     <div v-else class="flex flex-col items-center justify-center min-h-[50vh] px-4">
       <div class="text-6xl mb-4">👥</div>
-      <h2 class="text-xl font-bold text-white mb-2">첫 그룹을 만들어보세요!</h2>
-      <p class="text-sm text-zinc-400 text-center mb-6 max-w-xs">
+      <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">첫 그룹을 만들어보세요!</h2>
+      <p class="text-sm text-zinc-600 dark:text-zinc-400 text-center mb-6 max-w-xs">
         친구들과 함께 책을 읽고<br />생각을 나눌 수 있는 공간을 만들어보세요
       </p>
       <button

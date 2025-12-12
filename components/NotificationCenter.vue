@@ -1,18 +1,18 @@
 <template>
   <div class="relative">
     <!-- Bell Icon -->
-    <button @click="toggleOpen" class="relative text-zinc-400 hover:text-white transition-colors p-2">
+    <button @click="toggleOpen" class="relative text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors p-2">
       <Bell :size="24" />
-      <span v-if="unreadCount > 0" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#09090b]"></span>
+      <span v-if="unreadCount > 0" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-gray-50 dark:border-[#09090b]"></span>
     </button>
 
     <!-- Dropdown -->
-    <div v-if="isOpen" class="absolute right-0 top-12 w-80 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-scale-up origin-top-right">
-      <div class="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
-        <h3 class="font-bold text-white text-sm">알림</h3>
+    <div v-if="isOpen" class="absolute right-0 top-12 w-80 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-scale-up origin-top-right">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-zinc-300 dark:border-zinc-800">
+        <h3 class="font-bold text-zinc-900 dark:text-white text-sm">알림</h3>
         <div class="flex items-center gap-2">
           <button @click="markAllRead" class="text-xs text-lime-400 hover:text-lime-300">모두 읽음</button>
-          <span class="text-zinc-700">|</span>
+          <span class="text-zinc-400 dark:text-zinc-700">|</span>
           <button @click="deleteAll" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1">
             <Trash2 :size="12" />
             모두 삭제
@@ -22,13 +22,13 @@
 
       <div class="max-h-80 overflow-y-auto">
         <!-- Loading State -->
-        <div v-if="loading" class="p-8 text-center text-zinc-500 text-xs">
+        <div v-if="loading" class="p-8 text-center text-zinc-600 dark:text-zinc-500 text-xs">
           <div class="w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
           로딩 중...
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="notifications.length === 0" class="p-8 text-center text-zinc-500 text-xs">
+        <div v-else-if="notifications.length === 0" class="p-8 text-center text-zinc-600 dark:text-zinc-500 text-xs">
           새로운 알림이 없습니다.
         </div>
 
@@ -37,27 +37,27 @@
           v-else
           v-for="noti in notifications"
           :key="noti.id"
-          class="flex gap-3 p-4 hover:bg-zinc-800/50 transition-colors border-b border-zinc-800/50 last:border-0 group relative"
-          :class="{ 'bg-zinc-800/20': !noti.is_read }"
+          class="flex gap-3 p-4 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors border-b border-zinc-300 dark:border-zinc-800/50 last:border-0 group relative"
+          :class="{ 'bg-zinc-100 dark:bg-zinc-800/20': !noti.is_read }"
         >
           <div @click="handleNotificationClick(noti)" class="flex gap-3 flex-1 cursor-pointer">
-            <div class="w-8 h-8 rounded-full bg-zinc-700 flex-shrink-0 flex items-center justify-center">
+            <div class="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex-shrink-0 flex items-center justify-center">
               <MessageCircle v-if="noti.type === 'reply'" :size="14" class="text-blue-400" />
               <Heart v-else-if="noti.type === 'reaction'" :size="14" class="text-red-400" />
               <Info v-else :size="14" class="text-lime-400" />
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm text-zinc-200 leading-snug">
+              <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-snug">
                 <strong class="font-bold">{{ noti.title }}</strong>
               </p>
-              <p v-if="noti.message" class="text-xs text-zinc-400 mt-1">{{ noti.message }}</p>
-              <p class="text-[10px] text-zinc-500 mt-1">{{ formatTimeAgo(noti.created_at) }}</p>
+              <p v-if="noti.message" class="text-xs text-zinc-600 dark:text-zinc-400 mt-1">{{ noti.message }}</p>
+              <p class="text-[10px] text-zinc-600 dark:text-zinc-500 mt-1">{{ formatTimeAgo(noti.created_at) }}</p>
             </div>
           </div>
           <!-- Delete Button -->
           <button
             @click.stop="deleteNotification(noti.id)"
-            class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-zinc-500 hover:text-red-400"
+            class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-zinc-600 dark:text-zinc-500 hover:text-red-400"
             title="삭제"
           >
             <X :size="16" />

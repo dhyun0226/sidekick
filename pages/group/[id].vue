@@ -1,21 +1,24 @@
 <template>
-  <div class="relative min-h-[100dvh] bg-background">
+  <div class="relative min-h-[100dvh] bg-gray-50 dark:bg-background">
     <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-40 bg-black/80 backdrop-blur-md border-b border-zinc-800">
+    <header class="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-zinc-300 dark:border-zinc-800">
       <div class="max-w-[480px] mx-auto flex justify-between items-center px-4 h-14">
         <div class="flex items-center gap-2">
-          <button @click="router.push('/')" class="text-zinc-400 hover:text-white" title="홈으로">
+          <button @click="router.push('/')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white" title="홈으로">
             <ChevronLeft :size="24" />
           </button>
-          <button @click="drawerOpen = true" class="text-zinc-400 hover:text-white" title="메뉴">
+          <button @click="drawerOpen = true" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white" title="메뉴">
             <Menu :size="24" />
           </button>
         </div>
         <div class="flex flex-col items-center">
-          <h1 class="text-sm font-bold text-zinc-100">{{ groupName }}</h1>
-          <span v-if="currentBook" class="text-[10px] text-zinc-400">{{ bookTitle }}</span>
+          <h1 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">{{ groupName }}</h1>
+          <span v-if="currentBook" class="text-[10px] text-zinc-600 dark:text-zinc-400">
+            {{ bookTitle }}
+            <span v-if="bookRoundLabel" class="text-lime-400 ml-1">{{ bookRoundLabel }}</span>
+          </span>
         </div>
-        <button class="text-zinc-400 hover:text-white opacity-0 pointer-events-none">
+        <button class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white opacity-0 pointer-events-none">
           <Search :size="24" />
         </button>
       </div>
@@ -25,26 +28,26 @@
     <div class="pt-16 pb-32 min-h-screen">
       <!-- Member Progress Section (책이 있을 때만 표시) -->
       <div v-if="currentBook" class="max-w-[480px] mx-auto px-4 mt-4 mb-4">
-        <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
+        <div class="bg-white dark:bg-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-4">
           <button
             @click="showMemberProgress = !showMemberProgress"
             class="w-full flex justify-between items-center"
           >
-            <span class="text-sm font-medium text-zinc-400">멤버 진행도</span>
-            <ChevronDown :class="{ 'rotate-180': showMemberProgress }" :size="16" class="text-zinc-400 transition-transform" />
+            <span class="text-sm font-medium text-zinc-600 dark:text-zinc-400">멤버 진행도</span>
+            <ChevronDown :class="{ 'rotate-180': showMemberProgress }" :size="16" class="text-zinc-600 dark:text-zinc-400 transition-transform" />
           </button>
 
           <div v-if="showMemberProgress" class="mt-4 space-y-3">
             <div v-for="member in sortedMembersWithProgress" :key="member.id" class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-zinc-700 overflow-hidden flex-shrink-0">
+              <div class="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden flex-shrink-0">
                 <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
               </div>
               <div class="flex-1">
                 <div class="flex justify-between text-xs mb-1">
-                  <span class="text-zinc-300">{{ member.nickname }}</span>
+                  <span class="text-zinc-700 dark:text-zinc-300">{{ member.nickname }}</span>
                   <span class="text-lime-400 font-mono">{{ member.progress }}%</span>
                 </div>
-                <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                <div class="h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                   <div class="h-full bg-lime-400 transition-all duration-300" :style="{ width: `${member.progress}%` }"></div>
                 </div>
               </div>
@@ -56,8 +59,8 @@
       <!-- 책이 없을 때 Empty State -->
       <div v-if="!currentBook" class="flex flex-col items-center justify-center min-h-[60vh] px-4">
         <div class="text-6xl mb-4">📖</div>
-        <h2 class="text-xl font-bold text-white mb-2">책을 선택해주세요</h2>
-        <p class="text-sm text-zinc-400 text-center mb-6 max-w-xs">
+        <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">책을 선택해주세요</h2>
+        <p class="text-sm text-zinc-600 dark:text-zinc-400 text-center mb-6 max-w-xs">
           왼쪽 상단 메뉴에서<br />"새 책 시작하기"를 눌러 함께 읽을 책을 선택하세요!
         </p>
         <button
@@ -94,21 +97,21 @@
     <!-- Comment Input Overlay -->
     <div v-if="showCommentInput" class="fixed inset-0 z-[60] flex items-end justify-center pointer-events-none">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" @click="showCommentInput = false"></div>
-      <div class="relative z-10 w-full max-w-[480px] bg-zinc-900 p-6 rounded-t-2xl shadow-2xl pointer-events-auto animate-slide-up border-t border-zinc-800">
+      <div class="relative z-10 w-full max-w-[480px] bg-white dark:bg-zinc-900 p-6 rounded-t-2xl shadow-2xl pointer-events-auto animate-slide-up border-t border-zinc-300 dark:border-zinc-800">
         <!-- Header -->
         <div class="flex justify-between items-center mb-4">
           <div>
-            <h3 class="text-lg font-bold text-zinc-100">댓글 작성</h3>
-            <p class="text-xs text-zinc-500 mt-1">{{ currentChapterName }} · {{ Math.round(viewProgress) }}%</p>
+            <h3 class="text-lg font-bold text-zinc-900 dark:text-zinc-100">댓글 작성</h3>
+            <p class="text-xs text-zinc-600 dark:text-zinc-500 mt-1">{{ currentChapterName }} · {{ Math.round(viewProgress) }}%</p>
           </div>
-          <button @click="closeCommentInput" class="text-zinc-500 hover:text-white">
+          <button @click="closeCommentInput" class="text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
             <X :size="20" />
           </button>
         </div>
 
         <!-- Anchor Text (Optional) -->
         <div class="mb-3">
-          <label class="block text-xs font-medium text-zinc-400 mb-2">
+          <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">
             인용 텍스트 {{ anchorTextLocked ? '' : '(선택사항)' }}
           </label>
           <div class="relative">
@@ -120,29 +123,29 @@
               :class="[
                 'w-full rounded-lg px-3 py-2 text-sm focus:outline-none',
                 anchorTextLocked
-                  ? 'bg-zinc-800/50 text-lime-400 font-serif italic cursor-not-allowed border border-lime-400/30'
-                  : 'bg-zinc-800 text-white focus:ring-2 focus:ring-lime-400'
+                  ? 'bg-lime-100 dark:bg-zinc-800/50 text-lime-600 dark:text-lime-400 font-serif italic cursor-not-allowed border border-lime-400/30'
+                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:ring-2 focus:ring-lime-400'
               ]"
             />
-            <div v-if="anchorTextLocked" class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded">
+            <div v-if="anchorTextLocked" class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-zinc-600 dark:text-zinc-500 bg-white dark:bg-zinc-900 px-2 py-0.5 rounded">
               고정됨
             </div>
           </div>
-          <p v-if="!anchorTextLocked" class="text-[10px] text-zinc-600 mt-1">인용하고 싶은 문구를 입력하세요</p>
+          <p v-if="!anchorTextLocked" class="text-[10px] text-zinc-500 dark:text-zinc-600 mt-1">인용하고 싶은 문구를 입력하세요</p>
         </div>
 
         <!-- Comment Content -->
         <div class="mb-3">
-          <label class="block text-xs font-medium text-zinc-400 mb-2">댓글 내용 *</label>
+          <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">댓글 내용 *</label>
           <textarea
             v-model="newCommentContent"
             placeholder="이 부분에 대한 생각을 남겨보세요..."
-            class="w-full bg-zinc-800 text-white rounded-xl p-3 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm"
+            class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl p-3 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm"
             maxlength="500"
           ></textarea>
           <div class="flex justify-between items-center mt-1">
-            <p class="text-[10px] text-zinc-600">최대 500자</p>
-            <p class="text-[10px]" :class="newCommentContent.length > 500 ? 'text-red-400' : 'text-zinc-600'">
+            <p class="text-[10px] text-zinc-500 dark:text-zinc-600">최대 500자</p>
+            <p class="text-[10px]" :class="newCommentContent.length > 500 ? 'text-red-400' : 'text-zinc-500 dark:text-zinc-600'">
               {{ newCommentContent.length }} / 500
             </p>
           </div>
@@ -152,7 +155,7 @@
         <div class="flex gap-3">
           <button
             @click="closeCommentInput"
-            class="flex-1 py-3 text-zinc-400 font-medium hover:text-white transition-colors"
+            class="flex-1 py-3 text-zinc-600 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-white transition-colors"
           >
             취소
           </button>
@@ -174,16 +177,16 @@
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="drawerOpen = false"></div>
       
       <!-- Drawer Content -->
-      <div class="relative w-[80%] max-w-[320px] h-full bg-zinc-900 border-r border-zinc-800 p-6 flex flex-col shadow-2xl animate-slide-right">
-        
+      <div class="relative w-[80%] max-w-[320px] h-full bg-white dark:bg-zinc-900 border-r border-zinc-300 dark:border-zinc-800 p-6 flex flex-col shadow-2xl animate-slide-right">
+
         <!-- Main Drawer View -->
         <div v-if="!showSettings" class="flex flex-col h-full">
           <div class="mb-8 flex justify-between items-start">
             <div>
-              <h2 class="text-xl font-bold text-white mb-1">{{ groupName }}</h2>
-              <p class="text-xs text-zinc-500">멤버 {{ members.length }}명</p>
+              <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-1">{{ groupName }}</h2>
+              <p class="text-xs text-zinc-600 dark:text-zinc-500">멤버 {{ members.length }}명</p>
             </div>
-            <button v-if="isAdmin" @click="showSettings = true" class="text-zinc-400 hover:text-white p-1">
+            <button v-if="isAdmin" @click="showSettings = true" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white p-1">
               <Settings :size="20" />
             </button>
           </div>
@@ -195,7 +198,7 @@
               <div v-if="currentBook && isAdmin" class="relative">
                 <button
                   @click="bookMenuOpen = !bookMenuOpen"
-                  class="p-1 text-zinc-500 hover:text-zinc-300 transition-colors"
+                  class="p-1 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors"
                 >
                   <MoreVertical :size="16" />
                 </button>
@@ -210,31 +213,31 @@
                 <!-- Dropdown Menu -->
                 <div
                   v-if="bookMenuOpen"
-                  class="absolute right-0 top-8 w-48 bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl z-50"
+                  class="absolute right-0 top-8 w-48 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg shadow-xl z-50"
                 >
                   <button
                     @click="openEditDatesModal"
-                    class="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-700 transition-colors flex items-center gap-2 rounded-t-lg"
+                    class="w-full text-left px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors flex items-center gap-2 rounded-t-lg"
                   >
                     <Edit2 :size="14" />
                     독서 기간 수정
                   </button>
                   <button
                     @click="openEditTocModal"
-                    class="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-700 transition-colors flex items-center gap-2"
+                    class="w-full text-left px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors flex items-center gap-2"
                   >
                     📑 목차 수정
                   </button>
                   <button
                     @click="openMarkCompletedModal"
-                    class="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-700 transition-colors flex items-center gap-2"
+                    class="w-full text-left px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors flex items-center gap-2"
                   >
                     ✅ 완독 처리
                   </button>
-                  <div class="border-t border-zinc-700"></div>
+                  <div class="border-t border-zinc-300 dark:border-zinc-700"></div>
                   <button
                     @click="openDeleteBookModal"
-                    class="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-zinc-700 transition-colors flex items-center gap-2 rounded-b-lg"
+                    class="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors flex items-center gap-2 rounded-b-lg"
                   >
                     🗑️ 책 삭제
                   </button>
@@ -243,18 +246,21 @@
             </div>
 
             <!-- 책이 있을 때 -->
-            <div v-if="currentBook" class="flex gap-3 bg-zinc-800/50 p-3 rounded-xl border border-zinc-700 mb-4">
-              <img :src="bookCover" class="w-12 h-16 object-cover rounded bg-zinc-700" />
+            <div v-if="currentBook" class="flex gap-3 bg-zinc-100 dark:bg-zinc-800/50 p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 mb-4">
+              <img :src="bookCover" class="w-12 h-16 object-cover rounded bg-zinc-200 dark:bg-zinc-700" />
               <div class="flex-1 min-w-0">
-                <div class="font-bold text-zinc-200 text-sm">{{ bookTitle }}</div>
-                <div class="text-xs text-zinc-400 mb-2">{{ bookAuthor }}</div>
+                <div class="font-bold text-zinc-800 dark:text-zinc-200 text-sm">
+                  {{ bookTitle }}
+                  <span v-if="bookRoundLabel" class="text-lime-400 ml-1 text-xs">{{ bookRoundLabel }}</span>
+                </div>
+                <div class="text-xs text-zinc-600 dark:text-zinc-400 mb-2">{{ bookAuthor }}</div>
 
                 <!-- Reading Period Info -->
                 <div v-if="formattedDateRange" class="space-y-1">
-                  <div class="flex items-center gap-1 text-[10px] text-zinc-500">
+                  <div class="flex items-center gap-1 text-[10px] text-zinc-600 dark:text-zinc-500">
                     <span>📅</span>
                     <span>{{ formattedDateRange }}</span>
-                    <span v-if="totalReadingDays" class="text-zinc-600">({{ totalReadingDays }}일)</span>
+                    <span v-if="totalReadingDays" class="text-zinc-500 dark:text-zinc-600">({{ totalReadingDays }}일)</span>
                   </div>
                   <div v-if="daysRemaining !== null" class="flex items-center gap-1 text-xs">
                     <span
@@ -274,9 +280,9 @@
             </div>
 
             <!-- 책이 없을 때 Empty State -->
-            <div v-else class="flex flex-col items-center justify-center p-6 bg-zinc-800/30 rounded-xl border border-dashed border-zinc-700 mb-4">
+            <div v-else class="flex flex-col items-center justify-center p-6 bg-zinc-100 dark:bg-zinc-800/30 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 mb-4">
               <div class="text-4xl mb-3">📚</div>
-              <p class="text-sm text-zinc-400 text-center mb-4">아직 읽고 있는 책이 없어요</p>
+              <p class="text-sm text-zinc-600 dark:text-zinc-400 text-center mb-4">아직 읽고 있는 책이 없어요</p>
               <button
                 @click="openSearchModal"
                 class="px-4 py-2 bg-lime-400 text-black text-xs font-bold rounded-lg hover:bg-lime-300 transition-colors flex items-center gap-1"
@@ -292,8 +298,8 @@
                 v-for="(chapter, index) in toc"
                 :key="index"
                 @click="jumpToChapter(chapter.start)"
-                class="w-full text-left px-3 py-2 rounded-lg text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors flex justify-between items-center group"
-                :class="{ 'text-lime-400 bg-zinc-800/50': isCurrentChapter(chapter) }"
+                class="w-full text-left px-3 py-2 rounded-lg text-xs text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors flex justify-between items-center group"
+                :class="{ 'text-lime-400 bg-zinc-100 dark:bg-zinc-800/50': isCurrentChapter(chapter) }"
               >
                 <span class="truncate">{{ chapter.title }}</span>
                 <span class="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">{{ chapter.start }}%</span>
@@ -302,18 +308,27 @@
           </div>
 
           <div class="flex-1 overflow-y-auto">
-            <h3 class="text-xs font-bold text-zinc-500 mb-3 uppercase tracking-wider">History</h3>
+            <button
+              @click="groupStatsModalOpen = true"
+              class="w-full flex items-center justify-between mb-3 px-2 py-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors group"
+            >
+              <h3 class="text-xs font-bold text-zinc-600 dark:text-zinc-500 uppercase tracking-wider">History</h3>
+              <BarChart3 :size="14" class="text-zinc-500 dark:text-zinc-600 group-hover:text-lime-400 transition-colors" />
+            </button>
             <div class="space-y-3">
-              <div v-for="book in historyBooks" :key="book.id" class="flex gap-3 p-2 hover:bg-zinc-800 rounded-lg cursor-pointer transition-colors group relative">
-                <div class="w-8 h-12 bg-zinc-700 rounded flex-shrink-0"></div>
+              <div v-for="book in historyBooks" :key="book.id" class="flex gap-3 p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg cursor-pointer transition-colors group relative">
+                <div class="w-8 h-12 bg-zinc-200 dark:bg-zinc-700 rounded flex-shrink-0"></div>
                 <div>
-                  <div class="text-sm text-zinc-300 font-medium">{{ book.title }}</div>
-                  <div class="text-[10px] text-zinc-500">{{ book.date }}</div>
+                  <div class="text-sm text-zinc-700 dark:text-zinc-300 font-medium">
+                    {{ book.title }}
+                    <span v-if="book.round" class="text-lime-400 ml-1 text-xs">[{{ book.round }}회]</span>
+                  </div>
+                  <div class="text-[10px] text-zinc-600 dark:text-zinc-500">{{ book.date }}</div>
                 </div>
                 <!-- Edit Review Button (Visible on Hover) -->
-                <button 
+                <button
                   @click.stop="openReviewModalForEdit(book)"
-                  class="absolute right-2 top-2 p-1.5 bg-zinc-700 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                  class="absolute right-2 top-2 p-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-300 dark:hover:bg-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity"
                   title="리뷰 수정"
                 >
                   <Edit2 :size="12" />
@@ -323,16 +338,16 @@
           </div>
 
           <div class="mt-6 space-y-3">
-            <button 
+            <button
               @click="openSearchModal"
-              class="w-full py-3 bg-zinc-800 text-zinc-200 rounded-xl font-bold hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
+              class="w-full py-3 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-200 rounded-xl font-bold hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
             >
               <Plus :size="16" />
               새 책 시작하기
             </button>
-            <button 
+            <button
               @click="copyInviteLink"
-              class="w-full py-3 border border-zinc-700 text-zinc-400 rounded-xl font-medium hover:text-white transition-colors flex items-center justify-center gap-2"
+              class="w-full py-3 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded-xl font-medium hover:text-zinc-900 dark:hover:text-white transition-colors flex items-center justify-center gap-2"
             >
               <Share2 :size="16" />
               초대 링크 공유
@@ -343,19 +358,19 @@
         <!-- Settings View -->
         <div v-else class="flex flex-col h-full">
           <div class="flex items-center gap-2 mb-6">
-            <button @click="showSettings = false" class="text-zinc-400 hover:text-white">
+            <button @click="showSettings = false" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
               <ChevronLeft :size="24" />
             </button>
-            <h2 class="text-lg font-bold text-white">그룹 설정</h2>
+            <h2 class="text-lg font-bold text-zinc-900 dark:text-white">그룹 설정</h2>
           </div>
 
           <div class="space-y-6 flex-1">
             <div>
-              <label class="block text-xs font-bold text-zinc-500 mb-2 uppercase">그룹 이름</label>
+              <label class="block text-xs font-bold text-zinc-600 dark:text-zinc-500 mb-2 uppercase">그룹 이름</label>
               <input
                 v-model="editingGroupName"
                 type="text"
-                class="w-full bg-zinc-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400 mb-3"
+                class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400 mb-3"
               />
               <button
                 @click="saveGroupName"
@@ -366,43 +381,43 @@
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-zinc-500 mb-2 uppercase">멤버 관리</label>
-              <div class="bg-zinc-800/50 rounded-xl p-2 space-y-1">
-                <div v-for="member in members" :key="member.id" class="relative flex justify-between items-center p-2 hover:bg-zinc-800 rounded-lg group">
+              <label class="block text-xs font-bold text-zinc-600 dark:text-zinc-500 mb-2 uppercase">멤버 관리</label>
+              <div class="bg-zinc-100 dark:bg-zinc-800/50 rounded-xl p-2 space-y-1">
+                <div v-for="member in members" :key="member.id" class="relative flex justify-between items-center p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg group">
                   <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-full bg-zinc-700 overflow-hidden">
+                    <div class="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden">
                       <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
                     </div>
-                    <span class="text-sm text-zinc-200">{{ member.nickname }}</span>
+                    <span class="text-sm text-zinc-800 dark:text-zinc-200">{{ member.nickname }}</span>
                   </div>
-                  
+
                   <div class="flex items-center gap-2">
                     <span v-if="member.role === 'admin'" class="text-[10px] text-lime-400 bg-lime-400/10 px-1.5 py-0.5 rounded">ADMIN</span>
-                    
+
                     <!-- Admin Menu Trigger (Only for admins, not for self) -->
-                    <button 
+                    <button
                       v-if="isAdmin && member.id !== currentUserId"
                       @click.stop="toggleMemberMenu(member.id)"
-                      class="text-zinc-500 hover:text-white p-1"
+                      class="text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white p-1"
                     >
                       <MoreVertical :size="16" />
                     </button>
 
                     <!-- Admin Menu Dropdown -->
-                    <div 
-                      v-if="activeMemberMenu === member.id" 
-                      class="absolute right-0 top-8 w-32 bg-zinc-900 border border-zinc-700 rounded-xl shadow-xl z-10 overflow-hidden"
+                    <div
+                      v-if="activeMemberMenu === member.id"
+                      class="absolute right-0 top-8 w-32 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-xl shadow-xl z-10 overflow-hidden"
                     >
-                      <button 
+                      <button
                         @click="promoteMember(member.id)"
-                        class="w-full flex items-center gap-2 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white text-left"
+                        class="w-full flex items-center gap-2 px-3 py-2 text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white text-left"
                       >
                         <UserCheck :size="14" />
                         관리자 위임
                       </button>
-                      <button 
+                      <button
                         @click="kickMember(member.id)"
-                        class="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-red-400/10 text-left"
+                        class="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-red-50 dark:hover:bg-red-400/10 text-left"
                       >
                         <UserX :size="14" />
                         강제 퇴장
@@ -414,7 +429,7 @@
             </div>
           </div>
 
-          <div class="mt-auto pt-6 border-t border-zinc-800 space-y-3">
+          <div class="mt-auto pt-6 border-t border-zinc-300 dark:border-zinc-800 space-y-3">
             <!-- 그룹 삭제 (관리자만) -->
             <button
               v-if="isAdmin"
@@ -455,34 +470,42 @@
       @submit="handleReviewSubmit"
     />
 
+    <!-- Group Stats Modal -->
+    <GroupStatsModal
+      :isOpen="groupStatsModalOpen"
+      :groupId="groupId"
+      :groupName="groupName"
+      @close="groupStatsModalOpen = false"
+    />
+
     <!-- Edit Dates Modal -->
     <div v-if="editDatesModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="editDatesModalOpen = false"></div>
-      <div class="relative z-10 bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-800">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-zinc-100">독서 기간 수정</h2>
-          <button @click="editDatesModalOpen = false" class="text-zinc-400 hover:text-white">
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">독서 기간 수정</h2>
+          <button @click="editDatesModalOpen = false" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
             <X :size="24" />
           </button>
         </div>
 
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-zinc-400 mb-2">시작일</label>
+            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">시작일</label>
             <input
               v-model="editStartDate"
               type="date"
-              class="w-full bg-zinc-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-zinc-400 mb-2">종료일</label>
+            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">종료일</label>
             <input
               v-model="editEndDate"
               type="date"
               :min="editStartDate"
-              class="w-full bg-zinc-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
 
@@ -496,7 +519,7 @@
         <div class="flex gap-3 mt-6">
           <button
             @click="editDatesModalOpen = false"
-            class="flex-1 bg-zinc-800 text-white font-medium py-3 rounded-xl hover:bg-zinc-700 transition-colors"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-3 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
           >
             취소
           </button>
@@ -514,27 +537,27 @@
     <!-- Mark Completed Modal -->
     <div v-if="markCompletedModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="markCompletedModalOpen = false"></div>
-      <div class="relative z-10 bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-800">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-zinc-100">✅ 완독 처리</h2>
-          <button @click="markCompletedModalOpen = false" class="text-zinc-400 hover:text-white">
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">✅ 완독 처리</h2>
+          <button @click="markCompletedModalOpen = false" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
             <X :size="24" />
           </button>
         </div>
 
         <div class="space-y-4">
-          <p class="text-zinc-300">정말 이 책을 완독 처리하시겠습니까?</p>
-          <div class="p-4 bg-zinc-800/50 rounded-xl">
-            <p class="font-bold text-zinc-200">{{ bookTitle }}</p>
-            <p class="text-sm text-zinc-400">{{ bookAuthor }}</p>
+          <p class="text-zinc-700 dark:text-zinc-300">정말 이 책을 완독 처리하시겠습니까?</p>
+          <div class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
+            <p class="font-bold text-zinc-800 dark:text-zinc-200">{{ bookTitle }}</p>
+            <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ bookAuthor }}</p>
           </div>
-          <p class="text-sm text-zinc-500">완독 처리하면 히스토리로 이동하며, 새로운 책을 시작할 수 있습니다.</p>
+          <p class="text-sm text-zinc-600 dark:text-zinc-500">완독 처리하면 히스토리로 이동하며, 새로운 책을 시작할 수 있습니다.</p>
         </div>
 
         <div class="flex gap-3 mt-6">
           <button
             @click="markCompletedModalOpen = false"
-            class="flex-1 bg-zinc-800 text-white font-medium py-3 rounded-xl hover:bg-zinc-700 transition-colors"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-3 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
           >
             취소
           </button>
@@ -551,19 +574,19 @@
     <!-- Delete Book Modal -->
     <div v-if="deleteBookModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="deleteBookModalOpen = false"></div>
-      <div class="relative z-10 bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-800">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-red-400">⚠️ 책 삭제 확인</h2>
-          <button @click="deleteBookModalOpen = false" class="text-zinc-400 hover:text-white">
+          <button @click="deleteBookModalOpen = false" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
             <X :size="24" />
           </button>
         </div>
 
         <div class="space-y-4">
-          <p class="text-zinc-300">정말 이 책을 삭제하시겠습니까?</p>
-          <div class="p-4 bg-zinc-800/50 rounded-xl">
-            <p class="font-bold text-zinc-200">{{ bookTitle }}</p>
-            <p class="text-sm text-zinc-400">{{ bookAuthor }}</p>
+          <p class="text-zinc-700 dark:text-zinc-300">정말 이 책을 삭제하시겠습니까?</p>
+          <div class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
+            <p class="font-bold text-zinc-800 dark:text-zinc-200">{{ bookTitle }}</p>
+            <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ bookAuthor }}</p>
           </div>
           <div class="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
             <p class="text-sm text-red-400 font-medium mb-2">다음 데이터가 함께 삭제됩니다:</p>
@@ -573,13 +596,13 @@
               <li>• 이 책의 모든 반응</li>
             </ul>
           </div>
-          <p class="text-sm text-zinc-500 font-bold">⚠️ 이 작업은 되돌릴 수 없습니다</p>
+          <p class="text-sm text-zinc-600 dark:text-zinc-500 font-bold">⚠️ 이 작업은 되돌릴 수 없습니다</p>
         </div>
 
         <div class="flex gap-3 mt-6">
           <button
             @click="deleteBookModalOpen = false"
-            class="flex-1 bg-zinc-800 text-white font-medium py-3 rounded-xl hover:bg-zinc-700 transition-colors"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-3 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
           >
             취소
           </button>
@@ -596,48 +619,48 @@
     <!-- Edit TOC Modal -->
     <div v-if="editTocModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="editTocModalOpen = false"></div>
-      <div class="relative z-10 bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-800 max-h-[90vh] overflow-y-auto">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-zinc-100">📑 목차 수정</h2>
-          <button @click="editTocModalOpen = false" class="text-zinc-400 hover:text-white">
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">📑 목차 수정</h2>
+          <button @click="editTocModalOpen = false" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
             <X :size="24" />
           </button>
         </div>
 
         <div class="space-y-4">
-          <div class="p-4 bg-zinc-800/50 rounded-xl mb-4">
-            <p class="font-bold text-zinc-200 text-sm">{{ bookTitle }}</p>
-            <p class="text-xs text-zinc-400">{{ bookAuthor }}</p>
+          <div class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl mb-4">
+            <p class="font-bold text-zinc-800 dark:text-zinc-200 text-sm">{{ bookTitle }}</p>
+            <p class="text-xs text-zinc-600 dark:text-zinc-400">{{ bookAuthor }}</p>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-zinc-400 mb-2">전체 페이지 수</label>
+            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">전체 페이지 수</label>
             <input
               v-model.number="editTotalPages"
               type="number"
-              class="w-full bg-zinc-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-zinc-400 mb-2">챕터 설정</label>
+            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">챕터 설정</label>
             <div class="space-y-2">
               <div v-for="(chapter, idx) in editChapters" :key="idx" class="flex gap-2">
                 <input
                   v-model="chapter.title"
                   type="text"
                   placeholder="챕터명"
-                  class="flex-1 bg-zinc-800 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
+                  class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
                 />
                 <input
                   v-model.number="chapter.startPage"
                   type="number"
                   placeholder="시작 쪽"
-                  class="w-20 bg-zinc-800 text-white rounded-lg px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-lime-400"
+                  class="w-20 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-lime-400"
                 />
                 <button
                   @click="removeEditChapter(idx)"
-                  class="text-zinc-500 hover:text-red-400 px-2"
+                  class="text-zinc-600 dark:text-zinc-500 hover:text-red-400 px-2"
                   :disabled="editChapters.length === 1"
                 >
                   <X :size="18" />
@@ -656,7 +679,7 @@
         <div class="flex gap-3 mt-6">
           <button
             @click="editTocModalOpen = false"
-            class="flex-1 bg-zinc-800 text-white font-medium py-3 rounded-xl hover:bg-zinc-700 transition-colors"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-3 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
           >
             취소
           </button>
@@ -682,7 +705,8 @@ import Timeline from '~/components/Timeline.vue'
 import SmartSlider from '~/components/SmartSlider.vue'
 import BookSearchModal from '~/components/BookSearchModal.vue'
 import ReviewModal from '~/components/ReviewModal.vue'
-import { Menu, Search, Plus, Settings, Share2, ChevronLeft, ChevronDown, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X } from 'lucide-vue-next'
+import { Menu, Search, Plus, Settings, Share2, ChevronLeft, ChevronDown, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X, BarChart3 } from 'lucide-vue-next'
+import GroupStatsModal from '~/components/GroupStatsModal.vue'
 
 // 인증 미들웨어 적용
 definePageMeta({
@@ -693,12 +717,14 @@ const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const client = useSupabaseClient()
+const { getBookRound } = useBookRound()
 
 const drawerOpen = ref(false)
 const showSettings = ref(false)
 const searchModalOpen = ref(false)
 const reviewModalOpen = ref(false)
 const commentModalOpen = ref(false)
+const groupStatsModalOpen = ref(false)
 const reviewInitialData = ref({ rating: 0, content: '' }) // For editing
 const showCommentInput = ref(false)
 const newCommentContent = ref('')
@@ -724,6 +750,7 @@ const showMemberProgress = ref(false)
 // Data Refs
 const group = ref<any>(null)
 const currentBook = ref<any>(null)
+const currentBookRound = ref<number | null>(null)
 const members = ref<any[]>([])
 const comments = ref<any[]>([])
 const historyBooks = ref<any[]>([])
@@ -734,6 +761,10 @@ const groupId = route.params.id as string
 // Computed
 const groupName = computed(() => group.value?.name || 'Loading...')
 const bookTitle = computed(() => currentBook.value?.book?.title || 'No Book Selected')
+const bookRoundLabel = computed(() => {
+  if (currentBookRound.value === null) return ''
+  return `[${currentBookRound.value}회]`
+})
 const bookAuthor = computed(() => currentBook.value?.book?.author || '')
 const bookCover = computed(() => currentBook.value?.book?.cover_url || '')
 const toc = computed(() => currentBook.value?.toc_snapshot || []) // Use snapshot or default
@@ -908,13 +939,22 @@ const fetchData = async () => {
     .eq('group_id', groupId)
     .eq('status', 'done')
     .order('finished_at', { ascending: false })
-  
+
   if (historyData) {
-    historyBooks.value = historyData.map((gb: any) => ({
-      id: gb.id,
-      title: gb.book.title,
-      date: new Date(gb.finished_at || gb.created_at).toLocaleDateString()
-    }))
+    // Calculate round numbers for history books
+    const historyBooksWithRounds = await Promise.all(
+      historyData.map(async (gb: any) => {
+        const round = await getBookRound(groupId, gb.isbn, gb.id)
+        return {
+          id: gb.id,
+          isbn: gb.isbn,
+          title: gb.book.title,
+          date: new Date(gb.finished_at || gb.created_at).toLocaleDateString(),
+          round
+        }
+      })
+    )
+    historyBooks.value = historyBooksWithRounds
   }
 }
 
@@ -1088,7 +1128,24 @@ const handleSliderChange = async (val: number) => {
   if (val > readProgress.value) {
     readProgress.value = val
     if (val >= 100) {
-      setTimeout(() => { reviewModalOpen.value = true }, 500)
+      // Check for existing review before opening modal
+      setTimeout(async () => {
+        if (!currentBook.value || !currentUserId.value) return
+
+        // Check for existing review for this group_book
+        const { data: existingReview } = await client
+          .from('reviews')
+          .select('*')
+          .eq('user_id', currentUserId.value)
+          .eq('group_book_id', currentBook.value.id)
+          .maybeSingle()
+
+        reviewInitialData.value = existingReview
+          ? { rating: existingReview.rating, content: existingReview.content || '' }
+          : { rating: 0, content: '' }
+
+        reviewModalOpen.value = true
+      }, 500)
     }
   }
 
@@ -1178,6 +1235,15 @@ const saveProgress = async (progress: number) => {
     }
   }
 }
+
+// Fetch book round number when current book changes
+watch(currentBook, async (newBook) => {
+  if (newBook && newBook.id && newBook.isbn) {
+    currentBookRound.value = await getBookRound(groupId, newBook.isbn, newBook.id)
+  } else {
+    currentBookRound.value = null
+  }
+}, { immediate: true })
 
 // Real-time scroll as slider moves
 let scrollTimeout: NodeJS.Timeout | null = null
@@ -1281,11 +1347,11 @@ const handleReviewSubmit = async (data: any) => {
       .from('reviews')
       .upsert({
         user_id: currentUserId.value,
-        book_id: currentBook.value.isbn, // ISBN is the book_id
+        group_book_id: currentBook.value.id,
         rating: data.rating,
         content: data.content
       }, {
-        onConflict: 'user_id,book_id'
+        onConflict: 'user_id,group_book_id'
       })
 
     if (error) {
@@ -1656,12 +1722,12 @@ const openReviewModalForEdit = async (book: any) => {
 
   if (!currentUserId.value) return
 
-  // Fetch existing review
+  // Fetch existing review for this group_book
   const { data: existingReview } = await client
     .from('reviews')
     .select('*')
     .eq('user_id', currentUserId.value)
-    .eq('book_id', book.id)
+    .eq('group_book_id', book.id)
     .maybeSingle()
 
   reviewInitialData.value = existingReview

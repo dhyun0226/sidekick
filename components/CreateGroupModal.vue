@@ -4,11 +4,11 @@
     <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="close"></div>
 
     <!-- Modal Content -->
-    <div class="relative w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl animate-scale-up">
+    <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-2xl p-6 shadow-2xl animate-scale-up">
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-white">새 그룹 만들기</h2>
-        <button @click="close" class="text-zinc-400 hover:text-white transition-colors">
+        <h2 class="text-xl font-bold text-zinc-900 dark:text-white">새 그룹 만들기</h2>
+        <button @click="close" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <X :size="24" />
         </button>
       </div>
@@ -17,18 +17,18 @@
       <div class="space-y-5">
         <!-- Group Name Input -->
         <div class="space-y-2">
-          <label class="block text-sm font-medium text-zinc-300">그룹 이름 *</label>
+          <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">그룹 이름 *</label>
           <input
             v-model="groupName"
             type="text"
             placeholder="예: 판교 직장인 독서클럽"
             maxlength="50"
-            class="w-full bg-zinc-800 border border-zinc-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-400/20 transition-all placeholder-zinc-500"
+            class="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-400/20 transition-all placeholder-zinc-600 dark:placeholder-zinc-500"
             @keyup.enter="handleCreate"
           />
           <div class="flex justify-between items-center text-xs">
             <span class="text-zinc-600">그룹명은 나중에 수정할 수 있어요</span>
-            <span class="text-zinc-500">{{ groupName.length }}/50</span>
+            <span class="text-zinc-600 dark:text-zinc-500">{{ groupName.length }}/50</span>
           </div>
         </div>
 
@@ -42,8 +42,8 @@
             </div>
             <div class="space-y-1">
               <p class="text-sm font-medium text-lime-400">그룹 생성 안내</p>
-              <p class="text-xs text-zinc-400">
-                그룹을 만들면 자동으로 <strong class="text-white">초대 코드</strong>가 생성됩니다.
+              <p class="text-xs text-zinc-600 dark:text-zinc-400">
+                그룹을 만들면 자동으로 <strong class="text-zinc-900 dark:text-white">초대 코드</strong>가 생성됩니다.
                 초대 코드를 공유하여 친구들을 초대하세요!
               </p>
             </div>
@@ -59,7 +59,7 @@
         <div class="flex gap-3 pt-2">
           <button
             @click="close"
-            class="flex-1 py-3 text-zinc-400 font-medium hover:text-white transition-colors rounded-xl hover:bg-zinc-800"
+            class="flex-1 py-3 text-zinc-600 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-white transition-colors rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800"
           >
             취소
           </button>

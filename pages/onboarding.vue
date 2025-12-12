@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-[#09090b] relative overflow-hidden">
+  <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-[#09090b] relative overflow-hidden">
     <!-- Background Effects -->
     <div class="absolute top-[-20%] left-[-20%] w-[500px] h-[500px] bg-lime-400/10 rounded-full blur-[100px] pointer-events-none"></div>
     <div class="absolute bottom-[-20%] right-[-20%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
@@ -10,17 +10,17 @@
         <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-lime-400 to-lime-600 mb-4 shadow-lg shadow-lime-400/20">
           <span class="text-4xl">👋</span>
         </div>
-        <h1 class="text-3xl font-bold text-white">환영합니다!</h1>
-        <p class="text-zinc-400">프로필을 설정하고 독서를 시작해보세요</p>
+        <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">환영합니다!</h1>
+        <p class="text-zinc-600 dark:text-zinc-400">프로필을 설정하고 독서를 시작해보세요</p>
       </div>
 
       <!-- Profile Setup Form -->
-      <div class="space-y-6 bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 rounded-2xl p-8">
+      <div class="space-y-6 bg-white dark:bg-zinc-900/50 backdrop-blur-sm border border-zinc-300 dark:border-zinc-800 rounded-2xl p-8">
 
         <!-- Avatar Section -->
         <div class="flex flex-col items-center space-y-4">
           <div class="relative group cursor-pointer" @click="handleAvatarClick">
-            <div class="w-24 h-24 rounded-full bg-zinc-800 overflow-hidden border-2 border-zinc-700 group-hover:border-lime-400 transition-colors">
+            <div class="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border-2 border-zinc-300 dark:border-zinc-700 group-hover:border-lime-400 transition-colors">
               <!-- Preview Image -->
               <img
                 v-if="avatarPreview"
@@ -29,7 +29,7 @@
                 alt="Avatar Preview"
               />
               <!-- Default Icon -->
-              <div v-else class="w-full h-full flex items-center justify-center text-zinc-500">
+              <div v-else class="w-full h-full flex items-center justify-center text-zinc-600 dark:text-zinc-500">
                 <User :size="40" />
               </div>
             </div>
@@ -50,7 +50,7 @@
           />
 
           <div class="text-center space-y-1">
-            <p class="text-sm text-zinc-400">프로필 사진 선택 (선택 사항)</p>
+            <p class="text-sm text-zinc-600 dark:text-zinc-400">프로필 사진 선택 (선택 사항)</p>
             <p class="text-xs text-zinc-600">클릭하여 이미지 업로드</p>
           </div>
 
@@ -64,22 +64,22 @@
         </div>
 
         <!-- Divider -->
-        <div class="border-t border-zinc-800"></div>
+        <div class="border-t border-zinc-300 dark:border-zinc-800"></div>
 
         <!-- Nickname Input -->
         <div class="space-y-2">
-          <label class="block text-sm font-bold text-zinc-300">닉네임 *</label>
+          <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300">닉네임 *</label>
           <input
             v-model="nickname"
             type="text"
             placeholder="사용할 닉네임을 입력하세요"
             maxlength="20"
-            class="w-full bg-zinc-800 border border-zinc-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-400/20 transition-all placeholder-zinc-500"
+            class="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-400/20 transition-all placeholder-zinc-600 dark:placeholder-zinc-500"
             @keyup.enter="handleSubmit"
           />
           <div class="flex justify-between items-center text-xs">
             <span class="text-zinc-600">2-20자 사이로 입력해주세요</span>
-            <span class="text-zinc-500">{{ nickname.length }}/20</span>
+            <span class="text-zinc-600 dark:text-zinc-500">{{ nickname.length }}/20</span>
           </div>
         </div>
 

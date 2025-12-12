@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-[#09090b] relative overflow-hidden">
+  <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-[#09090b] relative overflow-hidden">
     <!-- Background Effects -->
     <div class="absolute top-[-20%] left-[-20%] w-[500px] h-[500px] bg-lime-400/10 rounded-full blur-[100px] pointer-events-none"></div>
     <div class="absolute bottom-[-20%] right-[-20%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
@@ -10,8 +10,8 @@
         <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-lime-400 to-lime-600 mb-4 shadow-lg shadow-lime-400/20">
           <span class="text-3xl">📚</span>
         </div>
-        <h1 class="text-3xl font-bold text-white tracking-tight">Sidekick</h1>
-        <p class="text-zinc-400">함께 읽는 즐거움, 사이드킥</p>
+        <h1 class="text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Sidekick</h1>
+        <p class="text-zinc-600 dark:text-zinc-400">함께 읽는 즐거움, 사이드킥</p>
       </div>
 
       <!-- Social Login Buttons -->
@@ -33,7 +33,7 @@
       </div>
 
       <!-- Info Message -->
-      <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 backdrop-blur-sm">
+      <div class="bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-xl p-4 backdrop-blur-sm">
         <div class="flex gap-3">
           <div class="flex-shrink-0 mt-0.5">
             <svg class="w-5 h-5 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,15 +41,15 @@
             </svg>
           </div>
           <div class="space-y-1">
-            <p class="text-sm font-medium text-zinc-300">간편하고 안전한 소셜 로그인</p>
-            <p class="text-xs text-zinc-500">구글 계정으로 3초 만에 시작하세요. 별도의 비밀번호 관리가 필요 없습니다.</p>
+            <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">간편하고 안전한 소셜 로그인</p>
+            <p class="text-xs text-zinc-600 dark:text-zinc-500">구글 계정으로 3초 만에 시작하세요. 별도의 비밀번호 관리가 필요 없습니다.</p>
           </div>
         </div>
       </div>
 
       <!-- Features -->
       <div class="space-y-3 pt-4">
-        <div class="flex items-center gap-3 text-sm text-zinc-400">
+        <div class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
           <div class="w-5 h-5 rounded-full bg-lime-400/20 flex items-center justify-center flex-shrink-0">
             <svg class="w-3 h-3 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
@@ -57,7 +57,7 @@
           </div>
           <span>그룹과 함께 책 읽기</span>
         </div>
-        <div class="flex items-center gap-3 text-sm text-zinc-400">
+        <div class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
           <div class="w-5 h-5 rounded-full bg-lime-400/20 flex items-center justify-center flex-shrink-0">
             <svg class="w-3 h-3 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
@@ -65,7 +65,7 @@
           </div>
           <span>위치별 댓글 및 토론</span>
         </div>
-        <div class="flex items-center gap-3 text-sm text-zinc-400">
+        <div class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
           <div class="w-5 h-5 rounded-full bg-lime-400/20 flex items-center justify-center flex-shrink-0">
             <svg class="w-3 h-3 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
@@ -78,7 +78,7 @@
 
     <!-- Footer -->
     <div class="absolute bottom-6 text-center text-xs text-zinc-600">
-      <p>로그인하시면 <a href="#" class="text-zinc-500 hover:text-lime-400 underline">서비스 이용약관</a> 및 <a href="#" class="text-zinc-500 hover:text-lime-400 underline">개인정보처리방침</a>에 동의하게 됩니다.</p>
+      <p>로그인하시면 <a href="#" class="text-zinc-600 dark:text-zinc-500 hover:text-lime-400 underline">서비스 이용약관</a> 및 <a href="#" class="text-zinc-600 dark:text-zinc-500 hover:text-lime-400 underline">개인정보처리방침</a>에 동의하게 됩니다.</p>
     </div>
   </div>
 </template>

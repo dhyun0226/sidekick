@@ -4,12 +4,12 @@
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" @click="close"></div>
 
     <!-- Modal Content -->
-    <div class="relative z-10 bg-zinc-900 w-full max-w-[480px] rounded-t-3xl sm:rounded-2xl p-6 pointer-events-auto max-h-[90dvh] overflow-y-auto shadow-2xl border border-zinc-800">
-      
+    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-[480px] rounded-t-3xl sm:rounded-2xl p-6 pointer-events-auto max-h-[90dvh] overflow-y-auto shadow-2xl border border-zinc-300 dark:border-zinc-800">
+
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-zinc-100">새 책 시작하기</h2>
-        <button @click="close" class="text-zinc-400 hover:text-white">
+        <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">새 책 시작하기</h2>
+        <button @click="close" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
           <X :size="24" />
         </button>
       </div>
@@ -17,29 +17,29 @@
       <!-- Step 1: Search -->
       <div v-if="step === 1" class="space-y-4">
         <div class="relative">
-          <input 
-            v-model="query" 
+          <input
+            v-model="query"
             @keyup.enter="searchBooks"
-            type="text" 
-            placeholder="책 제목이나 저자를 검색하세요" 
-            class="w-full bg-zinc-800 text-white rounded-xl px-4 py-3 pl-11 focus:outline-none focus:ring-2 focus:ring-lime-400"
+            type="text"
+            placeholder="책 제목이나 저자를 검색하세요"
+            class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 pl-11 focus:outline-none focus:ring-2 focus:ring-lime-400"
           />
-          <Search class="absolute left-4 top-3.5 text-zinc-400" :size="20" />
+          <Search class="absolute left-4 top-3.5 text-zinc-600 dark:text-zinc-400" :size="20" />
         </div>
 
         <div class="space-y-2 mt-4">
-          <div v-if="loading && searchResults.length === 0" class="text-center py-8 text-zinc-500">검색중...</div>
+          <div v-if="loading && searchResults.length === 0" class="text-center py-8 text-zinc-600 dark:text-zinc-500">검색중...</div>
           <div
             v-for="book in searchResults"
             :key="book.isbn"
             @click="selectBook(book)"
-            class="flex gap-4 p-3 rounded-xl hover:bg-zinc-800 cursor-pointer transition-colors"
+            class="flex gap-4 p-3 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
           >
-            <img :src="book.cover" class="w-16 h-24 object-cover rounded shadow-md bg-zinc-700" />
+            <img :src="book.cover" class="w-16 h-24 object-cover rounded shadow-md bg-zinc-200 dark:bg-zinc-700" />
             <div class="flex-1 min-w-0">
-              <h3 class="font-bold text-zinc-200 truncate">{{ book.title }}</h3>
-              <p class="text-sm text-zinc-400 truncate">{{ book.author }}</p>
-              <p class="text-xs text-zinc-500 mt-1">{{ book.publisher }}</p>
+              <h3 class="font-bold text-zinc-800 dark:text-zinc-200 truncate">{{ book.title }}</h3>
+              <p class="text-sm text-zinc-600 dark:text-zinc-400 truncate">{{ book.author }}</p>
+              <p class="text-xs text-zinc-600 dark:text-zinc-500 mt-1">{{ book.publisher }}</p>
             </div>
           </div>
 
@@ -48,7 +48,7 @@
             <button
               @click="loadMore"
               :disabled="loading"
-              class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-medium py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ loading ? '로딩중...' : '더보기 (20개 더)' }}
             </button>
@@ -58,30 +58,30 @@
 
       <!-- Step 2: Configure TOC -->
       <div v-if="step === 2 && selectedBook" class="space-y-6">
-        <div class="flex gap-4 items-center p-4 bg-zinc-800/50 rounded-xl">
+        <div class="flex gap-4 items-center p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
           <img :src="selectedBook.cover" class="w-12 h-16 object-cover rounded" />
           <div>
-            <h3 class="font-bold text-zinc-200 text-sm">{{ selectedBook.title }}</h3>
-            <p class="text-xs text-zinc-400">{{ selectedBook.author }}</p>
+            <h3 class="font-bold text-zinc-800 dark:text-zinc-200 text-sm">{{ selectedBook.title }}</h3>
+            <p class="text-xs text-zinc-600 dark:text-zinc-400">{{ selectedBook.author }}</p>
           </div>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-zinc-400 mb-2">전체 페이지 수</label>
-          <input 
-            v-model.number="totalPages" 
-            type="number" 
-            class="w-full bg-zinc-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+          <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">전체 페이지 수</label>
+          <input
+            v-model.number="totalPages"
+            type="number"
+            class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-zinc-400 mb-2">챕터 설정 (선택사항)</label>
+          <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">챕터 설정 (선택사항)</label>
           <div class="space-y-2">
             <div v-for="(chapter, idx) in chapters" :key="idx" class="flex gap-2">
-              <input v-model="chapter.title" type="text" placeholder="챕터명" class="flex-1 bg-zinc-800 text-white rounded-lg px-3 py-2 text-sm" />
-              <input v-model.number="chapter.startPage" type="number" placeholder="시작 쪽" class="w-20 bg-zinc-800 text-white rounded-lg px-3 py-2 text-sm text-center" />
-              <button @click="removeChapter(idx)" class="text-zinc-500 hover:text-red-400 px-2">×</button>
+              <input v-model="chapter.title" type="text" placeholder="챕터명" class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-3 py-2 text-sm" />
+              <input v-model.number="chapter.startPage" type="number" placeholder="시작 쪽" class="w-20 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-3 py-2 text-sm text-center" />
+              <button @click="removeChapter(idx)" class="text-zinc-600 dark:text-zinc-500 hover:text-red-400 px-2">×</button>
             </div>
             <button @click="addChapter" class="text-sm text-lime-400 font-medium hover:underline">+ 챕터 추가</button>
           </div>
@@ -90,7 +90,7 @@
         <div class="flex gap-3">
           <button
             @click="step = 1"
-            class="flex-1 bg-zinc-800 text-white font-medium py-4 rounded-xl hover:bg-zinc-700 transition-colors"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
           >
             ← 이전
           </button>
@@ -106,37 +106,37 @@
 
       <!-- Step 3: Date Selection -->
       <div v-if="step === 3 && selectedBook" class="space-y-6">
-        <div class="flex gap-4 items-center p-4 bg-zinc-800/50 rounded-xl">
+        <div class="flex gap-4 items-center p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
           <img :src="selectedBook.cover" class="w-12 h-16 object-cover rounded" />
           <div>
-            <h3 class="font-bold text-zinc-200 text-sm">{{ selectedBook.title }}</h3>
-            <p class="text-xs text-zinc-400">{{ selectedBook.author }}</p>
+            <h3 class="font-bold text-zinc-800 dark:text-zinc-200 text-sm">{{ selectedBook.title }}</h3>
+            <p class="text-xs text-zinc-600 dark:text-zinc-400">{{ selectedBook.author }}</p>
           </div>
         </div>
 
         <div class="text-center">
           <div class="text-3xl mb-2">📅</div>
-          <h3 class="text-lg font-bold text-zinc-100 mb-1">독서 기간 설정</h3>
-          <p class="text-xs text-zinc-500">함께 읽을 기간을 정해보세요</p>
+          <h3 class="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-1">독서 기간 설정</h3>
+          <p class="text-xs text-zinc-600 dark:text-zinc-500">함께 읽을 기간을 정해보세요</p>
         </div>
 
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-zinc-400 mb-2">시작일</label>
+            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">시작일</label>
             <input
               v-model="startDate"
               type="date"
-              class="w-full bg-zinc-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-zinc-400 mb-2">종료일 (목표)</label>
+            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">종료일 (목표)</label>
             <input
               v-model="endDate"
               type="date"
               :min="startDate"
-              class="w-full bg-zinc-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
 
@@ -150,7 +150,7 @@
         <div class="flex gap-3">
           <button
             @click="step = 2"
-            class="flex-1 bg-zinc-800 text-white font-medium py-4 rounded-xl hover:bg-zinc-700 transition-colors"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
           >
             ← 이전
           </button>

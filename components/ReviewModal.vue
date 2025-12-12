@@ -4,10 +4,10 @@
     <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="$emit('close')"></div>
 
     <!-- Modal Content -->
-    <div class="relative w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl animate-scale-up">
+    <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-2xl p-6 shadow-2xl animate-scale-up">
       <div class="text-center mb-6">
-        <h2 class="text-xl font-bold text-white mb-2">책을 완독하셨군요! 🎉</h2>
-        <p class="text-sm text-zinc-400">이 책은 어떠셨나요?</p>
+        <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">책을 완독하셨군요! 🎉</h2>
+        <p class="text-sm text-zinc-600 dark:text-zinc-400">이 책은 어떠셨나요?</p>
       </div>
 
       <!-- Star Rating (0.5 increments) -->
@@ -21,7 +21,7 @@
             style="width: 32px; height: 32px;"
           >
             <!-- Background (empty star) -->
-            <Star :size="32" class="absolute inset-0 text-zinc-700" />
+            <Star :size="32" class="absolute inset-0 text-zinc-300 dark:text-zinc-700" />
 
             <!-- Foreground (filled star with clip) -->
             <div
@@ -39,17 +39,17 @@
       </div>
 
       <!-- Review Text -->
-      <textarea 
+      <textarea
         v-model="content"
         placeholder="짧은 감상평을 남겨주세요 (선택)"
-        class="w-full h-24 bg-zinc-800 text-white rounded-xl p-4 mb-6 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm"
+        class="w-full h-24 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl p-4 mb-6 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm"
       ></textarea>
 
       <!-- Actions -->
       <div class="flex gap-3">
-        <button 
+        <button
           @click="$emit('close')"
-          class="flex-1 py-3 text-zinc-400 font-medium hover:text-white transition-colors"
+          class="flex-1 py-3 text-zinc-600 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-white transition-colors"
         >
           나중에
         </button>

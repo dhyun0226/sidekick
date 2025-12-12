@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-[#09090b]">
+  <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#09090b]">
     <div class="text-center space-y-4">
       <!-- Loading Spinner -->
       <div v-if="!error" class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-lime-400/20 animate-pulse">
@@ -14,10 +14,10 @@
       </div>
 
       <div class="space-y-2">
-        <h2 class="text-xl font-bold text-white">
+        <h2 class="text-xl font-bold text-zinc-900 dark:text-white">
           {{ error ? '로그인 실패' : '로그인 중입니다...' }}
         </h2>
-        <p class="text-sm text-zinc-400">
+        <p class="text-sm text-zinc-600 dark:text-zinc-400">
           {{ error || '잠시만 기다려주세요' }}
         </p>
       </div>

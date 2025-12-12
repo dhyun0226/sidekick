@@ -1,8 +1,8 @@
 <template>
   <div class="fixed bottom-0 left-0 right-0 z-50 overflow-visible">
     <!-- Glassmorphism Container -->
-    <div class="max-w-[480px] mx-auto bg-black/80 backdrop-blur-md border-t border-zinc-800 pb-safe overflow-visible">
-      
+    <div class="max-w-[480px] mx-auto bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-zinc-300 dark:border-zinc-800 pb-safe overflow-visible">
+
       <!-- Slider Area -->
       <div
         class="relative h-16 w-full cursor-pointer touch-none select-none overflow-visible"
@@ -14,11 +14,11 @@
       >
         <!-- Chapter Backgrounds -->
         <div class="absolute inset-0 flex h-full opacity-30">
-          <div 
-            v-for="(chapter, index) in chapters" 
+          <div
+            v-for="(chapter, index) in chapters"
             :key="index"
             :style="{ width: `${chapter.width}%` }"
-            class="h-full border-r border-zinc-700 last:border-r-0 transition-colors duration-300"
+            class="h-full border-r border-zinc-300 dark:border-zinc-700 last:border-r-0 transition-colors duration-300"
             :class="[
               currentPct >= chapter.start && currentPct < chapter.end ? 'bg-lime-400/20' : 'bg-transparent'
             ]"
@@ -30,7 +30,7 @@
           <div
             v-for="i in 21"
             :key="i"
-            class="absolute bottom-0 w-px bg-zinc-700"
+            class="absolute bottom-0 w-px bg-zinc-300 dark:bg-zinc-700"
             :class="(i - 1) % 2 === 0 ? 'h-3' : 'h-1.5'"
             :style="{ left: `${(i - 1) * 5}%` }"
           ></div>
@@ -53,7 +53,7 @@
         <!-- Tooltip (Visible on Drag) -->
         <div
           v-if="isDragging"
-          class="absolute -top-12 bg-zinc-800 text-zinc-100 px-3 py-1.5 rounded-lg text-xs font-medium shadow-xl border border-zinc-700 whitespace-nowrap pointer-events-none animate-fade-in-up"
+          class="absolute -top-12 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-3 py-1.5 rounded-lg text-xs font-medium shadow-xl border border-zinc-300 dark:border-zinc-700 whitespace-nowrap pointer-events-none animate-fade-in-up"
           :style="tooltipPositionStyle"
         >
           <span class="text-lime-400 mr-1">{{ Math.round(currentPct) }}%</span>
@@ -61,15 +61,15 @@
         </div>
 
       </div>
-      
+
       <!-- Action Bar (Optional, e.g. Write Button) -->
       <div class="flex justify-between items-center px-4 py-3">
-        <div class="text-xs text-zinc-500 font-mono">
+        <div class="text-xs text-zinc-600 dark:text-zinc-500 font-mono">
           {{ currentChapterName }}
         </div>
-        <button 
+        <button
           @click="$emit('write')"
-          class="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-lime-400 hover:bg-zinc-700 transition-colors"
+          class="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-lime-400 hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors"
         >
           <PenLine :size="20" />
         </button>

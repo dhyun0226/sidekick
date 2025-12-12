@@ -90,6 +90,12 @@ create table public.users (
   id uuid references auth.users on delete cascade not null primary key,
   nickname text,
   avatar_url text,
+  notification_settings jsonb default jsonb_build_object(
+    'comment_reply', true,
+    'reaction', true,
+    'member_join', true,
+    'completion', true
+  ) not null,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -180,15 +186,20 @@ create table public.reactions (
 );
 
 -- 3.9 Reviews (Star Rating & Content)
+-- Reviews are tied to group_books (not just books) to preserve group reading history
+-- This allows multiple reviews for the same book when:
+--   1. Read in different groups
+--   2. Group admin adds the same book again for re-reading (creates new group_book_id)
+-- Completion time is tracked in user_reading_progress.finished_at
 create table public.reviews (
   id uuid default uuid_generate_v4() primary key,
   user_id uuid references public.users(id) on delete cascade not null,
-  book_id text references public.books(isbn) on delete cascade not null,
-  rating int not null check (rating >= 1 and rating <= 5),
+  group_book_id uuid references public.group_books(id) on delete cascade not null,
+  rating numeric(2, 1) not null check (rating >= 0.5 and rating <= 5),
   content text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  unique(user_id, book_id)
+  unique(user_id, group_book_id)
 );
 
 -- 3.10 Notifications
