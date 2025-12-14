@@ -1,71 +1,36 @@
 <template>
   <div class="relative min-h-[100dvh] bg-gray-50 dark:bg-background">
     <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-zinc-300 dark:border-zinc-800">
+    <header class="fixed top-0 left-0 right-0 z-40 bg-white/90 dark:bg-black/90 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800 transition-all duration-300">
       <div class="max-w-[480px] mx-auto flex justify-between items-center px-4 h-14">
-        <div class="flex items-center gap-2">
-          <button @click="router.push('/')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white" title="홈으로">
-            <ChevronLeft :size="24" />
-          </button>
-          <button @click="drawerOpen = true" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white" title="메뉴">
-            <Menu :size="24" />
-          </button>
-        </div>
-        <div class="flex flex-col items-center">
-          <h1 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">{{ groupName }}</h1>
-          <span v-if="currentBook" class="text-[10px] text-zinc-600 dark:text-zinc-400">
-            {{ bookTitle }}
-            <span v-if="bookRoundLabel" class="text-lime-400 ml-1">{{ bookRoundLabel }}</span>
-          </span>
-        </div>
-        <button class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white opacity-0 pointer-events-none">
-          <Search :size="24" />
+        <button @click="router.push('/')" class="p-2 -ml-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" title="홈으로">
+          <ChevronLeft :size="24" />
+        </button>
+        
+        <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100 truncate max-w-[200px] text-center">
+          {{ groupName }}
+        </h1>
+
+        <button @click="drawerOpen = true" class="p-2 -mr-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" title="메뉴">
+          <Menu :size="24" />
         </button>
       </div>
     </header>
 
     <!-- Timeline Content -->
-    <div class="pt-16 pb-32 min-h-screen">
-      <!-- Member Progress Section (책이 있을 때만 표시) -->
-      <div v-if="currentBook" class="max-w-[480px] mx-auto px-4 mt-4 mb-4">
-        <div class="bg-white dark:bg-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-4">
-          <button
-            @click="showMemberProgress = !showMemberProgress"
-            class="w-full flex justify-between items-center"
-          >
-            <span class="text-sm font-medium text-zinc-600 dark:text-zinc-400">멤버 진행도</span>
-            <ChevronDown :class="{ 'rotate-180': showMemberProgress }" :size="16" class="text-zinc-600 dark:text-zinc-400 transition-transform" />
-          </button>
-
-          <div v-if="showMemberProgress" class="mt-4 space-y-3">
-            <div v-for="member in sortedMembersWithProgress" :key="member.id" class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden flex-shrink-0">
-                <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
-              </div>
-              <div class="flex-1">
-                <div class="flex justify-between text-xs mb-1">
-                  <span class="text-zinc-700 dark:text-zinc-300">{{ member.nickname }}</span>
-                  <span class="text-lime-400 font-mono">{{ member.progress }}%</span>
-                </div>
-                <div class="h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-                  <div class="h-full bg-lime-400 transition-all duration-300" :style="{ width: `${member.progress}%` }"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div class="pt-14 pb-48 px-safe min-h-screen">
       <!-- 책이 없을 때 Empty State -->
       <div v-if="!currentBook" class="flex flex-col items-center justify-center min-h-[60vh] px-4">
-        <div class="text-6xl mb-4">📖</div>
-        <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">책을 선택해주세요</h2>
-        <p class="text-sm text-zinc-600 dark:text-zinc-400 text-center mb-6 max-w-xs">
-          왼쪽 상단 메뉴에서<br />"새 책 시작하기"를 눌러 함께 읽을 책을 선택하세요!
+        <div class="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6">
+          <span class="text-4xl">📖</span>
+        </div>
+        <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">함께 읽을 책을 정해주세요</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 text-center mb-8 max-w-xs leading-relaxed">
+          오른쪽 상단 메뉴에서<br />"새 책 시작하기"를 눌러보세요!
         </p>
         <button
           @click="drawerOpen = true"
-          class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-colors flex items-center gap-2"
+          class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-colors flex items-center gap-2 shadow-lg shadow-lime-400/20"
         >
           <Menu :size="20" />
           메뉴 열기
@@ -173,291 +138,269 @@
     </div>
 
     <!-- Side Drawer -->
-    <div v-if="drawerOpen" class="fixed inset-0 z-50 flex justify-start">
+    <div v-if="drawerOpen" class="fixed inset-0 z-50 flex justify-end">
       <!-- Backdrop -->
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="drawerOpen = false"></div>
       
       <!-- Drawer Content -->
-      <div class="relative w-[80%] max-w-[320px] h-full bg-white dark:bg-zinc-900 border-r border-zinc-300 dark:border-zinc-800 p-6 flex flex-col shadow-2xl animate-slide-right">
-
-        <!-- Main Drawer View -->
-        <div v-if="!showSettings" class="flex flex-col h-full">
-          <div class="mb-8 flex justify-between items-start">
-            <div>
-              <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-1">{{ groupName }}</h2>
-              <p class="text-xs text-zinc-600 dark:text-zinc-500">멤버 {{ members.length }}명</p>
-            </div>
-            <button v-if="isAdmin" @click="showSettings = true" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white p-1">
-              <Settings :size="20" />
-            </button>
-          </div>
-
-          <div class="mb-8">
-            <div class="flex justify-between items-center mb-3">
-              <h3 class="text-xs font-bold text-lime-400 uppercase tracking-wider">Now Reading</h3>
-              <!-- Admin Menu Button -->
-              <div v-if="currentBook && isAdmin" class="relative">
-                <button
-                  @click="bookMenuOpen = !bookMenuOpen"
-                  class="p-1 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors"
-                >
-                  <MoreVertical :size="16" />
-                </button>
-
-                <!-- Backdrop to close menu -->
-                <div
-                  v-if="bookMenuOpen"
-                  class="fixed inset-0 z-40"
-                  @click="bookMenuOpen = false"
-                ></div>
-
-                <!-- Dropdown Menu -->
-                <div
-                  v-if="bookMenuOpen"
-                  class="absolute right-0 top-8 w-48 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg shadow-xl z-50"
-                >
-                  <button
-                    @click="openEditDatesModal"
-                    class="w-full text-left px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors flex items-center gap-2 rounded-t-lg"
-                  >
-                    <Edit2 :size="14" />
-                    독서 기간 수정
-                  </button>
-                  <button
-                    @click="openEditTocModal"
-                    class="w-full text-left px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors flex items-center gap-2"
-                  >
-                    📑 목차 수정
-                  </button>
-                  <button
-                    @click="openMarkCompletedModal"
-                    class="w-full text-left px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors flex items-center gap-2"
-                  >
-                    ✅ 완독 처리
-                  </button>
-                  <div class="border-t border-zinc-300 dark:border-zinc-700"></div>
-                  <button
-                    @click="openDeleteBookModal"
-                    class="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors flex items-center gap-2 rounded-b-lg"
-                  >
-                    🗑️ 책 삭제
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 책이 있을 때 -->
-            <div v-if="currentBook" class="flex gap-3 bg-zinc-100 dark:bg-zinc-800/50 p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 mb-4">
-              <img :src="bookCover" class="w-12 h-16 object-cover rounded bg-zinc-200 dark:bg-zinc-700" />
-              <div class="flex-1 min-w-0">
-                <div class="font-bold text-zinc-800 dark:text-zinc-200 text-sm">
-                  {{ bookTitle }}
-                  <span v-if="bookRoundLabel" class="text-lime-400 ml-1 text-xs">{{ bookRoundLabel }}</span>
-                </div>
-                <div class="text-xs text-zinc-600 dark:text-zinc-400 mb-2">{{ bookAuthor }}</div>
-
-                <!-- Reading Period Info -->
-                <div v-if="formattedDateRange" class="space-y-1">
-                  <div class="flex items-center gap-1 text-[10px] text-zinc-600 dark:text-zinc-500">
-                    <span>📅</span>
-                    <span>{{ formattedDateRange }}</span>
-                    <span v-if="totalReadingDays" class="text-zinc-500 dark:text-zinc-600">({{ totalReadingDays }}일)</span>
-                  </div>
-                  <div v-if="daysRemaining !== null" class="flex items-center gap-1 text-xs">
-                    <span
-                      class="font-bold"
-                      :class="{
-                        'text-red-400': daysRemaining <= 7 && daysRemaining > 0,
-                        'text-orange-400': daysRemaining > 7 && daysRemaining <= 14,
-                        'text-lime-400': daysRemaining > 14,
-                        'text-red-500': daysRemaining <= 0
-                      }"
-                    >
-                      {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day!' : `D+${Math.abs(daysRemaining)}` }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 책이 없을 때 Empty State -->
-            <div v-else class="flex flex-col items-center justify-center p-6 bg-zinc-100 dark:bg-zinc-800/30 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 mb-4">
-              <div class="text-4xl mb-3">📚</div>
-              <p class="text-sm text-zinc-600 dark:text-zinc-400 text-center mb-4">아직 읽고 있는 책이 없어요</p>
-              <button
-                @click="openSearchModal"
-                class="px-4 py-2 bg-lime-400 text-black text-xs font-bold rounded-lg hover:bg-lime-300 transition-colors flex items-center gap-1"
-              >
-                <Plus :size="14" />
-                책 시작하기
-              </button>
-            </div>
-
-            <!-- Chapter Navigation (책이 있을 때만 표시) -->
-            <div v-if="currentBook && toc.length > 0" class="space-y-1 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
-              <button
-                v-for="(chapter, index) in toc"
-                :key="index"
-                @click="jumpToChapter(chapter.start)"
-                class="w-full text-left px-3 py-2 rounded-lg text-xs text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors flex justify-between items-center group"
-                :class="{ 'text-lime-400 bg-zinc-100 dark:bg-zinc-800/50': isCurrentChapter(chapter) }"
-              >
-                <span class="truncate">{{ chapter.title }}</span>
-                <span class="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">{{ chapter.start }}%</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="flex-1 overflow-y-auto">
-            <button
-              @click="groupStatsModalOpen = true"
-              class="w-full flex items-center justify-between mb-3 px-2 py-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors group"
-            >
-              <h3 class="text-xs font-bold text-zinc-600 dark:text-zinc-500 uppercase tracking-wider">History</h3>
-              <BarChart3 :size="14" class="text-zinc-500 dark:text-zinc-600 group-hover:text-lime-400 transition-colors" />
-            </button>
-            <div class="space-y-3">
-              <div v-for="book in historyBooks" :key="book.id" class="flex gap-3 p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg cursor-pointer transition-colors group relative">
-                <div class="w-8 h-12 bg-zinc-200 dark:bg-zinc-700 rounded flex-shrink-0"></div>
-                <div>
-                  <div class="text-sm text-zinc-700 dark:text-zinc-300 font-medium">
-                    {{ book.title }}
-                    <span v-if="book.round" class="text-lime-400 ml-1 text-xs">[{{ book.round }}회]</span>
-                  </div>
-                  <div class="text-[10px] text-zinc-600 dark:text-zinc-500">{{ book.date }}</div>
-                </div>
-                <!-- Edit Review Button (Visible on Hover) -->
-                <button
-                  @click.stop="openReviewModalForEdit(book)"
-                  class="absolute right-2 top-2 p-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-300 dark:hover:bg-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="리뷰 수정"
-                >
-                  <Edit2 :size="12" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-6 space-y-3">
-            <!-- Invite Code Display -->
-            <div class="flex items-center justify-between p-3 bg-zinc-100 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700">
-              <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">초대 코드:</span>
-              <span class="font-mono text-lg font-bold text-lime-600 dark:text-lime-400 tracking-widest">{{ group.invite_code }}</span>
-              <button
-                @click="copyInviteCode"
-                class="p-1.5 rounded-full text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors"
-                title="초대 코드 복사"
-              >
-                <Copy :size="16" />
-              </button>
-            </div>
-
-            <button
-              @click="copyInviteLink"
-              class="w-full py-3 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded-xl font-medium hover:text-zinc-900 dark:hover:text-white transition-colors flex items-center justify-center gap-2"
-            >
-              <Share2 :size="16" />
-              초대 링크 공유
-            </button>
-          </div>
+      <div class="relative w-[85%] max-w-[360px] h-full bg-white dark:bg-zinc-900 border-l border-zinc-200 dark:border-zinc-800 flex flex-col shadow-2xl animate-slide-left overflow-hidden">
+        
+        <!-- Drawer Header -->
+        <div class="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md">
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white truncate pr-2">{{ groupName }}</h2>
+          <button @click="drawerOpen = false" class="text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
+            <X :size="24" />
+          </button>
         </div>
 
-        <!-- Settings View -->
-        <div v-else class="flex flex-col h-full">
-          <div class="flex items-center gap-2 mb-6">
-            <button @click="showSettings = false" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
-              <ChevronLeft :size="24" />
-            </button>
-            <h2 class="text-lg font-bold text-zinc-900 dark:text-white">그룹 설정</h2>
-          </div>
+        <!-- Tabs -->
+        <div class="flex border-b border-zinc-200 dark:border-zinc-800">
+          <button 
+            @click="drawerTab = 'info'" 
+            class="flex-1 py-3 text-sm font-medium transition-colors relative"
+            :class="drawerTab === 'info' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-500'"
+          >
+            정보
+            <div v-if="drawerTab === 'info'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-4"></div>
+          </button>
+          <button 
+            @click="drawerTab = 'members'" 
+            class="flex-1 py-3 text-sm font-medium transition-colors relative"
+            :class="drawerTab === 'members' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-500'"
+          >
+            멤버
+            <div v-if="drawerTab === 'members'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-4"></div>
+          </button>
+          <button 
+            @click="drawerTab = 'settings'" 
+            class="flex-1 py-3 text-sm font-medium transition-colors relative"
+            :class="drawerTab === 'settings' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-500'"
+          >
+            설정
+            <div v-if="drawerTab === 'settings'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-4"></div>
+          </button>
+        </div>
 
-          <div class="space-y-6 flex-1">
-            <div>
-              <label class="block text-xs font-bold text-zinc-600 dark:text-zinc-500 mb-2 uppercase">그룹 이름</label>
-              <input
-                v-model="editingGroupName"
-                type="text"
-                class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400 mb-3"
-              />
-              <button
-                @click="saveGroupName"
-                class="w-full bg-lime-400 text-black py-2.5 rounded-xl font-bold hover:bg-lime-300 transition-colors text-sm"
-              >
-                그룹 이름 저장
-              </button>
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-zinc-600 dark:text-zinc-500 mb-2 uppercase">멤버 관리</label>
-              <div class="bg-zinc-100 dark:bg-zinc-800/50 rounded-xl p-2 space-y-1">
-                <div v-for="member in members" :key="member.id" class="relative flex justify-between items-center p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg group">
-                  <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden">
-                      <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
-                    </div>
-                    <span class="text-sm text-zinc-800 dark:text-zinc-200">{{ member.nickname }}</span>
-                  </div>
-
-                  <div class="flex items-center gap-2">
-                    <span v-if="member.role === 'admin'" class="text-[10px] text-lime-400 bg-lime-400/10 px-1.5 py-0.5 rounded">ADMIN</span>
-
-                    <!-- Admin Menu Trigger (Only for admins, not for self) -->
-                    <button
-                      v-if="isAdmin && member.id !== currentUserId"
-                      @click.stop="toggleMemberMenu(member.id)"
-                      class="text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white p-1"
-                    >
-                      <MoreVertical :size="16" />
+        <!-- Tab Content -->
+        <div class="flex-1 overflow-y-auto p-4 bg-zinc-50 dark:bg-[#09090b]">
+          
+          <!-- Tab 1: Info (Book, TOC, History) -->
+          <div v-if="drawerTab === 'info'" class="space-y-6">
+            <!-- Current Book Card -->
+            <div v-if="currentBook" class="bg-white dark:bg-zinc-900 rounded-xl p-4 shadow-sm border border-zinc-200 dark:border-zinc-800">
+              <div class="flex justify-between items-center mb-3">
+                <span class="text-xs font-bold text-lime-600 dark:text-lime-400 uppercase tracking-wider">Now Reading</span>
+                <!-- Admin Book Menu -->
+                <div v-if="isAdmin" class="relative">
+                  <button @click="bookMenuOpen = !bookMenuOpen" class="text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
+                    <MoreVertical :size="16" />
+                  </button>
+                  <div v-if="bookMenuOpen" class="absolute right-0 top-6 w-40 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-20 overflow-hidden">
+                    <button @click="openEditDatesModal" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+                      <Edit2 :size="12" /> 기간 수정
                     </button>
+                    <button @click="openEditTocModal" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+                      <Settings :size="12" /> 목차 수정
+                    </button>
+                    <button @click="openMarkCompletedModal" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+                      <UserCheck :size="12" /> 완독 처리
+                    </button>
+                    <button @click="openDeleteBookModal" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50">
+                      <UserX :size="12" /> 책 삭제
+                    </button>
+                  </div>
+                  <!-- Backdrop for menu -->
+                  <div v-if="bookMenuOpen" class="fixed inset-0 z-10" @click="bookMenuOpen = false"></div>
+                </div>
+              </div>
 
-                    <!-- Admin Menu Dropdown -->
-                    <div
-                      v-if="activeMemberMenu === member.id"
-                      class="absolute right-0 top-8 w-32 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-xl shadow-xl z-10 overflow-hidden"
-                    >
-                      <button
-                        @click="promoteMember(member.id)"
-                        class="w-full flex items-center gap-2 px-3 py-2 text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white text-left"
-                      >
-                        <UserCheck :size="14" />
-                        관리자 위임
-                      </button>
-                      <button
-                        @click="kickMember(member.id)"
-                        class="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-red-50 dark:hover:bg-red-400/10 text-left"
-                      >
-                        <UserX :size="14" />
-                        강제 퇴장
-                      </button>
+              <div class="flex gap-3 mb-3">
+                <img :src="bookCover" class="w-16 h-24 object-cover rounded shadow-md bg-zinc-200 dark:bg-zinc-800" />
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-bold text-zinc-900 dark:text-white line-clamp-2 text-sm">{{ bookTitle }}</h3>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 mb-2">{{ bookAuthor }}</p>
+                  <div class="text-[10px] text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded px-2 py-1 inline-block">
+                    {{ formattedDateRange || '기간 미설정' }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- D-Day Bar -->
+              <div v-if="daysRemaining !== null" class="bg-zinc-100 dark:bg-zinc-800 rounded-lg p-2 flex items-center justify-between">
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">목표일까지</span>
+                <span class="text-xs font-bold" :class="{
+                  'text-red-500': daysRemaining <= 0,
+                  'text-orange-500': daysRemaining > 0 && daysRemaining <= 7,
+                  'text-lime-500': daysRemaining > 7
+                }">
+                  {{ daysRemaining > 0 ? `${daysRemaining}일 남음` : daysRemaining === 0 ? '오늘까지!' : `+${Math.abs(daysRemaining)}일 지남` }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Chapter Navigation -->
+            <div v-if="currentBook && toc.length > 0">
+              <h3 class="text-xs font-bold text-zinc-500 uppercase mb-2 px-1">목차 바로가기</h3>
+              <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                <button
+                  v-for="(chapter, index) in toc"
+                  :key="index"
+                  @click="jumpToChapter(chapter.start)"
+                  class="w-full text-left px-4 py-3 text-xs border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-800 flex justify-between items-center group transition-colors"
+                  :class="{ 'bg-lime-50/50 dark:bg-lime-900/10': isCurrentChapter(chapter) }"
+                >
+                  <span class="text-zinc-700 dark:text-zinc-300 truncate pr-2" :class="{ 'font-bold text-lime-700 dark:text-lime-400': isCurrentChapter(chapter) }">
+                    {{ chapter.title }}
+                  </span>
+                  <span class="text-[10px] text-zinc-400">{{ Math.round(chapter.start) }}%</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- History Section -->
+            <div>
+              <div class="flex items-center justify-between mb-2 px-1">
+                <h3 class="text-xs font-bold text-zinc-500 uppercase">지난 독서 기록</h3>
+                <button @click="groupStatsModalOpen = true" class="p-1 text-zinc-400 hover:text-lime-500 transition-colors" title="통계 보기">
+                  <BarChart3 :size="14" />
+                </button>
+              </div>
+              
+              <div v-if="historyBooks.length > 0" class="space-y-2">
+                <div 
+                  v-for="book in historyBooks"
+                  :key="book.id"
+                  class="bg-white dark:bg-zinc-900 rounded-xl p-3 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between group hover:border-lime-300 dark:hover:border-lime-700 transition-colors cursor-pointer"
+                  @click="openReviewModalForEdit(book)"
+                >
+                  <div>
+                    <p class="text-xs font-bold text-zinc-800 dark:text-zinc-200 line-clamp-1">{{ book.title }}</p>
+                    <p class="text-[10px] text-zinc-500">{{ book.date }} 완독</p>
+                  </div>
+                  <Edit2 :size="12" class="text-zinc-300 group-hover:text-lime-500 transition-colors" />
+                </div>
+              </div>
+              <div v-else class="text-center py-6 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
+                아직 완독한 책이 없습니다
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Members (List & Progress) -->
+          <div v-if="drawerTab === 'members'" class="space-y-4">
+            <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+              <div class="p-3 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/30 flex justify-between items-center">
+                <h3 class="text-xs font-bold text-zinc-500 uppercase">독서 레이스</h3>
+                <span class="text-[10px] text-zinc-400">{{ sortedMembersWithProgress.length }}명 참여 중</span>
+              </div>
+              
+              <div class="divide-y divide-zinc-100 dark:divide-zinc-800/50">
+                <div v-for="member in sortedMembersWithProgress" :key="member.id" class="p-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
+                  <div class="flex items-center gap-3 mb-2">
+                    <div class="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden flex-shrink-0 border border-zinc-100 dark:border-zinc-600">
+                      <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
+                      <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
+                        <User :size="14" />
+                      </div>
                     </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex justify-between items-center">
+                        <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate pr-2">
+                          {{ member.nickname }}
+                          <span v-if="member.role === 'admin'" class="text-[9px] text-lime-600 bg-lime-100 px-1 py-0.5 rounded ml-1 font-normal align-middle">L</span>
+                        </span>
+                        <span class="text-xs font-mono font-bold" :class="member.progress >= 100 ? 'text-lime-500' : 'text-zinc-500'">
+                          {{ member.progress }}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Progress Bar -->
+                  <div class="h-1.5 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                    <div 
+                      class="h-full rounded-full transition-all duration-500 ease-out"
+                      :class="member.progress >= 100 ? 'bg-lime-500' : 'bg-zinc-400 dark:bg-zinc-600'"
+                      :style="{ width: `${member.progress}%` }"
+                    ></div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="mt-auto pt-6 border-t border-zinc-300 dark:border-zinc-800 space-y-3">
-            <!-- 그룹 삭제 (관리자만) -->
-            <button
-              v-if="isAdmin"
-              @click="deleteGroup"
-              class="w-full py-3 text-red-500 bg-red-500/10 rounded-xl font-bold hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2 border border-red-500/20"
-            >
-              <X :size="16" />
-              그룹 영구 삭제
-            </button>
+          <!-- Tab 3: Settings (Group Info, Admin) -->
+          <div v-if="drawerTab === 'settings'" class="space-y-6">
+            <!-- Invite Code -->
+            <div class="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800">
+              <h3 class="text-xs font-bold text-zinc-500 uppercase mb-3">초대 코드</h3>
+              <div class="flex items-center gap-2 mb-3">
+                <div class="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg py-2 px-3 text-center font-mono font-bold text-lg text-zinc-800 dark:text-zinc-200 tracking-widest border border-zinc-200 dark:border-zinc-700">
+                  {{ group.invite_code }}
+                </div>
+                <button @click="copyInviteCode" class="p-2.5 bg-zinc-900 dark:bg-zinc-700 text-white rounded-lg hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-colors">
+                  <Copy :size="18" />
+                </button>
+              </div>
+              <button
+                @click="copyInviteLink"
+                class="w-full py-2.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded-lg text-xs font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2"
+              >
+                <Share2 :size="14" />
+                초대 링크 공유하기
+              </button>
+            </div>
 
-            <!-- 그룹 나가기 -->
-            <button
-              @click="leaveGroup"
-              class="w-full py-3 text-red-400 bg-red-400/10 rounded-xl font-medium hover:bg-red-400/20 transition-colors flex items-center justify-center gap-2"
-            >
-              <LogOut :size="16" />
-              그룹 나가기
-            </button>
+            <!-- Group Management -->
+            <div class="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800">
+              <h3 class="text-xs font-bold text-zinc-500 uppercase mb-3">그룹 관리</h3>
+              
+              <div class="space-y-3">
+                <div v-if="isAdmin">
+                  <label class="block text-[10px] text-zinc-400 mb-1">그룹 이름 수정</label>
+                  <div class="flex gap-2">
+                    <input 
+                      v-model="editingGroupName" 
+                      type="text" 
+                      class="flex-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-lime-400 transition-colors"
+                    />
+                    <button @click="saveGroupName" class="px-3 py-2 bg-zinc-900 dark:bg-zinc-700 text-white rounded-lg text-xs font-bold hover:bg-zinc-700 transition-colors">
+                      저장
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  @click="openSearchModal"
+                  class="w-full py-3 bg-lime-50 dark:bg-lime-900/20 text-lime-700 dark:text-lime-400 rounded-lg text-sm font-bold hover:bg-lime-100 dark:hover:bg-lime-900/30 transition-colors flex items-center justify-center gap-2 border border-lime-200 dark:border-lime-800/50"
+                >
+                  <Plus :size="16" />
+                  새 책 시작하기
+                </button>
+              </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="space-y-2 pt-4">
+              <button
+                @click="leaveGroup"
+                class="w-full py-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2"
+              >
+                <LogOut :size="16" />
+                그룹 나가기
+              </button>
+              
+              <button
+                v-if="isAdmin"
+                @click="deleteGroup"
+                class="w-full py-3 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2"
+              >
+                그룹 영구 삭제
+              </button>
+            </div>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
 
@@ -713,7 +656,7 @@ import Timeline from '~/components/Timeline.vue'
 import SmartSlider from '~/components/SmartSlider.vue'
 import BookSearchModal from '~/components/BookSearchModal.vue'
 import ReviewModal from '~/components/ReviewModal.vue'
-import { Menu, Search, Plus, Settings, Share2, ChevronLeft, ChevronDown, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X, BarChart3, Copy } from 'lucide-vue-next'
+import { Menu, Search, Plus, Settings, Share2, ChevronLeft, ChevronDown, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X, BarChart3, Copy, User } from 'lucide-vue-next'
 import GroupStatsModal from '~/components/GroupStatsModal.vue'
 
 // 인증 미들웨어 적용
@@ -729,7 +672,7 @@ const client = useSupabaseClient()
 const { getBookRound } = useBookRound()
 
 const drawerOpen = ref(false)
-const showSettings = ref(false)
+const drawerTab = ref<'info' | 'members' | 'settings'>('info')
 const searchModalOpen = ref(false)
 const reviewModalOpen = ref(false)
 const commentModalOpen = ref(false)
@@ -784,7 +727,7 @@ const currentChapterName = computed(() => {
   if (!chapters || chapters.length === 0) return 'Reading'
 
   const found = chapters.find((c: any, index: number) => {
-    const isLast = index === chapters.length - 1
+    const isLast = index === chapters.value.length - 1
     if (isLast) {
       return pct >= c.start && pct <= c.end
     } else {
@@ -849,7 +792,6 @@ const isAdmin = computed(() => {
   const userId = currentUserId.value
   if (!userId) return false
   const member = members.value.find(m => m.id === userId)
-  console.log('[Group] isAdmin check:', { userId, member, role: member?.role })
   return member?.role === 'admin'
 })
 const commentCount = computed(() => comments.value.length)
@@ -909,7 +851,6 @@ const fetchData = async () => {
     await fetchComments(bookData.id)
 
     // Note: Member progress는 섹션 열렸을 때 fetch (조건부 로딩)
-
     // 3-1. Load user's reading progress
     const userId = currentUserId.value
     if (userId) {
@@ -1024,7 +965,7 @@ onMounted(async () => {
   // Subscribe to new comments
   realtimeChannel = client.channel('public:comments')
     .on(
-      'postgres_changes',
+      'postgres_changes', 
       { event: 'INSERT', schema: 'public', table: 'comments' },
       async (payload) => {
         console.log('New comment received!', payload)
@@ -1065,15 +1006,14 @@ onMounted(async () => {
     )
     .subscribe()
 
-  // Note: Member progress subscription은 섹션 열렸을 때만 시작 (조건부 구독)
+  // Always subscribe to member progress when drawer is open and on members tab, OR just always subscribe if cheap.
+  // Let's subscribe when currentBook is set.
 })
 
-// 조건부 구독: 멤버 진행도 섹션 열렸을 때만 Realtime 구독
-watch(showMemberProgress, async (isOpen) => {
-  if (isOpen && currentBook.value && !progressChannel) {
-    console.log('[Progress Realtime] 🔔 구독 시작')
-
-    // 섹션 열림 → 최신 데이터 fetch
+// Watch drawerTab for member progress fetching
+watch([() => drawerOpen.value, () => drawerTab.value], async ([isOpen, tab]) => {
+  if (isOpen && tab === 'members' && currentBook.value) {
+    // Fetch latest progress
     const { data: progressData } = await client
       .from('user_reading_progress')
       .select('*')
@@ -1081,13 +1021,13 @@ watch(showMemberProgress, async (isOpen) => {
 
     if (progressData) {
       memberProgress.value = progressData
-      console.log('[Progress Realtime] 최신 데이터 로드:', progressData.length, '명')
     }
-
-    // Realtime 구독 시작
-    progressChannel = client.channel('public:user_reading_progress')
+    
+    // Setup realtime if not exists
+    if (!progressChannel) {
+        progressChannel = client.channel('public:user_reading_progress')
       .on(
-        'postgres_changes',
+        'postgres_changes', 
         {
           event: '*', // Listen to INSERT and UPDATE
           schema: 'public',
@@ -1095,33 +1035,23 @@ watch(showMemberProgress, async (isOpen) => {
           filter: `group_book_id=eq.${currentBook.value.id}`
         },
         async (payload) => {
-          console.log('[Progress Realtime] 업데이트 받음:', payload)
-
           if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
             const updatedProgress = payload.new
 
             // Update memberProgress array
             const index = memberProgress.value.findIndex(p => p.user_id === updatedProgress.user_id)
             if (index >= 0) {
-              // Update existing (본인 것은 이미 optimistic으로 업데이트됨)
               if (updatedProgress.user_id !== currentUserId.value) {
                 memberProgress.value[index] = updatedProgress
               }
             } else {
-              // Add new
               memberProgress.value.push(updatedProgress)
             }
           }
         }
       )
       .subscribe()
-
-  } else if (!isOpen && progressChannel) {
-    console.log('[Progress Realtime] 🔇 구독 해제')
-
-    // 섹션 닫힘 → 구독 해제
-    client.removeChannel(progressChannel)
-    progressChannel = null
+    }
   }
 })
 
@@ -1562,7 +1492,7 @@ const saveEditedToc = async () => {
     }
 
     editTocModalOpen.value = false
-    toast.success('목차와 전체 페이지 수가 수정되었습니다! 📑')
+    toast.success('목차가 수정되었습니다! 📑')
   } catch (error: any) {
     console.error('Save TOC error:', error)
     toast.error('수정 실패: ' + error.message)
@@ -1750,7 +1680,8 @@ const copyInviteCode = async () => {
 }
 
 const jumpToChapter = (startPct: number) => {
-
+  viewProgress.value = startPct
+  drawerOpen.value = false
 }
 
 const isCurrentChapter = (chapter: any) => {
@@ -1796,7 +1727,7 @@ const deleteGroup = async () => {
 
   // 두 번째 확인 (안전장치)
   const groupNameToConfirm = group.value?.name || ''
-  const userInput = prompt(`정말로 삭제하려면 그룹 이름을 입력하세요:\n\n"${groupNameToConfirm}"`)
+  const userInput = prompt(`정말로 삭제하려면 그룹 이름을 입력하세요:\n\n"${groupNameToConfirm}" `)
 
   if (userInput !== groupNameToConfirm) {
     toast.error('그룹 이름이 일치하지 않습니다. 삭제가 취소되었습니다.')
@@ -1868,7 +1799,22 @@ html {
   from { transform: translateX(-100%); }
   to { transform: translateX(0); }
 }
+@keyframes slide-left {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
 .animate-slide-right {
   animation: slide-right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.animate-slide-left {
+  animation: slide-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.animate-slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 </style>
