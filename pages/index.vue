@@ -1,127 +1,166 @@
 <template>
-  <div class="pb-20 px-4 pt-safe">
+  <div class="pb-24 px-4 pt-safe min-h-screen bg-gray-50 dark:bg-[#09090b]">
     <!-- Header -->
-    <header class="flex justify-between items-center py-6">
+    <header class="flex justify-between items-center py-6 sticky top-0 z-20 bg-gray-50/80 dark:bg-[#09090b]/80 backdrop-blur-md">
       <div class="flex items-center gap-3">
         <div
           @click="router.push('/profile')"
-          class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-300 dark:border-zinc-700 cursor-pointer hover:border-lime-400 transition-colors"
+          class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:ring-2 hover:ring-lime-400 transition-all shadow-sm"
         >
           <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
-          <div v-else class="w-full h-full flex items-center justify-center text-zinc-600 dark:text-zinc-500">
+          <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
             <User :size="20" />
           </div>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-zinc-900 dark:text-white">My Groups</h1>
-          <p class="text-xs text-zinc-600 dark:text-zinc-400">오늘도 함께 읽어볼까요?</p>
+          <h1 class="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">My Library</h1>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">오늘의 독서를 시작해볼까요?</p>
         </div>
       </div>
-      <div class="flex gap-3 items-center">
+      <div class="flex gap-2 items-center">
         <button 
           @click="joinGroupModalOpen = true"
-          class="p-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+          class="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-lime-500 dark:hover:text-lime-400 hover:border-lime-200 transition-colors shadow-sm"
           title="초대 코드 입력"
         >
-          <KeyRound :size="24" />
+          <KeyRound :size="20" />
         </button>
-        <NotificationCenter />
+        <div class="relative">
+          <NotificationCenter />
+        </div>
       </div>
     </header>
 
-    <!-- Group List -->
-    <div v-if="groups.length > 0" class="space-y-4">
-      <div
-        v-for="group in groups"
-        :key="group.id"
-        @click="router.push(`/group/${group.id}`)"
-        class="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-300 dark:border-zinc-800 active:scale-[0.98] transition-transform cursor-pointer shadow-sm hover:shadow-md"
-      >
-        <div class="flex justify-between items-start mb-4">
-          <h2 class="text-lg font-bold text-zinc-900 dark:text-zinc-100">{{ group.name }}</h2>
-          <span class="text-xs text-zinc-600 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full border border-zinc-200 dark:border-zinc-700">
-            멤버 {{ group.members?.length || 0 }}명
-          </span>
-        </div>
+    <!-- 1. Reading Now Section -->
+    <div v-if="readingGroups.length > 0" class="space-y-6 mb-10">
+      <div class="flex items-center gap-2 px-1">
+        <span class="text-2xl">🔥</span>
+        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">지금 읽고 있어요</h2>
+      </div>
+      
+      <div class="grid gap-5">
+        <div
+          v-for="group in readingGroups"
+          :key="group.id"
+          @click="router.push(`/group/${group.id}`)"
+          class="relative w-full aspect-[4/5] sm:aspect-[2/1] rounded-3xl overflow-hidden shadow-2xl cursor-pointer group transition-transform active:scale-[0.98]"
+        >
+          <!-- Background Image (Blurred) -->
+          <div class="absolute inset-0 z-0">
+            <img :src="group.currentBook.cover_url" class="w-full h-full object-cover blur-xl scale-110 opacity-60 dark:opacity-40" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10"></div>
+          </div>
 
-        <!-- Current Book Card -->
-        <div v-if="group.currentBook" class="flex gap-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-3 border border-zinc-100 dark:border-zinc-700/50">
-          <img :src="group.currentBook.cover_url" class="w-16 h-24 object-cover rounded shadow-sm bg-zinc-200 dark:bg-zinc-700" />
-          <div class="flex flex-col justify-center min-w-0">
-            <span class="text-[10px] font-bold text-lime-600 dark:text-lime-400 uppercase tracking-wider mb-1">Currently Reading</span>
-            <h3 class="font-bold text-zinc-800 dark:text-zinc-200 line-clamp-1 text-sm">{{ group.currentBook.title }}</h3>
-            <p class="text-xs text-zinc-600 dark:text-zinc-400 line-clamp-1 mb-2">{{ group.currentBook.author }}</p>
-            
-            <div class="flex items-center gap-1.5">
-              <!-- D-Day Badge -->
-              <span 
-                v-if="group.currentBook.target_end_date"
-                class="text-[10px] px-1.5 py-0.5 rounded font-bold"
-                :class="getDdayStyle(group.currentBook.target_end_date)"
-              >
+          <!-- Content -->
+          <div class="absolute inset-0 z-10 p-6 flex flex-col justify-end">
+            <!-- Top Badge -->
+            <div class="absolute top-6 left-6 flex gap-2">
+              <span class="px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] font-bold border border-white/10 shadow-sm">
+                {{ group.name }}
+              </span>
+              <span class="px-3 py-1.5 rounded-full bg-lime-400 text-black text-[10px] font-bold shadow-sm">
                 {{ getDdayText(group.currentBook.target_end_date) }}
               </span>
-              <span v-else class="text-[10px] px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400">
-                D+{{ getDaysSince(group.currentBook.created_at) }}
-              </span>
+            </div>
+
+            <!-- Book Cover & Info -->
+            <div class="flex gap-5 items-end">
+              <img 
+                :src="group.currentBook.cover_url" 
+                class="w-24 h-36 object-cover rounded-lg shadow-2xl border border-white/10 group-hover:-translate-y-2 transition-transform duration-300" 
+              />
+              <div class="flex-1 mb-1">
+                <h3 class="text-2xl font-bold text-white leading-tight mb-2 line-clamp-2 drop-shadow-lg">
+                  {{ group.currentBook.title }}
+                </h3>
+                <p class="text-sm text-gray-300 font-medium line-clamp-1 drop-shadow-md">
+                  {{ group.currentBook.author }}
+                </p>
+                <div class="mt-4 flex items-center gap-2 text-[10px] text-gray-400">
+                  <span class="w-2 h-2 rounded-full bg-lime-400 animate-pulse"></span>
+                  <span>{{ group.members.length }}명이 함께 읽는 중</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-
-        <!-- Empty State (No Book) -->
-        <div v-else class="flex items-center justify-center h-24 bg-zinc-50 dark:bg-zinc-800/30 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700">
-          <span class="text-sm text-zinc-500 dark:text-zinc-500 flex items-center gap-2">
-            <span>💤</span> 지금은 휴식 중입니다
-          </span>
         </div>
       </div>
     </div>
 
-    <!-- Empty State: No Groups -->
-    <div v-else class="flex flex-col items-center justify-center min-h-[60vh] px-4">
-      <div class="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6">
-        <span class="text-4xl">👥</span>
+    <!-- 2. Idle Groups Section -->
+    <div v-if="idleGroups.length > 0" class="space-y-4 mb-8">
+      <div class="flex items-center gap-2 px-1">
+        <span class="text-2xl">💤</span>
+        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">잠시 쉬고 있어요</h2>
       </div>
-      <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">아직 참여 중인 그룹이 없어요</h2>
-      <p class="text-sm text-zinc-500 dark:text-zinc-400 text-center mb-8 max-w-xs leading-relaxed">
-        친구들과 함께 책을 읽고<br />생각을 나눌 수 있는 공간을 만들어보세요
+
+      <div class="grid gap-3">
+        <div
+          v-for="group in idleGroups"
+          :key="group.id"
+          @click="router.push(`/group/${group.id}`)"
+          class="bg-white dark:bg-zinc-900 rounded-2xl p-5 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between shadow-sm active:scale-[0.99] transition-transform cursor-pointer"
+        >
+          <div>
+            <h3 class="font-bold text-zinc-900 dark:text-zinc-200 mb-1">{{ group.name }}</h3>
+            <p class="text-xs text-zinc-500 dark:text-zinc-500">멤버 {{ group.members.length }}명</p>
+          </div>
+          <button class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-lime-500 transition-colors">
+            <ChevronRight :size="18" />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div v-if="groups.length === 0 && !loading" class="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
+      <div class="w-24 h-24 bg-gradient-to-tr from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner">
+        <span class="text-5xl">👋</span>
+      </div>
+      <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">반가워요, {{ userStore.profile?.nickname }}님!</h2>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-8 max-w-xs leading-relaxed">
+        아직 참여 중인 독서 모임이 없네요.<br />
+        새로운 모임을 만들거나 초대를 받아보세요.
       </p>
       
       <div class="w-full max-w-xs space-y-3">
         <button
           @click="createGroupModalOpen = true"
-          class="w-full py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-lime-400/20 active:scale-[0.98]"
+          class="w-full py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center justify-center gap-2"
         >
           <Plus :size="20" />
           새 그룹 만들기
         </button>
         <button
           @click="joinGroupModalOpen = true"
-          class="w-full py-4 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
+          class="w-full py-4 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
         >
-          <KeyRound :size="20" class="text-zinc-500" />
+          <KeyRound :size="20" class="text-zinc-400" />
           초대 코드로 입장
         </button>
       </div>
     </div>
 
-    <!-- FAB: Create Group (Only visible when groups exist) -->
+    <!-- Loading State -->
+    <div v-if="loading" class="flex flex-col items-center justify-center min-h-[50vh]">
+      <div class="w-10 h-10 border-4 border-lime-400 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+
+    <!-- FAB -->
     <button
       v-if="groups.length > 0"
       @click="createGroupModalOpen = true"
-      class="fixed bottom-6 right-6 w-14 h-14 bg-lime-400 rounded-full flex items-center justify-center shadow-lg shadow-lime-400/20 text-black hover:bg-lime-300 transition-transform active:scale-90 z-40"
+      class="fixed bottom-6 right-6 w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-transform z-40"
     >
       <Plus :size="24" />
     </button>
 
-    <!-- Create Group Modal -->
+    <!-- Modals -->
     <CreateGroupModal
       :isOpen="createGroupModalOpen"
       @close="createGroupModalOpen = false"
       @created="handleGroupCreated"
     />
-
-    <!-- Join Group Modal -->
     <JoinGroupModal
       :isOpen="joinGroupModalOpen"
       @close="joinGroupModalOpen = false"
@@ -131,11 +170,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { User, Plus, KeyRound } from 'lucide-vue-next'
+import { User, Plus, KeyRound, ChevronRight } from 'lucide-vue-next'
 import NotificationCenter from '~/components/NotificationCenter.vue'
 import CreateGroupModal from '~/components/CreateGroupModal.vue'
 import JoinGroupModal from '~/components/JoinGroupModal.vue'
@@ -155,14 +194,16 @@ const loading = ref(true)
 const createGroupModalOpen = ref(false)
 const joinGroupModalOpen = ref(false)
 
+// Computed for splitting groups
+const readingGroups = computed(() => groups.value.filter(g => g.currentBook))
+const idleGroups = computed(() => groups.value.filter(g => !g.currentBook))
+
 const fetchGroups = async () => {
-  // 현재 로그인한 유저 ID 가져오기
   const { data: { user } } = await client.auth.getUser()
   if (!user) return
 
   loading.value = true
   try {
-    // 1. Fetch groups where user is a member
     const { data: memberData, error } = await client
       .from('group_members')
       .select(`
@@ -180,7 +221,6 @@ const fetchGroups = async () => {
       const groupPromises = memberData.map(async (item: any) => {
         const group = item.groups
         
-        // 2. Fetch current book for each group
         const { data: bookData } = await client
           .from('group_books')
           .select(`
@@ -197,7 +237,6 @@ const fetchGroups = async () => {
           .eq('status', 'reading')
           .single()
 
-        // 3. Fetch member count
         const { count } = await client
           .from('group_members')
           .select('*', { count: 'exact', head: true })
@@ -206,7 +245,7 @@ const fetchGroups = async () => {
         return {
           id: group.id,
           name: group.name,
-          members: { length: count || 0 }, // Mocking array structure for template compatibility
+          members: { length: count || 0 },
           currentBook: bookData ? {
             ...bookData.books,
             created_at: bookData.created_at,
@@ -246,17 +285,11 @@ const getDaysRemaining = (targetDateStr: string) => {
 }
 
 const getDdayText = (targetDateStr: string) => {
+  if (!targetDateStr) return '함께 읽는 중'
   const days = getDaysRemaining(targetDateStr)
-  if (days > 0) return `D-${days}`
-  if (days === 0) return 'D-Day'
-  return `D+${Math.abs(days)}`
-}
-
-const getDdayStyle = (targetDateStr: string) => {
-  const days = getDaysRemaining(targetDateStr)
-  if (days <= 0) return 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' // Overdue or Today
-  if (days <= 7) return 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' // Warning
-  return 'bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-400' // Safe
+  if (days > 0) return `${days}일 남음`
+  if (days === 0) return '오늘까지!'
+  return `+${Math.abs(days)}일 지남`
 }
 
 const handleGroupCreated = async (newGroup: any) => {
@@ -266,7 +299,6 @@ const handleGroupCreated = async (newGroup: any) => {
 }
 
 const handleGroupJoined = async (groupId: string) => {
-  // Toast handled inside modal or here? Modal handles it.
   await fetchGroups()
   router.push(`/group/${groupId}`)
 }
