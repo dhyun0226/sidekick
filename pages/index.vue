@@ -32,10 +32,10 @@
     </header>
 
     <!-- 1. Reading Now Section -->
-    <div v-if="readingGroups.length > 0" class="space-y-6 mb-10">
+    <div v-if="readingGroups.length > 0" class="space-y-1 mb-4">
       <div class="flex items-center gap-2 px-1">
-        <span class="text-2xl">🔥</span>
-        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">지금 읽고 있어요</h2>
+        <span class="text-lg">🔥</span>
+        <h2 class="text-xs font-bold text-zinc-900 dark:text-white">지금 읽고 있어요</h2>
       </div>
       
       <div class="grid gap-4">
@@ -43,7 +43,7 @@
           v-for="group in readingGroups"
           :key="group.id"
           @click="router.push(`/group/${group.id}`)"
-          class="relative w-full rounded-3xl overflow-hidden shadow-xl cursor-pointer group transition-transform active:scale-[0.98] aspect-[16/5]"
+          class="relative w-full rounded-3xl overflow-hidden shadow-xl cursor-pointer group transition-transform active:scale-[0.98] min-h-[140px]"
         >
           <!-- Background Image (Blurred & Darkened) -->
           <div class="absolute inset-0 z-0">
@@ -55,10 +55,10 @@
           <div class="absolute inset-0 z-10 p-4 flex gap-4 items-stretch">
             
             <!-- Left: Book Cover & D-Day (Fixed Aspect Ratio) -->
-            <div class="w-20 flex-shrink-0 relative rounded-lg shadow-2xl border border-white/20 self-center h-[90%]">
+            <div class="w-20 sm:w-24 aspect-[2/3] flex-shrink-0 relative shadow-2xl border border-white/20 self-center bg-zinc-800 rounded-sm">
               <img 
                 :src="group.currentBook.cover_url" 
-                class="w-full h-full object-cover rounded-lg" 
+                class="w-full h-full object-contain" 
               />
               <!-- D-Day Badge overlay -->
               <div class="absolute -top-1 -left-1 bg-lime-400 text-black text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-sm border border-lime-300">
@@ -112,10 +112,10 @@
     </div>
 
     <!-- 2. Idle Groups Section -->
-    <div v-if="idleGroups.length > 0" class="space-y-4 mb-8">
+    <div v-if="idleGroups.length > 0" class="space-y-1 mb-4">
       <div class="flex items-center gap-2 px-1">
-        <span class="text-2xl">💤</span>
-        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">잠시 쉬고 있어요</h2>
+        <span class="text-lg">💤</span>
+        <h2 class="text-xs font-bold text-zinc-900 dark:text-white">잠시 쉬고 있어요</h2>
       </div>
 
       <div class="grid gap-3">
@@ -174,7 +174,7 @@
     <button
       v-if="groups.length > 0"
       @click="createGroupModalOpen = true"
-      class="fixed bottom-6 left-1/2 ml-[160px] w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-transform z-40"
+      class="fixed bottom-6 right-6 w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-transform z-40"
     >
       <Plus :size="24" />
     </button>

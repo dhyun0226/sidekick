@@ -1,8 +1,8 @@
 <template>
   <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5">
     <!-- Header with Navigation -->
-    <div class="flex items-center justify-between mb-6">
-      <h3 class="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
         <span>🔥 독서 열정 온도</span>
       </h3>
       

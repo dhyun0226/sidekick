@@ -1,10 +1,10 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-[#09090b] pb-20">
     <!-- 1. Compact Header -->
-    <div class="pt-safe bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 pb-4">
+    <div class="pt-safe pb-4">
       
       <!-- Nav Bar -->
-      <div class="flex justify-between items-center px-4 py-2">
+      <div class="flex justify-between items-center px-4 py-6">
         <button @click="router.back()" class="p-2 -ml-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <ChevronLeft :size="24" />
         </button>
@@ -16,7 +16,7 @@
       </div>
 
       <!-- Profile & Stats -->
-      <div class="px-6 flex flex-col gap-6">
+      <div class="px-4 flex flex-col gap-6">
         <!-- Identity -->
         <div class="flex items-center gap-4">
           <div class="relative group cursor-pointer" @click="openSettings">
@@ -40,24 +40,24 @@
         </div>
 
         <!-- Stats Row (Text-based, Clickable) -->
-        <div class="flex justify-between items-center border-t border-zinc-100 dark:border-zinc-800/50 pt-4">
+        <div class="flex justify-between items-center border-t border-zinc-200 dark:border-zinc-800/50 pt-4">
           <button @click="activeTab = 'library'" class="flex flex-col items-center flex-1 active:opacity-60 transition-opacity">
             <span class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.books }}</span>
             <span class="text-[10px] text-zinc-500 dark:text-zinc-400">완독</span>
           </button>
-          <div class="w-px h-8 bg-zinc-100 dark:bg-zinc-800"></div>
+          <div class="w-px h-8 bg-zinc-200 dark:bg-zinc-700"></div>
           
           <button @click="activeTab = 'timeline'" class="flex flex-col items-center flex-1 active:opacity-60 transition-opacity">
             <span class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.comments }}</span>
             <span class="text-[10px] text-zinc-500 dark:text-zinc-400">기록</span>
           </button>
-          <div class="w-px h-8 bg-zinc-100 dark:bg-zinc-800"></div>
+          <div class="w-px h-8 bg-zinc-200 dark:bg-zinc-700"></div>
 
           <button @click="activeTab = 'insight'" class="flex flex-col items-center flex-1 active:opacity-60 transition-opacity">
             <span class="text-lg font-bold text-lime-600 dark:text-lime-400">{{ stats.streak }}</span>
             <span class="text-[10px] text-zinc-500 dark:text-zinc-400">연속</span>
           </button>
-          <div class="w-px h-8 bg-zinc-100 dark:bg-zinc-800"></div>
+          <div class="w-px h-8 bg-zinc-200 dark:bg-zinc-700"></div>
 
           <button @click="router.push('/')" class="flex flex-col items-center flex-1 active:opacity-60 transition-opacity">
             <span class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.groups }}</span>
@@ -128,7 +128,7 @@
           <div
             v-for="book in library"
             :key="book.id"
-            class="relative group cursor-pointer aspect-[2/3]"
+            class="relative group cursor-pointer aspect-[1/1.6]"
           >
             <img 
               :src="book.cover_url" 
@@ -233,7 +233,7 @@
 
           <!-- Additional Insights Placeholders (Future) -->
           <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5">
-            <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">📊 독서 요약</h3>
+            <h3 class="text-base font-bold text-zinc-900 dark:text-white mb-2">📊 독서 요약</h3>
             <div class="space-y-3">
               <div class="flex justify-between items-center text-sm">
                 <span class="text-zinc-500 dark:text-zinc-400">이번 달 읽은 책</span>
