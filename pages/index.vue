@@ -123,13 +123,23 @@
           v-for="group in idleGroups"
           :key="group.id"
           @click="router.push(`/group/${group.id}`)"
-          class="bg-white dark:bg-zinc-900 rounded-2xl p-5 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between shadow-sm active:scale-[0.99] transition-transform cursor-pointer"
+          class="bg-white dark:bg-zinc-900 rounded-3xl p-4 border border-zinc-200 dark:border-zinc-800 flex items-center gap-4 shadow-sm active:scale-[0.99] transition-transform cursor-pointer"
         >
-          <div>
-            <h3 class="font-bold text-zinc-900 dark:text-zinc-200 mb-1">{{ group.name }}</h3>
-            <p class="text-xs text-zinc-500 dark:text-zinc-500">멤버 {{ group.members.length }}명</p>
+          <!-- Left Icon Box (Mimics Book Cover) -->
+          <div class="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 border border-zinc-200 dark:border-zinc-700 flex-shrink-0">
+            <Coffee :size="24" />
           </div>
-          <button class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-lime-500 transition-colors">
+
+          <!-- Right Content -->
+          <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-zinc-900 dark:text-zinc-200 mb-1 text-sm truncate">{{ group.name }}</h3>
+            <div class="flex items-center gap-1">
+               <User :size="12" class="text-zinc-400" />
+               <p class="text-xs text-zinc-500 dark:text-zinc-500">멤버 {{ group.members.length }}명</p>
+            </div>
+          </div>
+
+          <button class="w-8 h-8 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-lime-500 transition-colors flex-shrink-0">
             <ChevronRight :size="18" />
           </button>
         </div>
@@ -198,7 +208,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { User, Plus, KeyRound, ChevronRight, MessageCircle } from 'lucide-vue-next'
+import { User, Plus, KeyRound, ChevronRight, MessageCircle, Coffee } from 'lucide-vue-next'
 import NotificationCenter from '~/components/NotificationCenter.vue'
 import CreateGroupModal from '~/components/CreateGroupModal.vue'
 import JoinGroupModal from '~/components/JoinGroupModal.vue'

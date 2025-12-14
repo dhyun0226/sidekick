@@ -1,28 +1,67 @@
 <template>
-  <div class="relative min-h-[100dvh] bg-gray-50 dark:bg-background">
-    <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-40 bg-white/90 dark:bg-black/90 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800 transition-all duration-300">
-      <div class="max-w-[480px] mx-auto flex justify-between items-center px-4 h-14">
-        <button @click="router.push('/')" class="p-2 -ml-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" title="홈으로">
-          <ChevronLeft :size="24" />
-        </button>
-        
-        <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100 truncate max-w-[200px] text-center">
-          {{ groupName }}
-        </h1>
+  <div class="relative min-h-[100dvh] bg-gray-50 dark:bg-background pb-32">
+    <!-- 1. Fixed Navigation Bar (Always visible) -->
+    <nav class="fixed top-0 left-0 right-0 z-50 h-14 flex justify-between items-center px-4 transition-colors duration-300" :class="isScrolled ? 'bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800' : 'bg-transparent'">
+      <button @click="router.push('/')" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm text-zinc-900 dark:text-white hover:bg-white/40 transition-colors shadow-sm">
+        <ChevronLeft :size="24" />
+      </button>
+      
+      <h1 class="text-sm font-bold text-zinc-900 dark:text-white transition-opacity duration-300" :class="isScrolled ? 'opacity-100' : 'opacity-0'">
+        {{ bookTitle || groupName }}
+      </h1>
 
-        <button @click="drawerOpen = true" class="p-2 -mr-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" title="메뉴">
-          <Menu :size="24" />
-        </button>
+      <button @click="drawerOpen = true" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm text-zinc-900 dark:text-white hover:bg-white/40 transition-colors shadow-sm">
+        <Menu :size="24" />
+      </button>
+    </nav>
+
+    <!-- 2. Hero Section (Immersive Book Info) -->
+    <div v-if="currentBook" class="relative w-full pt-20 pb-8 overflow-hidden bg-zinc-900">
+      <!-- Background (Blurred) -->
+      <div class="absolute inset-0 z-0">
+        <img :src="bookCover" class="w-full h-full object-cover blur-3xl opacity-40 scale-125 animate-pulse-slow" />
+        <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-gray-50 dark:to-background"></div>
       </div>
-    </header>
 
-    <!-- Timeline Content -->
-    <div class="pt-14 pb-48 px-safe min-h-screen max-w-[480px] mx-auto">
-      <!-- 책이 없을 때 Empty State -->
-      <div v-if="!currentBook" class="flex flex-col items-center justify-center min-h-[60vh] px-4">
-        <div class="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6">
-          <span class="text-4xl">📖</span>
+      <!-- Content -->
+      <div class="relative z-10 flex flex-col items-center px-6 text-center">
+        <!-- Book Cover (3D Effect) -->
+        <div class="w-32 aspect-[2/3] rounded-lg shadow-2xl mb-5 transform transition-transform hover:scale-105 hover:-rotate-2 duration-500 relative">
+          <img :src="bookCover" class="w-full h-full object-cover rounded-lg border border-white/10" />
+          <!-- Round Badge -->
+          <div v-if="currentBookRound" class="absolute -top-2 -right-2 w-8 h-8 bg-lime-400 rounded-full flex items-center justify-center text-xs font-bold text-black border-2 border-white dark:border-zinc-900 shadow-lg z-20">
+            {{ currentBookRound }}회
+          </div>
+        </div>
+        
+        <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-1 drop-shadow-sm line-clamp-2 px-4 leading-tight">
+          {{ bookTitle }}
+        </h2>
+        <p class="text-xs text-zinc-600 dark:text-zinc-400 font-medium mb-4 opacity-80">
+          {{ bookAuthor }}
+        </p>
+        
+        <!-- Stats / D-Day -->
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
+             <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+               {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
+             </span>
+          </div>
+          <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
+             <User :size="12" class="text-zinc-700 dark:text-zinc-300" />
+             <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">{{ members.length }}명 함께 읽는 중</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline Content (Flows naturally) -->
+    <div class="px-safe max-w-[480px] mx-auto min-h-[50vh]">
+      <!-- 책이 없을 때 Empty State (기존 유지) -->
+      <div v-if="!currentBook" class="flex flex-col items-center justify-center pt-32 px-4">
+        <div class="w-24 h-24 bg-gradient-to-br from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner">
+          <span class="text-5xl">📚</span>
         </div>
         <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">함께 읽을 책을 정해주세요</h2>
         <p class="text-sm text-zinc-500 dark:text-zinc-400 text-center mb-8 max-w-xs leading-relaxed">
@@ -30,7 +69,7 @@
         </p>
         <button
           @click="drawerOpen = true"
-          class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-colors flex items-center gap-2 shadow-lg shadow-lime-400/20"
+          class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center gap-2"
         >
           <Menu :size="20" />
           메뉴 열기
@@ -50,12 +89,13 @@
       />
     </div>
 
-    <!-- Smart Slider (Footer) - 책이 있을 때만 표시, 모달 열렸을 때는 숨김 -->
+    <!-- Smart Slider (Footer) -->
     <SmartSlider
       v-if="currentBook && !commentModalOpen"
       v-model="viewProgress"
       :toc="toc"
       :totalPages="currentBook.book?.total_pages"
+      :members="sortedMembersWithProgress"
       @change="handleSliderChange"
       @write="handleWrite"
     />
@@ -958,7 +998,13 @@ const fetchComments = async (groupBookId: string) => {
 let realtimeChannel: any = null
 let progressChannel: any = null
 
+const isScrolled = ref(false)
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 20
+}
+
 onMounted(async () => {
+  window.addEventListener('scroll', handleScroll)
   await userStore.fetchProfile()
   await fetchData()
 
@@ -1056,6 +1102,7 @@ watch([() => drawerOpen.value, () => drawerTab.value], async ([isOpen, tab]) => 
 })
 
 onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
   if (realtimeChannel) client.removeChannel(realtimeChannel)
   if (progressChannel) client.removeChannel(progressChannel)
 })

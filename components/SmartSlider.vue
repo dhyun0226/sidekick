@@ -36,6 +36,26 @@
           ></div>
         </div>
 
+        <!-- Pacemaker Avatars (Members) -->
+        <div class="absolute inset-0 pointer-events-none overflow-visible z-10">
+          <div
+            v-for="member in members"
+            :key="member.id"
+            class="absolute bottom-0 -translate-x-1/2 -translate-y-2 flex flex-col items-center transition-all duration-500 hover:z-20 group"
+            :style="{ left: `${member.progress}%` }"
+          >
+            <!-- Avatar Bubble -->
+            <div class="w-6 h-6 rounded-full border border-white dark:border-zinc-800 shadow-md overflow-hidden bg-zinc-100 relative z-10">
+               <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
+               <div v-else class="w-full h-full flex items-center justify-center text-[9px] bg-lime-100 text-lime-700 font-bold uppercase">
+                 {{ member.nickname ? member.nickname.slice(0, 1) : '?' }}
+               </div>
+            </div>
+            <!-- Small Triangle -->
+            <div class="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-t-[4px] border-t-white dark:border-t-zinc-800 -mt-0.5 drop-shadow-sm"></div>
+          </div>
+        </div>
+
         <!-- Progress Bar (Active) -->
         <div 
           class="absolute bottom-0 left-0 h-1 bg-lime-400 transition-all duration-75 ease-out"
