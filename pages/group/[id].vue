@@ -90,6 +90,7 @@
       v-if="currentBook && !commentModalOpen"
       v-model="viewProgress"
       :toc="toc"
+      :totalPages="currentBook.book?.total_pages"
       @change="handleSliderChange"
       @write="handleWrite"
     />
@@ -338,13 +339,19 @@
           </div>
 
           <div class="mt-6 space-y-3">
-            <button
-              @click="openSearchModal"
-              class="w-full py-3 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-200 rounded-xl font-bold hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
-            >
-              <Plus :size="16" />
-              새 책 시작하기
-            </button>
+            <!-- Invite Code Display -->
+            <div class="flex items-center justify-between p-3 bg-zinc-100 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700">
+              <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">초대 코드:</span>
+              <span class="font-mono text-lg font-bold text-lime-600 dark:text-lime-400 tracking-widest">{{ group.invite_code }}</span>
+              <button
+                @click="copyInviteCode"
+                class="p-1.5 rounded-full text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                title="초대 코드 복사"
+              >
+                <Copy :size="16" />
+              </button>
+            </div>
+
             <button
               @click="copyInviteLink"
               class="w-full py-3 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded-xl font-medium hover:text-zinc-900 dark:hover:text-white transition-colors flex items-center justify-center gap-2"
@@ -701,11 +708,12 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '~/stores/user'
+import { useToastStore } from '~/stores/toast'
 import Timeline from '~/components/Timeline.vue'
 import SmartSlider from '~/components/SmartSlider.vue'
 import BookSearchModal from '~/components/BookSearchModal.vue'
 import ReviewModal from '~/components/ReviewModal.vue'
-import { Menu, Search, Plus, Settings, Share2, ChevronLeft, ChevronDown, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X, BarChart3 } from 'lucide-vue-next'
+import { Menu, Search, Plus, Settings, Share2, ChevronLeft, ChevronDown, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X, BarChart3, Copy } from 'lucide-vue-next'
 import GroupStatsModal from '~/components/GroupStatsModal.vue'
 
 // 인증 미들웨어 적용
@@ -716,6 +724,7 @@ definePageMeta({
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const toast = useToastStore()
 const client = useSupabaseClient()
 const { getBookRound } = useBookRound()
 
@@ -1306,7 +1315,7 @@ const submitComment = async () => {
   // Validate comment content
   const validation = validateComment(newCommentContent.value)
   if (!validation.valid) {
-    alert(validation.message)
+    toast.error(validation.message)
     return
   }
 
@@ -1319,7 +1328,7 @@ const submitComment = async () => {
   }).select('id, user_id, content, anchor_text, position_pct, created_at, parent_id, group_book_id, user:users(*)').single()
 
   if (error) {
-    alert('댓글 작성 실패: ' + error.message)
+    toast.error('댓글 작성 실패: ' + error.message)
   } else if (data) {
     // Immediately add comment to UI (don't wait for realtime)
     comments.value.push(data)
@@ -1360,11 +1369,11 @@ const handleReviewSubmit = async (data: any) => {
     }
 
     reviewModalOpen.value = false
-    alert('리뷰가 저장되었습니다! 🎉')
+    toast.success('리뷰가 저장되었습니다! 🎉')
 
   } catch (error: any) {
     console.error('Review error:', error)
-    alert('리뷰 저장 실패: ' + (error.message || '알 수 없는 오류'))
+    toast.error('리뷰 저장 실패: ' + (error.message || '알 수 없는 오류'))
   }
 }
 
@@ -1445,10 +1454,10 @@ const saveEditedDates = async () => {
     currentBook.value.target_end_date = editEndDate.value
 
     editDatesModalOpen.value = false
-    alert('독서 기간이 수정되었습니다! 📅')
+    toast.success('독서 기간이 수정되었습니다! 📅')
   } catch (error) {
     console.error('Edit dates error:', error)
-    alert('독서 기간 수정에 실패했습니다.')
+    toast.error('독서 기간 수정에 실패했습니다.')
   }
 }
 
@@ -1467,13 +1476,13 @@ const markAsCompleted = async () => {
     if (error) throw error
 
     markCompletedModalOpen.value = false
-    alert('완독 처리되었습니다! 🎉\n히스토리로 이동합니다.')
+    toast.success('완독 처리되었습니다! 🎉 히스토리로 이동합니다.')
 
     // Refresh data to update UI
     await fetchData()
   } catch (error) {
     console.error('Mark completed error:', error)
-    alert('완독 처리에 실패했습니다.')
+    toast.error('완독 처리에 실패했습니다.')
   }
 }
 
@@ -1489,13 +1498,13 @@ const deleteBook = async () => {
     if (error) throw error
 
     deleteBookModalOpen.value = false
-    alert('책이 삭제되었습니다.')
+    toast.success('책이 삭제되었습니다.')
 
     // Refresh data to update UI
     await fetchData()
   } catch (error) {
     console.error('Delete book error:', error)
-    alert('책 삭제에 실패했습니다.')
+    toast.error('책 삭제에 실패했습니다.')
   }
 }
 
@@ -1513,7 +1522,7 @@ const saveEditedToc = async () => {
   if (!currentBook.value || !editTotalPages.value || editTotalPages.value <= 0) return
 
   try {
-    // Convert pages to percentage for TOC
+    // 1. Calculate new TOC based on new total pages
     const toc = editChapters.value.map((c, i) => {
       const nextStart = editChapters.value[i + 1]?.startPage || editTotalPages.value!
       const startPct = (c.startPage / editTotalPages.value!) * 100
@@ -1525,24 +1534,38 @@ const saveEditedToc = async () => {
       }
     })
 
-    // Update group_books with new TOC
-    const { error } = await client
+    // 2. Update group_books with new TOC
+    const { error: groupBookError } = await client
       .from('group_books')
       .update({
         toc_snapshot: toc
       })
       .eq('id', currentBook.value.id)
 
-    if (error) throw error
+    if (groupBookError) throw groupBookError
 
-    // Update local data
+    // 3. Update books table with new total_pages (Critical Fix)
+    // Note: This affects the global book definition.
+    const { error: bookError } = await client
+      .from('books')
+      .update({
+        total_pages: editTotalPages.value
+      })
+      .eq('isbn', currentBook.value.isbn)
+
+    if (bookError) throw bookError
+
+    // 4. Update local data
     currentBook.value.toc_snapshot = toc
+    if (currentBook.value.book) {
+      currentBook.value.book.total_pages = editTotalPages.value
+    }
 
     editTocModalOpen.value = false
-    alert('목차가 수정되었습니다! 📑')
-  } catch (error) {
+    toast.success('목차와 전체 페이지 수가 수정되었습니다! 📑')
+  } catch (error: any) {
     console.error('Save TOC error:', error)
-    alert('목차 수정에 실패했습니다.')
+    toast.error('수정 실패: ' + error.message)
   }
 }
 
@@ -1610,22 +1633,22 @@ const handleBookAdd = async (data: any) => {
     // 4. 데이터 새로고침
     await fetchData()
 
-    alert('새 책이 추가되었습니다! 🎉')
+    toast.success('새 책이 추가되었습니다! 🎉')
 
   } catch (error: any) {
     console.error('[Group] Book add error:', error)
-    alert(error.message || '책 추가 중 오류가 발생했습니다.')
+    toast.error(error.message || '책 추가 중 오류가 발생했습니다.')
   }
 }
 
 const saveGroupName = async () => {
   if (!editingGroupName.value.trim()) {
-    alert('그룹 이름을 입력해주세요.')
+    toast.warning('그룹 이름을 입력해주세요.')
     return
   }
 
   if (editingGroupName.value.trim().length < 2) {
-    alert('그룹 이름은 2글자 이상이어야 합니다.')
+    toast.warning('그룹 이름은 2글자 이상이어야 합니다.')
     return
   }
 
@@ -1637,16 +1660,16 @@ const saveGroupName = async () => {
 
     if (error) {
       console.error('Group name update error:', error)
-      alert('그룹 이름 변경에 실패했습니다: ' + error.message)
+      toast.error('그룹 이름 변경에 실패했습니다: ' + error.message)
       return
     }
 
     group.value.name = editingGroupName.value.trim()
-    alert('그룹 이름이 변경되었습니다!')
+    toast.success('그룹 이름이 변경되었습니다!')
     showSettings.value = false
   } catch (err) {
     console.error('Unexpected error:', err)
-    alert('예상치 못한 오류가 발생했습니다.')
+    toast.error('예상치 못한 오류가 발생했습니다.')
   }
 }
 
@@ -1664,10 +1687,10 @@ const promoteMember = async (memberId: string) => {
     .eq('user_id', memberId)
 
   if (error) {
-    alert('권한 변경에 실패했습니다.')
+    toast.error('권한 변경에 실패했습니다.')
   } else {
     await fetchData()
-    alert('관리자로 승격되었습니다.')
+    toast.success('관리자로 승격되었습니다.')
   }
   activeMemberMenu.value = null
 }
@@ -1682,17 +1705,17 @@ const kickMember = async (memberId: string) => {
     .eq('user_id', memberId)
 
   if (error) {
-    alert('멤버 강퇴에 실패했습니다.')
+    toast.error('멤버 강퇴에 실패했습니다.')
   } else {
     await fetchData()
-    alert('멤버가 퇴장되었습니다.')
+    toast.success('멤버가 퇴장되었습니다.')
   }
   activeMemberMenu.value = null
 }
 
 const copyInviteLink = async () => {
   if (!group.value?.invite_code) {
-    alert('초대 코드를 불러올 수 없습니다.')
+    toast.error('초대 코드를 불러올 수 없습니다.')
     return
   }
 
@@ -1700,17 +1723,34 @@ const copyInviteLink = async () => {
 
   try {
     await navigator.clipboard.writeText(inviteLink)
-    alert('초대 링크가 복사되었습니다!\n친구들에게 공유해보세요.')
+    toast.success('초대 링크가 클립보드에 복사되었습니다!\n친구들에게 공유해보세요.', 5000)
   } catch (err) {
     console.error('Clipboard error:', err)
-    // Fallback: show link in alert
     prompt('초대 링크를 복사하세요:', inviteLink)
+    toast.info('초대 링크가 복사되지 않아 직접 입력창에 표시했습니다.')
+  }
+}
+
+const copyInviteCode = async () => {
+  if (!group.value?.invite_code) {
+    toast.error('초대 코드를 불러올 수 없습니다.')
+    return
+  }
+
+  const inviteCode = group.value.invite_code
+
+  try {
+    await navigator.clipboard.writeText(inviteCode)
+    toast.success('초대 코드가 클립보드에 복사되었습니다!', 3000)
+  } catch (err) {
+    console.error('Clipboard error:', err)
+    prompt('초대 코드를 복사하세요:', inviteCode)
+    toast.info('초대 코드가 복사되지 않아 직접 입력창에 표시했습니다.')
   }
 }
 
 const jumpToChapter = (startPct: number) => {
-  viewProgress.value = startPct
-  drawerOpen.value = false
+
 }
 
 const isCurrentChapter = (chapter: any) => {
@@ -1740,7 +1780,7 @@ const openReviewModalForEdit = async (book: any) => {
 
 const deleteGroup = async () => {
   if (!isAdmin.value) {
-    alert('관리자만 그룹을 삭제할 수 있습니다.')
+    toast.error('관리자만 그룹을 삭제할 수 있습니다.')
     return
   }
 
@@ -1759,7 +1799,7 @@ const deleteGroup = async () => {
   const userInput = prompt(`정말로 삭제하려면 그룹 이름을 입력하세요:\n\n"${groupNameToConfirm}"`)
 
   if (userInput !== groupNameToConfirm) {
-    alert('그룹 이름이 일치하지 않습니다. 삭제가 취소되었습니다.')
+    toast.error('그룹 이름이 일치하지 않습니다. 삭제가 취소되었습니다.')
     return
   }
 
@@ -1773,15 +1813,15 @@ const deleteGroup = async () => {
 
     if (error) {
       console.error('Group delete error:', error)
-      alert('그룹 삭제에 실패했습니다: ' + error.message)
+      toast.error('그룹 삭제에 실패했습니다: ' + error.message)
       return
     }
 
-    alert('그룹이 삭제되었습니다.')
+    toast.success('그룹이 삭제되었습니다.')
     router.push('/')
   } catch (err) {
     console.error('Unexpected error:', err)
-    alert('예상치 못한 오류가 발생했습니다.')
+    toast.error('예상치 못한 오류가 발생했습니다.')
   }
 }
 
@@ -1791,7 +1831,7 @@ const leaveGroup = async () => {
   // Check if user is the only admin
   const admins = members.value.filter(m => m.role === 'admin')
   if (admins.length === 1 && admins[0].id === currentUserId.value) {
-    alert('그룹의 유일한 관리자입니다. 다른 멤버를 관리자로 지정한 후 나가주세요.')
+    toast.error('그룹의 유일한 관리자입니다. 다른 멤버를 관리자로 지정한 후 나가주세요.')
     return
   }
 
@@ -1806,12 +1846,12 @@ const leaveGroup = async () => {
 
     if (error) throw error
 
-    alert('그룹에서 나갔습니다.')
+    toast.success('그룹에서 나갔습니다.')
     router.push('/')
 
   } catch (error) {
     console.error('Leave group error:', error)
-    alert('그룹 나가기에 실패했습니다.')
+    toast.error('그룹 나가기에 실패했습니다.')
   }
 }
 </script>

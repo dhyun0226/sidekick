@@ -56,7 +56,10 @@
           class="absolute -top-12 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-3 py-1.5 rounded-lg text-xs font-medium shadow-xl border border-zinc-300 dark:border-zinc-700 whitespace-nowrap pointer-events-none animate-fade-in-up"
           :style="tooltipPositionStyle"
         >
-          <span class="text-lime-400 mr-1">{{ Math.round(currentPct) }}%</span>
+          <span class="text-lime-600 dark:text-lime-400 font-bold mr-1">
+            {{ currentPage ? `${currentPage}p` : `${Math.round(currentPct)}%` }}
+          </span>
+          <span v-if="currentPage" class="text-zinc-500 dark:text-zinc-400 mr-2">({{ Math.round(currentPct) }}%)</span>
           {{ currentChapterName }}
         </div>
 
@@ -92,6 +95,7 @@ interface Chapter {
 const props = defineProps<{
   toc?: Chapter[]
   modelValue: number
+  totalPages?: number
 }>()
 
 const emit = defineEmits(['update:modelValue', 'change', 'write'])
@@ -118,6 +122,11 @@ const chapters = computed(() => {
 })
 
 const currentPct = computed(() => isDragging.value ? localPct.value : props.modelValue)
+
+const currentPage = computed(() => {
+  if (!props.totalPages) return null
+  return Math.round((currentPct.value / 100) * props.totalPages)
+})
 
 const currentChapterName = computed(() => {
   const pct = currentPct.value

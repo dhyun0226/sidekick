@@ -1,11 +1,17 @@
 <template>
-  <div class="min-h-[100dvh] bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 max-w-[480px] mx-auto relative shadow-2xl overflow-hidden font-sans">
-    <NuxtPage />
+  <div>
+    <NuxtLoadingIndicator color="#a3e635" />
+    <ToastContainer />
+    <NuxtPwaManifest />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import ToastContainer from '~/components/ToastContainer.vue' // Added by agent
 
 // Global setup
 const { initTheme } = useTheme()
