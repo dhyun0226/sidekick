@@ -2,7 +2,7 @@
  * Theme management composable
  * Supports dark and light modes with localStorage persistence
  */
-import { ref, readonly } from 'vue'
+import { ref, readonly, computed } from 'vue'
 
 export type Theme = 'dark' | 'light'
 
@@ -69,8 +69,11 @@ export const useTheme = () => {
     setTheme(newTheme)
   }
 
+  const isDark = computed(() => theme.value === 'dark')
+
   return {
     theme: readonly(theme),
+    isDark,
     setTheme,
     toggleTheme,
     initTheme

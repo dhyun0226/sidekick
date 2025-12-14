@@ -38,49 +38,73 @@
         <h2 class="text-lg font-bold text-zinc-900 dark:text-white">지금 읽고 있어요</h2>
       </div>
       
-      <div class="grid gap-5">
+      <div class="grid gap-4">
         <div
           v-for="group in readingGroups"
           :key="group.id"
           @click="router.push(`/group/${group.id}`)"
-          class="relative w-full aspect-[4/5] sm:aspect-[2/1] rounded-3xl overflow-hidden shadow-2xl cursor-pointer group transition-transform active:scale-[0.98]"
+          class="relative w-full rounded-3xl overflow-hidden shadow-xl cursor-pointer group transition-transform active:scale-[0.98] aspect-[16/5]"
         >
-          <!-- Background Image (Blurred) -->
+          <!-- Background Image (Blurred & Darkened) -->
           <div class="absolute inset-0 z-0">
-            <img :src="group.currentBook.cover_url" class="w-full h-full object-cover blur-xl scale-110 opacity-60 dark:opacity-40" />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10"></div>
+            <img :src="group.currentBook.cover_url" class="w-full h-full object-cover blur-2xl opacity-40" />
+            <div class="absolute inset-0 bg-black/60"></div>
           </div>
 
-          <!-- Content -->
-          <div class="absolute inset-0 z-10 p-6 flex flex-col justify-end">
-            <!-- Top Badge -->
-            <div class="absolute top-6 left-6 flex gap-2">
-              <span class="px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] font-bold border border-white/10 shadow-sm">
-                {{ group.name }}
-              </span>
-              <span class="px-3 py-1.5 rounded-full bg-lime-400 text-black text-[10px] font-bold shadow-sm">
-                {{ getDdayText(group.currentBook.target_end_date) }}
-              </span>
-            </div>
-
-            <!-- Book Cover & Info -->
-            <div class="flex gap-5 items-end">
+          <!-- Content Wrapper -->
+          <div class="absolute inset-0 z-10 p-4 flex gap-4 items-stretch">
+            
+            <!-- Left: Book Cover & D-Day (Fixed Aspect Ratio) -->
+            <div class="w-20 flex-shrink-0 relative rounded-lg shadow-2xl border border-white/20 self-center h-[90%]">
               <img 
                 :src="group.currentBook.cover_url" 
-                class="w-24 h-36 object-cover rounded-lg shadow-2xl border border-white/10 group-hover:-translate-y-2 transition-transform duration-300" 
+                class="w-full h-full object-cover rounded-lg" 
               />
-              <div class="flex-1 mb-1">
-                <h3 class="text-2xl font-bold text-white leading-tight mb-2 line-clamp-2 drop-shadow-lg">
-                  {{ group.currentBook.title }}
-                </h3>
-                <p class="text-sm text-gray-300 font-medium line-clamp-1 drop-shadow-md">
-                  {{ group.currentBook.author }}
-                </p>
-                <div class="mt-4 flex items-center gap-2 text-[10px] text-gray-400">
-                  <span class="w-2 h-2 rounded-full bg-lime-400 animate-pulse"></span>
-                  <span>{{ group.members.length }}명이 함께 읽는 중</span>
+              <!-- D-Day Badge overlay -->
+              <div class="absolute -top-1 -left-1 bg-lime-400 text-black text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-sm border border-lime-300">
+                {{ getDdayShort(group.currentBook.target_end_date) }}
+              </div>
+            </div>
+
+            <!-- Right: Info -->
+            <div class="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5">
+              
+              <!-- Top: Group Name & Members -->
+              <div class="flex justify-between items-start mb-0.5">
+                <h4 class="text-sm font-bold text-zinc-200 drop-shadow-md truncate">
+                  {{ group.name }}
+                </h4>
+                <div class="flex items-center gap-1 bg-black/20 px-1.5 py-0.5 rounded-full backdrop-blur-md border border-white/5 flex-shrink-0">
+                  <User :size="10" class="text-white/80" />
+                  <span class="text-[10px] font-bold text-white/90">{{ group.members.length }}</span>
                 </div>
               </div>
+
+              <!-- Middle: Title & Author -->
+              <div class="flex-1 flex flex-col justify-center">
+                <h3 class="text-base font-bold text-white leading-tight line-clamp-2 drop-shadow-lg mb-0.5">
+                  {{ group.currentBook.title }}
+                </h3>
+                <p class="text-[10px] text-zinc-400 font-medium truncate">
+                  {{ group.currentBook.author }}
+                </p>
+              </div>
+
+              <!-- Bottom: Date & Progress -->
+              <div class="w-full mt-auto">
+                <div class="flex justify-between items-center mb-1 px-0.5">
+                  <div class="text-[9px] text-zinc-400 flex gap-0.5 font-mono">
+                    <span>{{ group.currentBook.target_start_date ? formatDateSimple(group.currentBook.target_start_date) : 'Start' }}</span>
+                    <span>~</span>
+                    <span>{{ group.currentBook.target_end_date ? formatDateSimple(group.currentBook.target_end_date) : 'End' }}</span>
+                  </div>
+                  <span class="text-[10px] font-bold text-lime-500">35%</span>
+                </div>
+                <div class="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
+                  <div class="h-full bg-lime-500 w-[35%] rounded-full"></div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -150,7 +174,7 @@
     <button
       v-if="groups.length > 0"
       @click="createGroupModalOpen = true"
-      class="fixed bottom-6 right-6 w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-transform z-40"
+      class="fixed bottom-6 left-1/2 ml-[160px] w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-transform z-40"
     >
       <Plus :size="24" />
     </button>
@@ -174,7 +198,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { User, Plus, KeyRound, ChevronRight } from 'lucide-vue-next'
+import { User, Plus, KeyRound, ChevronRight, MessageCircle } from 'lucide-vue-next'
 import NotificationCenter from '~/components/NotificationCenter.vue'
 import CreateGroupModal from '~/components/CreateGroupModal.vue'
 import JoinGroupModal from '~/components/JoinGroupModal.vue'
@@ -290,6 +314,23 @@ const getDdayText = (targetDateStr: string) => {
   if (days > 0) return `${days}일 남음`
   if (days === 0) return '오늘까지!'
   return `+${Math.abs(days)}일 지남`
+}
+
+const getDdayShort = (targetDateStr: string) => {
+  if (!targetDateStr) return 'Reading'
+  const days = getDaysRemaining(targetDateStr)
+  if (days > 0) return `D-${days}`
+  if (days === 0) return 'D-Day'
+  return `D+${Math.abs(days)}`
+}
+
+const formatDateSimple = (dateStr: string) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const year = date.getFullYear().toString().slice(-2)
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  return `${year}.${month}.${day}`
 }
 
 const handleGroupCreated = async (newGroup: any) => {

@@ -1,90 +1,72 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-[#09090b] pb-20">
-    <!-- 1. Header with Blurred Backdrop -->
-    <div class="relative">
-      <!-- Backdrop -->
-      <div class="absolute inset-0 h-48 overflow-hidden z-0">
-        <div class="w-full h-full bg-lime-400/20 blur-3xl scale-110"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-50 dark:to-[#09090b]"></div>
+    <!-- 1. Compact Header -->
+    <div class="pt-safe bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 pb-4">
+      
+      <!-- Nav Bar -->
+      <div class="flex justify-between items-center px-4 py-2">
+        <button @click="router.back()" class="p-2 -ml-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+          <ChevronLeft :size="24" />
+        </button>
+        <div class="flex gap-1">
+          <button @click="openSettings" class="p-2 -mr-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+            <Settings :size="24" />
+          </button>
+        </div>
       </div>
 
-      <!-- Top Bar -->
-      <div class="relative z-10 flex justify-between items-center px-4 py-4">
-        <button @click="router.back()" class="p-2 rounded-full bg-white/50 dark:bg-black/50 backdrop-blur-md text-zinc-900 dark:text-white hover:bg-white dark:hover:bg-zinc-800 transition-colors">
-          <ChevronLeft :size="20" />
-        </button>
-        <button @click="handleSignOut" class="p-2 rounded-full bg-white/50 dark:bg-black/50 backdrop-blur-md text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors" title="로그아웃">
-          <LogOut :size="20" />
-        </button>
-      </div>
-
-      <!-- Profile Info -->
-      <div class="relative z-10 flex flex-col items-center pt-2 pb-6">
-        <div class="relative mb-4 group">
-          <div class="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 border-4 border-white dark:border-[#09090b] shadow-xl overflow-hidden relative">
-            <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
-            <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
-              <User :size="40" />
+      <!-- Profile & Stats -->
+      <div class="px-6 flex flex-col gap-6">
+        <!-- Identity -->
+        <div class="flex items-center gap-4">
+          <div class="relative group cursor-pointer" @click="openSettings">
+            <div class="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-200 dark:border-zinc-700">
+              <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
+              <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
+                <User :size="24" />
+              </div>
             </div>
-            <!-- Edit Overlay -->
-            <button @click="openEditProfile" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <Camera :size="24" class="text-white" />
-            </button>
+            <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <Edit2 :size="16" class="text-white" />
+            </div>
+          </div>
+          
+          <div class="flex-1">
+            <h1 class="text-xl font-bold text-zinc-900 dark:text-white mb-0.5">
+              {{ userStore.profile?.nickname }}
+            </h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">오늘도 즐거운 독서 되세요!</p>
           </div>
         </div>
-        
-        <div class="text-center space-y-1">
-          <h1 class="text-2xl font-bold text-zinc-900 dark:text-white flex items-center justify-center gap-2">
-            {{ userStore.profile?.nickname }}
-            <button @click="openEditProfile" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
-              <Edit2 :size="14" />
-            </button>
-          </h1>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ userStore.user?.email }}</p>
+
+        <!-- Stats Row (Text-based, Clickable) -->
+        <div class="flex justify-between items-center border-t border-zinc-100 dark:border-zinc-800/50 pt-4">
+          <button @click="activeTab = 'library'" class="flex flex-col items-center flex-1 active:opacity-60 transition-opacity">
+            <span class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.books }}</span>
+            <span class="text-[10px] text-zinc-500 dark:text-zinc-400">완독</span>
+          </button>
+          <div class="w-px h-8 bg-zinc-100 dark:bg-zinc-800"></div>
+          
+          <button @click="activeTab = 'timeline'" class="flex flex-col items-center flex-1 active:opacity-60 transition-opacity">
+            <span class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.comments }}</span>
+            <span class="text-[10px] text-zinc-500 dark:text-zinc-400">기록</span>
+          </button>
+          <div class="w-px h-8 bg-zinc-100 dark:bg-zinc-800"></div>
+
+          <button @click="activeTab = 'insight'" class="flex flex-col items-center flex-1 active:opacity-60 transition-opacity">
+            <span class="text-lg font-bold text-lime-600 dark:text-lime-400">{{ stats.streak }}</span>
+            <span class="text-[10px] text-zinc-500 dark:text-zinc-400">연속</span>
+          </button>
+          <div class="w-px h-8 bg-zinc-100 dark:bg-zinc-800"></div>
+
+          <button @click="router.push('/')" class="flex flex-col items-center flex-1 active:opacity-60 transition-opacity">
+            <span class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.groups }}</span>
+            <span class="text-[10px] text-zinc-500 dark:text-zinc-400">그룹</span>
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- 2. Stats Bar (Horizontal Scrollable) -->
-    <div class="px-4 mb-6">
-      <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-        <!-- 1. Books -->
-        <div 
-          @click="activeTab = 'library'"
-          class="flex-shrink-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 min-w-[100px] flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors active:scale-95"
-        >
-          <span class="text-2xl font-bold text-zinc-900 dark:text-white mb-1">{{ stats.books }}</span>
-          <span class="text-xs text-zinc-500 dark:text-zinc-400">완독한 책</span>
-        </div>
-        
-        <!-- 2. Comments -->
-        <div 
-          @click="activeTab = 'timeline'"
-          class="flex-shrink-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 min-w-[100px] flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors active:scale-95"
-        >
-          <span class="text-2xl font-bold text-zinc-900 dark:text-white mb-1">{{ stats.comments }}</span>
-          <span class="text-xs text-zinc-500 dark:text-zinc-400">남긴 생각</span>
-        </div>
-
-        <!-- 3. Streak -->
-        <div 
-          @click="activeTab = 'insight'"
-          class="flex-shrink-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 min-w-[100px] flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors active:scale-95"
-        >
-          <span class="text-2xl font-bold text-lime-500 mb-1">{{ stats.streak }}일</span>
-          <span class="text-xs text-zinc-500 dark:text-zinc-400">연속 독서</span>
-        </div>
-
-        <!-- 4. Groups -->
-        <div 
-          @click="router.push('/')"
-          class="flex-shrink-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 min-w-[100px] flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors active:scale-95"
-        >
-          <span class="text-2xl font-bold text-zinc-900 dark:text-white mb-1">{{ stats.groups }}</span>
-          <span class="text-xs text-zinc-500 dark:text-zinc-400">참여 그룹</span>
-        </div>
-      </div>
-    </div>
 
     <!-- 3. Tabs -->
     <div class="sticky top-0 z-30 bg-gray-50/95 dark:bg-[#09090b]/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800 mb-4">
@@ -268,41 +250,157 @@
 
     </div>
 
-    <!-- Edit Profile Modal -->
-    <div v-if="editProfileOpen" class="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="editProfileOpen = false"></div>
-      <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-2xl animate-scale-up border border-zinc-200 dark:border-zinc-800">
-        <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-4">프로필 수정</h3>
+    <!-- Settings Modal -->
+    <div v-if="settingsModalOpen" class="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="settingsModalOpen = false"></div>
+      <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-2xl animate-scale-up border border-zinc-200 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-lg font-bold text-zinc-900 dark:text-white">설정</h3>
+          <button @click="settingsModalOpen = false" class="text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
+            <X :size="24" />
+          </button>
+        </div>
         
-        <div class="space-y-4">
-          <div class="flex flex-col items-center gap-3 mb-2">
-            <div class="w-20 h-20 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border-2 border-zinc-200 dark:border-zinc-700 relative group cursor-pointer" @click="triggerFileInput">
-               <img v-if="previewAvatar" :src="previewAvatar" class="w-full h-full object-cover" />
-               <div v-else class="w-full h-full flex items-center justify-center text-zinc-400"><User :size="32"/></div>
-               <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                 <Camera :size="20" class="text-white" />
-               </div>
+        <div class="space-y-8">
+          <!-- 1. Profile Edit -->
+          <section>
+            <h4 class="text-xs font-bold text-zinc-500 uppercase mb-3 px-1">프로필 편집</h4>
+            <div class="flex flex-col items-center gap-3 mb-4">
+              <div class="w-20 h-20 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border-2 border-zinc-200 dark:border-zinc-700 relative group cursor-pointer" @click="triggerFileInput">
+                 <img v-if="previewAvatar" :src="previewAvatar" class="w-full h-full object-cover" />
+                 <div v-else class="w-full h-full flex items-center justify-center text-zinc-400"><User :size="32"/></div>
+                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                   <Camera :size="20" class="text-white" />
+                 </div>
+              </div>
+              <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleFileChange" />
+              <button @click="triggerFileInput" class="text-xs text-lime-500 font-medium hover:underline">사진 변경</button>
             </div>
-            <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleFileChange" />
-            <span class="text-xs text-lime-500 cursor-pointer" @click="triggerFileInput">사진 변경</span>
-          </div>
 
-          <div>
-            <label class="block text-xs font-bold text-zinc-500 mb-1">닉네임</label>
-            <input 
-              v-model="editNickname" 
-              type="text" 
-              class="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
-            />
-          </div>
-          
-          <div class="flex gap-2 pt-2">
-            <button @click="editProfileOpen = false" class="flex-1 py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl text-sm font-medium">취소</button>
-            <button @click="saveProfile" class="flex-1 py-2.5 bg-lime-400 text-black rounded-xl text-sm font-bold flex items-center justify-center gap-2" :disabled="isSaving">
-              <div v-if="isSaving" class="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-              <span v-else>저장</span>
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 mb-1 px-1">닉네임</label>
+              <div class="flex gap-2">
+                <input 
+                  v-model="editNickname" 
+                  type="text" 
+                  class="flex-1 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 text-zinc-900 dark:text-white"
+                />
+                <button 
+                  @click="saveProfile" 
+                  class="px-4 py-2 bg-lime-400 text-black rounded-xl text-sm font-bold flex items-center justify-center gap-2" 
+                  :disabled="isSaving"
+                >
+                  <div v-if="isSaving" class="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                  <span v-else>저장</span>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. App Settings -->
+          <section class="space-y-3">
+            <h4 class="text-xs font-bold text-zinc-500 uppercase mb-2 px-1">앱 설정</h4>
+            
+            <!-- Dark Mode -->
+            <div class="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl cursor-pointer" @click="toggleTheme">
+              <div class="flex items-center gap-3">
+                <div class="p-2 bg-white dark:bg-zinc-700 rounded-full shadow-sm text-zinc-600 dark:text-zinc-300">
+                  <Moon v-if="isDark" :size="18" />
+                  <Sun v-else :size="18" />
+                </div>
+                <span class="text-sm font-medium text-zinc-900 dark:text-white">다크 모드</span>
+              </div>
+              <div 
+                class="w-11 h-6 rounded-full transition-colors duration-200 relative"
+                :class="isDark ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
+              >
+                <div 
+                  class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
+                  :class="isDark ? 'translate-x-5' : 'translate-x-0'"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="space-y-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="p-2 bg-white dark:bg-zinc-700 rounded-full shadow-sm text-zinc-600 dark:text-zinc-300">
+                  <Bell :size="18" />
+                </div>
+                <span class="text-sm font-medium text-zinc-900 dark:text-white">알림 설정</span>
+              </div>
+              
+              <div class="space-y-3 pl-2 pr-1">
+                <!-- 1. Replies -->
+                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.replies = !notificationSettings.replies">
+                  <span class="text-xs text-zinc-600 dark:text-zinc-400">내 글에 달린 답글</span>
+                  <div 
+                    class="w-11 h-6 rounded-full transition-colors duration-200 relative"
+                    :class="notificationSettings.replies ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
+                  >
+                    <div 
+                      class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
+                      :class="notificationSettings.replies ? 'translate-x-5' : 'translate-x-0'"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- 2. Comments -->
+                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.comments = !notificationSettings.comments">
+                  <span class="text-xs text-zinc-600 dark:text-zinc-400">새 댓글 알림</span>
+                  <div 
+                    class="w-11 h-6 rounded-full transition-colors duration-200 relative"
+                    :class="notificationSettings.comments ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
+                  >
+                    <div 
+                      class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
+                      :class="notificationSettings.comments ? 'translate-x-5' : 'translate-x-0'"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- 3. Likes/Reactions -->
+                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.likes = !notificationSettings.likes">
+                  <span class="text-xs text-zinc-600 dark:text-zinc-400">반응/좋아요</span>
+                  <div 
+                    class="w-11 h-6 rounded-full transition-colors duration-200 relative"
+                    :class="notificationSettings.likes ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
+                  >
+                    <div 
+                      class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
+                      :class="notificationSettings.likes ? 'translate-x-5' : 'translate-x-0'"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- 4. Group Updates -->
+                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.groupUpdates = !notificationSettings.groupUpdates">
+                  <span class="text-xs text-zinc-600 dark:text-zinc-400">그룹 소식 (멤버/공지)</span>
+                  <div 
+                    class="w-11 h-6 rounded-full transition-colors duration-200 relative"
+                    :class="notificationSettings.groupUpdates ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
+                  >
+                    <div 
+                      class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
+                      :class="notificationSettings.groupUpdates ? 'translate-x-5' : 'translate-x-0'"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. Account -->
+          <section>
+            <h4 class="text-xs font-bold text-zinc-500 uppercase mb-2 px-1">계정</h4>
+            <button
+              @click="handleSignOut"
+              class="w-full py-3 bg-red-50 dark:bg-red-900/10 text-red-500 rounded-xl font-medium hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors flex items-center justify-center gap-2"
+            >
+              <LogOut :size="18" />
+              로그아웃
             </button>
-          </div>
+          </section>
         </div>
       </div>
     </div>
@@ -315,7 +413,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { ChevronLeft, LogOut, User, Camera, Edit2, Star, Heart } from 'lucide-vue-next'
+import { ChevronLeft, LogOut, User, Camera, Edit2, Star, Heart, Settings, Moon, Sun, Bell, X } from 'lucide-vue-next'
 import ReadingHeatmap from '~/components/ReadingHeatmap.vue'
 
 // 인증 미들웨어 적용
@@ -327,6 +425,7 @@ const router = useRouter()
 const userStore = useUserStore()
 const toast = useToastStore()
 const client = useSupabaseClient()
+const { isDark, toggleTheme } = useTheme()
 
 // State
 const activeTab = ref<'timeline' | 'library' | 'insight'>('library')
@@ -340,8 +439,16 @@ const stats = ref({
   groups: 0
 })
 
+// Settings Modal State
+const settingsModalOpen = ref(false)
+const notificationSettings = ref({
+  replies: true,
+  comments: true,
+  likes: true,
+  groupUpdates: true
+})
+
 // Edit Profile State
-const editProfileOpen = ref(false)
 const editNickname = ref('')
 const previewAvatar = ref('')
 const avatarFile = ref<File | null>(null)
@@ -562,9 +669,9 @@ const navigateToItem = (item: any) => {
   }
 }
 
-// Edit Profile Logic
-const openEditProfile = () => {
-  editProfileOpen.value = true
+// Settings / Edit Profile Logic
+const openSettings = () => {
+  settingsModalOpen.value = true
 }
 
 const triggerFileInput = () => {
@@ -622,8 +729,10 @@ const saveProfile = async () => {
 
     await userStore.fetchProfile() // Refresh store
     toast.success('프로필이 업데이트되었습니다.')
-    editProfileOpen.value = false
-
+    // settingsModalOpen.value = false // Keep open or close? Usually close is fine, or let user close.
+    // Let's keep it open to show success, or close it? The user clicked save button next to nickname.
+    // Let's not close the whole settings modal, just show toast.
+    
   } catch (err: any) {
     console.error('Save profile error:', err)
     toast.error('프로필 저장 실패: ' + err.message)

@@ -18,7 +18,7 @@
     </header>
 
     <!-- Timeline Content -->
-    <div class="pt-14 pb-48 px-safe min-h-screen">
+    <div class="pt-14 pb-48 px-safe min-h-screen max-w-[480px] mx-auto">
       <!-- 책이 없을 때 Empty State -->
       <div v-if="!currentBook" class="flex flex-col items-center justify-center min-h-[60vh] px-4">
         <div class="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6">
