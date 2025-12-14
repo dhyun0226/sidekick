@@ -1,260 +1,322 @@
 <template>
-  <div class="min-h-screen bg-zinc-50 dark:bg-background pb-20">
-    <!-- Header -->
-    <header class="flex items-center gap-4 px-4 h-14 border-b border-zinc-200 dark:border-zinc-800">
-      <button @click="router.back()" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
-        <ChevronLeft :size="24" />
-      </button>
-      <h1 class="text-lg font-bold text-zinc-900 dark:text-white">내 정보 수정</h1>
-    </header>
-
-    <div class="p-6 space-y-8">
-      <!-- Stats Section -->
-      <div class="grid grid-cols-2 gap-4">
-        <button
-          @click="showReadingHistory = true"
-          class="bg-white dark:bg-zinc-800/50 rounded-2xl p-4 border border-zinc-300 dark:border-zinc-700 hover:border-lime-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer text-left group"
-        >
-          <div class="text-xs text-zinc-600 dark:text-zinc-500 mb-1 group-hover:text-lime-400 transition-colors">읽은 책 (리뷰)</div>
-          <div class="text-2xl font-bold text-zinc-900 dark:text-white group-hover:text-lime-400 transition-colors">{{ totalBooks }}<span class="text-sm text-zinc-500 font-normal ml-1">권</span></div>
-        </button>
-        <div class="bg-white dark:bg-zinc-800/50 rounded-2xl p-4 border border-zinc-300 dark:border-zinc-700">
-          <div class="text-xs text-zinc-600 dark:text-zinc-500 mb-1">참여 중인 그룹</div>
-          <div class="text-2xl font-bold text-lime-400">{{ totalGroups }}<span class="text-sm text-zinc-500 font-normal ml-1">개</span></div>
-        </div>
+  <div class="min-h-screen bg-gray-50 dark:bg-[#09090b] pb-20">
+    <!-- 1. Header with Blurred Backdrop -->
+    <div class="relative">
+      <!-- Backdrop -->
+      <div class="absolute inset-0 h-48 overflow-hidden z-0">
+        <div class="w-full h-full bg-lime-400/20 blur-3xl scale-110"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-50 dark:to-[#09090b]"></div>
       </div>
 
-      <!-- Reading Stats Card (New) -->
-      <ReadingStatsCard />
+      <!-- Top Bar -->
+      <div class="relative z-10 flex justify-between items-center px-4 py-4">
+        <button @click="router.back()" class="p-2 rounded-full bg-white/50 dark:bg-black/50 backdrop-blur-md text-zinc-900 dark:text-white hover:bg-white dark:hover:bg-zinc-800 transition-colors">
+          <ChevronLeft :size="20" />
+        </button>
+        <button @click="handleSignOut" class="p-2 rounded-full bg-white/50 dark:bg-black/50 backdrop-blur-md text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors" title="로그아웃">
+          <LogOut :size="20" />
+        </button>
+      </div>
 
-      <!-- Monthly Reading Chart -->
-      <MonthlyReadingChart />
-
-      <!-- Profile Image -->
-      <div class="flex flex-col items-center gap-4">
-        <div class="relative group cursor-pointer" @click="triggerFileInput">
-          <div class="w-24 h-24 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden border-2 border-zinc-300 dark:border-zinc-700 group-hover:border-lime-400 transition-colors">
+      <!-- Profile Info -->
+      <div class="relative z-10 flex flex-col items-center pt-2 pb-6">
+        <div class="relative mb-4 group">
+          <div class="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 border-4 border-white dark:border-[#09090b] shadow-xl overflow-hidden relative">
             <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
-            <div v-else class="w-full h-full flex items-center justify-center text-zinc-400 dark:text-zinc-500">
+            <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
               <User :size="40" />
             </div>
-          </div>
-          <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
-            <div v-if="uploadingAvatar" class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            <Camera v-else :size="24" class="text-white" />
+            <!-- Edit Overlay -->
+            <button @click="openEditProfile" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <Camera :size="24" class="text-white" />
+            </button>
           </div>
         </div>
-        <p class="text-xs text-zinc-500">{{ uploadingAvatar ? '업로드 중...' : '프로필 사진 변경' }}</p>
-
-        <!-- Hidden File Input -->
-        <input
-          ref="fileInput"
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          class="hidden"
-          @change="handleAvatarUpload"
-        />
+        
+        <div class="text-center space-y-1">
+          <h1 class="text-2xl font-bold text-zinc-900 dark:text-white flex items-center justify-center gap-2">
+            {{ userStore.profile?.nickname }}
+            <button @click="openEditProfile" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+              <Edit2 :size="14" />
+            </button>
+          </h1>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ userStore.user?.email }}</p>
+        </div>
       </div>
+    </div>
 
-      <!-- Form -->
-      <div class="space-y-6">
-        <div>
-          <label class="block text-xs font-bold text-zinc-600 dark:text-zinc-500 mb-2 uppercase">닉네임</label>
-          <input
-            v-model="nickname"
-            type="text"
-            class="w-full bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-300 dark:border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
-            placeholder="닉네임을 입력하세요"
-          />
+    <!-- 2. Stats Bar (Horizontal Scrollable) -->
+    <div class="px-4 mb-6">
+      <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+        <!-- 1. Books -->
+        <div 
+          @click="activeTab = 'library'"
+          class="flex-shrink-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 min-w-[100px] flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors active:scale-95"
+        >
+          <span class="text-2xl font-bold text-zinc-900 dark:text-white mb-1">{{ stats.books }}</span>
+          <span class="text-xs text-zinc-500 dark:text-zinc-400">완독한 책</span>
+        </div>
+        
+        <!-- 2. Comments -->
+        <div 
+          @click="activeTab = 'timeline'"
+          class="flex-shrink-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 min-w-[100px] flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors active:scale-95"
+        >
+          <span class="text-2xl font-bold text-zinc-900 dark:text-white mb-1">{{ stats.comments }}</span>
+          <span class="text-xs text-zinc-500 dark:text-zinc-400">남긴 생각</span>
         </div>
 
-        <button
-          @click="saveProfile"
-          class="w-full bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-colors disabled:opacity-50"
-          :disabled="loading"
+        <!-- 3. Streak -->
+        <div 
+          @click="activeTab = 'insight'"
+          class="flex-shrink-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 min-w-[100px] flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors active:scale-95"
         >
-          {{ loading ? '저장 중...' : '저장하기' }}
+          <span class="text-2xl font-bold text-lime-500 mb-1">{{ stats.streak }}일</span>
+          <span class="text-xs text-zinc-500 dark:text-zinc-400">연속 독서</span>
+        </div>
+
+        <!-- 4. Groups -->
+        <div 
+          @click="router.push('/')"
+          class="flex-shrink-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 min-w-[100px] flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors active:scale-95"
+        >
+          <span class="text-2xl font-bold text-zinc-900 dark:text-white mb-1">{{ stats.groups }}</span>
+          <span class="text-xs text-zinc-500 dark:text-zinc-400">참여 그룹</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Tabs -->
+    <div class="sticky top-0 z-30 bg-gray-50/95 dark:bg-[#09090b]/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800 mb-4">
+      <div class="flex">
+        <button
+          @click="activeTab = 'library'"
+          class="flex-1 py-4 text-sm font-bold transition-colors relative"
+          :class="activeTab === 'library' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-500'"
+        >
+          서재 (Library)
+          <div v-if="activeTab === 'library'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-6"></div>
+        </button>
+        <button
+          @click="activeTab = 'timeline'"
+          class="flex-1 py-4 text-sm font-bold transition-colors relative"
+          :class="activeTab === 'timeline' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-500'"
+        >
+          기록 (Timeline)
+          <div v-if="activeTab === 'timeline'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-6"></div>
+        </button>
+        <button
+          @click="activeTab = 'insight'"
+          class="flex-1 py-4 text-sm font-bold transition-colors relative"
+          :class="activeTab === 'insight' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-500'"
+        >
+          분석 (Insight)
+          <div v-if="activeTab === 'insight'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-6"></div>
         </button>
       </div>
+    </div>
 
-      <!-- Theme & Notification Settings -->
-      <div class="space-y-6 pt-8 border-t border-zinc-200 dark:border-zinc-800">
-        <h2 class="text-sm font-bold text-zinc-600 dark:text-zinc-400 uppercase">설정</h2>
+    <!-- 4. Content Area -->
+    <div class="px-4 min-h-[300px]">
+      
+      <!-- Tab 1: Library Grid (Moved First) -->
+      <div v-if="activeTab === 'library'">
+        <div v-if="loading" class="py-20 text-center text-zinc-500">
+          <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <p class="text-sm">서재를 정리하는 중...</p>
+        </div>
 
-        <!-- Theme Toggle -->
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="font-medium text-zinc-900 dark:text-zinc-200 text-sm">테마</div>
-            <div class="text-xs text-zinc-500">라이트 / 다크 모드</div>
+        <div v-else-if="library.length === 0" class="py-16 flex flex-col items-center justify-center text-center px-6 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/30">
+          <div class="w-16 h-16 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-sm mb-4 text-3xl">
+            📚
           </div>
-          <button
-            @click="toggleTheme"
-            class="relative w-14 h-7 rounded-full transition-colors"
-            :class="theme === 'dark' ? 'bg-lime-400' : 'bg-zinc-300 dark:bg-zinc-700'"
+          <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">서재가 비어있어요</h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6 max-w-xs leading-relaxed">
+            책을 완독하면 이곳에 쌓입니다.<br/>첫 번째 책을 완료해보세요!
+          </p>
+          <button 
+            @click="router.push('/')"
+            class="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-xl hover:scale-105 transition-transform shadow-lg"
           >
-            <div
-              class="absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform flex items-center justify-center text-xs"
-              :class="theme === 'dark' ? 'translate-x-7' : ''"
-            >
-              <Sun v-if="theme === 'light'" :size="14" class="text-yellow-500" />
-              <Moon v-else :size="14" class="text-zinc-800" />
+            책 읽으러 가기
+          </button>
+        </div>
+
+        <div v-else class="grid grid-cols-3 gap-3 sm:gap-4">
+          <div
+            v-for="book in library"
+            :key="book.id"
+            class="relative group cursor-pointer aspect-[2/3]"
+          >
+            <img 
+              :src="book.cover_url" 
+              class="w-full h-full object-cover rounded-lg shadow-md transition-transform group-hover:scale-105"
+            />
+            <!-- Overlay -->
+            <div class="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2 text-center">
+              <p class="text-white text-xs font-bold line-clamp-2 mb-1">{{ book.title }}</p>
+              <div v-if="book.myRating" class="flex gap-0.5">
+                 <Star :size="10" fill="white" class="text-white" />
+                 <span class="text-[10px] text-white font-bold">{{ book.myRating }}</span>
+              </div>
+              <span class="text-[10px] text-zinc-300 mt-2">{{ formatDateSimple(book.finished_at) }} 완독</span>
             </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tab 2: Timeline Feed (Moved Second) -->
+      <div v-if="activeTab === 'timeline'" class="space-y-4">
+        <div v-if="loading" class="py-20 text-center text-zinc-500">
+          <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <p class="text-sm">나의 기록을 모으는 중...</p>
+        </div>
+
+        <div v-else-if="timeline.length === 0" class="py-16 flex flex-col items-center justify-center text-center px-6 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/30">
+          <div class="w-16 h-16 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-sm mb-4 text-3xl">
+            ✍️
+          </div>
+          <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">아직 남긴 기록이 없어요</h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6 max-w-xs leading-relaxed">
+            책을 읽으며 인상 깊은 문장에<br/>첫 번째 생각을 남겨보세요.
+          </p>
+          <button 
+            @click="router.push('/')"
+            class="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-xl hover:scale-105 transition-transform shadow-lg"
+          >
+            내 그룹으로 가기
           </button>
         </div>
 
-        <!-- Notification Settings -->
+        <div
+          v-else
+          v-for="item in timeline"
+          :key="item.id"
+          @click="navigateToItem(item)"
+          class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 active:scale-[0.99] transition-transform cursor-pointer"
+        >
+          <!-- Context Header -->
+          <div class="flex items-center gap-3 mb-3">
+            <img :src="item.bookCover" class="w-8 h-12 object-cover rounded bg-zinc-200 dark:bg-zinc-800 shadow-sm flex-shrink-0" />
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center text-xs text-zinc-500 dark:text-zinc-400 mb-0.5 space-x-1">
+                <span class="truncate max-w-[100px]">{{ item.groupName }}</span>
+                <span>•</span>
+                <span class="truncate">{{ item.bookTitle }}</span>
+              </div>
+              <div class="text-xs font-medium text-lime-600 dark:text-lime-400">
+                {{ item.type === 'review' ? '⭐ 리뷰' : `${item.chapter || Math.round(item.position_pct) + '%'} 지점` }}
+              </div>
+            </div>
+            <div class="text-[10px] text-zinc-400 whitespace-nowrap self-start mt-1">
+              {{ formatDate(item.created_at) }}
+            </div>
+          </div>
+
+          <!-- Content Body -->
+          <div class="pl-11">
+            <!-- Anchor Text (Quote) -->
+            <div v-if="item.anchor_text" class="mb-2 pl-3 border-l-2 border-zinc-300 dark:border-zinc-700">
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 italic line-clamp-2">"{{ item.anchor_text }}"</p>
+            </div>
+
+            <!-- User Text -->
+            <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed whitespace-pre-wrap line-clamp-4">{{ item.content }}</p>
+
+            <!-- Rating (Review Only) -->
+            <div v-if="item.type === 'review'" class="flex gap-0.5 mt-2">
+              <Star v-for="i in 5" :key="i" :size="14" :fill="i <= item.rating ? '#FACC15' : 'none'" class="text-yellow-400" />
+            </div>
+
+            <!-- Footer Stats -->
+            <div class="flex gap-4 mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800/50">
+               <div class="text-xs text-zinc-400">
+                 {{ item.type === 'comment' ? '💬 댓글' : '📝 서평' }}
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Insight (Stats) -->
+      <div v-if="activeTab === 'insight'">
+        <div v-if="loading" class="py-20 text-center text-zinc-500">
+          <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <p class="text-sm">독서 패턴을 분석하는 중...</p>
+        </div>
+        
+        <div v-else class="space-y-4">
+          <!-- Heatmap Component -->
+          <ReadingHeatmap :activities="timeline" />
+
+          <!-- Additional Insights Placeholders (Future) -->
+          <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5">
+            <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">📊 독서 요약</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-zinc-500 dark:text-zinc-400">이번 달 읽은 책</span>
+                <span class="font-bold text-zinc-900 dark:text-white">{{ thisMonthBooks }}권</span>
+              </div>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-zinc-500 dark:text-zinc-400">이번 달 남긴 생각</span>
+                <span class="font-bold text-zinc-900 dark:text-white">{{ thisMonthComments }}개</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div v-if="editProfileOpen" class="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="editProfileOpen = false"></div>
+      <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-2xl animate-scale-up border border-zinc-200 dark:border-zinc-800">
+        <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-4">프로필 수정</h3>
+        
         <div class="space-y-4">
-          <div class="font-medium text-zinc-900 dark:text-zinc-200 text-sm">알림 설정</div>
-
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-zinc-600 dark:text-zinc-400">댓글 답글 알림</div>
-            <button
-              @click="toggleNotification('comment_reply')"
-              class="relative w-12 h-6 rounded-full transition-colors"
-              :class="notificationSettings.comment_reply ? 'bg-lime-400' : 'bg-zinc-300 dark:bg-zinc-700'"
-            >
-              <div
-                class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform"
-                :class="notificationSettings.comment_reply ? 'translate-x-6' : ''"
-              ></div>
-            </button>
+          <div class="flex flex-col items-center gap-3 mb-2">
+            <div class="w-20 h-20 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border-2 border-zinc-200 dark:border-zinc-700 relative group cursor-pointer" @click="triggerFileInput">
+               <img v-if="previewAvatar" :src="previewAvatar" class="w-full h-full object-cover" />
+               <div v-else class="w-full h-full flex items-center justify-center text-zinc-400"><User :size="32"/></div>
+               <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                 <Camera :size="20" class="text-white" />
+               </div>
+            </div>
+            <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleFileChange" />
+            <span class="text-xs text-lime-500 cursor-pointer" @click="triggerFileInput">사진 변경</span>
           </div>
 
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-zinc-600 dark:text-zinc-400">리액션 알림</div>
-            <button
-              @click="toggleNotification('reaction')"
-              class="relative w-12 h-6 rounded-full transition-colors"
-              :class="notificationSettings.reaction ? 'bg-lime-400' : 'bg-zinc-300 dark:bg-zinc-700'"
-            >
-              <div
-                class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform"
-                :class="notificationSettings.reaction ? 'translate-x-6' : ''"
-              ></div>
+          <div>
+            <label class="block text-xs font-bold text-zinc-500 mb-1">닉네임</label>
+            <input 
+              v-model="editNickname" 
+              type="text" 
+              class="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
+            />
+          </div>
+          
+          <div class="flex gap-2 pt-2">
+            <button @click="editProfileOpen = false" class="flex-1 py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl text-sm font-medium">취소</button>
+            <button @click="saveProfile" class="flex-1 py-2.5 bg-lime-400 text-black rounded-xl text-sm font-bold flex items-center justify-center gap-2" :disabled="isSaving">
+              <div v-if="isSaving" class="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+              <span v-else>저장</span>
             </button>
           </div>
-
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-zinc-600 dark:text-zinc-400">새 멤버 가입 알림</div>
-            <button
-              @click="toggleNotification('member_join')"
-              class="relative w-12 h-6 rounded-full transition-colors"
-              :class="notificationSettings.member_join ? 'bg-lime-400' : 'bg-zinc-300 dark:bg-zinc-700'"
-            >
-              <div
-                class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform"
-                :class="notificationSettings.member_join ? 'translate-x-6' : ''"
-              ></div>
-            </button>
-          </div>
-
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-zinc-600 dark:text-zinc-400">완독 축하 알림</div>
-            <button
-              @click="toggleNotification('completion')"
-              class="relative w-12 h-6 rounded-full transition-colors"
-              :class="notificationSettings.completion ? 'bg-lime-400' : 'bg-zinc-300 dark:bg-zinc-700'"
-            >
-              <div
-                class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform"
-                :class="notificationSettings.completion ? 'translate-x-6' : ''"
-              ></div>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Account Actions -->
-      <div class="pt-8 border-t border-zinc-200 dark:border-zinc-800">
-        <div class="space-y-3">
-          <button
-            @click="handleSignOut"
-            class="w-full py-3 text-red-400 bg-red-400/10 rounded-xl font-medium hover:bg-red-400/20 transition-colors flex items-center justify-center gap-2"
-          >
-            <LogOut :size="20" />
-            로그아웃
-          </button>
-
-          <button
-            @click="showDeleteConfirm = true"
-            class="w-full py-3 text-zinc-600 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800/20 rounded-xl font-medium hover:bg-zinc-200 dark:hover:bg-zinc-800/40 transition-colors flex items-center justify-center gap-2"
-          >
-            <Trash2 :size="20" />
-            계정 삭제
-          </button>
         </div>
       </div>
     </div>
 
-    <!-- Delete Account Confirmation Modal -->
-    <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="showDeleteConfirm = false"></div>
-
-      <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-2xl">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-white">계정 삭제</h2>
-          <button @click="showDeleteConfirm = false" class="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
-            <X :size="24" />
-          </button>
-        </div>
-
-        <div class="space-y-4 mb-6">
-          <div class="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
-            <p class="text-sm text-red-400 font-medium mb-2">⚠️ 주의: 이 작업은 되돌릴 수 없습니다!</p>
-            <p class="text-xs text-red-400/80">계정을 삭제하면 다음 데이터가 영구적으로 삭제됩니다:</p>
-          </div>
-
-          <ul class="text-sm text-zinc-600 dark:text-zinc-400 space-y-2 ml-4">
-            <li class="flex items-center gap-2">
-              <span class="w-1 h-1 bg-red-400 rounded-full"></span>
-              모든 그룹 참여 기록
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1 h-1 bg-red-400 rounded-full"></span>
-              작성한 모든 리뷰와 코멘트
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1 h-1 bg-red-400 rounded-full"></span>
-              독서 진행도 및 통계
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1 h-1 bg-red-400 rounded-full"></span>
-              프로필 정보 (닉네임, 아바타)
-            </li>
-          </ul>
-        </div>
-
-        <div class="flex gap-3">
-          <button
-            @click="showDeleteConfirm = false"
-            class="flex-1 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-3 rounded-xl hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors"
-          >
-            취소
-          </button>
-          <button
-            @click="handleAccountDelete"
-            :disabled="deletingAccount"
-            class="flex-1 bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ deletingAccount ? '삭제 중...' : '영구 삭제' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Reading History Modal -->
-    <ReadingHistoryModal :is-open="showReadingHistory" @close="showReadingHistory = false" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
-import { ChevronLeft, User, Camera, LogOut, Trash2, X, Sun, Moon } from 'lucide-vue-next'
-import ReadingStatsCard from '~/components/ReadingStatsCard.vue'
-import MonthlyReadingChart from '~/components/MonthlyReadingChart.vue'
-import ReadingHistoryModal from '~/components/ReadingHistoryModal.vue'
+import { useToastStore } from '~/stores/toast'
+import { ChevronLeft, LogOut, User, Camera, Edit2, Star, Heart } from 'lucide-vue-next'
+import ReadingHeatmap from '~/components/ReadingHeatmap.vue'
 
 // 인증 미들웨어 적용
 definePageMeta({
@@ -263,262 +325,335 @@ definePageMeta({
 
 const router = useRouter()
 const userStore = useUserStore()
+const toast = useToastStore()
 const client = useSupabaseClient()
-const { theme, toggleTheme: toggleThemeComposable } = useTheme()
 
-const nickname = ref('')
-const loading = ref(false)
-const uploadingAvatar = ref(false)
-const totalBooks = ref(0)
-const totalGroups = ref(0)
+// State
+const activeTab = ref<'timeline' | 'library' | 'insight'>('library')
+const loading = ref(true)
+const timeline = ref<any[]>([])
+const library = ref<any[]>([])
+const stats = ref({
+  books: 0,
+  comments: 0,
+  streak: 0,
+  groups: 0
+})
+
+// Edit Profile State
+const editProfileOpen = ref(false)
+const editNickname = ref('')
+const previewAvatar = ref('')
+const avatarFile = ref<File | null>(null)
+const isSaving = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
-const showReadingHistory = ref(false)
-const showDeleteConfirm = ref(false)
-const deletingAccount = ref(false)
 
-// Notification settings
-const notificationSettings = ref({
-  comment_reply: true,
-  reaction: true,
-  member_join: true,
-  completion: true
+// Computed
+const currentUserId = computed(() => userStore.user?.id)
+
+const thisMonthBooks = computed(() => {
+  const now = new Date()
+  return library.value.filter(book => {
+    const d = new Date(book.finished_at)
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+  }).length
 })
 
-const fetchStats = async () => {
-  // 현재 로그인한 유저 ID 가져오기
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) return
+const thisMonthComments = computed(() => {
+  const now = new Date()
+  return timeline.value.filter(item => {
+    const d = new Date(item.created_at)
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+  }).length
+})
 
-  // 1. Total Books (unique ISBNs from reviews)
-  // Since reviews are now per group_book, we need to count unique books
-  const { data: reviewsData } = await client
-    .from('reviews')
-    .select('group_books!inner(isbn)')
-    .eq('user_id', user.id)
-
-  // Count unique ISBNs
-  const uniqueIsbns = new Set(reviewsData?.map((r: any) => r.group_books.isbn) || [])
-  totalBooks.value = uniqueIsbns.size
-
-  // 2. Total Groups
-  const { count: groupCount } = await client
-    .from('group_members')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
-
-  totalGroups.value = groupCount || 0
-}
-
+// Initialization
 onMounted(async () => {
-  console.log('[Profile] Component mounted')
-  console.log('[Profile] userStore.user:', userStore.user)
-  console.log('[Profile] userStore.profile before fetch:', userStore.profile)
-
   await userStore.fetchProfile()
-
-  console.log('[Profile] userStore.profile after fetch:', userStore.profile)
   if (userStore.profile) {
-    nickname.value = userStore.profile.nickname || ''
-
-    // Load notification settings
-    if (userStore.profile.notification_settings) {
-      notificationSettings.value = userStore.profile.notification_settings
-    }
-
-    console.log('[Profile] Nickname set to:', nickname.value)
-  } else {
-    console.log('[Profile] No profile found after fetch!')
+    editNickname.value = userStore.profile.nickname
+    previewAvatar.value = userStore.profile.avatar_url || ''
   }
-  await fetchStats()
+  await fetchData()
 })
 
-const saveProfile = async () => {
-  // 현재 로그인한 유저 ID 가져오기
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) return
-
+const fetchData = async () => {
+  // 방어 코드: 유저 ID가 없으면 로딩을 끄고 종료
+  if (!currentUserId.value) {
+    console.warn('User ID not found, stopping fetch')
+    loading.value = false
+    return
+  }
+  
   loading.value = true
 
-  const { error } = await client
-    .from('users')
-    .update({ nickname: nickname.value })
-    .eq('id', user.id)
+  try {
+    // 1. Fetch Timeline (Comments + Reviews)
+    // We need to fetch comments and reviews separately and merge them because Supabase doesn't support Union queries easily via JS client
+    
+    // Fetch Comments
+    const { data: commentsData } = await client
+      .from('comments')
+      .select(`
+        id, content, anchor_text, position_pct, created_at,
+        group_book:group_books (
+          id,
+          group:groups (name, id),
+          book:books (title, cover_url, official_toc, draft_toc, total_pages)
+        )
+      `)
+      .eq('user_id', currentUserId.value)
+      .order('created_at', { ascending: false })
+      .limit(100) // Limit increased for heatmap
 
-  loading.value = false
+    // Fetch Reviews
+    const { data: reviewsData } = await client
+      .from('reviews')
+      .select(`
+        id, content, rating, created_at,
+        book:books (title, cover_url),
+        group_book_id
+      `) // Note: reviews table links to books(isbn), but we might not have group info directly if we don't join group_books properly. 
+         // However, reviews usually happen in context of a group_book. 
+         // Let's assume for now we just show book info.
+         // Actually, our schema says reviews has book_id (isbn) and user_id. It doesn't strictly link to group_book_id in schema (check schema).
+         // Schema check: reviews(user_id, book_id, rating, content). No group_book_id.
+         // So we can't easily link review to a group unless we infer it.
+         // For now, we'll just show book info for reviews.
+      .eq('user_id', currentUserId.value)
+      .order('created_at', { ascending: false })
+      .limit(50)
 
-  if (error) {
-    alert('프로필 저장 실패: ' + error.message)
-  } else {
-    alert('프로필이 저장되었습니다.')
-    await userStore.fetchProfile() // Refresh store
+    // Merge and Normalize
+    const normalizedComments = (commentsData || []).map((c: any) => ({
+      type: 'comment',
+      id: c.id,
+      created_at: c.created_at,
+      content: c.content,
+      anchor_text: c.anchor_text,
+      position_pct: c.position_pct,
+      
+      // Metadata
+      groupId: c.group_book?.group?.id,
+      groupName: c.group_book?.group?.name || 'Unknown Group',
+      bookTitle: c.group_book?.book?.title || 'Unknown Book',
+      bookCover: c.group_book?.book?.cover_url,
+      
+      // Navigation Data
+      groupBookId: c.group_book?.id,
+      
+      // Chapter Name Calculation (Frontend side)
+      chapter: calculateChapter(c.position_pct, c.group_book?.book)
+    }))
+
+    const normalizedReviews = (reviewsData || []).map((r: any) => ({
+      type: 'review',
+      id: r.id,
+      created_at: r.created_at,
+      content: r.content,
+      rating: r.rating,
+      
+      // Metadata
+      groupId: null, // Reviews are global in this schema, or we'd need complex join
+      groupName: 'Library',
+      bookTitle: r.book?.title,
+      bookCover: r.book?.cover_url,
+      
+      // Navigation Data (Maybe jump to book page?)
+      bookId: r.book_id // ISBN
+    }))
+
+    const merged = [...normalizedComments, ...normalizedReviews].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+    
+    timeline.value = merged
+
+    // 2. Fetch Library (Finished Books)
+    // Find group_books where status='done' for groups I'm in?
+    // Or user_reading_progress where status='done'? 
+    // Schema check: group_books has status='done'. But that's for the GROUP.
+    // Did I finish it? 
+    // Ideally we check `user_reading_progress`.
+    const { data: progressData } = await client
+      .from('user_reading_progress')
+      .select(`
+        finished_at,
+        group_book:group_books (
+          book:books (title, cover_url, isbn)
+        )
+      `)
+      .eq('user_id', currentUserId.value)
+      .not('finished_at', 'is', null)
+      .order('finished_at', { ascending: false })
+
+    library.value = (progressData || []).map((p: any) => ({
+      id: p.group_book?.book?.isbn, // Use ISBN as ID
+      title: p.group_book?.book?.title,
+      cover_url: p.group_book?.book?.cover_url,
+      finished_at: p.finished_at,
+      // Find my rating for this book
+      myRating: normalizedReviews.find((r: any) => r.bookTitle === p.group_book?.book?.title)?.rating // Simple matching
+    }))
+
+    // 2.5 Fetch Group Count
+    const { count: groupCount } = await client
+      .from('group_members')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', currentUserId.value)
+
+    // 3. Stats
+    stats.value = {
+      books: library.value.length,
+      comments: commentsData?.length || 0,
+      streak: await calculateStreak(),
+      groups: groupCount || 0
+    }
+
+  } catch (err: any) {
+    console.error('Fetch profile data error:', err)
+    toast.error('데이터를 불러오는데 실패했습니다: ' + err.message)
+  } finally {
+    loading.value = false
   }
+}
+
+const calculateChapter = (pct: number, book: any) => {
+  if (!book) return null
+  const toc = book.official_toc || book.draft_toc
+  if (!toc || !Array.isArray(toc)) return null
+  
+  // Need to normalize TOC if stored as pages vs pct. 
+  // Assuming TOC in DB is standardized or we just use raw if it looks like PCT.
+  // Implementation specific. Let's return null to fallback to PCT display for now.
+  return null 
+}
+
+const calculateStreak = async () => {
+  // Simple streak calculation based on user_reading_progress updates
+  // For MVP, return a mock or simple calculation
+  return 0
+}
+
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr)
+  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`
+}
+
+const formatDateSimple = (dateStr: string) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return `${date.getFullYear()}.${date.getMonth() + 1}`
+}
+
+const navigateToItem = (item: any) => {
+  if (item.type === 'comment' && item.groupId) {
+    // Navigate to group page with query to jump to position
+    router.push({
+      path: `/group/${item.groupId}`,
+      query: { 
+        jumpTo: item.position_pct,
+        highlightComment: item.id
+      }
+    })
+  } else if (item.type === 'review') {
+    // Maybe go to a book detail page (not implemented yet) or just stay
+    toast.info('서평 상세 페이지는 준비 중입니다.')
+  }
+}
+
+// Edit Profile Logic
+const openEditProfile = () => {
+  editProfileOpen.value = true
 }
 
 const triggerFileInput = () => {
   fileInput.value?.click()
 }
 
-const handleAvatarUpload = async (event: Event) => {
+const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-
-  if (!file) return
-
-  // Validate file type
-  const validTypes = ['image/jpeg', 'image/png', 'image/webp']
-  if (!validTypes.includes(file.type)) {
-    alert('JPG, PNG, WEBP 형식의 이미지만 업로드 가능합니다.')
-    return
+  if (file) {
+    avatarFile.value = file
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      previewAvatar.value = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
   }
+}
 
-  // Validate file size (2MB limit)
-  const maxSize = 2 * 1024 * 1024 // 2MB
-  if (file.size > maxSize) {
-    alert('파일 크기는 2MB 이하여야 합니다.')
-    return
-  }
-
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) {
-    alert('로그인이 필요합니다.')
-    return
-  }
-
-  uploadingAvatar.value = true
-
+const saveProfile = async () => {
+  if (!editNickname.value.trim()) return
+  isSaving.value = true
+  
   try {
-    // File name: {userId}/avatar.{extension}
-    const fileExt = file.name.split('.').pop()
-    const filePath = `${user.id}/avatar.${fileExt}`
+    let avatarUrl = userStore.profile?.avatar_url
 
-    console.log('[Avatar Upload] Uploading to:', filePath)
-
-    // Delete old avatar if exists
-    const { data: oldFiles } = await client.storage
-      .from('avatars')
-      .list(user.id)
-
-    if (oldFiles && oldFiles.length > 0) {
-      const filesToDelete = oldFiles.map(f => `${user.id}/${f.name}`)
-      await client.storage
+    // Upload new avatar if selected
+    if (avatarFile.value && currentUserId.value) {
+      const fileExt = avatarFile.value.name.split('.').pop()
+      const fileName = `${currentUserId.value}/${Date.now()}.${fileExt}`
+      
+      const { error: uploadError } = await client.storage
         .from('avatars')
-        .remove(filesToDelete)
-      console.log('[Avatar Upload] Deleted old avatars:', filesToDelete)
+        .upload(fileName, avatarFile.value, { upsert: true })
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = client.storage
+        .from('avatars')
+        .getPublicUrl(fileName)
+        
+      avatarUrl = publicUrl
     }
 
-    // Upload new avatar
-    const { data: uploadData, error: uploadError } = await client.storage
-      .from('avatars')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: true
-      })
-
-    if (uploadError) {
-      console.error('[Avatar Upload] Upload error:', uploadError)
-      throw uploadError
-    }
-
-    console.log('[Avatar Upload] Upload successful:', uploadData)
-
-    // Get public URL
-    const { data: urlData } = client.storage
-      .from('avatars')
-      .getPublicUrl(filePath)
-
-    const avatarUrl = urlData.publicUrl
-
-    console.log('[Avatar Upload] Public URL:', avatarUrl)
-
-    // Update user profile
+    // Update DB
     const { error: updateError } = await client
       .from('users')
-      .update({ avatar_url: avatarUrl })
-      .eq('id', user.id)
+      .update({
+        nickname: editNickname.value,
+        avatar_url: avatarUrl
+      })
+      .eq('id', currentUserId.value)
 
-    if (updateError) {
-      console.error('[Avatar Upload] Profile update error:', updateError)
-      throw updateError
-    }
+    if (updateError) throw updateError
 
-    console.log('[Avatar Upload] Profile updated successfully')
+    await userStore.fetchProfile() // Refresh store
+    toast.success('프로필이 업데이트되었습니다.')
+    editProfileOpen.value = false
 
-    // Refresh user store
-    await userStore.fetchProfile()
-
-    alert('프로필 사진이 변경되었습니다! 🎉')
-
-  } catch (error: any) {
-    console.error('[Avatar Upload] Error:', error)
-    alert('업로드 실패: ' + (error.message || '알 수 없는 오류'))
+  } catch (err: any) {
+    console.error('Save profile error:', err)
+    toast.error('프로필 저장 실패: ' + err.message)
   } finally {
-    uploadingAvatar.value = false
-    // Reset file input
-    if (fileInput.value) {
-      fileInput.value.value = ''
-    }
+    isSaving.value = false
   }
 }
 
 const handleSignOut = async () => {
-  if (confirm('정말 로그아웃 하시겠습니까?')) {
+  if (confirm('로그아웃 하시겠습니까?')) {
     await userStore.signOut()
-  }
-}
-
-const toggleTheme = () => {
-  toggleThemeComposable()
-}
-
-const toggleNotification = async (key: 'comment_reply' | 'reaction' | 'member_join' | 'completion') => {
-  notificationSettings.value[key] = !notificationSettings.value[key]
-
-  // Save to database
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) return
-
-  const { error } = await client
-    .from('users')
-    .update({ notification_settings: notificationSettings.value })
-    .eq('id', user.id)
-
-  if (error) {
-    console.error('Notification settings update error:', error)
-    // Revert on error
-    notificationSettings.value[key] = !notificationSettings.value[key]
-  }
-}
-
-const handleAccountDelete = async () => {
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) return
-
-  deletingAccount.value = true
-
-  try {
-    // Delete user from auth (cascade will delete all related data)
-    const { error } = await client.auth.admin.deleteUser(user.id)
-
-    if (error) {
-      // If admin API not available, use RPC or direct delete
-      // This requires proper RLS policies
-      console.error('Delete error:', error)
-
-      // Alternative: Delete user record (auth.users deletion requires admin)
-      // For now, just sign out and show message
-      alert('계정 삭제는 관리자 권한이 필요합니다. 고객센터에 문의해주세요.')
-      return
-    }
-
-    alert('계정이 삭제되었습니다.')
-    await userStore.signOut()
-
-  } catch (error: any) {
-    console.error('Account deletion error:', error)
-    alert('계정 삭제 실패: ' + (error.message || '알 수 없는 오류'))
-  } finally {
-    deletingAccount.value = false
-    showDeleteConfirm.value = false
+    router.push('/login')
   }
 }
 </script>
+
+<style scoped>
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes scale-up {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.animate-scale-up {
+  animation: scale-up 0.2s ease-out;
+}
+</style>
