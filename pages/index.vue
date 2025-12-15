@@ -47,36 +47,41 @@
         >
           <!-- Background Image (Blurred & Darkened) -->
           <div class="absolute inset-0 z-0">
-            <img :src="group.currentBook.cover_url" class="w-full h-full object-cover blur-2xl opacity-40" />
-            <div class="absolute inset-0 bg-black/60"></div>
+            <img :src="group.currentBook.cover_url" class="w-full h-full object-cover blur-2xl opacity-60" />
+            <div class="absolute inset-0 bg-black/50"></div>
           </div>
 
           <!-- Content Wrapper -->
           <div class="absolute inset-0 z-10 p-4 flex gap-4 items-stretch">
-            
-            <!-- Left: Book Cover & D-Day (Fixed Aspect Ratio) -->
-            <div class="w-20 sm:w-24 aspect-[2/3] flex-shrink-0 relative shadow-2xl border border-white/20 self-center bg-zinc-800 rounded-sm">
-              <img 
-                :src="group.currentBook.cover_url" 
-                class="w-full h-full object-contain" 
-              />
-              <!-- D-Day Badge overlay -->
-              <div class="absolute -top-1 -left-1 bg-lime-400 text-black text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-sm border border-lime-300">
-                {{ getDdayShort(group.currentBook.target_end_date) }}
+
+            <!-- Left: Book Cover (Fixed Aspect Ratio) -->
+            <div class="w-16 sm:w-20 aspect-[2/3] flex-shrink-0 self-center">
+              <div class="w-full h-full shadow-2xl border border-white/20 bg-zinc-800 rounded-sm overflow-hidden">
+                <img
+                  :src="group.currentBook.cover_url"
+                  class="w-full h-full object-cover"
+                />
               </div>
             </div>
 
             <!-- Right: Info -->
             <div class="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5">
               
-              <!-- Top: Group Name & Members -->
+              <!-- Top: Group Name & Badges -->
               <div class="flex justify-between items-start mb-0.5">
                 <h4 class="text-sm font-bold text-zinc-200 drop-shadow-md truncate">
                   {{ group.name }}
                 </h4>
-                <div class="flex items-center gap-1 bg-black/20 px-1.5 py-0.5 rounded-full backdrop-blur-md border border-white/5 flex-shrink-0">
-                  <User :size="10" class="text-white/80" />
-                  <span class="text-[10px] font-bold text-white/90">{{ group.members.length }}</span>
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                  <!-- D-Day Badge -->
+                  <div class="bg-lime-400 text-black text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-sm border border-lime-300">
+                    {{ getDdayShort(group.currentBook.target_end_date) }}
+                  </div>
+                  <!-- Members Badge -->
+                  <div class="flex items-center gap-1 bg-black/20 px-1.5 py-0.5 rounded-full backdrop-blur-md border border-white/5">
+                    <User :size="10" class="text-white/80" />
+                    <span class="text-[10px] font-bold text-white/90">{{ group.members.length }}</span>
+                  </div>
                 </div>
               </div>
 

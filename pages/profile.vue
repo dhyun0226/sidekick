@@ -331,58 +331,58 @@
               </div>
               
               <div class="space-y-3 pl-2 pr-1">
-                <!-- 1. Replies -->
-                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.replies = !notificationSettings.replies">
+                <!-- 1. Comment Replies -->
+                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.comment_reply = !notificationSettings.comment_reply">
                   <span class="text-xs text-zinc-600 dark:text-zinc-400">내 글에 달린 답글</span>
-                  <div 
+                  <div
                     class="w-11 h-6 rounded-full transition-colors duration-200 relative"
-                    :class="notificationSettings.replies ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
+                    :class="notificationSettings.comment_reply ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
                   >
-                    <div 
+                    <div
                       class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
-                      :class="notificationSettings.replies ? 'translate-x-5' : 'translate-x-0'"
+                      :class="notificationSettings.comment_reply ? 'translate-x-5' : 'translate-x-0'"
                     ></div>
                   </div>
                 </div>
 
-                <!-- 2. Comments -->
-                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.comments = !notificationSettings.comments">
-                  <span class="text-xs text-zinc-600 dark:text-zinc-400">새 댓글 알림</span>
-                  <div 
-                    class="w-11 h-6 rounded-full transition-colors duration-200 relative"
-                    :class="notificationSettings.comments ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
-                  >
-                    <div 
-                      class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
-                      :class="notificationSettings.comments ? 'translate-x-5' : 'translate-x-0'"
-                    ></div>
-                  </div>
-                </div>
-
-                <!-- 3. Likes/Reactions -->
-                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.likes = !notificationSettings.likes">
+                <!-- 2. Reactions -->
+                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.reaction = !notificationSettings.reaction">
                   <span class="text-xs text-zinc-600 dark:text-zinc-400">반응/좋아요</span>
-                  <div 
+                  <div
                     class="w-11 h-6 rounded-full transition-colors duration-200 relative"
-                    :class="notificationSettings.likes ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
+                    :class="notificationSettings.reaction ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
                   >
-                    <div 
+                    <div
                       class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
-                      :class="notificationSettings.likes ? 'translate-x-5' : 'translate-x-0'"
+                      :class="notificationSettings.reaction ? 'translate-x-5' : 'translate-x-0'"
                     ></div>
                   </div>
                 </div>
 
-                <!-- 4. Group Updates -->
-                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.groupUpdates = !notificationSettings.groupUpdates">
-                  <span class="text-xs text-zinc-600 dark:text-zinc-400">그룹 소식 (멤버/공지)</span>
-                  <div 
+                <!-- 3. Member Join -->
+                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.member_join = !notificationSettings.member_join">
+                  <span class="text-xs text-zinc-600 dark:text-zinc-400">새 멤버 가입</span>
+                  <div
                     class="w-11 h-6 rounded-full transition-colors duration-200 relative"
-                    :class="notificationSettings.groupUpdates ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
+                    :class="notificationSettings.member_join ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
                   >
-                    <div 
+                    <div
                       class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
-                      :class="notificationSettings.groupUpdates ? 'translate-x-5' : 'translate-x-0'"
+                      :class="notificationSettings.member_join ? 'translate-x-5' : 'translate-x-0'"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- 4. Completion -->
+                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.completion = !notificationSettings.completion">
+                  <span class="text-xs text-zinc-600 dark:text-zinc-400">책 완독 알림</span>
+                  <div
+                    class="w-11 h-6 rounded-full transition-colors duration-200 relative"
+                    :class="notificationSettings.completion ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
+                  >
+                    <div
+                      class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
+                      :class="notificationSettings.completion ? 'translate-x-5' : 'translate-x-0'"
                     ></div>
                   </div>
                 </div>
@@ -409,7 +409,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
@@ -442,10 +442,10 @@ const stats = ref({
 // Settings Modal State
 const settingsModalOpen = ref(false)
 const notificationSettings = ref({
-  replies: true,
-  comments: true,
-  likes: true,
-  groupUpdates: true
+  comment_reply: true,
+  reaction: true,
+  member_join: true,
+  completion: true
 })
 
 // Edit Profile State
@@ -480,9 +480,34 @@ onMounted(async () => {
   if (userStore.profile) {
     editNickname.value = userStore.profile.nickname
     previewAvatar.value = userStore.profile.avatar_url || ''
+
+    // Load notification settings from DB
+    if (userStore.profile.notification_settings) {
+      notificationSettings.value = userStore.profile.notification_settings
+    }
   }
   await fetchData()
 })
+
+// Auto-save notification settings on change
+watch(notificationSettings, async (newSettings) => {
+  if (!currentUserId.value) return
+
+  try {
+    const { error } = await client
+      .from('users')
+      .update({ notification_settings: newSettings })
+      .eq('id', currentUserId.value)
+
+    if (error) throw error
+
+    // Silently update store without showing toast
+    await userStore.fetchProfile()
+  } catch (err: any) {
+    console.error('Save notification settings error:', err)
+    toast.error('알림 설정 저장 실패')
+  }
+}, { deep: true })
 
 const fetchData = async () => {
   // 방어 코드: 유저 ID가 없으면 로딩을 끄고 종료
@@ -637,9 +662,63 @@ const calculateChapter = (pct: number, book: any) => {
 }
 
 const calculateStreak = async () => {
-  // Simple streak calculation based on user_reading_progress updates
-  // For MVP, return a mock or simple calculation
-  return 0
+  // Streak based on comments and reviews (activity days)
+  if (!currentUserId.value) return 0
+
+  try {
+    // 1. Fetch all comments and reviews
+    const { data: commentsData } = await client
+      .from('comments')
+      .select('created_at')
+      .eq('user_id', currentUserId.value)
+      .order('created_at', { ascending: false })
+
+    const { data: reviewsData } = await client
+      .from('reviews')
+      .select('created_at')
+      .eq('user_id', currentUserId.value)
+      .order('created_at', { ascending: false })
+
+    // 2. Extract dates (YYYY-MM-DD format)
+    const allDates = [
+      ...(commentsData || []).map(c => c.created_at.split('T')[0]),
+      ...(reviewsData || []).map(r => r.created_at.split('T')[0])
+    ]
+
+    // 3. Remove duplicates and sort descending
+    const uniqueDates = [...new Set(allDates)].sort().reverse()
+
+    if (uniqueDates.length === 0) return 0
+
+    // 4. Check if streak is still active (today or yesterday)
+    const today = new Date().toISOString().split('T')[0]
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+
+    if (uniqueDates[0] !== today && uniqueDates[0] !== yesterday) {
+      return 0 // Streak broken
+    }
+
+    // 5. Count consecutive days
+    let streak = 1
+    for (let i = 1; i < uniqueDates.length; i++) {
+      const currentDate = new Date(uniqueDates[i - 1])
+      const prevDate = new Date(uniqueDates[i])
+      const diffDays = Math.floor(
+        (currentDate.getTime() - prevDate.getTime()) / 86400000
+      )
+
+      if (diffDays === 1) {
+        streak++
+      } else {
+        break // Streak broken
+      }
+    }
+
+    return streak
+  } catch (err) {
+    console.error('Calculate streak error:', err)
+    return 0
+  }
 }
 
 const formatDate = (dateStr: string) => {
