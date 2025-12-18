@@ -15,7 +15,8 @@
         title: bookTitle,
         author: bookAuthor,
         status: selectedBook.status,
-        round: currentBookRound
+        round: currentBookRound,
+        finishedAt: selectedBook.finished_at
       } : null"
       :days-remaining="daysRemaining"
       :member-count="members.length"

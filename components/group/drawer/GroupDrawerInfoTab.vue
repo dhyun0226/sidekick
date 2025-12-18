@@ -73,7 +73,7 @@
       </div>
 
       <!-- Chapter Navigation (선택된 책의 목차) -->
-      <div v-if="selectedBook && toc.length > 0" class="border-t border-zinc-200 dark:border-zinc-800">
+      <div v-if="selectedBook && toc.length > 0 && isSelectedBookReading" class="border-t border-zinc-200 dark:border-zinc-800">
         <div class="px-4 py-3">
           <h4 class="text-xs font-bold text-zinc-500 uppercase">목차 바로가기</h4>
         </div>
@@ -164,6 +164,11 @@ const sortedReadingBooks = computed(() => {
 // selectedBook 기준으로 판단 (readingBooks 중에 선택된 책)
 const selectedBook = computed(() => {
   return props.readingBooks.find(book => book.id === props.selectedBookId) || props.readingBooks[0] || null
+})
+
+// 선택된 책이 실제로 읽는 중인 책인지 확인 (완독한 책이 아닌지)
+const isSelectedBookReading = computed(() => {
+  return props.readingBooks.some(book => book.id === props.selectedBookId)
 })
 
 // 각 책의 날짜 범위 포맷팅

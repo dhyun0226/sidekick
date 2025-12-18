@@ -4,49 +4,48 @@
     <div class="pt-safe pb-4">
       
       <!-- Nav Bar -->
-      <div class="flex justify-between items-center px-4 py-6">
-        <button @click="router.back()" class="p-2 -ml-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+      <div class="flex justify-between items-center px-4 py-4">
+        <button @click="router.back()" class="p-1 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <ChevronLeft :size="24" />
         </button>
-        <div class="flex gap-1">
-          <button @click="openSettings" class="p-2 -mr-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
-            <Settings :size="24" />
-          </button>
-        </div>
+        <button @click="openSettings" class="p-1 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+          <Settings :size="24" />
+        </button>
       </div>
 
-      <!-- Profile & Stats -->
-      <div class="px-4 flex flex-col gap-6">
-        <!-- Identity -->
-        <div class="flex items-center gap-4">
+      <!-- Profile -->
+      <div class="px-4 pb-3">
+        <div class="flex items-center gap-3">
           <div class="relative group cursor-pointer" @click="openSettings">
-            <div class="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-200 dark:border-zinc-700">
+            <div class="w-14 h-14 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-200 dark:border-zinc-700">
               <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
               <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
-                <User :size="24" />
+                <User :size="20" />
               </div>
             </div>
             <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <Edit2 :size="16" class="text-white" />
+              <Edit2 :size="14" class="text-white" />
             </div>
           </div>
-          
-          <div class="flex-1">
-            <h1 class="text-xl font-bold text-zinc-900 dark:text-white mb-0.5">
+
+          <div class="flex-1 min-w-0">
+            <h1 class="text-base font-bold text-zinc-900 dark:text-white">
               {{ userStore.profile?.nickname }}
             </h1>
             <p class="text-xs text-zinc-500 dark:text-zinc-400">오늘도 즐거운 독서 되세요!</p>
           </div>
         </div>
+      </div>
 
-        <!-- Stats Row (Text-based, Clickable) -->
-        <div class="flex justify-between items-center border-t border-zinc-200 dark:border-zinc-800/50 pt-4">
+      <!-- Stats Row -->
+      <div class="px-4 border-t border-zinc-200 dark:border-zinc-800/50 pt-3">
+        <div class="flex justify-between items-center">
           <button @click="activeTab = 'library'" class="flex flex-col items-center flex-1 active:opacity-60 transition-opacity">
             <span class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.books }}</span>
             <span class="text-[10px] text-zinc-500 dark:text-zinc-400">완독</span>
           </button>
           <div class="w-px h-8 bg-zinc-200 dark:bg-zinc-700"></div>
-          
+
           <button @click="activeTab = 'timeline'" class="flex flex-col items-center flex-1 active:opacity-60 transition-opacity">
             <span class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.comments }}</span>
             <span class="text-[10px] text-zinc-500 dark:text-zinc-400">기록</span>
@@ -68,180 +67,196 @@
     </div>
 
 
-    <!-- 3. Tabs -->
-    <div class="sticky top-0 z-30 bg-gray-50/95 dark:bg-[#09090b]/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800 mb-4">
-      <div class="flex">
+    <!-- Tabs -->
+    <div class="sticky top-0 z-30 bg-gray-50/95 dark:bg-[#09090b]/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
+      <div class="flex px-4">
         <button
           @click="activeTab = 'library'"
-          class="flex-1 py-4 text-sm font-bold transition-colors relative"
-          :class="activeTab === 'library' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-500'"
+          class="flex-1 py-3 text-sm font-bold transition-colors relative"
+          :class="activeTab === 'library' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
         >
-          서재 (Library)
-          <div v-if="activeTab === 'library'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-6"></div>
+          서재
+          <div v-if="activeTab === 'library'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
         </button>
         <button
           @click="activeTab = 'timeline'"
-          class="flex-1 py-4 text-sm font-bold transition-colors relative"
-          :class="activeTab === 'timeline' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-500'"
+          class="flex-1 py-3 text-sm font-bold transition-colors relative"
+          :class="activeTab === 'timeline' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
         >
-          기록 (Timeline)
-          <div v-if="activeTab === 'timeline'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-6"></div>
+          기록
+          <div v-if="activeTab === 'timeline'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
         </button>
         <button
           @click="activeTab = 'insight'"
-          class="flex-1 py-4 text-sm font-bold transition-colors relative"
-          :class="activeTab === 'insight' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-500'"
+          class="flex-1 py-3 text-sm font-bold transition-colors relative"
+          :class="activeTab === 'insight' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
         >
-          분석 (Insight)
-          <div v-if="activeTab === 'insight'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-6"></div>
+          분석
+          <div v-if="activeTab === 'insight'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
         </button>
       </div>
     </div>
 
-    <!-- 4. Content Area -->
-    <div class="px-4 min-h-[300px]">
-      
-      <!-- Tab 1: Library Grid (Moved First) -->
+    <!-- Content Area -->
+    <div class="px-4 pt-3 min-h-[300px]">
+
+      <!-- Tab 1: Library Grid -->
       <div v-if="activeTab === 'library'">
         <div v-if="loading" class="py-20 text-center text-zinc-500">
-          <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p class="text-sm">서재를 정리하는 중...</p>
+          <div class="w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          <p class="text-xs">로딩 중...</p>
         </div>
 
-        <div v-else-if="library.length === 0" class="py-16 flex flex-col items-center justify-center text-center px-6 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/30">
-          <div class="w-16 h-16 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-sm mb-4 text-3xl">
-            📚
-          </div>
-          <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">서재가 비어있어요</h3>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6 max-w-xs leading-relaxed">
-            책을 완독하면 이곳에 쌓입니다.<br/>첫 번째 책을 완료해보세요!
+        <div v-else-if="library.length === 0" class="py-12 flex flex-col items-center text-center">
+          <div class="text-4xl mb-2">📚</div>
+          <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">서재가 비어있어요</h3>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-4">
+            책을 완독하면 이곳에 쌓입니다.
           </p>
-          <button 
+          <button
             @click="router.push('/')"
-            class="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-xl hover:scale-105 transition-transform shadow-lg"
+            class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded-lg"
           >
             책 읽으러 가기
           </button>
         </div>
 
-        <div v-else class="grid grid-cols-3 gap-3 sm:gap-4">
+        <div v-else class="grid grid-cols-4 gap-2">
           <div
             v-for="book in library"
             :key="book.id"
-            class="relative group cursor-pointer aspect-[1/1.6]"
+            @click="openBookDetail(book)"
+            class="cursor-pointer active:opacity-70 transition-opacity"
           >
-            <img 
-              :src="book.cover_url" 
-              class="w-full h-full object-cover rounded-lg shadow-md transition-transform group-hover:scale-105"
-            />
-            <!-- Overlay -->
-            <div class="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2 text-center">
-              <p class="text-white text-xs font-bold line-clamp-2 mb-1">{{ book.title }}</p>
-              <div v-if="book.myRating" class="flex gap-0.5">
-                 <Star :size="10" fill="white" class="text-white" />
-                 <span class="text-[10px] text-white font-bold">{{ book.myRating }}</span>
+            <div class="aspect-[1/1.5] overflow-hidden rounded-lg shadow-sm">
+              <img
+                :src="book.cover_url"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div class="mt-1 text-center">
+              <div v-if="book.myRating" class="flex items-center justify-center gap-0.5 mb-0.5">
+                <Star :size="10" fill="#EAB308" class="text-yellow-500" />
+                <span class="text-[10px] font-bold text-zinc-900 dark:text-white">{{ book.myRating }}</span>
               </div>
-              <span class="text-[10px] text-zinc-300 mt-2">{{ formatDateSimple(book.finished_at) }} 완독</span>
+              <div v-else class="h-3 mb-0.5 flex items-center justify-center">
+                <span class="text-[10px] text-zinc-400">──</span>
+              </div>
+              <div class="text-[9px] text-zinc-500">{{ formatMonthOnly(book.finished_at) }}</div>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- Tab 2: Timeline Feed (Moved Second) -->
-      <div v-if="activeTab === 'timeline'" class="space-y-4">
+      <!-- Tab 2: Timeline Feed -->
+      <div v-if="activeTab === 'timeline'">
         <div v-if="loading" class="py-20 text-center text-zinc-500">
-          <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p class="text-sm">나의 기록을 모으는 중...</p>
+          <div class="w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          <p class="text-xs">로딩 중...</p>
         </div>
 
-        <div v-else-if="timeline.length === 0" class="py-16 flex flex-col items-center justify-center text-center px-6 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/30">
-          <div class="w-16 h-16 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-sm mb-4 text-3xl">
-            ✍️
-          </div>
-          <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">아직 남긴 기록이 없어요</h3>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6 max-w-xs leading-relaxed">
-            책을 읽으며 인상 깊은 문장에<br/>첫 번째 생각을 남겨보세요.
+        <div v-else-if="timeline.length === 0" class="py-12 flex flex-col items-center text-center">
+          <div class="text-4xl mb-2">✍️</div>
+          <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">아직 남긴 기록이 없어요</h3>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-4">
+            책을 읽으며 생각을 남겨보세요.
           </p>
-          <button 
+          <button
             @click="router.push('/')"
-            class="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-xl hover:scale-105 transition-transform shadow-lg"
+            class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded-lg"
           >
             내 그룹으로 가기
           </button>
         </div>
 
-        <div
-          v-else
-          v-for="item in timeline"
-          :key="item.id"
-          @click="navigateToItem(item)"
-          class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 active:scale-[0.99] transition-transform cursor-pointer"
-        >
-          <!-- Context Header -->
-          <div class="flex items-center gap-3 mb-3">
-            <img :src="item.bookCover" class="w-8 h-12 object-cover rounded bg-zinc-200 dark:bg-zinc-800 shadow-sm flex-shrink-0" />
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center text-xs text-zinc-500 dark:text-zinc-400 mb-0.5 space-x-1">
-                <span class="truncate max-w-[100px]">{{ item.groupName }}</span>
-                <span>•</span>
-                <span class="truncate">{{ item.bookTitle }}</span>
+        <div v-else class="divide-y divide-zinc-200 dark:divide-zinc-800">
+          <div
+            v-for="item in timeline"
+            :key="item.id"
+            @click="navigateToItem(item)"
+            class="py-3 cursor-pointer active:bg-zinc-50 dark:active:bg-zinc-900/50 transition-colors"
+          >
+            <!-- Header - One Line -->
+            <div class="flex items-center justify-between mb-2 text-xs">
+              <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                <span class="text-base">📕</span>
+                <span class="font-medium text-zinc-900 dark:text-white truncate">{{ item.bookTitle }}</span>
+                <span class="text-zinc-400">·</span>
+                <span class="text-zinc-500 truncate">{{ item.groupName }}</span>
               </div>
-              <div class="text-xs font-medium text-lime-600 dark:text-lime-400">
-                {{ item.type === 'review' ? '⭐ 리뷰' : `${item.chapter || Math.round(item.position_pct) + '%'} 지점` }}
-              </div>
-            </div>
-            <div class="text-[10px] text-zinc-400 whitespace-nowrap self-start mt-1">
-              {{ formatDate(item.created_at) }}
-            </div>
-          </div>
-
-          <!-- Content Body -->
-          <div class="pl-11">
-            <!-- Anchor Text (Quote) -->
-            <div v-if="item.anchor_text" class="mb-2 pl-3 border-l-2 border-zinc-300 dark:border-zinc-700">
-              <p class="text-xs text-zinc-500 dark:text-zinc-400 italic line-clamp-2">"{{ item.anchor_text }}"</p>
+              <span class="text-zinc-400 ml-2 whitespace-nowrap">{{ formatTimeAgo(item.created_at) }}</span>
             </div>
 
-            <!-- User Text -->
-            <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed whitespace-pre-wrap line-clamp-4">{{ item.content }}</p>
+            <!-- Type Badge -->
+            <div class="mb-2 text-xs font-medium text-lime-600 dark:text-lime-400">
+              {{ item.type === 'review' ? '⭐ 리뷰' : `💬 ${Math.round(item.position_pct)}%` }}
+            </div>
 
-            <!-- Rating (Review Only) -->
+            <!-- Quote -->
+            <div v-if="item.anchor_text" class="mb-2 pl-2 text-xs text-zinc-500 dark:text-zinc-400 italic">
+              "{{ item.anchor_text }}"
+            </div>
+
+            <!-- Content -->
+            <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">{{ item.content }}</p>
+
+            <!-- Rating -->
             <div v-if="item.type === 'review'" class="flex gap-0.5 mt-2">
-              <Star v-for="i in 5" :key="i" :size="14" :fill="i <= item.rating ? '#FACC15' : 'none'" class="text-yellow-400" />
-            </div>
-
-            <!-- Footer Stats -->
-            <div class="flex gap-4 mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800/50">
-               <div class="text-xs text-zinc-400">
-                 {{ item.type === 'comment' ? '💬 댓글' : '📝 서평' }}
-               </div>
+              <template v-for="i in 5" :key="i">
+                <Star v-if="getStarType(i, item.rating) === 'full'" :size="12" fill="#EAB308" class="text-yellow-500" />
+                <StarHalf v-else-if="getStarType(i, item.rating) === 'half'" :size="12" fill="#EAB308" class="text-yellow-500" />
+                <Star v-else :size="12" fill="none" class="text-yellow-500" />
+              </template>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Tab 3: Insight (Stats) -->
+      <!-- Tab 3: Insight -->
       <div v-if="activeTab === 'insight'">
         <div v-if="loading" class="py-20 text-center text-zinc-500">
-          <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p class="text-sm">독서 패턴을 분석하는 중...</p>
+          <div class="w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          <p class="text-xs">로딩 중...</p>
         </div>
-        
-        <div v-else class="space-y-4">
+
+        <div v-else class="space-y-3">
           <!-- Heatmap Component -->
           <ReadingHeatmap :activities="timeline" />
 
-          <!-- Additional Insights Placeholders (Future) -->
-          <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5">
-            <h3 class="text-base font-bold text-zinc-900 dark:text-white mb-2">📊 독서 요약</h3>
-            <div class="space-y-3">
-              <div class="flex justify-between items-center text-sm">
-                <span class="text-zinc-500 dark:text-zinc-400">이번 달 읽은 책</span>
-                <span class="font-bold text-zinc-900 dark:text-white">{{ thisMonthBooks }}권</span>
+          <!-- Stats Summary -->
+          <div class="pt-3 border-t border-zinc-200 dark:border-zinc-800">
+            <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-3">이번 달</h3>
+            <div class="grid grid-cols-3 gap-3 text-center">
+              <div>
+                <div class="text-lg font-bold text-zinc-900 dark:text-white">{{ thisMonthBooks }}</div>
+                <div class="text-[10px] text-zinc-500">완독</div>
               </div>
-              <div class="flex justify-between items-center text-sm">
-                <span class="text-zinc-500 dark:text-zinc-400">이번 달 남긴 생각</span>
-                <span class="font-bold text-zinc-900 dark:text-white">{{ thisMonthComments }}개</span>
+              <div>
+                <div class="text-lg font-bold text-zinc-900 dark:text-white">{{ thisMonthComments }}</div>
+                <div class="text-[10px] text-zinc-500">기록</div>
+              </div>
+              <div>
+                <div class="text-lg font-bold text-lime-600 dark:text-lime-400">{{ stats.streak }}</div>
+                <div class="text-[10px] text-zinc-500">연속</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Overall Stats -->
+          <div class="pt-3 border-t border-zinc-200 dark:border-zinc-800">
+            <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-3">전체 통계</h3>
+            <div class="grid grid-cols-3 gap-3 text-center">
+              <div>
+                <div class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.books }}</div>
+                <div class="text-[10px] text-zinc-500">📚 완독</div>
+              </div>
+              <div>
+                <div class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.comments }}</div>
+                <div class="text-[10px] text-zinc-500">💬 생각</div>
+              </div>
+              <div>
+                <div class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.groups }}</div>
+                <div class="text-[10px] text-zinc-500">👥 그룹</div>
               </div>
             </div>
           </div>
@@ -405,6 +420,222 @@
       </div>
     </div>
 
+    <!-- Book Detail Modal -->
+    <div v-if="showBookDetailModal && selectedBook" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-md" @click="closeBookDetail"></div>
+      <div class="relative min-h-screen flex items-start justify-center p-4">
+        <div class="relative w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 my-8 overflow-hidden">
+
+          <!-- Header with Book Cover -->
+          <div class="bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-800 dark:to-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+            <!-- Close Button Row -->
+            <div class="flex items-center justify-between px-4 pt-4 pb-3">
+              <h3 class="text-xs font-bold text-zinc-500 uppercase">책 상세</h3>
+              <button @click="closeBookDetail" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
+                <X :size="20" class="text-zinc-600 dark:text-zinc-400" />
+              </button>
+            </div>
+
+            <!-- Book Info -->
+            <div class="px-4 pb-4 flex gap-4">
+              <div class="w-20 h-28 rounded-lg overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-700 flex-shrink-0">
+                <img :src="selectedBook.cover_url" class="w-full h-full object-cover" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <h2 class="text-base font-bold text-zinc-900 dark:text-white mb-2 line-clamp-2 leading-tight">{{ selectedBook.title }}</h2>
+                <div class="flex items-center gap-2 mb-2 flex-wrap">
+                  <div v-if="selectedBook.myRating" class="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded-lg">
+                    <Star :size="12" fill="#EAB308" class="text-yellow-500" />
+                    <span class="text-xs font-bold text-yellow-700 dark:text-yellow-400">{{ selectedBook.myRating }}</span>
+                  </div>
+                  <div class="bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-lg">
+                    <span class="text-xs font-medium text-zinc-600 dark:text-zinc-400">{{ bookTimeline.length }}개 기록</span>
+                  </div>
+                </div>
+                <div class="text-xs text-zinc-500">{{ formatMonthOnly(selectedBook.finished_at) }} 완독</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+            <div class="flex px-4">
+              <button
+                @click="bookDetailTab = 'all'"
+                class="flex-1 py-3 text-sm font-bold transition-colors relative"
+                :class="bookDetailTab === 'all' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
+              >
+                전체
+                <div v-if="bookDetailTab === 'all'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
+              </button>
+              <button
+                @click="bookDetailTab = 'review'"
+                class="flex-1 py-3 text-sm font-bold transition-colors relative"
+                :class="bookDetailTab === 'review' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
+              >
+                서평
+                <div v-if="bookDetailTab === 'review'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
+              </button>
+              <button
+                @click="bookDetailTab = 'comments'"
+                class="flex-1 py-3 text-sm font-bold transition-colors relative"
+                :class="bookDetailTab === 'comments' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
+              >
+                코멘트
+                <div v-if="bookDetailTab === 'comments'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+
+            <!-- All Tab -->
+            <div v-if="bookDetailTab === 'all'">
+              <!-- My Review Section -->
+              <div v-if="bookReview" class="mb-4">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="text-sm font-bold text-zinc-900 dark:text-white">내 서평</h3>
+                </div>
+                <div class="bg-lime-50 dark:bg-lime-900/10 border border-lime-200 dark:border-lime-800/50 rounded-xl p-4">
+                  <div class="flex items-center gap-2 mb-3">
+                    <div class="flex gap-0.5">
+                      <template v-for="i in 5" :key="i">
+                        <Star v-if="getStarType(i, bookReview.rating) === 'full'" :size="16" fill="#84cc16" class="text-lime-500" />
+                        <StarHalf v-else-if="getStarType(i, bookReview.rating) === 'half'" :size="16" fill="#84cc16" class="text-lime-500" />
+                        <Star v-else :size="16" fill="none" class="text-lime-500" />
+                      </template>
+                    </div>
+                    <span class="text-sm font-bold text-lime-700 dark:text-lime-400">{{ bookReview.rating }}</span>
+                  </div>
+                  <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed mb-3">{{ bookReview.content }}</p>
+                  <div class="flex items-center gap-2 text-xs text-zinc-500">
+                    <span class="bg-white dark:bg-zinc-800 px-2 py-1 rounded">{{ bookReview.groupName }}</span>
+                    <span>·</span>
+                    <span>{{ formatTimeAgo(bookReview.created_at) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Reading Records Section -->
+              <div v-if="bookComments.length > 0">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="text-sm font-bold text-zinc-900 dark:text-white">독서 기록</h3>
+                  <span class="text-xs text-zinc-500">{{ bookComments.length }}개</span>
+                </div>
+                <div class="space-y-3">
+                  <div
+                    v-for="comment in bookComments"
+                    :key="comment.id"
+                    class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 hover:border-lime-300 dark:hover:border-lime-700 transition-colors"
+                  >
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-xs font-bold text-lime-600 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/20 px-2 py-1 rounded">
+                        {{ Math.round(comment.position_pct) }}% 지점
+                      </span>
+                      <button
+                        @click="navigateToItem(comment)"
+                        class="text-xs text-lime-600 dark:text-lime-400 hover:underline font-medium flex items-center gap-1"
+                      >
+                        그룹에서 보기 →
+                      </button>
+                    </div>
+                    <div v-if="comment.anchor_text" class="mb-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3 border-l-2 border-lime-400">
+                      <p class="text-xs text-zinc-600 dark:text-zinc-400 italic leading-relaxed">"{{ comment.anchor_text }}"</p>
+                    </div>
+                    <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed mb-3">{{ comment.content }}</p>
+                    <div class="flex items-center gap-2 text-xs text-zinc-500">
+                      <span class="bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">{{ comment.groupName }}</span>
+                      <span>·</span>
+                      <span>{{ formatTimeAgo(comment.created_at) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div v-if="bookTimeline.length === 0" class="py-12 text-center">
+                <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
+                  📝
+                </div>
+                <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">기록이 없습니다</h3>
+                <p class="text-xs text-zinc-500">이 책에 대한 생각을 남겨보세요</p>
+              </div>
+            </div>
+
+            <!-- Review Tab -->
+            <div v-if="bookDetailTab === 'review'">
+              <div v-if="bookReview" class="bg-lime-50 dark:bg-lime-900/10 border border-lime-200 dark:border-lime-800/50 rounded-xl p-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="flex gap-0.5">
+                    <template v-for="i in 5" :key="i">
+                      <Star v-if="getStarType(i, bookReview.rating) === 'full'" :size="16" fill="#84cc16" class="text-lime-500" />
+                      <StarHalf v-else-if="getStarType(i, bookReview.rating) === 'half'" :size="16" fill="#84cc16" class="text-lime-500" />
+                      <Star v-else :size="16" fill="none" class="text-lime-500" />
+                    </template>
+                  </div>
+                  <span class="text-sm font-bold text-lime-700 dark:text-lime-400">{{ bookReview.rating }}</span>
+                </div>
+                <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed mb-3">{{ bookReview.content }}</p>
+                <div class="flex items-center gap-2 text-xs text-zinc-500">
+                  <span class="bg-white dark:bg-zinc-800 px-2 py-1 rounded">{{ bookReview.groupName }}</span>
+                  <span>·</span>
+                  <span>{{ formatTimeAgo(bookReview.created_at) }}</span>
+                </div>
+              </div>
+              <div v-else class="py-12 text-center">
+                <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
+                  ⭐
+                </div>
+                <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">서평이 없습니다</h3>
+                <p class="text-xs text-zinc-500">이 책에 대한 서평을 남겨보세요</p>
+              </div>
+            </div>
+
+            <!-- Comments Tab -->
+            <div v-if="bookDetailTab === 'comments'">
+              <div v-if="bookComments.length > 0" class="space-y-3">
+                <div
+                  v-for="comment in bookComments"
+                  :key="comment.id"
+                  class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 hover:border-lime-300 dark:hover:border-lime-700 transition-colors"
+                >
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-lime-600 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/20 px-2 py-1 rounded">
+                      {{ Math.round(comment.position_pct) }}% 지점
+                    </span>
+                    <button
+                      @click="navigateToItem(comment)"
+                      class="text-xs text-lime-600 dark:text-lime-400 hover:underline font-medium flex items-center gap-1"
+                    >
+                      그룹에서 보기 →
+                    </button>
+                  </div>
+                  <div v-if="comment.anchor_text" class="mb-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3 border-l-2 border-lime-400">
+                    <p class="text-xs text-zinc-600 dark:text-zinc-400 italic leading-relaxed">"{{ comment.anchor_text }}"</p>
+                  </div>
+                  <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed mb-3">{{ comment.content }}</p>
+                  <div class="flex items-center gap-2 text-xs text-zinc-500">
+                    <span class="bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">{{ comment.groupName }}</span>
+                    <span>·</span>
+                    <span>{{ formatTimeAgo(comment.created_at) }}</span>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="py-12 text-center">
+                <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
+                  💬
+                </div>
+                <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">코멘트가 없습니다</h3>
+                <p class="text-xs text-zinc-500">책을 읽으며 생각을 남겨보세요</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -413,7 +644,7 @@ import { ref, computed, onMounted, onActivated, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { ChevronLeft, LogOut, User, Camera, Edit2, Star, Heart, Settings, Moon, Sun, Bell, X } from 'lucide-vue-next'
+import { ChevronLeft, LogOut, User, Camera, Edit2, Star, StarHalf, Heart, Settings, Moon, Sun, Bell, X } from 'lucide-vue-next'
 import ReadingHeatmap from '~/components/ReadingHeatmap.vue'
 
 // 인증 미들웨어 적용
@@ -448,6 +679,11 @@ const notificationSettings = ref({
   completion: true
 })
 
+// Book Detail Modal State
+const showBookDetailModal = ref(false)
+const selectedBook = ref<any>(null)
+const bookDetailTab = ref<'all' | 'review' | 'comments'>('all')
+
 // Edit Profile State
 const editNickname = ref('')
 const previewAvatar = ref('')
@@ -472,6 +708,28 @@ const thisMonthComments = computed(() => {
     const d = new Date(item.created_at)
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
   }).length
+})
+
+// Book Detail Modal Computed
+const bookTimeline = computed(() => {
+  if (!selectedBook.value) return []
+  // Filter by the specific group_book_id to show only records from this reading
+  return timeline.value.filter(item => {
+    // For reviews, check group_book_id directly
+    if (item.type === 'review') {
+      return item.group_book_id === selectedBook.value.groupBookId
+    }
+    // For comments, check groupBookId from the normalized data
+    return item.groupBookId === selectedBook.value.groupBookId
+  })
+})
+
+const bookReview = computed(() => {
+  return bookTimeline.value.find(item => item.type === 'review')
+})
+
+const bookComments = computed(() => {
+  return bookTimeline.value.filter(item => item.type === 'comment')
 })
 
 // Initialization
@@ -546,7 +804,7 @@ const fetchData = async () => {
         group_book:group_books (
           id,
           group:groups (name, id),
-          book:books (title, cover_url, official_toc, draft_toc, total_pages)
+          book:books (title, cover_url, official_toc, draft_toc, total_pages, isbn)
         )
       `)
       .eq('user_id', userId)
@@ -588,16 +846,17 @@ const fetchData = async () => {
       content: c.content,
       anchor_text: c.anchor_text,
       position_pct: c.position_pct,
-      
+
       // Metadata
       groupId: c.group_book?.group?.id,
       groupName: c.group_book?.group?.name || 'Unknown Group',
       bookTitle: c.group_book?.book?.title || 'Unknown Book',
       bookCover: c.group_book?.book?.cover_url,
-      
+      bookIsbn: c.group_book?.book?.isbn,
+
       // Navigation Data
       groupBookId: c.group_book?.id,
-      
+
       // Chapter Name Calculation (Frontend side)
       chapter: calculateChapter(c.position_pct, c.group_book?.book)
     }))
@@ -652,6 +911,7 @@ const fetchData = async () => {
 
       return {
         id: p.group_book?.book?.isbn, // Use ISBN as ID
+        groupBookId: groupBookId, // Store the specific group_book_id
         title: p.group_book?.book?.title,
         cover_url: p.group_book?.book?.cover_url,
         finished_at: p.finished_at,
@@ -774,6 +1034,40 @@ const formatDateSimple = (dateStr: string) => {
   return `${date.getFullYear()}.${date.getMonth() + 1}`
 }
 
+const formatTimeAgo = (dateStr: string) => {
+  const now = new Date()
+  const date = new Date(dateStr)
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+
+  if (diffMins < 1) return '방금'
+  if (diffMins < 60) return `${diffMins}분전`
+  if (diffHours < 24) return `${diffHours}시간전`
+  if (diffDays < 7) return `${diffDays}일전`
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)}주전`
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)}개월전`
+  return `${Math.floor(diffDays / 365)}년전`
+}
+
+const formatMonthOnly = (dateStr: string) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  return `${month}.${day}`
+}
+
+const getStarType = (index: number, rating: number) => {
+  const fullStars = Math.floor(rating)
+  const hasHalfStar = (rating % 1) >= 0.3 // 0.3 이상이면 반별
+
+  if (index <= fullStars) return 'full'
+  if (index === fullStars + 1 && hasHalfStar) return 'half'
+  return 'empty'
+}
+
 const navigateToItem = (item: any) => {
   if (item.groupId) {
     // Navigate to group page (works for both comments and reviews)
@@ -787,6 +1081,18 @@ const navigateToItem = (item: any) => {
   } else {
     toast.warning('해당 그룹을 찾을 수 없습니다.')
   }
+}
+
+const openBookDetail = (book: any) => {
+  selectedBook.value = book
+  bookDetailTab.value = 'all'
+  showBookDetailModal.value = true
+}
+
+const closeBookDetail = () => {
+  showBookDetailModal.value = false
+  selectedBook.value = null
+  bookDetailTab.value = 'all'
 }
 
 // Settings / Edit Profile Logic

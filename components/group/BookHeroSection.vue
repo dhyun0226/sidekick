@@ -25,11 +25,11 @@
       </p>
 
       <!-- Stats / D-Day -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 flex-wrap justify-center">
         <!-- 완독 뱃지 또는 D-Day 뱃지 -->
-        <div v-if="book.status === 'done'" class="flex items-center gap-1.5 px-3 py-1.5 bg-green-500/90 backdrop-blur-md rounded-full border border-green-400/50 shadow-sm">
-           <span class="text-xs font-bold text-white">
-             ✅ 완독
+        <div v-if="book.status === 'done'" class="flex items-center gap-1.5 px-3 py-1.5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-full border border-lime-400 shadow-sm">
+           <span class="text-xs font-bold text-lime-600 dark:text-lime-400">
+             완독<template v-if="book.finishedAt"> · {{ formatDate(book.finishedAt) }}</template>
            </span>
         </div>
         <div v-else-if="book.status === 'reading' && daysRemaining !== null" class="flex items-center gap-1.5 px-3 py-1.5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
@@ -59,6 +59,7 @@ interface Book {
   author: string
   status: 'reading' | 'done'
   round?: number | null
+  finishedAt?: string | null
 }
 
 interface Props {
@@ -68,4 +69,12 @@ interface Props {
 }
 
 defineProps<Props>()
+
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr)
+  const year = date.getFullYear() % 100
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  return `${year}.${month}.${day}`
+}
 </script>

@@ -102,7 +102,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { X } from 'lucide-vue-next'
 import GroupDrawerInfoTab from './GroupDrawerInfoTab.vue'
 import GroupDrawerMembersTab from './GroupDrawerMembersTab.vue'
@@ -143,10 +143,19 @@ interface Emits {
   (e: 'kickMember', member: any): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const activeTab = ref<'info' | 'members' | 'bookshelf' | 'settings'>('info')
+
+// Prevent body scroll when drawer is open
+watch(() => props.isOpen, (isOpen) => {
+  if (isOpen) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
+})
 </script>
 
 <style scoped>
