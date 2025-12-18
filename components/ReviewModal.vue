@@ -58,7 +58,7 @@
           class="flex-1 py-3 bg-lime-400 text-black rounded-xl font-bold hover:bg-lime-300 transition-colors disabled:opacity-50"
           :disabled="rating < 0.5"
         >
-          기록하기
+          {{ isEditing ? '수정하기' : '기록하기' }}
         </button>
       </div>
     </div>
@@ -73,6 +73,7 @@ const props = defineProps<{
   isOpen: boolean
   initialRating?: number
   initialContent?: string
+  isEditing?: boolean
 }>()
 
 const emit = defineEmits(['close', 'submit'])

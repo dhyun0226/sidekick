@@ -260,7 +260,6 @@ interface Comment {
 
 const props = defineProps<{
   comments: Comment[]
-  readProgress: number
   viewProgress: number
   currentUserId: string | null
 }>()

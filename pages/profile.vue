@@ -409,7 +409,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onActivated, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
@@ -489,6 +489,15 @@ onMounted(async () => {
   await fetchData()
 })
 
+// Refresh data when page is activated (for cached pages)
+onActivated(async () => {
+  // Ensure profile is loaded before fetching data
+  if (!userStore.profile) {
+    await userStore.fetchProfile()
+  }
+  await fetchData()
+})
+
 // Auto-save notification settings on change
 watch(notificationSettings, async (newSettings) => {
   if (!currentUserId.value) return
@@ -510,21 +519,27 @@ watch(notificationSettings, async (newSettings) => {
 }, { deep: true })
 
 const fetchData = async () => {
-  // 방어 코드: 유저 ID가 없으면 로딩을 끄고 종료
-  if (!currentUserId.value) {
-    console.warn('User ID not found, stopping fetch')
+  // Use direct reference instead of computed (fixes reactivity issue)
+  const userId = userStore.profile?.id || userStore.user?.id
+
+  console.log('[Profile fetchData] Called!')
+  console.log('[Profile fetchData] userId:', userId)
+
+  if (!userId) {
+    console.error('[Profile fetchData] ❌ No user ID available!')
     loading.value = false
+    toast.error('사용자 정보를 불러올 수 없습니다. 다시 로그인해주세요.')
     return
   }
-  
+
   loading.value = true
 
   try {
+    console.log('[Profile] Starting fetchData for user:', userId)
+
     // 1. Fetch Timeline (Comments + Reviews)
-    // We need to fetch comments and reviews separately and merge them because Supabase doesn't support Union queries easily via JS client
-    
     // Fetch Comments
-    const { data: commentsData } = await client
+    const { data: commentsData, error: commentsError } = await client
       .from('comments')
       .select(`
         id, content, anchor_text, position_pct, created_at,
@@ -534,27 +549,36 @@ const fetchData = async () => {
           book:books (title, cover_url, official_toc, draft_toc, total_pages)
         )
       `)
-      .eq('user_id', currentUserId.value)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
-      .limit(100) // Limit increased for heatmap
+      .limit(100)
+
+    if (commentsError) {
+      console.error('[Profile] Comments fetch error:', commentsError)
+      throw commentsError
+    }
+    console.log('[Profile] Comments fetched:', commentsData?.length || 0, 'items')
 
     // Fetch Reviews
-    const { data: reviewsData } = await client
+    const { data: reviewsData, error: reviewsError } = await client
       .from('reviews')
       .select(`
-        id, content, rating, created_at,
-        book:books (title, cover_url),
-        group_book_id
-      `) // Note: reviews table links to books(isbn), but we might not have group info directly if we don't join group_books properly. 
-         // However, reviews usually happen in context of a group_book. 
-         // Let's assume for now we just show book info.
-         // Actually, our schema says reviews has book_id (isbn) and user_id. It doesn't strictly link to group_book_id in schema (check schema).
-         // Schema check: reviews(user_id, book_id, rating, content). No group_book_id.
-         // So we can't easily link review to a group unless we infer it.
-         // For now, we'll just show book info for reviews.
-      .eq('user_id', currentUserId.value)
+        id, content, rating, created_at, group_book_id,
+        group_book:group_books (
+          id,
+          group:groups (name, id),
+          book:books (title, cover_url, isbn)
+        )
+      `)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(50)
+
+    if (reviewsError) {
+      console.error('[Profile] Reviews fetch error:', reviewsError)
+      throw reviewsError
+    }
+    console.log('[Profile] Reviews fetched:', reviewsData?.length || 0, 'items')
 
     // Merge and Normalize
     const normalizedComments = (commentsData || []).map((c: any) => ({
@@ -584,15 +608,16 @@ const fetchData = async () => {
       created_at: r.created_at,
       content: r.content,
       rating: r.rating,
-      
+      group_book_id: r.group_book_id,
+
       // Metadata
-      groupId: null, // Reviews are global in this schema, or we'd need complex join
-      groupName: 'Library',
-      bookTitle: r.book?.title,
-      bookCover: r.book?.cover_url,
-      
-      // Navigation Data (Maybe jump to book page?)
-      bookId: r.book_id // ISBN
+      groupId: r.group_book?.group?.id,
+      groupName: r.group_book?.group?.name || 'Unknown Group',
+      bookTitle: r.group_book?.book?.title,
+      bookCover: r.group_book?.book?.cover_url,
+
+      // Navigation Data
+      bookIsbn: r.group_book?.book?.isbn
     }))
 
     const merged = [...normalizedComments, ...normalizedReviews].sort(
@@ -602,48 +627,65 @@ const fetchData = async () => {
     timeline.value = merged
 
     // 2. Fetch Library (Finished Books)
-    // Find group_books where status='done' for groups I'm in?
-    // Or user_reading_progress where status='done'? 
-    // Schema check: group_books has status='done'. But that's for the GROUP.
-    // Did I finish it? 
-    // Ideally we check `user_reading_progress`.
-    const { data: progressData } = await client
+    const { data: progressData, error: progressError } = await client
       .from('user_reading_progress')
       .select(`
         finished_at,
         group_book:group_books (
+          id,
           book:books (title, cover_url, isbn)
         )
       `)
-      .eq('user_id', currentUserId.value)
+      .eq('user_id', userId)
       .not('finished_at', 'is', null)
       .order('finished_at', { ascending: false })
 
-    library.value = (progressData || []).map((p: any) => ({
-      id: p.group_book?.book?.isbn, // Use ISBN as ID
-      title: p.group_book?.book?.title,
-      cover_url: p.group_book?.book?.cover_url,
-      finished_at: p.finished_at,
-      // Find my rating for this book
-      myRating: normalizedReviews.find((r: any) => r.bookTitle === p.group_book?.book?.title)?.rating // Simple matching
-    }))
+    if (progressError) {
+      console.error('[Profile] Progress fetch error:', progressError)
+      throw progressError
+    }
+    console.log('[Profile] Library fetched:', progressData?.length || 0, 'books')
+
+    library.value = (progressData || []).map((p: any) => {
+      const groupBookId = p.group_book?.id
+      const myReview = reviewsData?.find((r: any) => r.group_book_id === groupBookId)
+
+      return {
+        id: p.group_book?.book?.isbn, // Use ISBN as ID
+        title: p.group_book?.book?.title,
+        cover_url: p.group_book?.book?.cover_url,
+        finished_at: p.finished_at,
+        // Find my rating for this specific group_book
+        myRating: myReview?.rating || null
+      }
+    })
 
     // 2.5 Fetch Group Count
-    const { count: groupCount } = await client
+    const { count: groupCount, error: groupCountError } = await client
       .from('group_members')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', currentUserId.value)
+      .eq('user_id', userId)
+
+    if (groupCountError) {
+      console.error('[Profile] Group count error:', groupCountError)
+      throw groupCountError
+    }
+    console.log('[Profile] Group count:', groupCount)
 
     // 3. Stats
     stats.value = {
       books: library.value.length,
       comments: commentsData?.length || 0,
-      streak: await calculateStreak(),
+      streak: await calculateStreak(userId),
       groups: groupCount || 0
     }
 
+    console.log('[Profile] Final stats:', stats.value)
+    console.log('[Profile] Timeline items:', timeline.value.length)
+    console.log('[Profile] Library items:', library.value.length)
+
   } catch (err: any) {
-    console.error('Fetch profile data error:', err)
+    console.error('[Profile] Fetch profile data error:', err)
     toast.error('데이터를 불러오는데 실패했습니다: ' + err.message)
   } finally {
     loading.value = false
@@ -661,22 +703,22 @@ const calculateChapter = (pct: number, book: any) => {
   return null 
 }
 
-const calculateStreak = async () => {
+const calculateStreak = async (userId: string) => {
   // Streak based on comments and reviews (activity days)
-  if (!currentUserId.value) return 0
+  if (!userId) return 0
 
   try {
     // 1. Fetch all comments and reviews
     const { data: commentsData } = await client
       .from('comments')
       .select('created_at')
-      .eq('user_id', currentUserId.value)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
     const { data: reviewsData } = await client
       .from('reviews')
       .select('created_at')
-      .eq('user_id', currentUserId.value)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
     // 2. Extract dates (YYYY-MM-DD format)
@@ -733,18 +775,17 @@ const formatDateSimple = (dateStr: string) => {
 }
 
 const navigateToItem = (item: any) => {
-  if (item.type === 'comment' && item.groupId) {
-    // Navigate to group page with query to jump to position
+  if (item.groupId) {
+    // Navigate to group page (works for both comments and reviews)
     router.push({
       path: `/group/${item.groupId}`,
-      query: { 
+      query: item.type === 'comment' ? {
         jumpTo: item.position_pct,
         highlightComment: item.id
-      }
+      } : {}
     })
-  } else if (item.type === 'review') {
-    // Maybe go to a book detail page (not implemented yet) or just stay
-    toast.info('서평 상세 페이지는 준비 중입니다.')
+  } else {
+    toast.warning('해당 그룹을 찾을 수 없습니다.')
   }
 }
 

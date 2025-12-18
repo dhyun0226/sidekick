@@ -31,7 +31,7 @@
             v-for="i in 21"
             :key="i"
             class="absolute bottom-0 w-px bg-zinc-300 dark:bg-zinc-700"
-            :class="(i - 1) % 2 === 0 ? 'h-3' : 'h-1.5'"
+            :class="(i - 1) % 2 === 0 ? 'h-5' : 'h-2.5'"
             :style="{ left: `${(i - 1) * 5}%` }"
           ></div>
         </div>
@@ -41,7 +41,7 @@
           <div
             v-for="member in members"
             :key="member.id"
-            class="absolute bottom-0 -translate-x-1/2 -translate-y-2 flex flex-col items-center transition-all duration-500 hover:z-20 group"
+            class="absolute top-0 -translate-x-1/2 translate-y-2 flex flex-col items-center transition-all duration-500 hover:z-20 group"
             :style="{ left: `${member.progress}%` }"
           >
             <!-- Avatar Bubble -->
@@ -51,8 +51,8 @@
                  {{ member.nickname ? member.nickname.slice(0, 1) : '?' }}
                </div>
             </div>
-            <!-- Small Triangle -->
-            <div class="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-t-[4px] border-t-white dark:border-t-zinc-800 -mt-0.5 drop-shadow-sm"></div>
+            <!-- Small Triangle pointing down -->
+            <div class="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-b-[4px] border-b-white dark:border-b-zinc-800 -mt-0.5 drop-shadow-sm rotate-180"></div>
           </div>
         </div>
 
@@ -63,8 +63,8 @@
         ></div>
 
         <!-- Thumb / Handle -->
-        <div 
-          class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-11 h-11 flex items-center justify-center"
+        <div
+          class="absolute top-1/2 -translate-y-1/4 -translate-x-1/2 w-11 h-11 flex items-center justify-center"
           :style="{ left: `${currentPct}%` }"
         >
           <div class="w-5 h-5 rounded-full bg-lime-400 shadow-[0_0_15px_rgba(163,230,53,0.5)] ring-2 ring-white/20"></div>
@@ -103,7 +103,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { PenLine } from 'lucide-vue-next'
 
 interface Chapter {
@@ -116,6 +116,7 @@ const props = defineProps<{
   toc?: Chapter[]
   modelValue: number
   totalPages?: number
+  members?: Array<{ id: string; nickname: string; avatar_url?: string; progress: number }>
 }>()
 
 const emit = defineEmits(['update:modelValue', 'change', 'write'])
@@ -124,6 +125,13 @@ const sliderRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 const localPct = ref(props.modelValue)
 const lastPct = ref(props.modelValue) // Track last value for haptic feedback
+
+// 🔥 Critical Fix: Sync localPct with external modelValue changes (e.g., from jumpToChapter)
+watch(() => props.modelValue, (newVal) => {
+  if (!isDragging.value) {
+    localPct.value = newVal
+  }
+})
 
 // Mock TOC if not provided
 const defaultToc: Chapter[] = [
@@ -140,6 +148,8 @@ const chapters = computed(() => {
     width: c.end - c.start
   }))
 })
+
+const members = computed(() => props.members || [])
 
 const currentPct = computed(() => isDragging.value ? localPct.value : props.modelValue)
 

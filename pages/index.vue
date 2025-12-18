@@ -103,10 +103,10 @@
                     <span>~</span>
                     <span>{{ group.currentBook.target_end_date ? formatDateSimple(group.currentBook.target_end_date) : 'End' }}</span>
                   </div>
-                  <span class="text-[10px] font-bold text-lime-500">35%</span>
+                  <span class="text-[10px] font-bold text-lime-500">{{ Math.round(group.currentBook.progress) }}%</span>
                 </div>
                 <div class="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
-                  <div class="h-full bg-lime-500 w-[35%] rounded-full"></div>
+                  <div class="h-full bg-lime-500 rounded-full transition-all duration-300" :style="{ width: `${group.currentBook.progress}%` }"></div>
                 </div>
               </div>
 
@@ -259,10 +259,12 @@ const fetchGroups = async () => {
     if (memberData) {
       const groupPromises = memberData.map(async (item: any) => {
         const group = item.groups
-        
-        const { data: bookData } = await client
+
+        // 모든 reading 책 + 내 진행도 정보 가져오기
+        const { data: bookDataList } = await client
           .from('group_books')
           .select(`
+            id,
             created_at,
             target_start_date,
             target_end_date,
@@ -270,11 +272,34 @@ const fetchGroups = async () => {
               title,
               author,
               cover_url
+            ),
+            user_reading_progress!left (
+              last_read_at,
+              progress_pct
             )
           `)
           .eq('group_id', group.id)
           .eq('status', 'reading')
-          .single()
+          .eq('user_reading_progress.user_id', user.id)
+
+        // JavaScript에서 last_read_at 기준으로 정렬 (내가 가장 최근에 읽은 책)
+        const sortedBooks = bookDataList?.sort((a: any, b: any) => {
+          const aLastRead = a.user_reading_progress?.[0]?.last_read_at
+          const bLastRead = b.user_reading_progress?.[0]?.last_read_at
+
+          // 둘 다 진행도 없으면 created_at 기준
+          if (!aLastRead && !bLastRead) {
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          }
+          // 하나만 진행도 있으면 그게 우선
+          if (!aLastRead) return 1
+          if (!bLastRead) return -1
+
+          // 둘 다 있으면 last_read_at 기준
+          return new Date(bLastRead).getTime() - new Date(aLastRead).getTime()
+        })
+
+        const bookData = sortedBooks?.[0]
 
         const { count } = await client
           .from('group_members')
@@ -289,7 +314,8 @@ const fetchGroups = async () => {
             ...bookData.books,
             created_at: bookData.created_at,
             target_start_date: bookData.target_start_date,
-            target_end_date: bookData.target_end_date
+            target_end_date: bookData.target_end_date,
+            progress: bookData.user_reading_progress?.[0]?.progress_pct || 0
           } : null
         }
       })
