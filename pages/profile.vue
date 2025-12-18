@@ -1118,13 +1118,27 @@ const handleFileChange = (event: Event) => {
 }
 
 const saveProfile = async () => {
-  if (!editNickname.value.trim()) return
+  console.log('[Profile] Save profile called')
+  console.log('[Profile] editNickname:', editNickname.value)
+  console.log('[Profile] userStore.user:', userStore.user)
+  console.log('[Profile] userStore.profile:', userStore.profile)
+  console.log('[Profile] currentUserId:', currentUserId.value)
 
-  // 사용자 ID 확인
-  if (!currentUserId.value) {
-    toast.error('사용자 정보를 불러올 수 없습니다.')
+  if (!editNickname.value.trim()) {
+    toast.error('닉네임을 입력해주세요.')
     return
   }
+
+  // 사용자 정보 다시 가져오기 (혹시 모를 초기화 문제 방지)
+  const { data: { user } } = await client.auth.getUser()
+
+  if (!user) {
+    console.error('[Profile] No authenticated user found')
+    toast.error('로그인 정보를 찾을 수 없습니다. 다시 로그인해주세요.')
+    return
+  }
+
+  console.log('[Profile] Authenticated user ID:', user.id)
 
   isSaving.value = true
 
@@ -1133,32 +1147,49 @@ const saveProfile = async () => {
 
     // Upload new avatar if selected
     if (avatarFile.value) {
+      console.log('[Profile] Uploading avatar...')
       const fileExt = avatarFile.value.name.split('.').pop()
-      const fileName = `${currentUserId.value}/${Date.now()}.${fileExt}`
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`
+
+      console.log('[Profile] Avatar file path:', fileName)
 
       const { error: uploadError } = await client.storage
         .from('avatars')
         .upload(fileName, avatarFile.value, { upsert: true })
 
-      if (uploadError) throw uploadError
+      if (uploadError) {
+        console.error('[Profile] Avatar upload error:', uploadError)
+        throw uploadError
+      }
 
       const { data: { publicUrl } } = client.storage
         .from('avatars')
         .getPublicUrl(fileName)
 
       avatarUrl = publicUrl
+      console.log('[Profile] Avatar uploaded successfully:', avatarUrl)
     }
 
     // Update DB
+    console.log('[Profile] Updating database...')
+    console.log('[Profile] User ID for update:', user.id)
+    console.log('[Profile] New nickname:', editNickname.value)
+    console.log('[Profile] New avatar URL:', avatarUrl)
+
     const { error: updateError } = await client
       .from('users')
       .update({
         nickname: editNickname.value,
         avatar_url: avatarUrl
       })
-      .eq('id', currentUserId.value)
+      .eq('id', user.id)
 
-    if (updateError) throw updateError
+    if (updateError) {
+      console.error('[Profile] Database update error:', updateError)
+      throw updateError
+    }
+
+    console.log('[Profile] Profile updated successfully')
 
     await userStore.fetchProfile() // Refresh store
     toast.success('프로필이 업데이트되었습니다.')
