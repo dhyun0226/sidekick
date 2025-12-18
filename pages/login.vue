@@ -96,6 +96,7 @@ const loading = ref(false)
 // 이미 로그인된 사용자는 홈으로 리다이렉트
 onMounted(async () => {
   const { data: { session } } = await client.auth.getSession()
+
   if (session) {
     router.push('/')
   }

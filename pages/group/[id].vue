@@ -414,11 +414,18 @@ const fetchData = async () => {
   if (!userStore.user) return
 
   // Fetch group info
-  const { data: groupData } = await client.from('groups').select('*').eq('id', groupId).single()
-  if (groupData) {
-    group.value = groupData
-    editingGroupName.value = groupData.name
+  const { data: groupData, error: groupError } = await client.from('groups').select('*').eq('id', groupId).single()
+
+  // 그룹이 존재하지 않으면 홈으로 리다이렉트
+  if (groupError || !groupData) {
+    console.log('[Group] Group not found:', groupId)
+    toast.error('존재하지 않는 그룹입니다.')
+    router.push('/')
+    return
   }
+
+  group.value = groupData
+  editingGroupName.value = groupData.name
 
   // Fetch members
   const { data: memberData } = await client
@@ -433,6 +440,15 @@ const fetchData = async () => {
       avatar_url: m.user.avatar_url,
       role: m.role
     }))
+  }
+
+  // 현재 사용자가 이 그룹의 멤버인지 확인
+  const isMember = members.value.some(m => m.id === currentUserId.value)
+  if (!isMember) {
+    console.log('[Group] Access denied: User is not a member of this group')
+    toast.error('이 그룹에 접근할 권한이 없습니다.')
+    router.push('/')
+    return
   }
 
   // Fetch books using Composable

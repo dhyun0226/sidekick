@@ -81,36 +81,8 @@ onMounted(async () => {
 
     console.log('[OAuth Callback] User authenticated:', user.id)
 
-    // 3. users 테이블에서 프로필 조회 (트리거가 자동 생성했을 것)
-    const { data: profile, error: profileError } = await client
-      .from('users')
-      .select('*')
-      .eq('id', user.id)
-      .maybeSingle()
-
-    if (profileError) {
-      console.error('[OAuth Callback] Profile fetch error:', profileError)
-      // 프로필 조회 실패는 치명적이지 않음 - 온보딩으로 이동
-    }
-
-    console.log('[OAuth Callback] Profile:', profile)
-    console.log('[OAuth Callback] Profile nickname:', profile?.nickname)
-    console.log('[OAuth Callback] Profile avatar:', profile?.avatar_url)
-
-    // 4. 라우팅 결정
-    // 프로필이 없거나 닉네임이 없으면 → 온보딩
-    if (!profile || !profile.nickname || profile.nickname.trim() === '') {
-      console.log('[OAuth Callback] → Redirecting to onboarding (no profile or nickname)')
-      router.push('/onboarding')
-      return
-    }
-
-    // 프로필이 완성된 사용자 → 홈으로
-    console.log('[OAuth Callback] → Redirecting to home (profile complete)')
-    console.log('[OAuth Callback] User will see:', {
-      nickname: profile.nickname,
-      avatar: profile.avatar_url
-    })
+    // 3. 모든 사용자를 홈으로 리다이렉트 (트리거가 프로필 자동 생성)
+    console.log('[OAuth Callback] → Redirecting to home')
     router.push('/')
 
   } catch (err: any) {

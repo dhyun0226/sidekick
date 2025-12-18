@@ -1119,16 +1119,23 @@ const handleFileChange = (event: Event) => {
 
 const saveProfile = async () => {
   if (!editNickname.value.trim()) return
+
+  // 사용자 ID 확인
+  if (!currentUserId.value) {
+    toast.error('사용자 정보를 불러올 수 없습니다.')
+    return
+  }
+
   isSaving.value = true
-  
+
   try {
     let avatarUrl = userStore.profile?.avatar_url
 
     // Upload new avatar if selected
-    if (avatarFile.value && currentUserId.value) {
+    if (avatarFile.value) {
       const fileExt = avatarFile.value.name.split('.').pop()
       const fileName = `${currentUserId.value}/${Date.now()}.${fileExt}`
-      
+
       const { error: uploadError } = await client.storage
         .from('avatars')
         .upload(fileName, avatarFile.value, { upsert: true })
@@ -1138,7 +1145,7 @@ const saveProfile = async () => {
       const { data: { publicUrl } } = client.storage
         .from('avatars')
         .getPublicUrl(fileName)
-        
+
       avatarUrl = publicUrl
     }
 

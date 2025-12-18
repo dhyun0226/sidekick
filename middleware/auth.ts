@@ -22,18 +22,4 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   }
 
   console.log('[Auth Middleware] User authenticated:', session.user.id)
-
-  // 온보딩이 완료되지 않은 사용자 체크
-  if (to.path !== '/onboarding') {
-    const { data: profile } = await client
-      .from('users')
-      .select('nickname')
-      .eq('id', session.user.id)
-      .maybeSingle()
-
-    if (!profile || !profile.nickname) {
-      console.log('[Auth Middleware] Incomplete profile, redirecting to onboarding')
-      return navigateTo('/onboarding')
-    }
-  }
 })
