@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-24 px-4 pt-safe min-h-screen bg-gray-50 dark:bg-[#09090b]">
+  <div class="pb-24 pb-safe px-4 pt-safe min-h-screen bg-gray-50 dark:bg-[#09090b]">
     <!-- Header -->
     <header class="flex justify-between items-center py-6 sticky top-0 z-20 bg-gray-50/80 dark:bg-[#09090b]/80 backdrop-blur-md">
       <div class="flex items-center gap-3">
@@ -181,8 +181,10 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex flex-col items-center justify-center min-h-[50vh]">
-      <div class="w-10 h-10 border-4 border-lime-400 border-t-transparent rounded-full animate-spin"></div>
+    <div v-if="loading" class="space-y-4 px-4">
+      <SkeletonLoader type="card" />
+      <SkeletonLoader type="card" />
+      <SkeletonLoader type="card" />
     </div>
 
     <!-- FAB -->
@@ -217,6 +219,7 @@ import { User, Plus, KeyRound, ChevronRight, MessageCircle, Coffee } from 'lucid
 import NotificationCenter from '~/components/NotificationCenter.vue'
 import CreateGroupModal from '~/components/CreateGroupModal.vue'
 import JoinGroupModal from '~/components/JoinGroupModal.vue'
+import SkeletonLoader from '~/components/SkeletonLoader.vue'
 
 // 인증 미들웨어 적용
 definePageMeta({

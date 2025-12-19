@@ -87,9 +87,11 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
+import { useToastStore } from '~/stores/toast'
 
 const router = useRouter()
 const userStore = useUserStore()
+const toast = useToastStore()
 const client = useSupabaseClient()
 const loading = ref(false)
 
@@ -131,7 +133,7 @@ const signInWithGoogle = async () => {
       errorMessage = '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.'
     }
 
-    alert(errorMessage)
+    toast.error(errorMessage)
     loading.value = false
   }
 }

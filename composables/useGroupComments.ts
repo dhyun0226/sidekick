@@ -23,52 +23,87 @@ interface CommentPayload {
 export const useGroupComments = (userId: string | null) => {
   const client = useSupabaseClient()
   const comments = ref<Comment[]>([])
+  const hasMore = ref(true)
+  const isLoadingMore = ref(false)
+  const COMMENTS_PER_PAGE = 30
 
   /**
-   * Fetch all comments for a specific book with likes and user data
+   * Fetch initial comments for a specific book with likes and user data
    */
   const fetchComments = async (groupBookId: string) => {
-    const { data } = await client
-      .from('comments')
-      .select('id, user_id, content, anchor_text, position_pct, created_at, parent_id, group_book_id, user:users(*)')
-      .eq('group_book_id', groupBookId)
-      .order('position_pct', { ascending: true })
-      .order('created_at', { ascending: true })
+    comments.value = [] // Reset comments
+    hasMore.value = true
+    await loadMoreComments(groupBookId)
+  }
 
-    if (data) {
-      // Fetch reactions for all comments
-      const commentIds = data.map(c => c.id)
+  /**
+   * Load more comments with pagination
+   */
+  const loadMoreComments = async (groupBookId: string) => {
+    if (isLoadingMore.value || !hasMore.value) return
 
-      // Get reaction counts for all comments
-      const { data: reactionCounts } = await client
-        .from('reactions')
-        .select('comment_id')
-        .in('comment_id', commentIds)
-        .eq('type', 'like')
+    isLoadingMore.value = true
 
-      // Get user's likes
-      const { data: userLikes } = userId ? await client
-        .from('reactions')
-        .select('comment_id')
-        .in('comment_id', commentIds)
-        .eq('user_id', userId)
-        .eq('type', 'like') : { data: [] }
+    try {
+      const currentOffset = comments.value.length
 
-      // Count likes per comment
-      const likeCounts: Record<string, number> = {}
-      reactionCounts?.forEach(r => {
-        likeCounts[r.comment_id] = (likeCounts[r.comment_id] || 0) + 1
-      })
+      const { data, error } = await client
+        .from('comments')
+        .select('id, user_id, content, anchor_text, position_pct, created_at, parent_id, group_book_id, user:users(*)')
+        .eq('group_book_id', groupBookId)
+        .order('position_pct', { ascending: true })
+        .order('created_at', { ascending: true })
+        .range(currentOffset, currentOffset + COMMENTS_PER_PAGE - 1)
 
-      // Check which comments user liked
-      const userLikedSet = new Set(userLikes?.map(r => r.comment_id) || [])
+      if (error) {
+        console.error('Error loading comments:', error)
+        return
+      }
 
-      // Add likes and isLiked to comments
-      comments.value = data.map(comment => ({
-        ...comment,
-        likes: likeCounts[comment.id] || 0,
-        isLiked: userLikedSet.has(comment.id)
-      }))
+      if (data) {
+        // Check if we've reached the end
+        if (data.length < COMMENTS_PER_PAGE) {
+          hasMore.value = false
+        }
+
+        // Fetch reactions for new comments
+        const commentIds = data.map(c => c.id)
+
+        // Get reaction counts for all comments
+        const { data: reactionCounts } = await client
+          .from('reactions')
+          .select('comment_id')
+          .in('comment_id', commentIds)
+          .eq('type', 'like')
+
+        // Get user's likes
+        const { data: userLikes } = userId ? await client
+          .from('reactions')
+          .select('comment_id')
+          .in('comment_id', commentIds)
+          .eq('user_id', userId)
+          .eq('type', 'like') : { data: [] }
+
+        // Count likes per comment
+        const likeCounts: Record<string, number> = {}
+        reactionCounts?.forEach(r => {
+          likeCounts[r.comment_id] = (likeCounts[r.comment_id] || 0) + 1
+        })
+
+        // Check which comments user liked
+        const userLikedSet = new Set(userLikes?.map(r => r.comment_id) || [])
+
+        // Add new comments with likes and isLiked
+        const newComments = data.map(comment => ({
+          ...comment,
+          likes: likeCounts[comment.id] || 0,
+          isLiked: userLikedSet.has(comment.id)
+        }))
+
+        comments.value = [...comments.value, ...newComments]
+      }
+    } finally {
+      isLoadingMore.value = false
     }
   }
 
@@ -116,10 +151,16 @@ export const useGroupComments = (userId: string | null) => {
    * Add a new comment to the local state (from realtime subscription)
    */
   const addComment = (newComment: Comment) => {
-    // Check if comment already exists (prevent duplicates)
-    const exists = comments.value.find(c => c.id === newComment.id)
+    // Enhanced duplicate check: ID or same user+time+position
+    const exists = comments.value.find(c =>
+      c.id === newComment.id ||
+      (c.user_id === newComment.user_id &&
+       c.created_at === newComment.created_at &&
+       c.position_pct === newComment.position_pct &&
+       c.content === newComment.content)
+    )
     if (exists) {
-      console.log('Comment already exists, skipping')
+      console.log('Comment already exists (ID or duplicate content), skipping')
       return
     }
 
@@ -137,7 +178,10 @@ export const useGroupComments = (userId: string | null) => {
   return {
     comments,
     fetchComments,
+    loadMoreComments,
     submitComment,
-    addComment
+    addComment,
+    hasMore,
+    isLoadingMore
   }
 }

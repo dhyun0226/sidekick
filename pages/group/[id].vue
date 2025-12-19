@@ -1,5 +1,5 @@
 <template>
-  <div class="relative min-h-[100dvh] bg-gray-50 dark:bg-background pb-32">
+  <div class="relative min-h-[100dvh] bg-gray-50 dark:bg-background pb-32 pb-safe pt-safe">
     <!-- 1. Fixed Navigation Bar (Always visible) -->
     <NavigationBar
       :title="bookTitle || groupName"
@@ -8,62 +8,76 @@
       @open-drawer="modals.drawer = true"
     />
 
-    <!-- 2. Hero Section (Immersive Book Info) -->
-    <BookHeroSection
-      :book="selectedBook ? {
-        coverUrl: bookCover,
-        title: bookTitle,
-        author: bookAuthor,
-        status: selectedBook.status,
-        round: currentBookRound,
-        finishedAt: selectedBook.finished_at
-      } : null"
-      :days-remaining="daysRemaining"
-      :member-count="members.length"
-    />
+    <!-- Loading State -->
+    <template v-if="isLoading">
+      <SkeletonLoader type="hero" />
+      <SkeletonLoader type="timeline" />
+      <SkeletonLoader type="slider" />
+    </template>
 
-    <!-- Timeline Content (Flows naturally) -->
-    <div class="px-safe max-w-[480px] mx-auto min-h-[50vh]">
-      <!-- 책이 없을 때 Empty State (기존 유지) -->
-      <div v-if="!selectedBook" class="flex flex-col items-center justify-center pt-32 px-4">
-        <div class="w-24 h-24 bg-gradient-to-br from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner">
-          <span class="text-5xl">📚</span>
+    <!-- Loaded Content -->
+    <template v-else>
+      <!-- 2. Hero Section (Immersive Book Info) -->
+      <BookHeroSection
+        :book="selectedBook ? {
+          coverUrl: bookCover,
+          title: bookTitle,
+          author: bookAuthor,
+          status: selectedBook.status,
+          round: currentBookRound,
+          finishedAt: selectedBook.finished_at
+        } : null"
+        :days-remaining="daysRemaining"
+        :member-count="members.length"
+      />
+
+      <!-- Timeline Content (Flows naturally) -->
+      <div class="px-safe max-w-[480px] mx-auto min-h-[50vh]">
+        <!-- 책이 없을 때 Empty State (기존 유지) -->
+        <div v-if="!selectedBook" class="flex flex-col items-center justify-center pt-32 px-4">
+          <div class="w-24 h-24 bg-gradient-to-br from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner">
+            <span class="text-5xl">📚</span>
+          </div>
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">함께 읽을 책을 정해주세요</h2>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 text-center mb-8 max-w-xs leading-relaxed">
+            오른쪽 상단 메뉴에서<br />"새 책 시작하기"를 눌러보세요!
+          </p>
+          <button
+            @click="modals.drawer = true"
+            class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center gap-2"
+          >
+            <Menu :size="20" />
+            메뉴 열기
+          </button>
         </div>
-        <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">함께 읽을 책을 정해주세요</h2>
-        <p class="text-sm text-zinc-500 dark:text-zinc-400 text-center mb-8 max-w-xs leading-relaxed">
-          오른쪽 상단 메뉴에서<br />"새 책 시작하기"를 눌러보세요!
-        </p>
-        <button
-          @click="modals.drawer = true"
-          class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center gap-2"
-        >
-          <Menu :size="20" />
-          메뉴 열기
-        </button>
+
+        <!-- 책이 있을 때 Timeline 표시 -->
+        <Timeline
+          v-else
+          :comments="comments"
+          :viewProgress="viewProgress"
+          :currentUserId="currentUserId"
+          :hasMore="hasMore"
+          :isLoadingMore="isLoadingMore"
+          :highlightedCommentId="highlightedCommentId"
+          @modalOpen="modals.comment = true"
+          @modalClose="modals.comment = false"
+          @writeComment="handleWriteFromModal"
+          @loadMore="handleLoadMore"
+        />
       </div>
 
-      <!-- 책이 있을 때 Timeline 표시 -->
-      <Timeline
-        v-else
-        :comments="comments"
-        :viewProgress="viewProgress"
-        :currentUserId="currentUserId"
-        @modalOpen="modals.comment = true"
-        @modalClose="modals.comment = false"
-        @writeComment="handleWriteFromModal"
+      <!-- Smart Slider (읽는 중이거나 완독한 책) -->
+      <SmartSlider
+        v-if="selectedBook && !modals.comment"
+        v-model="viewProgress"
+        :toc="toc"
+        :totalPages="selectedBook.book?.total_pages"
+        :members="selectedBook.status === 'reading' ? sliderMembers : []"
+        @change="handleSliderChange"
+        @write="handleWrite"
       />
-    </div>
-
-    <!-- Smart Slider (읽는 중이거나 완독한 책) -->
-    <SmartSlider
-      v-if="selectedBook && !modals.comment"
-      v-model="viewProgress"
-      :toc="toc"
-      :totalPages="selectedBook.book?.total_pages"
-      :members="selectedBook.status === 'reading' ? sliderMembers : []"
-      @change="handleSliderChange"
-      @write="handleWrite"
-    />
+    </template>
 
     <!-- Comment Input Overlay -->
     <CommentInputOverlay
@@ -100,6 +114,7 @@
       @open-reviews="openReviews"
       @copy-invite-code="copyInviteCode"
       @copy-invite-link="copyInviteLink"
+      @regenerate-invite-code="regenerateInviteCode"
       @save-group-name="saveGroupName"
       @open-search-modal="modals.search = true"
       @leave-group="leaveGroup"
@@ -159,11 +174,93 @@
       @delete-book="deleteBook"
     />
 
+    <!-- Admin Action Modals -->
+    <ConfirmModal
+      :is-open="modals.promoteMember"
+      variant="warning"
+      title="관리자 승격"
+      :message="`${pendingMemberAction?.nickname || ''}님을 관리자로 승격하시겠습니까?`"
+      confirm-text="승격"
+      cancel-text="취소"
+      @confirm="executePromoteMember"
+      @cancel="modals.promoteMember = false; pendingMemberAction = null"
+    />
+
+    <ConfirmModal
+      :is-open="modals.kickMember"
+      variant="danger"
+      title="멤버 강퇴"
+      :message="`정말로 ${pendingMemberAction?.nickname || ''}님을 강제 퇴장시키겠습니까?`"
+      description="이 작업은 되돌릴 수 없습니다."
+      confirm-text="강퇴"
+      cancel-text="취소"
+      @confirm="executeKickMember"
+      @cancel="modals.kickMember = false; pendingMemberAction = null"
+    />
+
+    <ConfirmModal
+      :is-open="modals.leaveGroup"
+      variant="warning"
+      title="그룹 나가기"
+      message="정말로 이 그룹에서 나가시겠습니까?"
+      description="그룹을 나가면 다시 초대를 받아야 합니다."
+      confirm-text="나가기"
+      cancel-text="취소"
+      @confirm="executeLeaveGroup"
+      @cancel="modals.leaveGroup = false"
+    />
+
+    <ConfirmModal
+      :is-open="modals.deleteGroup"
+      variant="danger"
+      title="그룹 삭제"
+      :message="members.length > 1
+        ? `이 그룹에는 ${members.length}명의 멤버가 있습니다.\n그룹을 삭제하면 모든 데이터(책, 댓글, 리뷰 등)가 영구적으로 삭제됩니다.`
+        : '그룹을 삭제하면 모든 데이터가 영구적으로 삭제됩니다.'"
+      description="정말로 삭제하시겠습니까?"
+      confirm-text="다음"
+      cancel-text="취소"
+      @confirm="confirmDeleteGroup"
+      @cancel="modals.deleteGroup = false"
+    />
+
+    <TextInputModal
+      :is-open="modals.deleteGroupConfirm"
+      title="그룹 삭제 확인"
+      message="정말로 삭제하려면 아래 그룹 이름을 정확히 입력하세요."
+      :expected-text="group?.name || ''"
+      placeholder="그룹 이름 입력"
+      confirm-text="삭제"
+      cancel-text="취소"
+      @confirm="executeDeleteGroup"
+      @cancel="modals.deleteGroupConfirm = false"
+    />
+
+    <TextDisplayModal
+      :is-open="modals.clipboardFallback"
+      :title="clipboardFallbackData.title"
+      :message="clipboardFallbackData.message"
+      :text="clipboardFallbackData.text"
+      @close="modals.clipboardFallback = false"
+    />
+
+    <ConfirmModal
+      :is-open="modals.regenerateInviteCode"
+      variant="warning"
+      title="초대 코드 재생성"
+      message="정말 초대 코드를 재생성하시겠습니까?"
+      description="기존 초대 링크는 더 이상 사용할 수 없게 되며, 이 작업은 되돌릴 수 없습니다."
+      confirm-text="재생성"
+      cancel-text="취소"
+      @confirm="executeRegenerateInviteCode"
+      @cancel="cancelRegenerateInviteCode"
+    />
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, nextTick, reactive } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, onUnmounted, nextTick, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
@@ -177,6 +274,10 @@ import BookHeroSection from '~/components/group/BookHeroSection.vue'
 import CommentInputOverlay from '~/components/group/CommentInputOverlay.vue'
 import BookAdminModals from '~/components/group/BookAdminModals.vue'
 import GroupDrawer from '~/components/group/drawer/GroupDrawer.vue'
+import SkeletonLoader from '~/components/SkeletonLoader.vue'
+import ConfirmModal from '~/components/ConfirmModal.vue'
+import TextDisplayModal from '~/components/TextDisplayModal.vue'
+import TextInputModal from '~/components/TextInputModal.vue'
 import { Menu, Search, Plus, Settings, Share2, ChevronLeft, ChevronRight, ChevronDown, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X, BarChart3, Copy, User } from 'lucide-vue-next'
 import GroupStatsModal from '~/components/GroupStatsModal.vue'
 
@@ -197,6 +298,7 @@ const { formatDateRange, getDaysRemaining, getTotalDays, getDaysSinceStart } = u
 const groupId = route.params.id as string
 const viewProgress = ref(0)
 const currentUserId = computed(() => userStore.profile?.id)
+const isLoading = ref(true)
 
 // ===== Composables =====
 // Books management
@@ -228,8 +330,11 @@ const {
 const {
   comments,
   fetchComments,
+  loadMoreComments,
   submitComment,
-  addComment
+  addComment,
+  hasMore,
+  isLoadingMore
 } = useGroupComments(currentUserId.value)
 
 // Modal states - consolidated into single reactive object (must be before useRealtimeSubscriptions)
@@ -245,8 +350,20 @@ const modals = reactive({
   editToc: false,
   markCompleted: false,
   deleteBook: false,
-  editingBook: null as any  // 편집 중인 책 (selectedBookId와 독립적)
+  editingBook: null as any,  // 편집 중인 책 (selectedBookId와 독립적)
+  // Admin action modals
+  promoteMember: false,
+  kickMember: false,
+  leaveGroup: false,
+  deleteGroup: false,
+  deleteGroupConfirm: false,
+  clipboardFallback: false,
+  regenerateInviteCode: false
 })
+
+// Admin action state
+const pendingMemberAction = ref<{ id: string, nickname: string } | null>(null)
+const clipboardFallbackData = ref({ title: '', message: '', text: '' })
 
 // Realtime subscriptions
 const {
@@ -413,56 +530,62 @@ const sliderMembers = computed(() => {
 const fetchData = async () => {
   if (!userStore.user) return
 
-  // Fetch group info
-  const { data: groupData, error: groupError } = await client.from('groups').select('*').eq('id', groupId).single()
+  isLoading.value = true
 
-  // 그룹이 존재하지 않으면 홈으로 리다이렉트
-  if (groupError || !groupData) {
-    console.log('[Group] Group not found:', groupId)
-    toast.error('존재하지 않는 그룹입니다.')
-    router.push('/')
-    return
-  }
+  try {
+    // Fetch group info
+    const { data: groupData, error: groupError } = await client.from('groups').select('*').eq('id', groupId).single()
 
-  group.value = groupData
-  editingGroupName.value = groupData.name
+    // 그룹이 존재하지 않으면 홈으로 리다이렉트
+    if (groupError || !groupData) {
+      console.log('[Group] Group not found:', groupId)
+      toast.error('존재하지 않는 그룹입니다.')
+      router.push('/')
+      return
+    }
 
-  // Fetch members
-  const { data: memberData } = await client
-    .from('group_members')
-    .select('*, user:users(*)')
-    .eq('group_id', groupId)
+    group.value = groupData
+    editingGroupName.value = groupData.name
 
-  if (memberData) {
-    members.value = memberData.map((m: any) => ({
-      id: m.user.id,
-      nickname: m.user.nickname,
-      avatar_url: m.user.avatar_url,
-      role: m.role
-    }))
-  }
+    // Fetch members
+    const { data: memberData } = await client
+      .from('group_members')
+      .select('*, user:users(*)')
+      .eq('group_id', groupId)
 
-  // 현재 사용자가 이 그룹의 멤버인지 확인
-  const isMember = members.value.some(m => m.id === currentUserId.value)
-  if (!isMember) {
-    console.log('[Group] Access denied: User is not a member of this group')
-    toast.error('이 그룹에 접근할 권한이 없습니다.')
-    router.push('/')
-    return
-  }
+    if (memberData) {
+      members.value = memberData.map((m: any) => ({
+        id: m.user.id,
+        nickname: m.user.nickname,
+        avatar_url: m.user.avatar_url,
+        role: m.role
+      }))
+    }
 
-  // Fetch books using Composable
-  await fetchBooks()
+    // 현재 사용자가 이 그룹의 멤버인지 확인
+    const isMember = members.value.some(m => m.id === currentUserId.value)
+    if (!isMember) {
+      console.log('[Group] Access denied: User is not a member of this group')
+      toast.error('이 그룹에 접근할 권한이 없습니다.')
+      router.push('/')
+      return
+    }
 
-  // Fetch comments for selected book
-  if (selectedBookId.value) {
-    await fetchComments(selectedBookId.value)
-  }
+    // Fetch books using Composable
+    await fetchBooks()
 
-  // Load user's reading progress
-  if (currentUserId.value && selectedBookId.value) {
-    const progress = await loadProgress(selectedBookId.value, currentUserId.value)
-    viewProgress.value = progress
+    // Fetch comments for selected book
+    if (selectedBookId.value) {
+      await fetchComments(selectedBookId.value)
+    }
+
+    // Load user's reading progress
+    if (currentUserId.value && selectedBookId.value) {
+      const progress = await loadProgress(selectedBookId.value, currentUserId.value)
+      viewProgress.value = progress
+    }
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -475,6 +598,11 @@ onMounted(async () => {
   window.addEventListener('scroll', handleScroll)
   await userStore.fetchProfile()
   await fetchData()
+
+  // Load member progress for initial book
+  if (selectedBookId.value) {
+    await loadMemberProgress(selectedBookId.value)
+  }
 
   // Setup realtime subscriptions
   setupCommentSubscription()
@@ -494,13 +622,49 @@ watch(() => modals.drawer, async (isOpen) => {
   }
 })
 
+// Reset review modal flag when book changes
+watch(selectedBookId, async (newBookId) => {
+  hasShownReviewModal.value = false
+  if (reviewModalTimeout) {
+    clearTimeout(reviewModalTimeout)
+    reviewModalTimeout = null
+  }
+
+  // Load member progress for the selected book
+  if (newBookId) {
+    await loadMemberProgress(newBookId)
+  }
+})
+
+onBeforeUnmount(async () => {
+  // Save progress immediately if there's a pending save
+  if (progressSaveTimeout) {
+    clearTimeout(progressSaveTimeout)
+    if (selectedBookId.value && viewProgress.value !== undefined) {
+      await saveProgress(viewProgress.value)
+    }
+  }
+})
+
 onUnmounted(() => {
+  // Clean up event listeners
   window.removeEventListener('scroll', handleScroll)
+
+  // Clean up subscriptions
   cleanupSubscriptions()
+
+  // Clean up timeouts
+  if (progressSaveTimeout) clearTimeout(progressSaveTimeout)
+  if (reviewModalTimeout) clearTimeout(reviewModalTimeout)
+  if (highlightTimeout) clearTimeout(highlightTimeout)
 })
 
 // ===== Event Handlers =====
 let progressSaveTimeout: NodeJS.Timeout | null = null
+let reviewModalTimeout: NodeJS.Timeout | null = null
+let highlightTimeout: NodeJS.Timeout | null = null
+const hasShownReviewModal = ref(false) // Prevent duplicate review modal
+
 const handleSliderChange = async (val: number) => {
   viewProgress.value = val
 
@@ -509,9 +673,12 @@ const handleSliderChange = async (val: number) => {
     scrollToPosition(Math.round(val))
   })
 
-  // 100% 도달 시 리뷰 모달
+  // 100% 도달 시 리뷰 모달 (한 번만)
   if (val >= 100) {
-    setTimeout(async () => {
+    if (hasShownReviewModal.value) return // Already shown for this book
+
+    if (reviewModalTimeout) clearTimeout(reviewModalTimeout)
+    reviewModalTimeout = setTimeout(async () => {
       if (!selectedBook.value || !currentUserId.value) return
 
       // Check for existing review for this group_book
@@ -534,7 +701,14 @@ const handleSliderChange = async (val: number) => {
       }
 
       modals.review = true
-    }, 500)
+      hasShownReviewModal.value = true // Mark as shown
+    }, 300) // Reduced from 500ms to 300ms
+  } else {
+    // Cancel review modal if user drags away from 100%
+    if (reviewModalTimeout) {
+      clearTimeout(reviewModalTimeout)
+      reviewModalTimeout = null
+    }
   }
 
   // Optimistic Update (from composable)
@@ -600,7 +774,14 @@ const closeCommentInput = () => {
   newAnchorText.value = ''
 }
 
+const handleLoadMore = async () => {
+  if (!selectedBookId.value) return
+  await loadMoreComments(selectedBookId.value)
+}
+
 const { validateComment } = useValidation()
+
+const highlightedCommentId = ref<string | null>(null)
 
 const handleCommentSubmit = async (payload: { content: string, anchorText: string | null, position: number }) => {
   if (!selectedBook.value || !currentUserId.value) return
@@ -614,12 +795,28 @@ const handleCommentSubmit = async (payload: { content: string, anchorText: strin
 
   try {
     // Use composable's submitComment method
-    await submitComment(selectedBook.value.id, currentUserId.value, payload)
+    const newComment = await submitComment(selectedBook.value.id, currentUserId.value, payload)
 
     // Close the overlay and reset state
     modals.commentInput = false
     newAnchorText.value = ''
     anchorTextLocked.value = false
+
+    // Scroll to the new comment position and highlight it
+    if (newComment?.id) {
+      // Wait for DOM update
+      await nextTick()
+
+      // Scroll to position
+      scrollToPosition(Math.round(payload.position))
+
+      // Highlight the new comment briefly
+      highlightedCommentId.value = newComment.id
+      if (highlightTimeout) clearTimeout(highlightTimeout)
+      highlightTimeout = setTimeout(() => {
+        highlightedCommentId.value = null
+      }, 2000) // Remove highlight after 2 seconds
+    }
   } catch (error: any) {
     toast.error('댓글 작성 실패: ' + error.message)
   }
@@ -764,6 +961,14 @@ const openReviews = async (bookId: string) => {
 const saveEditedDates = async (dates: { startDate: string, endDate: string }) => {
   if (!modals.editingBook || !dates.startDate || !dates.endDate) return
 
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 독서 기간을 수정할 수 있습니다.')
+    modals.editDates = false
+    modals.editingBook = null
+    return
+  }
+
   try {
     // Use composable's updateDates method
     await updateDates(modals.editingBook.id, dates.startDate, dates.endDate)
@@ -782,6 +987,14 @@ const saveEditedDates = async (dates: { startDate: string, endDate: string }) =>
 
 const markAsCompleted = async () => {
   if (!modals.editingBook) return
+
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 완독 처리를 할 수 있습니다.')
+    modals.markCompleted = false
+    modals.editingBook = null
+    return
+  }
 
   try {
     // Use composable's markCompleted method
@@ -802,6 +1015,14 @@ const markAsCompleted = async () => {
 const deleteBook = async () => {
   if (!modals.editingBook) return
 
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 책을 삭제할 수 있습니다.')
+    modals.deleteBook = false
+    modals.editingBook = null
+    return
+  }
+
   try {
     // Use composable's deleteBook method
     await deleteBookFromGroup(modals.editingBook.id)
@@ -821,6 +1042,14 @@ const deleteBook = async () => {
 const saveEditedToc = async (tocData: { totalPages: number, chapters: { title: string, startPage: number }[] }) => {
   if (!modals.editingBook || !tocData.totalPages || tocData.totalPages <= 0) return
 
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 목차를 수정할 수 있습니다.')
+    modals.editToc = false
+    modals.editingBook = null
+    return
+  }
+
   try {
     // Use composable's updateToc method
     await updateToc(modals.editingBook.id, modals.editingBook.isbn, tocData.totalPages, tocData.chapters)
@@ -838,6 +1067,12 @@ const saveEditedToc = async (tocData: { totalPages: number, chapters: { title: s
 }
 
 const handleBookAdd = async (data: any) => {
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 책을 추가할 수 있습니다.')
+    return
+  }
+
   try {
     // Use composable's addBook method
     await addBook(data)
@@ -853,6 +1088,12 @@ const handleBookAdd = async (data: any) => {
 }
 
 const saveGroupName = async () => {
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 그룹 이름을 변경할 수 있습니다.')
+    return
+  }
+
   if (!editingGroupName.value.trim()) {
     toast.warning('그룹 이름을 입력해주세요.')
     return
@@ -888,40 +1129,86 @@ const toggleMemberMenu = (memberId: string) => {
   activeMemberMenu.value = activeMemberMenu.value === memberId ? null : memberId
 }
 
-const promoteMember = async (memberId: string) => {
-  if (!confirm('이 멤버를 관리자로 승격하시겠습니까?')) return
+const promoteMember = (memberId: string) => {
+  const member = members.value.find(m => m.id === memberId)
+  if (!member) return
 
-  const { error } = await client
-    .from('group_members')
-    .update({ role: 'admin' })
-    .eq('group_id', groupId)
-    .eq('user_id', memberId)
-
-  if (error) {
-    toast.error('권한 변경에 실패했습니다.')
-  } else {
-    await fetchData()
-    toast.success('관리자로 승격되었습니다.')
-  }
-  activeMemberMenu.value = null
+  pendingMemberAction.value = { id: memberId, nickname: member.nickname }
+  modals.promoteMember = true
 }
 
-const kickMember = async (memberId: string) => {
-  if (!confirm('정말로 이 멤버를 강제 퇴장시키겠습니까?')) return
+const executePromoteMember = async () => {
+  if (!pendingMemberAction.value) return
 
-  const { error } = await client
-    .from('group_members')
-    .delete()
-    .eq('group_id', groupId)
-    .eq('user_id', memberId)
-
-  if (error) {
-    toast.error('멤버 강퇴에 실패했습니다.')
-  } else {
-    await fetchData()
-    toast.success('멤버가 퇴장되었습니다.')
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 권한을 변경할 수 있습니다.')
+    modals.promoteMember = false
+    pendingMemberAction.value = null
+    return
   }
-  activeMemberMenu.value = null
+
+  try {
+    const { error } = await client
+      .from('group_members')
+      .update({ role: 'admin' })
+      .eq('group_id', groupId)
+      .eq('user_id', pendingMemberAction.value.id)
+
+    if (error) throw error
+
+    await fetchData()
+    toast.success('관리자로 승격되었습니다.')
+  } catch (error) {
+    console.error('Promote member error:', error)
+    toast.error('권한 변경에 실패했습니다.')
+  } finally {
+    modals.promoteMember = false
+    pendingMemberAction.value = null
+    activeMemberMenu.value = null
+  }
+}
+
+const kickMember = (memberId: string) => {
+  const member = members.value.find(m => m.id === memberId)
+  if (!member) return
+
+  pendingMemberAction.value = { id: memberId, nickname: member.nickname }
+  modals.kickMember = true
+}
+
+const executeKickMember = async () => {
+  if (!pendingMemberAction.value) return
+
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 멤버를 강퇴할 수 있습니다.')
+    modals.kickMember = false
+    pendingMemberAction.value = null
+    return
+  }
+
+  try {
+    const { error } = await client
+      .from('group_members')
+      .delete()
+      .eq('group_id', groupId)
+      .eq('user_id', pendingMemberAction.value.id)
+
+    if (error) throw error
+
+    // Update local state
+    members.value = members.value.filter(m => m.id !== pendingMemberAction.value!.id)
+
+    toast.success(`${pendingMemberAction.value.nickname}님이 그룹에서 제거되었습니다.`)
+  } catch (error) {
+    console.error('Kick member error:', error)
+    toast.error('멤버 강퇴에 실패했습니다.')
+  } finally {
+    modals.kickMember = false
+    pendingMemberAction.value = null
+    activeMemberMenu.value = null
+  }
 }
 
 const copyInviteLink = async () => {
@@ -937,8 +1224,12 @@ const copyInviteLink = async () => {
     toast.success('초대 링크가 클립보드에 복사되었습니다!\n친구들에게 공유해보세요.', 5000)
   } catch (err) {
     console.error('Clipboard error:', err)
-    prompt('초대 링크를 복사하세요:', inviteLink)
-    toast.info('초대 링크가 복사되지 않아 직접 입력창에 표시했습니다.')
+    clipboardFallbackData.value = {
+      title: '초대 링크',
+      message: '클립보드 복사에 실패했습니다. 아래 링크를 수동으로 복사해주세요.',
+      text: inviteLink
+    }
+    modals.clipboardFallback = true
   }
 }
 
@@ -955,9 +1246,62 @@ const copyInviteCode = async () => {
     toast.success('초대 코드가 클립보드에 복사되었습니다!', 3000)
   } catch (err) {
     console.error('Clipboard error:', err)
-    prompt('초대 코드를 복사하세요:', inviteCode)
-    toast.info('초대 코드가 복사되지 않아 직접 입력창에 표시했습니다.')
+    clipboardFallbackData.value = {
+      title: '초대 코드',
+      message: '클립보드 복사에 실패했습니다. 아래 코드를 수동으로 복사해주세요.',
+      text: inviteCode
+    }
+    modals.clipboardFallback = true
   }
+}
+
+const regenerateInviteCode = () => {
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 초대 코드를 재생성할 수 있습니다.')
+    return
+  }
+
+  // Show confirmation modal
+  modals.regenerateInviteCode = true
+}
+
+const executeRegenerateInviteCode = async () => {
+  try {
+    // Generate new 6-character invite code (uppercase letters and numbers)
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    let newCode = ''
+    for (let i = 0; i < 6; i++) {
+      newCode += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+
+    // Update in database
+    const { error } = await client
+      .from('groups')
+      .update({ invite_code: newCode })
+      .eq('id', groupId)
+
+    if (error) {
+      console.error('Invite code regeneration error:', error)
+      toast.error('초대 코드 재생성에 실패했습니다: ' + error.message)
+      return
+    }
+
+    // Update local state
+    if (group.value) {
+      group.value.invite_code = newCode
+    }
+
+    toast.success(`새 초대 코드가 생성되었습니다: ${newCode}`)
+    modals.regenerateInviteCode = false
+  } catch (err) {
+    console.error('Unexpected error:', err)
+    toast.error('예상치 못한 오류가 발생했습니다.')
+  }
+}
+
+const cancelRegenerateInviteCode = () => {
+  modals.regenerateInviteCode = false
 }
 
 const jumpToChapter = (startPct: number) => {
@@ -1007,28 +1351,27 @@ const openReviewModalForEdit = async (book: any) => {
   modals.drawer = false
 }
 
-const deleteGroup = async () => {
+const deleteGroup = () => {
   if (!isAdmin.value) {
     toast.error('관리자만 그룹을 삭제할 수 있습니다.')
     return
   }
 
-  // 멤버 수 확인
-  const memberCount = members.value.length
+  // Show first confirmation modal
+  modals.deleteGroup = true
+}
 
-  // 첫 번째 확인
-  const confirmMsg = memberCount > 1
-    ? `이 그룹에는 ${memberCount}명의 멤버가 있습니다.\n그룹을 삭제하면 모든 데이터(책, 댓글, 리뷰 등)가 영구적으로 삭제됩니다.\n\n정말로 삭제하시겠습니까?`
-    : `그룹을 삭제하면 모든 데이터가 영구적으로 삭제됩니다.\n\n정말로 삭제하시겠습니까?`
+const confirmDeleteGroup = () => {
+  // First confirm accepted, now ask for group name
+  modals.deleteGroup = false
+  modals.deleteGroupConfirm = true
+}
 
-  if (!confirm(confirmMsg)) return
-
-  // 두 번째 확인 (안전장치)
-  const groupNameToConfirm = group.value?.name || ''
-  const userInput = prompt(`정말로 삭제하려면 그룹 이름을 입력하세요:\n\n"${groupNameToConfirm}" `)
-
-  if (userInput !== groupNameToConfirm) {
-    toast.error('그룹 이름이 일치하지 않습니다. 삭제가 취소되었습니다.')
+const executeDeleteGroup = async (inputText: string) => {
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 그룹을 삭제할 수 있습니다.')
+    modals.deleteGroupConfirm = false
     return
   }
 
@@ -1051,10 +1394,12 @@ const deleteGroup = async () => {
   } catch (err) {
     console.error('Unexpected error:', err)
     toast.error('예상치 못한 오류가 발생했습니다.')
+  } finally {
+    modals.deleteGroupConfirm = false
   }
 }
 
-const leaveGroup = async () => {
+const leaveGroup = () => {
   if (!currentUserId.value) return
 
   // Check if user is the only admin
@@ -1064,7 +1409,11 @@ const leaveGroup = async () => {
     return
   }
 
-  if (!confirm('정말로 이 그룹에서 나가시겠습니까?')) return
+  modals.leaveGroup = true
+}
+
+const executeLeaveGroup = async () => {
+  if (!currentUserId.value) return
 
   try {
     const { error } = await client
@@ -1077,10 +1426,11 @@ const leaveGroup = async () => {
 
     toast.success('그룹에서 나갔습니다.')
     router.push('/')
-
   } catch (error) {
     console.error('Leave group error:', error)
     toast.error('그룹 나가기에 실패했습니다.')
+  } finally {
+    modals.leaveGroup = false
   }
 }
 
@@ -1115,31 +1465,14 @@ const handleChangeMemberRole = async (member: any) => {
   }
 }
 
-const handleKickMember = async (member: any) => {
+const handleKickMember = (member: any) => {
   if (!isAdmin.value) {
     toast.error('관리자만 멤버를 강퇴할 수 있습니다.')
     return
   }
 
-  if (!confirm(`정말 ${member.nickname}님을 강퇴하시겠습니까?`)) return
-
-  try {
-    const { error } = await client
-      .from('group_members')
-      .delete()
-      .eq('group_id', groupId)
-      .eq('user_id', member.id)
-
-    if (error) throw error
-
-    // Update local state
-    members.value = members.value.filter(m => m.id !== member.id)
-
-    toast.success(`${member.nickname}님이 그룹에서 제거되었습니다.`)
-  } catch (error: any) {
-    console.error('Kick member error:', error)
-    toast.error('멤버 강퇴 실패: ' + error.message)
-  }
+  pendingMemberAction.value = { id: member.id, nickname: member.nickname }
+  modals.kickMember = true
 }
 
 // Select book to view

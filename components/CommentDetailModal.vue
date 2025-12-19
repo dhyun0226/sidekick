@@ -197,12 +197,40 @@
       </div>
 
     </div>
+
+    <!-- Delete Comment Modal -->
+    <ConfirmModal
+      :isOpen="showDeleteCommentModal"
+      title="댓글 삭제"
+      message="이 댓글을 삭제하시겠습니까?"
+      description="삭제한 댓글은 복구할 수 없습니다."
+      confirmText="삭제"
+      cancelText="취소"
+      variant="danger"
+      @confirm="executeDeleteComment"
+      @cancel="cancelDeleteComment"
+    />
+
+    <!-- Delete Reply Modal -->
+    <ConfirmModal
+      :isOpen="showDeleteReplyModal"
+      title="답글 삭제"
+      message="이 답글을 삭제하시겠습니까?"
+      description="삭제한 답글은 복구할 수 없습니다."
+      confirmText="삭제"
+      cancelText="취소"
+      variant="danger"
+      @confirm="executeDeleteReply"
+      @cancel="cancelDeleteReply"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { ChevronLeft, Heart, MessageCircle, Send, PenLine, Edit2, Trash2 } from 'lucide-vue-next'
+import ConfirmModal from './ConfirmModal.vue'
+import { useToastStore } from '~/stores/toast'
 
 interface User {
   nickname: string
@@ -249,7 +277,14 @@ const editingReplyId = ref<string | null>(null)
 const editContent = ref('')
 const editReplyContent = ref('')
 
+// Delete modal state
+const showDeleteCommentModal = ref(false)
+const showDeleteReplyModal = ref(false)
+const deletingCommentId = ref<string | null>(null)
+const deletingReplyId = ref<string | null>(null)
+
 const client = useSupabaseClient()
+const toast = useToastStore()
 
 // Sort comments by likes, then by date
 const sortedComments = computed(() => {
@@ -355,7 +390,7 @@ const submitReply = async (parentId: string) => {
 
   } catch (error) {
     console.error('Reply error:', error)
-    alert('답글 작성에 실패했습니다.')
+    toast.error('답글 작성에 실패했습니다.')
   }
 }
 
@@ -412,7 +447,7 @@ const saveEdit = async (commentId: string) => {
     editContent.value = ''
   } catch (error) {
     console.error('Save edit error:', error)
-    alert('댓글 수정에 실패했습니다.')
+    toast.error('댓글 수정에 실패했습니다.')
   }
 }
 
@@ -457,7 +492,7 @@ const saveReplyEdit = async (replyId: string) => {
     editReplyContent.value = ''
   } catch (error) {
     console.error('Save reply edit error:', error)
-    alert('답글 수정에 실패했습니다.')
+    toast.error('답글 수정에 실패했습니다.')
   }
 }
 
@@ -467,14 +502,19 @@ const cancelReplyEdit = () => {
 }
 
 // Delete functions
-const confirmDelete = async (commentId: string) => {
-  if (!confirm('이 댓글을 삭제하시겠습니까?')) return
+const confirmDelete = (commentId: string) => {
+  deletingCommentId.value = commentId
+  showDeleteCommentModal.value = true
+}
+
+const executeDeleteComment = async () => {
+  if (!deletingCommentId.value) return
 
   try {
     const { error } = await client
       .from('comments')
       .delete()
-      .eq('id', commentId)
+      .eq('id', deletingCommentId.value)
 
     if (error) {
       console.error('Comment delete error:', error)
@@ -482,24 +522,39 @@ const confirmDelete = async (commentId: string) => {
     }
 
     // Remove from local state
-    const index = props.comments.findIndex(c => c.id === commentId)
+    const index = props.comments.findIndex(c => c.id === deletingCommentId.value)
     if (index !== -1) {
       props.comments.splice(index, 1)
     }
+
+    toast.success('댓글이 삭제되었습니다.')
   } catch (error) {
     console.error('Delete error:', error)
-    alert('댓글 삭제에 실패했습니다.')
+    toast.error('댓글 삭제에 실패했습니다.')
+  } finally {
+    showDeleteCommentModal.value = false
+    deletingCommentId.value = null
   }
 }
 
-const confirmDeleteReply = async (replyId: string) => {
-  if (!confirm('이 답글을 삭제하시겠습니까?')) return
+const cancelDeleteComment = () => {
+  showDeleteCommentModal.value = false
+  deletingCommentId.value = null
+}
+
+const confirmDeleteReply = (replyId: string) => {
+  deletingReplyId.value = replyId
+  showDeleteReplyModal.value = true
+}
+
+const executeDeleteReply = async () => {
+  if (!deletingReplyId.value) return
 
   try {
     const { error } = await client
       .from('comments')
       .delete()
-      .eq('id', replyId)
+      .eq('id', deletingReplyId.value)
 
     if (error) {
       console.error('Reply delete error:', error)
@@ -509,17 +564,27 @@ const confirmDeleteReply = async (replyId: string) => {
     // Remove from local state
     for (const comment of props.comments) {
       if (comment.replies) {
-        const index = comment.replies.findIndex(r => r.id === replyId)
+        const index = comment.replies.findIndex(r => r.id === deletingReplyId.value)
         if (index !== -1) {
           comment.replies.splice(index, 1)
           break
         }
       }
     }
+
+    toast.success('답글이 삭제되었습니다.')
   } catch (error) {
     console.error('Delete reply error:', error)
-    alert('답글 삭제에 실패했습니다.')
+    toast.error('답글 삭제에 실패했습니다.')
+  } finally {
+    showDeleteReplyModal.value = false
+    deletingReplyId.value = null
   }
+}
+
+const cancelDeleteReply = () => {
+  showDeleteReplyModal.value = false
+  deletingReplyId.value = null
 }
 </script>
 

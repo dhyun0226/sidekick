@@ -21,18 +21,26 @@
         <Share2 :size="14" />
         초대 링크 공유하기
       </button>
+      <button
+        v-if="isAdmin"
+        @click="emit('regenerateInviteCode')"
+        class="w-full py-2.5 mt-2 border border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400 rounded-lg text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors flex items-center justify-center gap-2"
+      >
+        <RefreshCw :size="14" />
+        초대 코드 재생성 (관리자)
+      </button>
       </div>
     </div>
 
-    <!-- Group Management -->
-    <div>
+    <!-- Group Management (Admin Only) -->
+    <div v-if="isAdmin">
       <div class="flex items-center justify-between px-1 mb-3">
         <h3 class="text-xs font-bold text-zinc-500 uppercase">그룹 관리</h3>
       </div>
       <div class="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800">
 
       <div class="space-y-3">
-        <div v-if="isAdmin">
+        <div>
           <label class="block text-[10px] text-zinc-400 mb-1">그룹 이름 수정</label>
           <div class="flex gap-2">
             <input
@@ -80,7 +88,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { Copy, Share2, Plus, LogOut } from 'lucide-vue-next'
+import { Copy, Share2, Plus, LogOut, RefreshCw } from 'lucide-vue-next'
 
 interface Props {
   inviteCode: string
@@ -91,6 +99,7 @@ interface Props {
 interface Emits {
   (e: 'copyInviteCode'): void
   (e: 'copyInviteLink'): void
+  (e: 'regenerateInviteCode'): void
   (e: 'saveGroupName', name: string): void
   (e: 'openSearchModal'): void
   (e: 'leaveGroup'): void

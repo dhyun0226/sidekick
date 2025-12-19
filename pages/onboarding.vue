@@ -110,10 +110,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { User, Camera } from 'lucide-vue-next'
+import { useToastStore } from '~/stores/toast'
 
 const router = useRouter()
 const client = useSupabaseClient()
 const user = useSupabaseUser()
+const toast = useToastStore()
 
 // State
 const nickname = ref('')
@@ -178,13 +180,13 @@ const handleFileSelect = (event: Event) => {
 
   // 파일 크기 체크 (5MB 제한)
   if (file.size > 5 * 1024 * 1024) {
-    alert('파일 크기는 5MB 이하여야 합니다.')
+    toast.error('파일 크기는 5MB 이하여야 합니다.')
     return
   }
 
   // 이미지 타입 체크
   if (!file.type.startsWith('image/')) {
-    alert('이미지 파일만 업로드 가능합니다.')
+    toast.error('이미지 파일만 업로드 가능합니다.')
     return
   }
 
@@ -208,7 +210,7 @@ const handleSubmit = async () => {
   const { data: { user: currentUser } } = await client.auth.getUser()
   if (!currentUser) {
     console.error('User not authenticated')
-    alert('로그인 정보가 없습니다. 다시 로그인해주세요.')
+    toast.error('로그인 정보가 없습니다. 다시 로그인해주세요.')
     router.push('/login')
     return
   }
@@ -279,7 +281,7 @@ const handleSubmit = async () => {
 
   } catch (error: any) {
     console.error('Profile update error:', error)
-    alert(`프로필 생성 실패: ${error.message}`)
+    toast.error(`프로필 생성 실패: ${error.message}`)
   } finally {
     loading.value = false
   }

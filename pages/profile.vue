@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-[#09090b] pb-20">
+  <div class="min-h-screen bg-gray-50 dark:bg-[#09090b] pb-20 pb-safe">
     <!-- 1. Compact Header -->
     <div class="pt-safe pb-4">
       
@@ -102,9 +102,10 @@
 
       <!-- Tab 1: Library Grid -->
       <div v-if="activeTab === 'library'">
-        <div v-if="loading" class="py-20 text-center text-zinc-500">
-          <div class="w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-          <p class="text-xs">로딩 중...</p>
+        <div v-if="loading" class="space-y-3">
+          <SkeletonLoader type="list-item" />
+          <SkeletonLoader type="list-item" />
+          <SkeletonLoader type="list-item" />
         </div>
 
         <div v-else-if="library.length === 0" class="py-12 flex flex-col items-center text-center">
@@ -150,9 +151,10 @@
       
       <!-- Tab 2: Timeline Feed -->
       <div v-if="activeTab === 'timeline'">
-        <div v-if="loading" class="py-20 text-center text-zinc-500">
-          <div class="w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-          <p class="text-xs">로딩 중...</p>
+        <div v-if="loading" class="space-y-3">
+          <SkeletonLoader type="list-item" />
+          <SkeletonLoader type="list-item" />
+          <SkeletonLoader type="list-item" />
         </div>
 
         <div v-else-if="timeline.length === 0" class="py-12 flex flex-col items-center text-center">
@@ -214,9 +216,10 @@
 
       <!-- Tab 3: Insight -->
       <div v-if="activeTab === 'insight'">
-        <div v-if="loading" class="py-20 text-center text-zinc-500">
-          <div class="w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-          <p class="text-xs">로딩 중...</p>
+        <div v-if="loading" class="space-y-3">
+          <SkeletonLoader type="list-item" />
+          <SkeletonLoader type="list-item" />
+          <SkeletonLoader type="list-item" />
         </div>
 
         <div v-else class="space-y-3">
@@ -636,6 +639,19 @@
       </div>
     </div>
 
+    <!-- Logout Confirmation Modal -->
+    <ConfirmModal
+      :isOpen="showLogoutConfirm"
+      title="로그아웃"
+      message="정말 로그아웃 하시겠습니까?"
+      description="다시 로그인하려면 구글 계정으로 로그인해야 합니다."
+      confirmText="로그아웃"
+      cancelText="취소"
+      variant="warning"
+      @confirm="confirmLogout"
+      @cancel="cancelLogout"
+    />
+
   </div>
 </template>
 
@@ -646,6 +662,8 @@ import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
 import { ChevronLeft, LogOut, User, Camera, Edit2, Star, StarHalf, Heart, Settings, Moon, Sun, Bell, X } from 'lucide-vue-next'
 import ReadingHeatmap from '~/components/ReadingHeatmap.vue'
+import ConfirmModal from '~/components/ConfirmModal.vue'
+import SkeletonLoader from '~/components/SkeletonLoader.vue'
 
 // 인증 미들웨어 적용
 definePageMeta({
@@ -1205,11 +1223,20 @@ const saveProfile = async () => {
   }
 }
 
-const handleSignOut = async () => {
-  if (confirm('로그아웃 하시겠습니까?')) {
-    await userStore.signOut()
-    router.push('/login')
-  }
+const showLogoutConfirm = ref(false)
+
+const handleSignOut = () => {
+  showLogoutConfirm.value = true
+}
+
+const confirmLogout = async () => {
+  showLogoutConfirm.value = false
+  await userStore.signOut()
+  router.push('/login')
+}
+
+const cancelLogout = () => {
+  showLogoutConfirm.value = false
 }
 </script>
 

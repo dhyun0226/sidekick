@@ -45,12 +45,13 @@
             :style="{ left: `${member.progress}%` }"
           >
             <!-- Avatar Bubble -->
-            <div class="w-6 h-6 rounded-full border border-white dark:border-zinc-800 shadow-md overflow-hidden bg-zinc-100 relative z-10">
-               <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
-               <div v-else class="w-full h-full flex items-center justify-center text-[9px] bg-lime-100 text-lime-700 font-bold uppercase">
-                 {{ member.nickname ? member.nickname.slice(0, 1) : '?' }}
-               </div>
-            </div>
+            <Avatar
+              :src="member.avatar_url"
+              :fallback="member.nickname || 'U'"
+              size="xs"
+              :alt="member.nickname"
+              className="border border-white dark:border-zinc-800 shadow-md relative z-10"
+            />
             <!-- Small Triangle pointing down -->
             <div class="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-b-[4px] border-b-white dark:border-b-zinc-800 -mt-0.5 drop-shadow-sm rotate-180"></div>
           </div>
@@ -105,6 +106,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { PenLine } from 'lucide-vue-next'
+import Avatar from './Avatar.vue'
 
 interface Chapter {
   title: string
@@ -239,6 +241,10 @@ const updatePosition = (event: PointerEvent) => {
 }
 
 const handlePointerDown = (event: PointerEvent) => {
+  // 브라우저 기본 동작 방지 (뒤로가기 제스처 등)
+  event.preventDefault()
+  event.stopPropagation()
+
   isDragging.value = true
   sliderRef.value?.setPointerCapture(event.pointerId)
   updatePosition(event)
@@ -246,11 +252,21 @@ const handlePointerDown = (event: PointerEvent) => {
 
 const handlePointerMove = (event: PointerEvent) => {
   if (!isDragging.value) return
+
+  // 브라우저 기본 동작 방지
+  event.preventDefault()
+  event.stopPropagation()
+
   updatePosition(event)
 }
 
 const handlePointerUp = (event: PointerEvent) => {
   if (!isDragging.value) return
+
+  // 브라우저 기본 동작 방지
+  event.preventDefault()
+  event.stopPropagation()
+
   isDragging.value = false
   sliderRef.value?.releasePointerCapture(event.pointerId)
   emit('change', localPct.value)

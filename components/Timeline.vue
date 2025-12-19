@@ -29,6 +29,7 @@
           v-for="comment in group.previewComments"
           :key="comment.id"
           class="rounded-xl bg-white dark:bg-zinc-900 p-3 text-zinc-800 dark:text-zinc-200 text-sm leading-relaxed transition-all duration-300"
+          :class="{ 'ring-2 ring-lime-400 bg-lime-50 dark:bg-lime-900/20': highlightedCommentId === comment.id }"
         >
           <!-- Spoiler Badge (Small, Top-Right) -->
           <div
@@ -41,10 +42,12 @@
 
           <!-- User Info -->
           <div class="flex items-center space-x-2 mb-2">
-            <div class="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden">
-              <img v-if="comment.user?.avatar_url" :src="comment.user.avatar_url" class="w-full h-full object-cover" />
-              <div v-else class="w-full h-full flex items-center justify-center text-[10px] text-zinc-600 dark:text-zinc-400">?</div>
-            </div>
+            <Avatar
+              :src="comment.user?.avatar_url"
+              :fallback="comment.user?.nickname || 'U'"
+              size="xs"
+              :alt="comment.user?.nickname"
+            />
             <span class="text-xs text-zinc-600 dark:text-zinc-400 font-medium">{{ comment.user?.nickname || 'Unknown' }}</span>
             <span class="text-[10px] text-zinc-500 dark:text-zinc-600">{{ formatDate(comment.created_at) }}</span>
           </div>
@@ -212,6 +215,29 @@
       <div class="absolute -left-[5px] top-0 w-2.5 h-2.5 rounded-full bg-zinc-200 dark:bg-zinc-800 border-2 border-gray-50 dark:border-[#09090b]"></div>
     </div>
 
+    <!-- Infinite Scroll Sentinel -->
+    <div ref="sentinelElement" class="h-4"></div>
+
+    <!-- Loading More Indicator -->
+    <div v-if="isLoadingMore" class="flex justify-center py-8">
+      <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-600 text-sm">
+        <div class="w-4 h-4 border-2 border-lime-400 border-t-transparent rounded-full animate-spin"></div>
+        <span>댓글을 불러오는 중...</span>
+      </div>
+    </div>
+
+    <!-- End of Comments -->
+    <div v-else-if="!hasMore && comments.length > 0" class="text-center py-8 text-zinc-500 dark:text-zinc-600 text-sm">
+      모든 댓글을 불러왔습니다
+    </div>
+
+    <!-- Empty State -->
+    <div v-if="comments.length === 0 && !isLoadingMore" class="flex flex-col items-center justify-center py-20 px-4 text-center">
+      <div class="text-4xl mb-3">✍️</div>
+      <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">아직 댓글이 없어요</h3>
+      <p class="text-xs text-zinc-600 dark:text-zinc-500">첫 댓글을 남겨보세요!</p>
+    </div>
+
     <!-- Comment Detail Modal -->
     <CommentDetailModal
       :isOpen="detailModalOpen"
@@ -222,13 +248,42 @@
       @close="closeDetailModal"
       @writeComment="(data) => emit('writeComment', data)"
     />
+
+    <!-- Delete Comment Modal -->
+    <ConfirmModal
+      :isOpen="showDeleteCommentModal"
+      title="댓글 삭제"
+      message="이 댓글을 삭제하시겠습니까?"
+      description="삭제한 댓글은 복구할 수 없습니다."
+      confirmText="삭제"
+      cancelText="취소"
+      variant="danger"
+      @confirm="executeDeleteComment"
+      @cancel="cancelDeleteComment"
+    />
+
+    <!-- Delete Reply Modal -->
+    <ConfirmModal
+      :isOpen="showDeleteReplyModal"
+      title="답글 삭제"
+      message="이 답글을 삭제하시겠습니까?"
+      description="삭제한 답글은 복구할 수 없습니다."
+      confirmText="삭제"
+      cancelText="취소"
+      variant="danger"
+      @confirm="executeDeleteReply"
+      @cancel="cancelDeleteReply"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Lock, Heart, MessageCircle, Send, Edit2, Trash2 } from 'lucide-vue-next'
 import CommentDetailModal from './CommentDetailModal.vue'
+import ConfirmModal from './ConfirmModal.vue'
+import Avatar from './Avatar.vue'
+import { useToastStore } from '~/stores/toast'
 
 interface User {
   nickname: string
@@ -262,6 +317,9 @@ const props = defineProps<{
   comments: Comment[]
   viewProgress: number
   currentUserId: string | null
+  hasMore?: boolean
+  isLoadingMore?: boolean
+  highlightedCommentId?: string | null
 }>()
 
 const activeReplyId = ref<string | null>(null)
@@ -275,7 +333,14 @@ const editingReplyId = ref<string | null>(null)
 const editContent = ref('')
 const editReplyContent = ref('')
 
+// Delete modal state
+const showDeleteCommentModal = ref(false)
+const showDeleteReplyModal = ref(false)
+const deletingCommentId = ref<string | null>(null)
+const deletingReplyId = ref<string | null>(null)
+
 const client = useSupabaseClient()
+const toast = useToastStore()
 
 // Group comments by position and anchor_text
 const groupedComments = computed(() => {
@@ -381,7 +446,7 @@ const toggleReplyForm = (id: string) => {
   }
 }
 
-const emit = defineEmits(['replySubmitted', 'modalOpen', 'modalClose', 'writeComment'])
+const emit = defineEmits(['replySubmitted', 'modalOpen', 'modalClose', 'writeComment', 'loadMore'])
 
 const submitReply = async (parentId: string) => {
   if (!replyContent.value.trim()) return
@@ -426,7 +491,7 @@ const submitReply = async (parentId: string) => {
 
   } catch (error) {
     console.error('Reply error:', error)
-    alert('답글 작성에 실패했습니다.')
+    toast.error('답글 작성에 실패했습니다.')
   }
 }
 
@@ -486,7 +551,7 @@ const saveEdit = async (commentId: string) => {
     editContent.value = ''
   } catch (error) {
     console.error('Save edit error:', error)
-    alert('댓글 수정에 실패했습니다.')
+    toast.error('댓글 수정에 실패했습니다.')
   }
 }
 
@@ -531,7 +596,7 @@ const saveReplyEdit = async (replyId: string) => {
     editReplyContent.value = ''
   } catch (error) {
     console.error('Save reply edit error:', error)
-    alert('답글 수정에 실패했습니다.')
+    toast.error('답글 수정에 실패했습니다.')
   }
 }
 
@@ -541,14 +606,19 @@ const cancelReplyEdit = () => {
 }
 
 // Delete functions
-const confirmDelete = async (commentId: string) => {
-  if (!confirm('이 댓글을 삭제하시겠습니까?')) return
+const confirmDelete = (commentId: string) => {
+  deletingCommentId.value = commentId
+  showDeleteCommentModal.value = true
+}
+
+const executeDeleteComment = async () => {
+  if (!deletingCommentId.value) return
 
   try {
     const { error } = await client
       .from('comments')
       .delete()
-      .eq('id', commentId)
+      .eq('id', deletingCommentId.value)
 
     if (error) {
       console.error('Comment delete error:', error)
@@ -556,24 +626,39 @@ const confirmDelete = async (commentId: string) => {
     }
 
     // Remove from local state
-    const index = props.comments.findIndex(c => c.id === commentId)
+    const index = props.comments.findIndex(c => c.id === deletingCommentId.value)
     if (index !== -1) {
       props.comments.splice(index, 1)
     }
+
+    toast.success('댓글이 삭제되었습니다.')
   } catch (error) {
     console.error('Delete error:', error)
-    alert('댓글 삭제에 실패했습니다.')
+    toast.error('댓글 삭제에 실패했습니다.')
+  } finally {
+    showDeleteCommentModal.value = false
+    deletingCommentId.value = null
   }
 }
 
-const confirmDeleteReply = async (replyId: string) => {
-  if (!confirm('이 답글을 삭제하시겠습니까?')) return
+const cancelDeleteComment = () => {
+  showDeleteCommentModal.value = false
+  deletingCommentId.value = null
+}
+
+const confirmDeleteReply = (replyId: string) => {
+  deletingReplyId.value = replyId
+  showDeleteReplyModal.value = true
+}
+
+const executeDeleteReply = async () => {
+  if (!deletingReplyId.value) return
 
   try {
     const { error } = await client
       .from('comments')
       .delete()
-      .eq('id', replyId)
+      .eq('id', deletingReplyId.value)
 
     if (error) {
       console.error('Reply delete error:', error)
@@ -583,16 +668,57 @@ const confirmDeleteReply = async (replyId: string) => {
     // Remove from local state
     for (const comment of props.comments) {
       if (comment.replies) {
-        const index = comment.replies.findIndex(r => r.id === replyId)
+        const index = comment.replies.findIndex(r => r.id === deletingReplyId.value)
         if (index !== -1) {
           comment.replies.splice(index, 1)
           break
         }
       }
     }
+
+    toast.success('답글이 삭제되었습니다.')
   } catch (error) {
     console.error('Delete reply error:', error)
-    alert('답글 삭제에 실패했습니다.')
+    toast.error('답글 삭제에 실패했습니다.')
+  } finally {
+    showDeleteReplyModal.value = false
+    deletingReplyId.value = null
   }
 }
+
+const cancelDeleteReply = () => {
+  showDeleteReplyModal.value = false
+  deletingReplyId.value = null
+}
+
+// Infinite scroll logic
+const sentinelElement = ref<HTMLElement | null>(null)
+const observer = ref<IntersectionObserver | null>(null)
+
+onMounted(() => {
+  if (!sentinelElement.value) return
+
+  observer.value = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[0]
+      if (entry.isIntersecting && props.hasMore && !props.isLoadingMore) {
+        emit('loadMore')
+      }
+    },
+    {
+      root: null,
+      rootMargin: '200px', // Start loading 200px before reaching the bottom
+      threshold: 0
+    }
+  )
+
+  observer.value.observe(sentinelElement.value)
+})
+
+onUnmounted(() => {
+  if (observer.value) {
+    observer.value.disconnect()
+    observer.value = null
+  }
+})
 </script>

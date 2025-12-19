@@ -91,6 +91,7 @@
           :is-admin="isAdmin"
           @copy-invite-code="emit('copyInviteCode')"
           @copy-invite-link="emit('copyInviteLink')"
+          @regenerate-invite-code="emit('regenerateInviteCode')"
           @save-group-name="(name) => emit('saveGroupName', name)"
           @open-search-modal="emit('openSearchModal')"
           @leave-group="emit('leaveGroup')"
@@ -102,7 +103,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import { X } from 'lucide-vue-next'
 import GroupDrawerInfoTab from './GroupDrawerInfoTab.vue'
 import GroupDrawerMembersTab from './GroupDrawerMembersTab.vue'
@@ -135,6 +136,7 @@ interface Emits {
   (e: 'openReviews', bookId: string): void
   (e: 'copyInviteCode'): void
   (e: 'copyInviteLink'): void
+  (e: 'regenerateInviteCode'): void
   (e: 'saveGroupName', name: string): void
   (e: 'openSearchModal'): void
   (e: 'leaveGroup'): void
@@ -155,6 +157,11 @@ watch(() => props.isOpen, (isOpen) => {
   } else {
     document.body.style.overflow = ''
   }
+})
+
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  document.body.style.overflow = ''
 })
 </script>
 

@@ -68,6 +68,19 @@
 
     <!-- Backdrop for closing -->
     <div v-if="isOpen" class="fixed inset-0 z-40" @click="isOpen = false"></div>
+
+    <!-- Delete All Modal -->
+    <ConfirmModal
+      :isOpen="showDeleteAllModal"
+      title="모든 알림 삭제"
+      message="모든 알림을 삭제하시겠습니까?"
+      description="삭제한 알림은 복구할 수 없습니다."
+      confirmText="삭제"
+      cancelText="취소"
+      variant="danger"
+      @confirm="executeDeleteAll"
+      @cancel="cancelDeleteAll"
+    />
   </div>
 </template>
 
@@ -75,14 +88,18 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Bell, MessageCircle, Heart, Info, X, Trash2 } from 'lucide-vue-next'
+import ConfirmModal from './ConfirmModal.vue'
+import { useToastStore } from '~/stores/toast'
 
 const router = useRouter()
 const client = useSupabaseClient()
 const user = useSupabaseUser()
+const toast = useToastStore()
 
 const isOpen = ref(false)
 const loading = ref(false)
 const notifications = ref<any[]>([])
+const showDeleteAllModal = ref(false)
 
 const unreadCount = computed(() =>
   notifications.value.filter(n => !n.is_read).length
@@ -170,20 +187,34 @@ const deleteNotification = async (notiId: string) => {
   }
 }
 
-const deleteAll = async () => {
-  if (!confirm('모든 알림을 삭제하시겠습니까?')) return
+const deleteAll = () => {
+  showDeleteAllModal.value = true
+}
 
+const executeDeleteAll = async () => {
   const { data: { user: currentUser } } = await client.auth.getUser()
   if (!currentUser) return
 
-  const { error } = await client
-    .from('notifications')
-    .delete()
-    .eq('user_id', currentUser.id)
+  try {
+    const { error } = await client
+      .from('notifications')
+      .delete()
+      .eq('user_id', currentUser.id)
 
-  if (!error) {
+    if (error) throw error
+
     notifications.value = []
+    toast.success('모든 알림이 삭제되었습니다.')
+  } catch (error) {
+    console.error('Delete all error:', error)
+    toast.error('알림 삭제에 실패했습니다.')
+  } finally {
+    showDeleteAllModal.value = false
   }
+}
+
+const cancelDeleteAll = () => {
+  showDeleteAllModal.value = false
 }
 
 const formatTimeAgo = (dateStr: string) => {

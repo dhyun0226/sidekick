@@ -48,15 +48,14 @@
       <!-- Actions -->
       <div class="flex gap-3">
         <button
-          @click="$emit('close')"
+          @click="skip"
           class="flex-1 py-3 text-zinc-600 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-white transition-colors"
         >
-          나중에
+          {{ isEditing ? '취소' : '건너뛰기' }}
         </button>
         <button
           @click="submitReview"
-          class="flex-1 py-3 bg-lime-400 text-black rounded-xl font-bold hover:bg-lime-300 transition-colors disabled:opacity-50"
-          :disabled="rating < 0.5"
+          class="flex-1 py-3 bg-lime-400 text-black rounded-xl font-bold hover:bg-lime-300 transition-colors"
         >
           {{ isEditing ? '수정하기' : '기록하기' }}
         </button>
@@ -94,6 +93,12 @@ const submitReview = () => {
   emit('submit', { rating: rating.value, content: content.value })
   rating.value = 0
   content.value = ''
+}
+
+const skip = () => {
+  rating.value = 0
+  content.value = ''
+  emit('close')
 }
 
 // Handle half-star clicks

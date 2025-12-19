@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-[#09090b] relative overflow-hidden">
+  <div class="min-h-screen flex flex-col items-center justify-center p-6 pt-safe pb-safe bg-gray-50 dark:bg-[#09090b] relative overflow-hidden">
     <!-- Background Effects -->
     <div class="absolute top-[-20%] left-[-20%] w-[500px] h-[500px] bg-lime-400/10 rounded-full blur-[100px] pointer-events-none"></div>
 
@@ -66,6 +66,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Users } from 'lucide-vue-next'
+import { useToastStore } from '~/stores/toast'
 
 // 인증 미들웨어 적용
 definePageMeta({
@@ -76,6 +77,7 @@ const route = useRoute()
 const router = useRouter()
 const client = useSupabaseClient()
 const user = useSupabaseUser()
+const toast = useToastStore()
 
 const code = route.params.code as string
 
@@ -178,7 +180,7 @@ const joinGroup = async () => {
 
   } catch (err: any) {
     console.error('[Join] Error:', err)
-    alert(err.message || '그룹 참여 중 오류가 발생했습니다.')
+    toast.error(err.message || '그룹 참여 중 오류가 발생했습니다.')
   } finally {
     joining.value = false
   }

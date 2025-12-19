@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center pointer-events-none">
+  <div v-if="isOpen" class="fixed inset-0 z-[50] flex items-end sm:items-center justify-center pointer-events-none">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" @click="close"></div>
 
@@ -28,14 +28,22 @@
         </div>
 
         <div class="space-y-2 mt-4">
-          <div v-if="loading && searchResults.length === 0" class="text-center py-8 text-zinc-600 dark:text-zinc-500">검색중...</div>
+          <div v-if="loading && searchResults.length === 0" class="space-y-3">
+            <SkeletonLoader type="list-item" />
+            <SkeletonLoader type="list-item" />
+            <SkeletonLoader type="list-item" />
+          </div>
           <div
             v-for="book in searchResults"
             :key="book.isbn"
             @click="selectBook(book)"
             class="flex gap-4 p-3 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
           >
-            <img :src="book.cover" class="w-16 h-24 object-cover rounded shadow-md bg-zinc-200 dark:bg-zinc-700" />
+            <img
+              :src="book.cover"
+              class="w-16 h-24 object-cover rounded shadow-md bg-zinc-200 dark:bg-zinc-700"
+              @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+            />
             <div class="flex-1 min-w-0">
               <h3 class="font-bold text-zinc-800 dark:text-zinc-200 truncate">{{ book.title }}</h3>
               <p class="text-sm text-zinc-600 dark:text-zinc-400 truncate">{{ book.author }}</p>
@@ -59,7 +67,11 @@
       <!-- Step 2: Configure TOC -->
       <div v-if="step === 2 && selectedBook" class="space-y-6">
         <div class="flex gap-4 items-center p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
-          <img :src="selectedBook.cover" class="w-12 h-16 object-cover rounded" />
+          <img
+            :src="selectedBook.cover"
+            class="w-12 h-16 object-cover rounded bg-zinc-200 dark:bg-zinc-700"
+            @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+          />
           <div>
             <h3 class="font-bold text-zinc-800 dark:text-zinc-200 text-sm">{{ selectedBook.title }}</h3>
             <p class="text-xs text-zinc-600 dark:text-zinc-400">{{ selectedBook.author }}</p>
@@ -107,7 +119,11 @@
       <!-- Step 3: Date Selection -->
       <div v-if="step === 3 && selectedBook" class="space-y-6">
         <div class="flex gap-4 items-center p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
-          <img :src="selectedBook.cover" class="w-12 h-16 object-cover rounded" />
+          <img
+            :src="selectedBook.cover"
+            class="w-12 h-16 object-cover rounded bg-zinc-200 dark:bg-zinc-700"
+            @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+          />
           <div>
             <h3 class="font-bold text-zinc-800 dark:text-zinc-200 text-sm">{{ selectedBook.title }}</h3>
             <p class="text-xs text-zinc-600 dark:text-zinc-400">{{ selectedBook.author }}</p>
@@ -171,12 +187,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { X, Search } from 'lucide-vue-next'
+import { useToastStore } from '~/stores/toast'
+import SkeletonLoader from '~/components/SkeletonLoader.vue'
 
 const props = defineProps<{
   isOpen: boolean
 }>()
 
 const emit = defineEmits(['close', 'confirm'])
+const toast = useToastStore()
 
 const step = ref(1)
 const query = ref('')
@@ -242,7 +261,7 @@ const searchBooks = async () => {
     hasMore.value = results.hasMore
   } catch (error: any) {
     console.error('Search error:', error)
-    alert(error.message || '책 검색 중 오류가 발생했습니다.')
+    toast.error(error.message || '책 검색 중 오류가 발생했습니다.')
     searchResults.value = []
     hasMore.value = false
   } finally {
@@ -262,7 +281,7 @@ const loadMore = async () => {
     hasMore.value = results.hasMore
   } catch (error: any) {
     console.error('Load more error:', error)
-    alert(error.message || '더보기 중 오류가 발생했습니다.')
+    toast.error(error.message || '더보기 중 오류가 발생했습니다.')
   } finally {
     loading.value = false
   }
