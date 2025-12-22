@@ -22,24 +22,31 @@
             : 'border border-zinc-200 dark:border-zinc-800 hover:border-lime-300 dark:hover:border-lime-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/30'"
           @click="emit('selectBook', book.id)"
         >
-          <!-- Admin Menu (관리자면 항상 표시) -->
-          <div v-if="isAdmin" class="absolute top-3 right-3 z-20">
+          <!-- Settings Menu (모든 사용자에게 표시) -->
+          <div class="absolute top-3 right-3 z-20">
             <button @click.stop="toggleBookMenu(book.id)" class="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors">
               <MoreVertical :size="14" class="text-zinc-400" />
             </button>
             <div v-if="activeBookMenu === book.id" class="absolute right-0 top-6 min-w-[160px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[201] overflow-visible" @click.stop>
-              <button @click.stop="handleEditDates(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
-                <Edit2 :size="12" /> 기간 수정
+              <!-- Review (All Users) -->
+              <button @click.stop="handleReview(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                <Edit3 :size="12" /> {{ props.userReviewedBooks.has(book.id) ? '리뷰 수정' : '리뷰 작성' }}
               </button>
-              <button @click.stop="handleEditToc(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
-                <Settings :size="12" /> 목차 수정
-              </button>
-              <button @click.stop="handleMarkCompleted(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
-                <UserCheck :size="12" /> 완독 처리
-              </button>
-              <button @click.stop="handleDeleteBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap">
-                <UserX :size="12" /> 책 삭제
-              </button>
+              <!-- Admin Only -->
+              <template v-if="isAdmin">
+                <button @click.stop="handleEditDates(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                  <Edit2 :size="12" /> 기간 수정
+                </button>
+                <button @click.stop="handleEditToc(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                  <Settings :size="12" /> 목차 수정
+                </button>
+                <button @click.stop="handleMarkCompleted(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                  <UserCheck :size="12" /> 완독 처리
+                </button>
+                <button @click.stop="handleDeleteBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap">
+                  <UserX :size="12" /> 책 삭제
+                </button>
+              </template>
             </div>
             <div v-if="activeBookMenu === book.id" class="fixed inset-0 z-[200]" @click.stop="activeBookMenu = null"></div>
           </div>
@@ -99,7 +106,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { MoreVertical, Edit2, Settings, UserCheck, UserX } from 'lucide-vue-next'
+import { MoreVertical, Edit2, Settings, UserCheck, UserX, Edit3 } from 'lucide-vue-next'
 
 interface Book {
   id: string
@@ -126,6 +133,7 @@ interface Props {
   readingBooks: Book[]
   viewProgress: number
   isAdmin: boolean
+  userReviewedBooks: Set<string>
 }
 
 interface Emits {
@@ -135,6 +143,7 @@ interface Emits {
   (e: 'editToc', bookId: string): void
   (e: 'markCompleted', bookId: string): void
   (e: 'deleteBook', bookId: string): void
+  (e: 'openReview', bookId: string): void
 }
 
 const props = defineProps<Props>()
@@ -220,5 +229,10 @@ const handleMarkCompleted = (bookId: string) => {
 const handleDeleteBook = (bookId: string) => {
   activeBookMenu.value = null
   emit('deleteBook', bookId)
+}
+
+const handleReview = (bookId: string) => {
+  activeBookMenu.value = null
+  emit('openReview', bookId)
 }
 </script>

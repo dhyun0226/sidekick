@@ -105,6 +105,7 @@
       :invite-code="group?.invite_code || ''"
       :toc="toc"
       :view-progress="viewProgress"
+      :user-reviewed-books="userReviewedBooks"
       @close="modals.drawer = false"
       @select-book="selectBook"
       @jump-to-chapter="jumpToChapter"
@@ -125,6 +126,7 @@
       @restart-reading="handleRestartReading"
       @edit-finished-date="handleEditFinishedDate"
       @delete-history-book="handleDeleteHistoryBook"
+      @open-review="handleOpenReview"
     />
 
     <!-- Book Search Modal -->
@@ -140,7 +142,7 @@
       :initialRating="reviewInitialData.rating"
       :initialContent="reviewInitialData.content"
       :isEditing="isEditingReview"
-      @close="modals.review = false"
+      @close="closeReviewModal"
       @submit="handleReviewSubmit"
     />
 
@@ -396,6 +398,7 @@ const {
 // ===== Additional State =====
 const reviewInitialData = ref({ rating: 0, content: '' })
 const isEditingReview = ref(false)
+const reviewingBookId = ref<string | null>(null) // Track which book is being reviewed
 const reviews = ref<any[]>([])
 const reviewsBookTitle = ref('')
 const newAnchorText = ref('')
@@ -407,6 +410,7 @@ const currentBookRound = ref<number | null>(null)
 const members = ref<any[]>([])
 const editingGroupName = ref('')
 const isScrolled = ref(false)
+const userReviewedBooks = ref<Set<string>>(new Set()) // Track which books current user has reviewed
 
 // Computed
 const groupName = computed(() => group.value?.name || 'Loading...')
@@ -533,6 +537,30 @@ const sliderMembers = computed(() => {
   return othersWithProgress.slice(0, 3)
 })
 
+// Fetch user reviews to track which books have been reviewed
+const fetchUserReviews = async () => {
+  if (!currentUserId.value) return
+
+  try {
+    // Get all group_book IDs for this group
+    const bookIds = allBooks.value.map(b => b.id)
+    if (bookIds.length === 0) return
+
+    // Fetch reviews for current user in this group
+    const { data: userReviews } = await client
+      .from('reviews')
+      .select('group_book_id')
+      .eq('user_id', currentUserId.value)
+      .in('group_book_id', bookIds)
+
+    if (userReviews) {
+      userReviewedBooks.value = new Set(userReviews.map(r => r.group_book_id))
+    }
+  } catch (error) {
+    console.error('[FetchUserReviews] Error:', error)
+  }
+}
+
 // Fetch Data
 // ===== Data Fetching =====
 const fetchData = async () => {
@@ -581,6 +609,9 @@ const fetchData = async () => {
 
     // Fetch books using Composable
     await fetchBooks()
+
+    // Fetch user's reviews to track which books have been reviewed
+    await fetchUserReviews()
 
     // Fetch comments for selected book
     if (selectedBookId.value) {
@@ -688,6 +719,9 @@ const handleSliderChange = async (val: number) => {
     if (reviewModalTimeout) clearTimeout(reviewModalTimeout)
     reviewModalTimeout = setTimeout(async () => {
       if (!selectedBook.value || !currentUserId.value) return
+
+      // Set the book being reviewed
+      reviewingBookId.value = selectedBook.value.id
 
       // Check for existing review for this group_book
       const { data: existingReview } = await client
@@ -830,20 +864,26 @@ const handleCommentSubmit = async (payload: { content: string, anchorText: strin
   }
 }
 
+const closeReviewModal = () => {
+  modals.review = false
+  reviewingBookId.value = null // Clear the reviewing book
+}
+
 const handleReviewSubmit = async (data: any) => {
-  if (!selectedBook.value || !userStore.user) return
+  if (!reviewingBookId.value || !userStore.user) return
 
   try {
     if (!currentUserId.value) return
 
-    console.log('[Review] Saving review for book:', selectedBook.value.id, selectedBook.value.book?.title)
+    const book = allBooks.value.find(b => b.id === reviewingBookId.value)
+    console.log('[Review] Saving review for book:', reviewingBookId.value, book?.book?.title)
 
     // Upsert review (insert or update)
     const { error } = await client
       .from('reviews')
       .upsert({
         user_id: currentUserId.value,
-        group_book_id: selectedBook.value.id,
+        group_book_id: reviewingBookId.value,
         rating: data.rating,
         content: data.content
       }, {
@@ -857,8 +897,10 @@ const handleReviewSubmit = async (data: any) => {
 
     // 리뷰 개수 업데이트를 위해 책 목록 새로고침
     await fetchBooks()
+    // Update user's review tracking
+    await fetchUserReviews()
 
-    modals.review = false
+    closeReviewModal()
     toast.success('리뷰가 저장되었습니다! 🎉')
 
   } catch (error: any) {
@@ -979,6 +1021,31 @@ const handleDeleteHistoryBook = async (bookId: string) => {
     console.error('[DeleteHistoryBook] Error:', error)
     toast.error('책 삭제 중 오류가 발생했습니다.')
   }
+}
+
+const handleOpenReview = async (bookId: string) => {
+  const book = allBooks.value.find(b => b.id === bookId)
+  if (!book) return
+
+  if (!userStore.user || !currentUserId.value) return
+
+  // Set the book being reviewed
+  reviewingBookId.value = bookId
+
+  // Fetch existing review for this group_book
+  const { data: existingReview } = await client
+    .from('reviews')
+    .select('*')
+    .eq('user_id', currentUserId.value)
+    .eq('group_book_id', book.id)
+    .maybeSingle()
+
+  reviewInitialData.value = existingReview
+    ? { rating: existingReview.rating, content: existingReview.content || '' }
+    : { rating: 0, content: '' }
+
+  modals.review = true
+  modals.drawer = false
 }
 
 // Reviews modal
@@ -1481,6 +1548,9 @@ const openReviewModalForEdit = async (book: any) => {
   if (!userStore.user) return
 
   if (!currentUserId.value) return
+
+  // Set the book being reviewed
+  reviewingBookId.value = book.id
 
   // Fetch existing review for this group_book
   const { data: existingReview } = await client

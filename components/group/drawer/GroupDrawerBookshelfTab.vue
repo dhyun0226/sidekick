@@ -2,7 +2,7 @@
   <div class="space-y-4">
     <!-- Header -->
     <div class="flex items-center justify-between px-1">
-      <h3 class="text-xs font-bold text-zinc-500 uppercase">📚 우리들의 책장</h3>
+      <h3 class="text-xs font-bold text-zinc-500 uppercase">📚 책장</h3>
       <span class="text-[10px] text-zinc-400">총 {{ historyBooks.length }}권 완독</span>
     </div>
 
@@ -11,25 +11,33 @@
       <div
         v-for="book in historyBooks"
         :key="book.id"
-        class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden transition-all hover:border-lime-300 dark:hover:border-lime-600"
+        class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 transition-all hover:border-lime-300 dark:hover:border-lime-600 relative"
+        :class="activeBookMenu === book.id ? 'z-[250] overflow-visible' : 'overflow-hidden'"
       >
         <!-- Book Info -->
         <div class="p-3 flex gap-3 relative">
-          <!-- Admin Menu -->
-          <div v-if="isAdmin" class="absolute top-3 right-3 z-20">
+          <!-- Settings Menu -->
+          <div class="absolute top-3 right-3 z-20">
             <button @click.stop="toggleBookMenu(book.id)" class="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors">
               <MoreVertical :size="14" class="text-zinc-400" />
             </button>
             <div v-if="activeBookMenu === book.id" class="absolute right-0 top-6 min-w-[160px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[201] overflow-visible" @click.stop>
-              <button @click.stop="handleRestartReading(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
-                <RotateCcw :size="12" /> 다시 읽기
+              <!-- Review (All Users) -->
+              <button @click.stop="handleReview(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                <Edit3 :size="12" /> {{ props.userReviewedBooks.has(book.id) ? '리뷰 수정' : '리뷰 작성' }}
               </button>
-              <button @click.stop="handleEditFinishedDate(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
-                <Calendar :size="12" /> 완독 날짜 수정
-              </button>
-              <button @click.stop="handleDeleteHistoryBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap">
-                <Trash2 :size="12" /> 책 삭제
-              </button>
+              <!-- Admin Only -->
+              <template v-if="isAdmin">
+                <button @click.stop="handleRestartReading(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                  <RotateCcw :size="12" /> 다시 읽기
+                </button>
+                <button @click.stop="handleEditFinishedDate(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                  <Calendar :size="12" /> 완독 날짜 수정
+                </button>
+                <button @click.stop="handleDeleteHistoryBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap">
+                  <Trash2 :size="12" /> 책 삭제
+                </button>
+              </template>
             </div>
             <div v-if="activeBookMenu === book.id" class="fixed inset-0 z-[200]" @click.stop="activeBookMenu = null"></div>
           </div>
@@ -87,7 +95,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { MessageCircle, Star, MoreVertical, RotateCcw, Calendar, Trash2 } from 'lucide-vue-next'
+import { MessageCircle, Star, MoreVertical, RotateCcw, Calendar, Trash2, Edit3 } from 'lucide-vue-next'
 
 interface HistoryBook {
   id: string
@@ -105,6 +113,7 @@ interface HistoryBook {
 interface Props {
   historyBooks: HistoryBook[]
   isAdmin: boolean
+  userReviewedBooks: Set<string>
 }
 
 interface Emits {
@@ -113,9 +122,10 @@ interface Emits {
   (e: 'restartReading', bookId: string): void
   (e: 'editFinishedDate', bookId: string): void
   (e: 'deleteHistoryBook', bookId: string): void
+  (e: 'openReview', bookId: string): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const activeBookMenu = ref<string | null>(null)
@@ -137,5 +147,10 @@ const handleEditFinishedDate = (bookId: string) => {
 const handleDeleteHistoryBook = (bookId: string) => {
   activeBookMenu.value = null
   emit('deleteHistoryBook', bookId)
+}
+
+const handleReview = (bookId: string) => {
+  activeBookMenu.value = null
+  emit('openReview', bookId)
 }
 </script>

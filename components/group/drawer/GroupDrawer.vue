@@ -60,12 +60,14 @@
           :reading-books="readingBooks"
           :view-progress="viewProgress"
           :is-admin="isAdmin"
+          :user-reviewed-books="userReviewedBooks"
           @select-book="(id) => emit('selectBook', id)"
           @jump-to-chapter="(start) => emit('jumpToChapter', start)"
           @edit-dates="(bookId) => emit('editDates', bookId)"
           @edit-toc="(bookId) => emit('editToc', bookId)"
           @mark-completed="(bookId) => emit('markCompleted', bookId)"
           @delete-book="(bookId) => emit('deleteBook', bookId)"
+          @open-review="(bookId) => emit('openReview', bookId)"
         />
 
         <GroupDrawerMembersTab
@@ -81,11 +83,13 @@
           v-if="activeTab === 'bookshelf'"
           :history-books="historyBooks"
           :is-admin="isAdmin"
+          :user-reviewed-books="userReviewedBooks"
           @select-book="(id) => emit('selectBook', id)"
           @open-reviews="(bookId) => emit('openReviews', bookId)"
           @restart-reading="(bookId) => emit('restartReading', bookId)"
           @edit-finished-date="(bookId) => emit('editFinishedDate', bookId)"
           @delete-history-book="(bookId) => emit('deleteHistoryBook', bookId)"
+          @open-review="(bookId) => emit('openReview', bookId)"
         />
 
         <GroupDrawerSettingsTab
@@ -127,6 +131,7 @@ interface Props {
   inviteCode: string
   toc: any[]
   viewProgress: number
+  userReviewedBooks: Set<string>
 }
 
 interface Emits {
@@ -141,6 +146,7 @@ interface Emits {
   (e: 'restartReading', bookId: string): void
   (e: 'editFinishedDate', bookId: string): void
   (e: 'deleteHistoryBook', bookId: string): void
+  (e: 'openReview', bookId: string): void
   (e: 'copyInviteCode'): void
   (e: 'copyInviteLink'): void
   (e: 'regenerateInviteCode'): void
