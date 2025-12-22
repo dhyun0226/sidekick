@@ -95,13 +95,15 @@ onMounted(async () => {
   }
 
   try {
-    console.log('[Join] Fetching group with code:', code)
+    // DB stores codes in UPPERCASE, so normalize the input
+    const normalizedCode = code.toUpperCase()
+    console.log('[Join] Fetching group with code:', normalizedCode)
 
     // 1. 초대 코드로 그룹 찾기
     const { data: groupData, error: groupError } = await client
       .from('groups')
       .select('*')
-      .eq('invite_code', code)
+      .eq('invite_code', normalizedCode)
       .single()
 
     if (groupError || !groupData) {

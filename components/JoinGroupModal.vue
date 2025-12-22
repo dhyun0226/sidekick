@@ -106,15 +106,10 @@ const handleJoin = async () => {
   error.value = ''
 
   try {
-    const code = inviteCode.value.trim().toLowerCase() // DB stores codes in lowercase usually? Let's check schema. Schema says default substr(md5...) so likely lowercase hex.
-    // Actually, schema uses `substr(md5(random()::text), 0, 7)`. md5 is hex (0-9, a-f). 
-    
-    // 1. Find group by code
-    // We need to match case-insensitively or ensure we use the right case. 
-    // Let's assume the code in DB is lowercase/mixed but user might type whatever.
-    // Ideally we should use .ilike() but `invite_code` is unique constraint, usually exact match.
-    // Let's try exact match with lowercase first (since md5 is hex).
-    
+    // DB now stores codes in UPPERCASE (A-Z, 0-9, 8 characters)
+    const code = inviteCode.value.trim().toUpperCase()
+
+    // Find group by code (exact match)
     const { data: groupData, error: findError } = await client
       .from('groups')
       .select('id, name')
@@ -122,26 +117,14 @@ const handleJoin = async () => {
       .maybeSingle()
 
     if (findError) throw findError
-    
+
     if (!groupData) {
-      // Try again without lowercase conversion just in case
-       const { data: groupData2, error: findError2 } = await client
-        .from('groups')
-        .select('id, name')
-        .eq('invite_code', inviteCode.value.trim()) // Try exact input
-        .maybeSingle()
-        
-       if (!groupData2) {
-         error.value = '유효하지 않은 초대 코드입니다.'
-         loading.value = false
-         return
-       }
-       // Found with exact input
-       await joinGroup(groupData2.id, groupData2.name)
-       return
+      error.value = '유효하지 않은 초대 코드입니다.'
+      loading.value = false
+      return
     }
 
-    // Found with lowercase
+    // Found - join the group
     await joinGroup(groupData.id, groupData.name)
 
   } catch (err: any) {

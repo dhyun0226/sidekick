@@ -1268,11 +1268,33 @@ const regenerateInviteCode = () => {
 
 const executeRegenerateInviteCode = async () => {
   try {
-    // Generate new 6-character invite code (uppercase letters and numbers)
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     let newCode = ''
-    for (let i = 0; i < 6; i++) {
-      newCode += chars.charAt(Math.floor(Math.random() * chars.length))
+    let attempts = 0
+    const maxAttempts = 5
+
+    // Generate unique code with retry logic
+    while (attempts < maxAttempts) {
+      // Generate new 8-character invite code (uppercase letters and numbers)
+      newCode = ''
+      for (let i = 0; i < 8; i++) {
+        newCode += chars.charAt(Math.floor(Math.random() * chars.length))
+      }
+
+      // Check if code already exists
+      const { data: existing } = await client
+        .from('groups')
+        .select('id')
+        .eq('invite_code', newCode)
+        .maybeSingle()
+
+      if (!existing) break // Code is unique
+      attempts++
+    }
+
+    if (attempts === maxAttempts) {
+      toast.error('초대 코드 생성에 실패했습니다. 다시 시도해주세요.')
+      return
     }
 
     // Update in database

@@ -27,7 +27,7 @@
         class="w-full py-2.5 mt-2 border border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400 rounded-lg text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors flex items-center justify-center gap-2"
       >
         <RefreshCw :size="14" />
-        초대 코드 재생성 (관리자)
+        초대 코드 재생성
       </button>
       </div>
     </div>
@@ -39,56 +39,48 @@
       </div>
       <div class="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800">
 
-      <div class="space-y-3">
-        <div>
-          <label class="block text-[10px] text-zinc-400 mb-1">그룹 이름 수정</label>
-          <div class="flex gap-2">
-            <input
-              v-model="localGroupName"
-              type="text"
-              class="flex-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-lime-400 transition-colors"
-            />
-            <button @click="handleSaveGroupName" class="px-3 py-2 bg-zinc-900 dark:bg-zinc-700 text-white rounded-lg text-xs font-bold hover:bg-zinc-700 transition-colors">
-              저장
-            </button>
-          </div>
-        </div>
-
-        <button
-          @click="emit('openSearchModal')"
-          class="w-full py-3 bg-lime-50 dark:bg-lime-900/20 text-lime-700 dark:text-lime-400 rounded-lg text-sm font-bold hover:bg-lime-100 dark:hover:bg-lime-900/30 transition-colors flex items-center justify-center gap-2 border border-lime-200 dark:border-lime-800/50"
-        >
-          <Plus :size="16" />
-          새 책 시작하기
+      <div class="flex items-center gap-2 mb-3">
+        <input
+          v-model="localGroupName"
+          type="text"
+          placeholder="그룹 이름"
+          class="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg py-2 px-3 text-sm text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-400/20 transition-all"
+        />
+        <button @click="handleSaveGroupName" class="p-2.5 bg-zinc-900 dark:bg-zinc-700 text-white rounded-lg hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-colors">
+          <Save :size="18" />
         </button>
       </div>
+      <button
+        @click="emit('openSearchModal')"
+        class="w-full py-2.5 border border-lime-300 dark:border-lime-700 text-lime-600 dark:text-lime-400 rounded-lg text-xs font-bold hover:bg-lime-50 dark:hover:bg-lime-900/20 transition-colors flex items-center justify-center gap-2"
+      >
+        <Plus :size="14" />
+        새 책 시작하기
+      </button>
+      <button
+        @click="emit('deleteGroup')"
+        class="w-full py-2.5 mt-2 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg text-xs font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center justify-center gap-2"
+      >
+        <Trash2 :size="14" />
+        그룹 영구 삭제
+      </button>
       </div>
     </div>
 
-    <!-- Danger Zone -->
-    <div class="space-y-2 pt-4">
-      <button
-        @click="emit('leaveGroup')"
-        class="w-full py-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2"
-      >
-        <LogOut :size="16" />
-        그룹 나가기
-      </button>
-
-      <button
-        v-if="isAdmin"
-        @click="emit('deleteGroup')"
-        class="w-full py-3 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2"
-      >
-        그룹 영구 삭제
-      </button>
-    </div>
+    <!-- Leave Group -->
+    <button
+      @click="emit('leaveGroup')"
+      class="w-full py-2.5 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg text-xs font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center justify-center gap-2"
+    >
+      <LogOut :size="14" />
+      그룹 나가기
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { Copy, Share2, Plus, LogOut, RefreshCw } from 'lucide-vue-next'
+import { Copy, Share2, Plus, LogOut, RefreshCw, Save, Trash2 } from 'lucide-vue-next'
 
 interface Props {
   inviteCode: string
