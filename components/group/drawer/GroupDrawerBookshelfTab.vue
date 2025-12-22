@@ -14,7 +14,26 @@
         class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden transition-all hover:border-lime-300 dark:hover:border-lime-600"
       >
         <!-- Book Info -->
-        <div class="p-3 flex gap-3">
+        <div class="p-3 flex gap-3 relative">
+          <!-- Admin Menu -->
+          <div v-if="isAdmin" class="absolute top-3 right-3 z-20">
+            <button @click.stop="toggleBookMenu(book.id)" class="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors">
+              <MoreVertical :size="14" class="text-zinc-400" />
+            </button>
+            <div v-if="activeBookMenu === book.id" class="absolute right-0 top-6 min-w-[160px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[201] overflow-visible" @click.stop>
+              <button @click.stop="handleRestartReading(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                <RotateCcw :size="12" /> 다시 읽기
+              </button>
+              <button @click.stop="handleEditFinishedDate(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                <Calendar :size="12" /> 완독 날짜 수정
+              </button>
+              <button @click.stop="handleDeleteHistoryBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap">
+                <Trash2 :size="12" /> 책 삭제
+              </button>
+            </div>
+            <div v-if="activeBookMenu === book.id" class="fixed inset-0 z-[200]" @click.stop="activeBookMenu = null"></div>
+          </div>
+
           <img
             :src="book.cover_url"
             :alt="book.title"
@@ -22,7 +41,7 @@
             @error="(e) => (e.target as HTMLImageElement).src = '/placeholder-book.png'"
           />
           <div class="flex-1 min-w-0">
-            <h4 class="font-bold text-sm text-zinc-800 dark:text-zinc-200 line-clamp-2 mb-1">{{ book.title }}</h4>
+            <h4 class="font-bold text-sm text-zinc-800 dark:text-zinc-200 line-clamp-2 mb-1 pr-6">{{ book.title }}</h4>
             <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-1">{{ book.author }}</p>
             <div class="flex items-center gap-1.5 text-[10px] text-zinc-400 mb-2">
               <span v-if="book.publisher">{{ book.publisher }}</span>
@@ -67,7 +86,8 @@
 </template>
 
 <script setup lang="ts">
-import { MessageCircle, Star } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { MessageCircle, Star, MoreVertical, RotateCcw, Calendar, Trash2 } from 'lucide-vue-next'
 
 interface HistoryBook {
   id: string
@@ -84,13 +104,38 @@ interface HistoryBook {
 
 interface Props {
   historyBooks: HistoryBook[]
+  isAdmin: boolean
 }
 
 interface Emits {
   (e: 'selectBook', bookId: string): void
   (e: 'openReviews', bookId: string): void
+  (e: 'restartReading', bookId: string): void
+  (e: 'editFinishedDate', bookId: string): void
+  (e: 'deleteHistoryBook', bookId: string): void
 }
 
 defineProps<Props>()
 const emit = defineEmits<Emits>()
+
+const activeBookMenu = ref<string | null>(null)
+
+const toggleBookMenu = (bookId: string) => {
+  activeBookMenu.value = activeBookMenu.value === bookId ? null : bookId
+}
+
+const handleRestartReading = (bookId: string) => {
+  activeBookMenu.value = null
+  emit('restartReading', bookId)
+}
+
+const handleEditFinishedDate = (bookId: string) => {
+  activeBookMenu.value = null
+  emit('editFinishedDate', bookId)
+}
+
+const handleDeleteHistoryBook = (bookId: string) => {
+  activeBookMenu.value = null
+  emit('deleteHistoryBook', bookId)
+}
 </script>

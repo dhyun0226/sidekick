@@ -121,6 +121,9 @@
       @delete-group="deleteGroup"
       @change-member-role="handleChangeMemberRole"
       @kick-member="handleKickMember"
+      @restart-reading="handleRestartReading"
+      @edit-finished-date="handleEditFinishedDate"
+      @delete-history-book="handleDeleteHistoryBook"
     />
 
     <!-- Book Search Modal -->
@@ -162,14 +165,17 @@
       :edit-toc-open="modals.editToc"
       :mark-completed-open="modals.markCompleted"
       :delete-book-open="modals.deleteBook"
+      :edit-finished-date-open="modals.editFinishedDate"
       :current-book="modals.editingBook"
       :comment-count="commentCount"
       @close-edit-dates="modals.editDates = false; modals.editingBook = null"
       @close-edit-toc="modals.editToc = false; modals.editingBook = null"
       @close-mark-completed="modals.markCompleted = false; modals.editingBook = null"
       @close-delete-book="modals.deleteBook = false; modals.editingBook = null"
+      @close-edit-finished-date="modals.editFinishedDate = false; modals.editingBook = null"
       @save-edited-dates="saveEditedDates"
       @save-edited-toc="saveEditedToc"
+      @save-edited-finished-date="saveEditedFinishedDate"
       @mark-as-completed="markAsCompleted"
       @delete-book="deleteBook"
     />
@@ -350,6 +356,7 @@ const modals = reactive({
   editToc: false,
   markCompleted: false,
   deleteBook: false,
+  editFinishedDate: false,
   editingBook: null as any,  // 편집 중인 책 (selectedBookId와 독립적)
   // Admin action modals
   promoteMember: false,
@@ -889,6 +896,90 @@ const openDeleteBookModal = (bookId: string) => {
   modals.deleteBook = true
 }
 
+// History book handlers
+const handleRestartReading = async (bookId: string) => {
+  const book = allBooks.value.find(b => b.id === bookId)
+  if (!book) return
+
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 책 상태를 변경할 수 있습니다.')
+    return
+  }
+
+  try {
+    const { error } = await client
+      .from('group_books')
+      .update({
+        status: 'reading',
+        finished_at: null
+      })
+      .eq('id', bookId)
+
+    if (error) throw error
+
+    toast.success('다시 읽기로 변경되었습니다!')
+
+    // 로컬 상태 새로고침 (책장 → 정보 탭으로 이동)
+    await fetchBooks()
+
+  } catch (error: any) {
+    console.error('[RestartReading] Error:', error)
+    toast.error('상태 변경 중 오류가 발생했습니다.')
+  }
+}
+
+const handleEditFinishedDate = (bookId: string) => {
+  modals.editingBook = allBooks.value.find(b => b.id === bookId) || null
+  modals.editFinishedDate = true
+}
+
+const handleDeleteHistoryBook = async (bookId: string) => {
+  const book = allBooks.value.find(b => b.id === bookId)
+  if (!book) return
+
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 책을 삭제할 수 있습니다.')
+    return
+  }
+
+  if (!confirm(`'${book.book?.title || '이 책'}'을(를) 정말 삭제하시겠습니까?\n\n모든 댓글과 리뷰가 함께 삭제됩니다.`)) {
+    return
+  }
+
+  try {
+    // Delete comments first
+    await client
+      .from('comments')
+      .delete()
+      .eq('group_book_id', bookId)
+
+    // Delete reviews
+    await client
+      .from('reviews')
+      .delete()
+      .eq('group_book_id', bookId)
+
+    // Delete book
+    const { error } = await client
+      .from('group_books')
+      .delete()
+      .eq('id', bookId)
+
+    if (error) throw error
+
+    toast.success('책이 삭제되었습니다.')
+
+    // 로컬 상태 새로고침 (책장에서 즉시 제거)
+    await fetchBooks()
+
+  } catch (error: any) {
+    console.error('[DeleteHistoryBook] Error:', error)
+    toast.error('책 삭제 중 오류가 발생했습니다.')
+  }
+}
+
 // Reviews modal
 const fetchReviews = async (bookId: string) => {
   try {
@@ -1063,6 +1154,39 @@ const saveEditedToc = async (tocData: { totalPages: number, chapters: { title: s
   } catch (error: any) {
     console.error('Save TOC error:', error)
     toast.error('수정 실패: ' + error.message)
+  }
+}
+
+const saveEditedFinishedDate = async (finishedDate: string) => {
+  if (!modals.editingBook || !finishedDate) return
+
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 완독 날짜를 수정할 수 있습니다.')
+    modals.editFinishedDate = false
+    modals.editingBook = null
+    return
+  }
+
+  try {
+    const { error } = await client
+      .from('group_books')
+      .update({ finished_at: finishedDate })
+      .eq('id', modals.editingBook.id)
+
+    if (error) throw error
+
+    toast.success('완독 날짜가 수정되었습니다!')
+
+    // 로컬 상태 업데이트
+    modals.editingBook.finished_at = finishedDate
+    await fetchBooks()
+
+    modals.editFinishedDate = false
+    modals.editingBook = null
+  } catch (error: any) {
+    console.error('[SaveFinishedDate] Error:', error)
+    toast.error('완독 날짜 수정 중 오류가 발생했습니다.')
   }
 }
 

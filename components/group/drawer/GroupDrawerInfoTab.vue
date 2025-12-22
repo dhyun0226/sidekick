@@ -27,7 +27,7 @@
             <button @click.stop="toggleBookMenu(book.id)" class="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors">
               <MoreVertical :size="14" class="text-zinc-400" />
             </button>
-            <div v-if="activeBookMenu === book.id" class="absolute right-0 top-6 min-w-[160px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[101] overflow-visible" @click.stop>
+            <div v-if="activeBookMenu === book.id" class="absolute right-0 top-6 min-w-[160px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[201] overflow-visible" @click.stop>
               <button @click.stop="handleEditDates(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
                 <Edit2 :size="12" /> 기간 수정
               </button>
@@ -41,7 +41,7 @@
                 <UserX :size="12" /> 책 삭제
               </button>
             </div>
-            <div v-if="activeBookMenu === book.id" class="fixed inset-0 z-[100]" @click="activeBookMenu = null"></div>
+            <div v-if="activeBookMenu === book.id" class="fixed inset-0 z-[200]" @click.stop="activeBookMenu = null"></div>
           </div>
 
           <div class="flex gap-3 mb-2">

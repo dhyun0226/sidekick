@@ -80,8 +80,12 @@
         <GroupDrawerBookshelfTab
           v-if="activeTab === 'bookshelf'"
           :history-books="historyBooks"
+          :is-admin="isAdmin"
           @select-book="(id) => emit('selectBook', id)"
           @open-reviews="(bookId) => emit('openReviews', bookId)"
+          @restart-reading="(bookId) => emit('restartReading', bookId)"
+          @edit-finished-date="(bookId) => emit('editFinishedDate', bookId)"
+          @delete-history-book="(bookId) => emit('deleteHistoryBook', bookId)"
         />
 
         <GroupDrawerSettingsTab
@@ -134,6 +138,9 @@ interface Emits {
   (e: 'markCompleted', bookId: string): void
   (e: 'deleteBook', bookId: string): void
   (e: 'openReviews', bookId: string): void
+  (e: 'restartReading', bookId: string): void
+  (e: 'editFinishedDate', bookId: string): void
+  (e: 'deleteHistoryBook', bookId: string): void
   (e: 'copyInviteCode'): void
   (e: 'copyInviteLink'): void
   (e: 'regenerateInviteCode'): void

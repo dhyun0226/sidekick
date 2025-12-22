@@ -138,6 +138,51 @@
       </div>
     </div>
 
+    <!-- Edit Finished Date Modal -->
+    <div v-if="editFinishedDateOpen" class="fixed inset-0 z-[100] flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditFinishedDate')"></div>
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">완독 날짜 수정</h2>
+          <button @click="emit('closeEditFinishedDate')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
+            <X :size="24" />
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div v-if="currentBook" class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl mb-4">
+            <p class="font-bold text-zinc-800 dark:text-zinc-200">{{ currentBook.book?.title }}</p>
+            <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ currentBook.book?.author }}</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">완독 날짜</label>
+            <input
+              v-model="localFinishedDate"
+              type="date"
+              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+            />
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-6">
+          <button
+            @click="emit('closeEditFinishedDate')"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-3 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+          >
+            취소
+          </button>
+          <button
+            @click="handleSaveFinishedDate"
+            class="flex-1 bg-lime-400 text-black font-bold py-3 rounded-xl hover:bg-lime-300 transition-colors"
+            :disabled="!localFinishedDate"
+          >
+            저장
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Edit TOC Modal -->
     <div v-if="editTocOpen" class="fixed inset-0 z-[100] flex items-center justify-center">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditToc')"></div>
@@ -161,6 +206,8 @@
               v-model.number="localTotalPages"
               type="number"
               min="1"
+              @input="validateTotalPages"
+              @blur="validateTotalPages"
               class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
@@ -182,6 +229,8 @@
                   placeholder="시작 쪽"
                   :min="idx === 0 ? 1 : localChapters[idx - 1].startPage + 1"
                   :max="localTotalPages || undefined"
+                  @input="validateChapterPage(idx)"
+                  @blur="validateChapterPage(idx)"
                   class="w-20 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-lime-400"
                 />
                 <button
@@ -232,6 +281,7 @@ interface Props {
   editTocOpen: boolean
   markCompletedOpen: boolean
   deleteBookOpen: boolean
+  editFinishedDateOpen: boolean
   currentBook: any | null
   commentCount: number
 }
@@ -241,8 +291,10 @@ interface Emits {
   (e: 'closeEditToc'): void
   (e: 'closeMarkCompleted'): void
   (e: 'closeDeleteBook'): void
+  (e: 'closeEditFinishedDate'): void
   (e: 'saveEditedDates', payload: { startDate: string, endDate: string }): void
   (e: 'saveEditedToc', payload: { totalPages: number, chapters: any[] }): void
+  (e: 'saveEditedFinishedDate', finishedDate: string): void
   (e: 'markAsCompleted'): void
   (e: 'deleteBook'): void
 }
@@ -276,6 +328,26 @@ const handleSaveDates = () => {
     startDate: localStartDate.value,
     endDate: localEndDate.value
   })
+}
+
+// Edit Finished Date
+const localFinishedDate = ref('')
+
+watch(() => props.editFinishedDateOpen, (isOpen) => {
+  if (isOpen && props.currentBook) {
+    const finishedAt = props.currentBook.finished_at
+    if (finishedAt) {
+      // Convert timestamp to YYYY-MM-DD format for date input
+      const date = new Date(finishedAt)
+      localFinishedDate.value = date.toISOString().split('T')[0]
+    } else {
+      localFinishedDate.value = ''
+    }
+  }
+})
+
+const handleSaveFinishedDate = () => {
+  emit('saveEditedFinishedDate', localFinishedDate.value)
 }
 
 // Edit TOC
@@ -328,13 +400,60 @@ const removeChapter = (index: number) => {
   }
 }
 
+// Validation functions
+const validateTotalPages = () => {
+  if (localTotalPages.value !== null && localTotalPages.value <= 0) {
+    localTotalPages.value = 1
+    toast.error('전체 페이지는 1 이상이어야 합니다.')
+  }
+}
+
+const validateChapterPage = (idx: number) => {
+  const chapter = localChapters.value[idx]
+
+  // 0 이하면 최소값으로 설정
+  if (chapter.startPage <= 0) {
+    chapter.startPage = idx === 0 ? 1 : localChapters.value[idx - 1].startPage + 1
+    toast.error('시작 페이지는 1 이상이어야 합니다.')
+    return
+  }
+
+  // 이전 챕터보다 작거나 같으면 이전 챕터 + 1로 설정
+  if (idx > 0) {
+    const prevChapter = localChapters.value[idx - 1]
+    if (chapter.startPage <= prevChapter.startPage) {
+      chapter.startPage = prevChapter.startPage + 1
+      toast.error('다음 챕터는 이전 챕터보다 뒤에 있어야 합니다.')
+      return
+    }
+  }
+
+  // 전체 페이지를 초과하면 전체 페이지로 설정
+  if (localTotalPages.value && chapter.startPage > localTotalPages.value) {
+    chapter.startPage = localTotalPages.value
+    toast.error(`전체 페이지(${localTotalPages.value})를 초과할 수 없습니다.`)
+  }
+}
+
 const handleSaveToc = () => {
   // 유효성 검사
   const totalPages = localTotalPages.value!
 
-  // 1. 챕터별 페이지 번호 검사
+  // 1. 전체 페이지 수 검사
+  if (!totalPages || totalPages <= 0) {
+    toast.error('전체 페이지는 1 이상이어야 합니다.')
+    return
+  }
+
+  // 2. 챕터별 검사
   for (let i = 0; i < localChapters.value.length; i++) {
     const chapter = localChapters.value[i]
+
+    // 챕터명이 비어있으면 안됨
+    if (!chapter.title.trim()) {
+      toast.error(`${i + 1}번째 챕터의 제목을 입력해주세요.`)
+      return
+    }
 
     // 페이지 번호가 0보다 커야 함
     if (chapter.startPage <= 0) {
@@ -355,12 +474,6 @@ const handleSaveToc = () => {
         toast.error(`"${chapter.title}" 시작 페이지(${chapter.startPage})는 이전 챕터(${prevChapter.startPage})보다 커야 합니다.`)
         return
       }
-    }
-
-    // 챕터명이 비어있으면 안됨
-    if (!chapter.title.trim()) {
-      toast.error(`${i + 1}번째 챕터의 제목을 입력해주세요.`)
-      return
     }
   }
 
