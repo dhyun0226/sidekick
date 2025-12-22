@@ -3,17 +3,21 @@
     <!-- Glassmorphism Container -->
     <div class="max-w-[480px] mx-auto bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-zinc-300 dark:border-zinc-800 pb-safe overflow-visible">
 
-      <!-- Slider Area -->
-      <div
-        class="relative h-16 w-full cursor-pointer touch-none select-none overflow-visible"
-        @pointerdown="handlePointerDown"
-        @pointermove="handlePointerMove"
-        @pointerup="handlePointerUp"
-        @pointerleave="handlePointerUp"
-        ref="sliderRef"
-      >
-        <!-- Chapter Backgrounds -->
-        <div class="absolute inset-0 flex h-full opacity-30">
+      <!-- Slider Area Wrapper with Padding -->
+      <div class="px-4">
+        <div
+          class="relative h-16 w-full cursor-pointer touch-none select-none overflow-visible overscroll-none"
+          style="overscroll-behavior-x: none; -webkit-overflow-scrolling: auto;"
+          @pointerdown="handlePointerDown"
+          @pointermove="handlePointerMove"
+          @pointerup="handlePointerUp"
+          @pointerleave="handlePointerUp"
+          @touchstart.prevent
+          @touchmove.prevent
+          ref="sliderRef"
+        >
+          <!-- Chapter Backgrounds -->
+          <div class="absolute inset-0 flex h-full opacity-30">
           <div
             v-for="(chapter, index) in chapters"
             :key="index"
@@ -83,7 +87,7 @@
           <span v-if="currentPage" class="text-zinc-500 dark:text-zinc-400 mr-2">({{ Math.round(currentPct) }}%)</span>
           {{ currentChapterName }}
         </div>
-
+        </div>
       </div>
 
       <!-- Action Bar (Optional, e.g. Write Button) -->

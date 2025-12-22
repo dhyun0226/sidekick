@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[40] flex items-end justify-center pointer-events-none" style="height: 100dvh;">
+  <div v-if="isOpen" class="fixed inset-0 z-[60] flex items-end justify-center pointer-events-none" style="height: 100dvh;">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" @click="emit('close')"></div>
     <div class="relative z-10 w-full max-w-[480px] bg-white dark:bg-zinc-900 p-6 pb-safe rounded-t-2xl shadow-2xl pointer-events-auto animate-slide-up border-t border-zinc-300 dark:border-zinc-800">
       <!-- Header -->
