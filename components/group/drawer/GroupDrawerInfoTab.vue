@@ -4,7 +4,9 @@
     <div v-if="readingBooks.length > 0">
       <!-- Header -->
       <div class="flex items-center justify-between px-1 mb-3">
-        <h3 class="text-xs font-bold text-zinc-500 uppercase">📖 Now Reading</h3>
+        <h3 class="text-xs font-bold uppercase">
+          <span class="text-lime-500 dark:text-lime-400 animate-pulse-lime">Now Reading</span>
+        </h3>
         <span class="text-[10px] text-zinc-400">{{ sortedReadingBooks.length }}권</span>
       </div>
 
@@ -236,3 +238,18 @@ const handleReview = (bookId: string) => {
   emit('openReview', bookId)
 }
 </script>
+
+<style scoped>
+@keyframes pulse-lime {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-lime {
+  animation: pulse-lime 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+</style>

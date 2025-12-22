@@ -1279,19 +1279,21 @@ const handleBookAdd = async (data: any) => {
   }
 }
 
-const saveGroupName = async () => {
+const saveGroupName = async (newName: string) => {
   // Admin permission check
   if (!isAdmin.value) {
     toast.error('관리자만 그룹 이름을 변경할 수 있습니다.')
     return
   }
 
-  if (!editingGroupName.value.trim()) {
+  const trimmedName = newName.trim()
+
+  if (!trimmedName) {
     toast.warning('그룹 이름을 입력해주세요.')
     return
   }
 
-  if (editingGroupName.value.trim().length < 2) {
+  if (trimmedName.length < 2) {
     toast.warning('그룹 이름은 2글자 이상이어야 합니다.')
     return
   }
@@ -1299,7 +1301,7 @@ const saveGroupName = async () => {
   try {
     const { error } = await client
       .from('groups')
-      .update({ name: editingGroupName.value.trim() })
+      .update({ name: trimmedName })
       .eq('id', groupId)
 
     if (error) {
@@ -1308,9 +1310,8 @@ const saveGroupName = async () => {
       return
     }
 
-    group.value.name = editingGroupName.value.trim()
+    group.value.name = trimmedName
     toast.success('그룹 이름이 변경되었습니다!')
-    modals.drawer = false
   } catch (err) {
     console.error('Unexpected error:', err)
     toast.error('예상치 못한 오류가 발생했습니다.')
