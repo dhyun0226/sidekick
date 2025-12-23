@@ -180,8 +180,10 @@ export const useGroupBooks = (groupId: string) => {
       console.error('Book check error:', bookCheckError)
     }
 
+    let tocToUse = data.toc
+
     if (!existingBook) {
-      // Add new book to books table
+      // 새 책: draft_toc에 임시 저장 (관리자 승인 전)
       const { error: bookInsertError } = await client
         .from('books')
         .insert({
@@ -191,13 +193,23 @@ export const useGroupBooks = (groupId: string) => {
           publisher: data.book.publisher,
           cover_url: data.book.cover,
           total_pages: data.totalPages,
-          official_toc: data.toc
+          draft_toc: data.toc,
+          official_toc: null  // 승인 전이므로 null
         })
 
       if (bookInsertError) {
         console.error('Book insert error:', bookInsertError)
         throw new Error('책 정보 저장에 실패했습니다.')
       }
+
+      console.log('[Group] New book created with draft_toc')
+    } else if (existingBook.official_toc) {
+      // 기존 책 + 승인된 목차 있음 → 자동 로드
+      tocToUse = existingBook.official_toc
+      console.log('[Group] Using official_toc from existing book')
+    } else {
+      // 기존 책이지만 승인된 목차 없음 → 사용자 입력 사용
+      console.log('[Group] No official_toc, using user input')
     }
 
     // 2. Add new book to group_books (기존 책은 유지)
@@ -206,7 +218,7 @@ export const useGroupBooks = (groupId: string) => {
       .insert({
         group_id: groupId,
         isbn: data.book.isbn,
-        toc_snapshot: data.toc,
+        toc_snapshot: tocToUse,  // 승인된 목차 또는 사용자 입력
         status: 'reading',
         target_start_date: data.startDate,
         target_end_date: data.endDate
