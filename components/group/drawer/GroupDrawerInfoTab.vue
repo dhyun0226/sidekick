@@ -11,7 +11,7 @@
       </div>
 
       <!-- Card -->
-      <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+      <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
 
       <!-- Reading Books List (목표일 임박 순) -->
       <div class="p-3 space-y-2">
@@ -19,17 +19,20 @@
           v-for="book in sortedReadingBooks"
           :key="book.id"
           class="p-4 cursor-pointer transition-all relative rounded-xl"
-          :class="selectedBookId === book.id
-            ? 'border-2 border-lime-500 dark:border-lime-400 bg-lime-50/30 dark:bg-lime-900/10 shadow-lime-200 dark:shadow-lime-900/30'
-            : 'border border-zinc-200 dark:border-zinc-800 hover:border-lime-300 dark:hover:border-lime-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/30'"
+          :class="[
+            selectedBookId === book.id
+              ? 'border-2 border-lime-500 dark:border-lime-400 bg-lime-50/30 dark:bg-lime-900/10 shadow-lime-200 dark:shadow-lime-900/30'
+              : 'border border-zinc-200 dark:border-zinc-800 hover:border-lime-300 dark:hover:border-lime-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/30',
+            activeBookMenu === book.id ? 'z-[10001]' : 'z-0'
+          ]"
           @click="emit('selectBook', book.id)"
         >
           <!-- Settings Menu (모든 사용자에게 표시) -->
-          <div class="absolute top-3 right-3 z-20">
+          <div class="absolute top-3 right-3 z-[9999]">
             <button @click.stop="toggleBookMenu(book.id)" class="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors">
               <MoreVertical :size="14" class="text-zinc-400" />
             </button>
-            <div v-if="activeBookMenu === book.id" class="absolute right-0 top-6 min-w-[160px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[201] overflow-visible" @click.stop>
+            <div v-if="activeBookMenu === book.id" class="absolute right-0 top-6 min-w-[160px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[10000] overflow-visible" @click.stop>
               <!-- Review (All Users) -->
               <button @click.stop="handleReview(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
                 <Edit3 :size="12" /> {{ props.userReviewedBooks.has(book.id) ? '리뷰 수정' : '리뷰 작성' }}
@@ -43,14 +46,14 @@
                   <Settings :size="12" /> 목차 수정
                 </button>
                 <button @click.stop="handleMarkCompleted(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
-                  <UserCheck :size="12" /> 완독 처리
+                  <UserCheck :size="12" /> 완주 처리
                 </button>
                 <button @click.stop="handleDeleteBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap">
                   <UserX :size="12" /> 책 삭제
                 </button>
               </template>
             </div>
-            <div v-if="activeBookMenu === book.id" class="fixed inset-0 z-[200]" @click.stop="activeBookMenu = null"></div>
+            <div v-if="activeBookMenu === book.id" class="fixed inset-0 z-[9998]" @click.stop="activeBookMenu = null"></div>
           </div>
 
           <div class="flex gap-3 mb-2">
@@ -180,7 +183,7 @@ const selectedBook = computed(() => {
   return props.readingBooks.find(book => book.id === props.selectedBookId) || props.readingBooks[0] || null
 })
 
-// 선택된 책이 실제로 읽는 중인 책인지 확인 (완독한 책이 아닌지)
+// 선택된 책이 실제로 읽는 중인 책인지 확인 (완주한 책이 아닌지)
 const isSelectedBookReading = computed(() => {
   return props.readingBooks.some(book => book.id === props.selectedBookId)
 })

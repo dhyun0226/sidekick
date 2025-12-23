@@ -482,10 +482,13 @@ const sortedMembersWithProgress = computed(() => {
     const timeAgo = lastReadAt ? formatTimeAgo(lastReadAt) : null
     const inactive = lastReadAt ? isInactive(lastReadAt) : true
 
-    // 완독 정보 (History 책에서만 완독 체크 표시)
-    const finishedAt = progressData?.finished_at
+    // 개인 완독 정보 (그룹 완료 여부와 무관)
+    // 현재 사용자는 viewProgress 기준으로 즉시 계산 (빠른 반응)
+    const finishedAt = member.id === currentUserId.value
+      ? (Math.round(viewProgress.value) >= 100 ? new Date().toISOString() : null)
+      : progressData?.finished_at
     const finishedDate = finishedAt ? formatShortDate(new Date(finishedAt)) : null
-    const isCompleted = selectedBook.value?.status === 'done' && finishedAt !== null
+    const isCompleted = finishedAt !== null  // 개인이 100% 완독했는지만 체크
 
     return {
       ...member,
@@ -1176,7 +1179,7 @@ const markAsCompleted = async () => {
 
   // Admin permission check
   if (!isAdmin.value) {
-    toast.error('관리자만 완독 처리를 할 수 있습니다.')
+    toast.error('관리자만 완주 처리를 할 수 있습니다.')
     modals.markCompleted = false
     modals.editingBook = null
     return
@@ -1188,13 +1191,13 @@ const markAsCompleted = async () => {
 
     modals.markCompleted = false
     modals.editingBook = null
-    toast.success('완독 처리되었습니다! 🎉 히스토리로 이동합니다.')
+    toast.success('완주 처리되었습니다! 🎉 히스토리로 이동합니다.')
 
     // Refresh other data
     await fetchData()
   } catch (error) {
     console.error('Mark completed error:', error)
-    toast.error('완독 처리에 실패했습니다.')
+    toast.error('완주 처리에 실패했습니다.')
   }
 }
 
@@ -1257,7 +1260,7 @@ const saveEditedFinishedDate = async (finishedDate: string) => {
 
   // Admin permission check
   if (!isAdmin.value) {
-    toast.error('관리자만 완독 날짜를 수정할 수 있습니다.')
+    toast.error('관리자만 완주 날짜를 수정할 수 있습니다.')
     modals.editFinishedDate = false
     modals.editingBook = null
     return
@@ -1271,7 +1274,7 @@ const saveEditedFinishedDate = async (finishedDate: string) => {
 
     if (error) throw error
 
-    toast.success('완독 날짜가 수정되었습니다!')
+    toast.success('완주 날짜가 수정되었습니다!')
 
     // 로컬 상태 업데이트
     modals.editingBook.finished_at = finishedDate
@@ -1281,7 +1284,7 @@ const saveEditedFinishedDate = async (finishedDate: string) => {
     modals.editingBook = null
   } catch (error: any) {
     console.error('[SaveFinishedDate] Error:', error)
-    toast.error('완독 날짜 수정 중 오류가 발생했습니다.')
+    toast.error('완주 날짜 수정 중 오류가 발생했습니다.')
   }
 }
 

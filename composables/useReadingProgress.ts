@@ -25,12 +25,15 @@ export const useReadingProgress = (
     if (!groupBookId.value || !userId.value) return
 
     const roundedProgress = Math.round(progress)
+    // 100% 이상이면 완독 처리, 미만이면 완독 취소
+    const finishedAt = roundedProgress >= 100 ? new Date().toISOString() : null
     const index = memberProgress.value.findIndex(p => p.user_id === userId.value)
 
     if (index >= 0) {
       // Update existing progress
       memberProgress.value[index].progress_pct = roundedProgress
       memberProgress.value[index].last_read_at = new Date().toISOString()
+      memberProgress.value[index].finished_at = finishedAt  // 완독 상태도 즉시 업데이트
     } else {
       // Add new progress entry (first time recording)
       memberProgress.value.push({
@@ -38,7 +41,7 @@ export const useReadingProgress = (
         group_book_id: groupBookId.value,
         progress_pct: roundedProgress,
         last_read_at: new Date().toISOString(),
-        finished_at: null
+        finished_at: finishedAt
       })
     }
   }
@@ -56,6 +59,7 @@ export const useReadingProgress = (
     }
 
     const roundedProgress = Math.round(progress)
+    // 100% 이상이면 완독 처리, 미만이면 완독 취소
     const finishedAt = roundedProgress >= 100 ? new Date().toISOString() : null
 
     // Backup current value for rollback
@@ -66,7 +70,9 @@ export const useReadingProgress = (
       console.log('[Progress] Saving to DB:', {
         user_id: userId.value,
         group_book_id: groupBookId.value,
-        progress_pct: roundedProgress
+        progress_pct: roundedProgress,
+        finished_at: finishedAt,
+        action: roundedProgress >= 100 ? 'COMPLETE' : 'IN_PROGRESS'
       })
 
       const { data, error } = await client
@@ -76,7 +82,7 @@ export const useReadingProgress = (
           group_book_id: groupBookId.value,
           progress_pct: roundedProgress,
           last_read_at: new Date().toISOString(),
-          finished_at: finishedAt
+          finished_at: finishedAt  // null이면 완독 취소
         }, {
           onConflict: 'user_id,group_book_id'
         })

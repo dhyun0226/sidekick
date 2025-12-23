@@ -26,8 +26,14 @@
                   </span>
                 </span>
                 <div class="flex items-center gap-2">
-                  <span class="text-xs font-mono font-bold" :class="member.isCompleted ? 'text-lime-500' : 'text-zinc-500'">
-                    {{ member.progress }}%
+                  <!-- 완독한 경우: 완독 날짜 표시 / 진행 중: 퍼센트 표시 -->
+                  <span class="text-xs font-bold" :class="member.isCompleted ? 'text-lime-500' : 'text-zinc-500 font-mono'">
+                    <template v-if="member.isCompleted">
+                      {{ member.finishedDate }} 완독
+                    </template>
+                    <template v-else>
+                      {{ member.progress }}%
+                    </template>
                   </span>
 
                   <!-- Admin Menu (관리자만 보임, 자기 자신 제외) -->
@@ -70,17 +76,10 @@
                 </div>
               </div>
 
-              <!-- 활동 시간 & 상태 -->
+              <!-- 활동 시간 -->
               <div class="text-[10px] text-zinc-500 dark:text-zinc-400 mb-1.5">
-                <!-- 완독한 경우: 완독 날짜 표시 -->
-                <template v-if="member.finishedDate">
-                  <span class="text-lime-600 dark:text-lime-400">
-                    {{ member.finishedDate }} 완독
-                  </span>
-                </template>
-
-                <!-- 미완독인 경우: 마지막 활동 시간 표시 -->
-                <template v-else-if="member.timeAgo">
+                <!-- 마지막 활동 시간 표시 -->
+                <template v-if="member.timeAgo">
                   <span :class="member.inactive ? 'text-zinc-400' : ''">
                     {{ member.timeAgo }}
                     <span v-if="member.inactive">😴</span>

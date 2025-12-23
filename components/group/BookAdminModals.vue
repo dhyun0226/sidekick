@@ -61,19 +61,19 @@
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeMarkCompleted')"></div>
       <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">✅ 완독 처리</h2>
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">✅ 완주 처리</h2>
           <button @click="emit('closeMarkCompleted')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
             <X :size="24" />
           </button>
         </div>
 
         <div class="space-y-4">
-          <p class="text-zinc-700 dark:text-zinc-300">정말 이 책을 완독 처리하시겠습니까?</p>
+          <p class="text-zinc-700 dark:text-zinc-300">정말 이 책을 완주 처리하시겠습니까?</p>
           <div v-if="currentBook" class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
             <p class="font-bold text-zinc-800 dark:text-zinc-200">{{ currentBook.book?.title }}</p>
             <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ currentBook.book?.author }}</p>
           </div>
-          <p class="text-sm text-zinc-600 dark:text-zinc-500">완독 처리하면 히스토리로 이동하며, 새로운 책을 시작할 수 있습니다.</p>
+          <p class="text-sm text-zinc-600 dark:text-zinc-500">완주 처리하면 히스토리로 이동하며, 새로운 책을 시작할 수 있습니다.</p>
         </div>
 
         <div class="flex gap-3 mt-6">
@@ -87,7 +87,7 @@
             @click="emit('markAsCompleted')"
             class="flex-1 bg-lime-400 text-black font-bold py-3 rounded-xl hover:bg-lime-300 transition-colors"
           >
-            완독 처리
+            완주 처리
           </button>
         </div>
       </div>
@@ -143,7 +143,7 @@
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditFinishedDate')"></div>
       <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">완독 날짜 수정</h2>
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">완주 날짜 수정</h2>
           <button @click="emit('closeEditFinishedDate')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
             <X :size="24" />
           </button>
@@ -156,7 +156,7 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">완독 날짜</label>
+            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">완주 날짜</label>
             <input
               v-model="localFinishedDate"
               type="date"

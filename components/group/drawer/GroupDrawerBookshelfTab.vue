@@ -83,7 +83,7 @@
                   <RotateCcw :size="12" /> 다시 읽기
                 </button>
                 <button @click.stop="handleEditFinishedDate(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
-                  <Calendar :size="12" /> 완독 날짜 수정
+                  <Calendar :size="12" /> 완주 날짜 수정
                 </button>
                 <button @click.stop="handleDeleteHistoryBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap">
                   <Trash2 :size="12" /> 책 삭제
@@ -108,7 +108,7 @@
               <span v-if="book.total_pages">{{ book.total_pages }}p</span>
             </div>
             <div class="flex items-center gap-2 text-[10px]">
-              <span class="text-lime-600 dark:text-lime-400 font-medium">{{ book.date }} 완독</span>
+              <span class="text-lime-600 dark:text-lime-400 font-medium">{{ book.date }} 완주</span>
               <span v-if="book.round && book.round > 1" class="text-zinc-400">· {{ book.round }}회차</span>
             </div>
           </div>
@@ -139,7 +139,7 @@
     <!-- Empty State -->
     <div v-else class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
       <div class="text-4xl mb-3">{{ searchQuery ? '🔍' : '📚' }}</div>
-      <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 완독한 책이 없습니다' }}</p>
+      <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 완주한 책이 없습니다' }}</p>
     </div>
   </div>
 </template>

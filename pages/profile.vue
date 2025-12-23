@@ -1315,19 +1315,20 @@ const fetchData = async () => {
     
     timeline.value = merged
 
-    // 2. Fetch Library (Finished Books)
+    // 2. Fetch Library (All Books - Reading + Finished)
     const { data: progressData, error: progressError } = await client
       .from('user_reading_progress')
       .select(`
         finished_at,
+        progress_pct,
+        last_read_at,
         group_book:group_books (
           id,
           book:books (title, author, publisher, total_pages, cover_url, isbn)
         )
       `)
       .eq('user_id', userId)
-      .not('finished_at', 'is', null)
-      .order('finished_at', { ascending: false })
+      .order('last_read_at', { ascending: false })
 
     if (progressError) {
       console.error('[Profile] Progress fetch error:', progressError)
@@ -1348,6 +1349,8 @@ const fetchData = async () => {
         total_pages: p.group_book?.book?.total_pages,
         cover_url: p.group_book?.book?.cover_url,
         finished_at: p.finished_at,
+        progress_pct: p.progress_pct, // 진행도 추가
+        last_read_at: p.last_read_at, // 마지막 읽은 날짜
         // Find my rating for this specific group_book
         myRating: myReview?.rating || null
       }
