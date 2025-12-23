@@ -152,9 +152,9 @@
       <!-- Tab 2: Timeline Feed -->
       <div v-if="activeTab === 'timeline'">
         <div v-if="loading" class="space-y-3">
-          <SkeletonLoader type="list-item" />
-          <SkeletonLoader type="list-item" />
-          <SkeletonLoader type="list-item" />
+          <SkeletonLoader type="card" />
+          <SkeletonLoader type="card" />
+          <SkeletonLoader type="card" />
         </div>
 
         <div v-else-if="timeline.length === 0" class="py-12 flex flex-col items-center text-center">
@@ -171,45 +171,54 @@
           </button>
         </div>
 
-        <div v-else class="divide-y divide-zinc-200 dark:divide-zinc-800">
+        <div v-else class="space-y-3">
           <div
             v-for="item in timeline"
             :key="item.id"
             @click="navigateToItem(item)"
-            class="py-3 cursor-pointer active:bg-zinc-50 dark:active:bg-zinc-900/50 transition-colors"
+            class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 cursor-pointer hover:border-lime-400 dark:hover:border-lime-500 transition-all"
           >
-            <!-- Header - One Line -->
-            <div class="flex items-center justify-between mb-2 text-xs">
-              <div class="flex items-center gap-1.5 min-w-0 flex-1">
-                <span class="text-base">📕</span>
-                <span class="font-medium text-zinc-900 dark:text-white truncate">{{ item.bookTitle }}</span>
-                <span class="text-zinc-400">·</span>
-                <span class="text-zinc-500 truncate">{{ item.groupName }}</span>
-              </div>
-              <span class="text-zinc-400 ml-2 whitespace-nowrap">{{ formatTimeAgo(item.created_at) }}</span>
-            </div>
+            <!-- Title -->
+            <h4 class="font-bold text-sm text-zinc-900 dark:text-white mb-2 line-clamp-1">
+              {{ item.bookTitle }}
+            </h4>
 
-            <!-- Type Badge -->
-            <div class="mb-2 text-xs font-medium text-lime-600 dark:text-lime-400">
-              {{ item.type === 'review' ? '⭐ 리뷰' : `💬 ${Math.round(item.position_pct)}%` }}
+            <!-- Meta Info -->
+            <div class="flex items-center gap-2 mb-3 text-xs">
+              <span class="text-zinc-500 dark:text-zinc-400">{{ item.groupName }}</span>
+              <span class="text-zinc-300 dark:text-zinc-700">·</span>
+              <span class="text-zinc-500 dark:text-zinc-400">{{ formatTimeAgo(item.created_at) }}</span>
+              <span class="text-zinc-300 dark:text-zinc-700">·</span>
+              <!-- Review: Show rating stars -->
+              <template v-if="item.type === 'review'">
+                <div class="flex items-center gap-1">
+                  <div class="flex gap-0.5">
+                    <template v-for="i in 5" :key="i">
+                      <Star v-if="getStarType(i, item.rating) === 'full'" :size="12" fill="#EAB308" class="text-yellow-500" />
+                      <StarHalf v-else-if="getStarType(i, item.rating) === 'half'" :size="12" fill="#EAB308" class="text-yellow-500" />
+                      <Star v-else :size="12" fill="none" class="text-yellow-500" />
+                    </template>
+                  </div>
+                  <span class="font-bold text-yellow-600 dark:text-yellow-400">{{ item.rating }}</span>
+                </div>
+              </template>
+              <!-- Comment: Show position percentage -->
+              <span v-else class="text-lime-600 dark:text-lime-400">
+                {{ Math.round(item.position_pct) }}%
+              </span>
             </div>
 
             <!-- Quote -->
-            <div v-if="item.anchor_text" class="mb-2 pl-2 text-xs text-zinc-500 dark:text-zinc-400 italic">
-              "{{ item.anchor_text }}"
+            <div v-if="item.anchor_text" class="mb-3 pl-3 border-l-2 border-zinc-200 dark:border-zinc-700">
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 italic leading-relaxed">
+                {{ item.anchor_text }}
+              </p>
             </div>
 
             <!-- Content -->
-            <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">{{ item.content }}</p>
-
-            <!-- Rating -->
-            <div v-if="item.type === 'review'" class="flex gap-0.5 mt-2">
-              <template v-for="i in 5" :key="i">
-                <Star v-if="getStarType(i, item.rating) === 'full'" :size="12" fill="#EAB308" class="text-yellow-500" />
-                <StarHalf v-else-if="getStarType(i, item.rating) === 'half'" :size="12" fill="#EAB308" class="text-yellow-500" />
-                <Star v-else :size="12" fill="none" class="text-yellow-500" />
-              </template>
-            </div>
+            <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
+              {{ item.content }}
+            </p>
           </div>
         </div>
       </div>
@@ -445,14 +454,20 @@
                 <img :src="selectedBook.cover_url" class="w-full h-full object-cover" />
               </div>
               <div class="flex-1 min-w-0">
-                <h2 class="text-base font-bold text-zinc-900 dark:text-white mb-2 line-clamp-2 leading-tight">{{ selectedBook.title }}</h2>
+                <h2 class="text-base font-bold text-zinc-900 dark:text-white mb-1 line-clamp-2 leading-tight">{{ selectedBook.title }}</h2>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-2">{{ selectedBook.author }}</p>
+                <div class="flex items-center gap-1.5 text-[10px] text-zinc-400 mb-2">
+                  <span v-if="selectedBook.publisher">{{ selectedBook.publisher }}</span>
+                  <span v-if="selectedBook.publisher && selectedBook.total_pages">·</span>
+                  <span v-if="selectedBook.total_pages">{{ selectedBook.total_pages }}p</span>
+                </div>
                 <div class="flex items-center gap-2 mb-2 flex-wrap">
-                  <div v-if="selectedBook.myRating" class="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded-lg">
+                  <div v-if="selectedBook.myRating" class="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded">
                     <Star :size="12" fill="#EAB308" class="text-yellow-500" />
                     <span class="text-xs font-bold text-yellow-700 dark:text-yellow-400">{{ selectedBook.myRating }}</span>
                   </div>
-                  <div class="bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-lg">
-                    <span class="text-xs font-medium text-zinc-600 dark:text-zinc-400">{{ bookTimeline.length }}개 기록</span>
+                  <div class="flex items-center bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">
+                    <span class="text-xs font-bold text-zinc-600 dark:text-zinc-400">{{ bookTimeline.length }}개 기록</span>
                   </div>
                 </div>
                 <div class="text-xs text-zinc-500">{{ formatMonthOnly(selectedBook.finished_at) }} 완독</div>
@@ -476,7 +491,7 @@
                 class="flex-1 py-3 text-sm font-bold transition-colors relative"
                 :class="bookDetailTab === 'review' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
               >
-                서평
+                리뷰
                 <div v-if="bookDetailTab === 'review'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
               </button>
               <button
@@ -491,69 +506,54 @@
           </div>
 
           <!-- Content -->
-          <div class="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+          <div class="p-4 space-y-3 max-h-[60vh] overflow-y-auto">
 
             <!-- All Tab -->
-            <div v-if="bookDetailTab === 'all'">
-              <!-- My Review Section -->
-              <div v-if="bookReview" class="mb-4">
-                <div class="flex items-center justify-between mb-3">
-                  <h3 class="text-sm font-bold text-zinc-900 dark:text-white">내 서평</h3>
-                </div>
-                <div class="bg-lime-50 dark:bg-lime-900/10 border border-lime-200 dark:border-lime-800/50 rounded-xl p-4">
-                  <div class="flex items-center gap-2 mb-3">
-                    <div class="flex gap-0.5">
-                      <template v-for="i in 5" :key="i">
-                        <Star v-if="getStarType(i, bookReview.rating) === 'full'" :size="16" fill="#84cc16" class="text-lime-500" />
-                        <StarHalf v-else-if="getStarType(i, bookReview.rating) === 'half'" :size="16" fill="#84cc16" class="text-lime-500" />
-                        <Star v-else :size="16" fill="none" class="text-lime-500" />
-                      </template>
-                    </div>
-                    <span class="text-sm font-bold text-lime-700 dark:text-lime-400">{{ bookReview.rating }}</span>
-                  </div>
-                  <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed mb-3">{{ bookReview.content }}</p>
-                  <div class="flex items-center gap-2 text-xs text-zinc-500">
-                    <span class="bg-white dark:bg-zinc-800 px-2 py-1 rounded">{{ bookReview.groupName }}</span>
-                    <span>·</span>
-                    <span>{{ formatTimeAgo(bookReview.created_at) }}</span>
-                  </div>
-                </div>
-              </div>
+            <div v-if="bookDetailTab === 'all'" class="space-y-3">
+              <div
+                v-for="item in bookTimeline"
+                :key="item.id"
+                @click="navigateToItem(item)"
+                class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 cursor-pointer hover:border-lime-400 dark:hover:border-lime-500 transition-all"
+              >
+                <!-- Meta Info -->
+                <div class="flex items-center gap-2 mb-3 text-xs">
+                  <span class="text-zinc-500 dark:text-zinc-400">{{ item.groupName }}</span>
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span class="text-zinc-500 dark:text-zinc-400">{{ formatTimeAgo(item.created_at) }}</span>
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
 
-              <!-- Reading Records Section -->
-              <div v-if="bookComments.length > 0">
-                <div class="flex items-center justify-between mb-3">
-                  <h3 class="text-sm font-bold text-zinc-900 dark:text-white">독서 기록</h3>
-                  <span class="text-xs text-zinc-500">{{ bookComments.length }}개</span>
+                  <!-- Review: Show rating stars -->
+                  <template v-if="item.type === 'review'">
+                    <div class="flex items-center gap-1">
+                      <div class="flex gap-0.5">
+                        <template v-for="i in 5" :key="i">
+                          <Star v-if="getStarType(i, item.rating) === 'full'" :size="12" fill="#EAB308" class="text-yellow-500" />
+                          <StarHalf v-else-if="getStarType(i, item.rating) === 'half'" :size="12" fill="#EAB308" class="text-yellow-500" />
+                          <Star v-else :size="12" fill="none" class="text-yellow-500" />
+                        </template>
+                      </div>
+                      <span class="font-bold text-yellow-600 dark:text-yellow-400">{{ item.rating }}</span>
+                    </div>
+                  </template>
+
+                  <!-- Comment: Show position percentage -->
+                  <span v-else class="text-lime-600 dark:text-lime-400">
+                    {{ Math.round(item.position_pct) }}%
+                  </span>
                 </div>
-                <div class="space-y-3">
-                  <div
-                    v-for="comment in bookComments"
-                    :key="comment.id"
-                    class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 hover:border-lime-300 dark:hover:border-lime-700 transition-colors"
-                  >
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="text-xs font-bold text-lime-600 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/20 px-2 py-1 rounded">
-                        {{ Math.round(comment.position_pct) }}% 지점
-                      </span>
-                      <button
-                        @click="navigateToItem(comment)"
-                        class="text-xs text-lime-600 dark:text-lime-400 hover:underline font-medium flex items-center gap-1"
-                      >
-                        그룹에서 보기 →
-                      </button>
-                    </div>
-                    <div v-if="comment.anchor_text" class="mb-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3 border-l-2 border-lime-400">
-                      <p class="text-xs text-zinc-600 dark:text-zinc-400 italic leading-relaxed">"{{ comment.anchor_text }}"</p>
-                    </div>
-                    <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed mb-3">{{ comment.content }}</p>
-                    <div class="flex items-center gap-2 text-xs text-zinc-500">
-                      <span class="bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">{{ comment.groupName }}</span>
-                      <span>·</span>
-                      <span>{{ formatTimeAgo(comment.created_at) }}</span>
-                    </div>
-                  </div>
+
+                <!-- Quote -->
+                <div v-if="item.anchor_text" class="mb-3 pl-3 border-l-2 border-zinc-200 dark:border-zinc-700">
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 italic leading-relaxed">
+                    {{ item.anchor_text }}
+                  </p>
                 </div>
+
+                <!-- Content -->
+                <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
+                  {{ item.content }}
+                </p>
               </div>
 
               <!-- Empty State -->
@@ -568,64 +568,76 @@
 
             <!-- Review Tab -->
             <div v-if="bookDetailTab === 'review'">
-              <div v-if="bookReview" class="bg-lime-50 dark:bg-lime-900/10 border border-lime-200 dark:border-lime-800/50 rounded-xl p-4">
-                <div class="flex items-center gap-2 mb-3">
-                  <div class="flex gap-0.5">
-                    <template v-for="i in 5" :key="i">
-                      <Star v-if="getStarType(i, bookReview.rating) === 'full'" :size="16" fill="#84cc16" class="text-lime-500" />
-                      <StarHalf v-else-if="getStarType(i, bookReview.rating) === 'half'" :size="16" fill="#84cc16" class="text-lime-500" />
-                      <Star v-else :size="16" fill="none" class="text-lime-500" />
-                    </template>
+              <div
+                v-if="bookReview"
+                @click="navigateToItem(bookReview)"
+                class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 cursor-pointer hover:border-lime-400 dark:hover:border-lime-500 transition-all"
+              >
+                <!-- Meta Info -->
+                <div class="flex items-center gap-2 mb-3 text-xs">
+                  <span class="text-zinc-500 dark:text-zinc-400">{{ bookReview.groupName }}</span>
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span class="text-zinc-500 dark:text-zinc-400">{{ formatTimeAgo(bookReview.created_at) }}</span>
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <div class="flex items-center gap-1">
+                    <div class="flex gap-0.5">
+                      <template v-for="i in 5" :key="i">
+                        <Star v-if="getStarType(i, bookReview.rating) === 'full'" :size="12" fill="#EAB308" class="text-yellow-500" />
+                        <StarHalf v-else-if="getStarType(i, bookReview.rating) === 'half'" :size="12" fill="#EAB308" class="text-yellow-500" />
+                        <Star v-else :size="12" fill="none" class="text-yellow-500" />
+                      </template>
+                    </div>
+                    <span class="font-bold text-yellow-600 dark:text-yellow-400">{{ bookReview.rating }}</span>
                   </div>
-                  <span class="text-sm font-bold text-lime-700 dark:text-lime-400">{{ bookReview.rating }}</span>
                 </div>
-                <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed mb-3">{{ bookReview.content }}</p>
-                <div class="flex items-center gap-2 text-xs text-zinc-500">
-                  <span class="bg-white dark:bg-zinc-800 px-2 py-1 rounded">{{ bookReview.groupName }}</span>
-                  <span>·</span>
-                  <span>{{ formatTimeAgo(bookReview.created_at) }}</span>
-                </div>
+
+                <!-- Content -->
+                <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
+                  {{ bookReview.content }}
+                </p>
               </div>
               <div v-else class="py-12 text-center">
                 <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
                   ⭐
                 </div>
-                <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">서평이 없습니다</h3>
-                <p class="text-xs text-zinc-500">이 책에 대한 서평을 남겨보세요</p>
+                <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">리뷰가 없습니다</h3>
+                <p class="text-xs text-zinc-500">이 책에 대한 리뷰를 남겨보세요</p>
               </div>
             </div>
 
             <!-- Comments Tab -->
-            <div v-if="bookDetailTab === 'comments'">
-              <div v-if="bookComments.length > 0" class="space-y-3">
-                <div
-                  v-for="comment in bookComments"
-                  :key="comment.id"
-                  class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 hover:border-lime-300 dark:hover:border-lime-700 transition-colors"
-                >
-                  <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-lime-600 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/20 px-2 py-1 rounded">
-                      {{ Math.round(comment.position_pct) }}% 지점
-                    </span>
-                    <button
-                      @click="navigateToItem(comment)"
-                      class="text-xs text-lime-600 dark:text-lime-400 hover:underline font-medium flex items-center gap-1"
-                    >
-                      그룹에서 보기 →
-                    </button>
-                  </div>
-                  <div v-if="comment.anchor_text" class="mb-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3 border-l-2 border-lime-400">
-                    <p class="text-xs text-zinc-600 dark:text-zinc-400 italic leading-relaxed">"{{ comment.anchor_text }}"</p>
-                  </div>
-                  <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed mb-3">{{ comment.content }}</p>
-                  <div class="flex items-center gap-2 text-xs text-zinc-500">
-                    <span class="bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">{{ comment.groupName }}</span>
-                    <span>·</span>
-                    <span>{{ formatTimeAgo(comment.created_at) }}</span>
-                  </div>
+            <div v-if="bookDetailTab === 'comments'" class="space-y-3">
+              <div
+                v-for="comment in bookComments"
+                :key="comment.id"
+                @click="navigateToItem(comment)"
+                class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 cursor-pointer hover:border-lime-400 dark:hover:border-lime-500 transition-all"
+              >
+                <!-- Meta Info -->
+                <div class="flex items-center gap-2 mb-3 text-xs">
+                  <span class="text-zinc-500 dark:text-zinc-400">{{ comment.groupName }}</span>
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span class="text-zinc-500 dark:text-zinc-400">{{ formatTimeAgo(comment.created_at) }}</span>
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span class="text-lime-600 dark:text-lime-400">
+                    {{ Math.round(comment.position_pct) }}%
+                  </span>
                 </div>
+
+                <!-- Quote -->
+                <div v-if="comment.anchor_text" class="mb-3 pl-3 border-l-2 border-zinc-200 dark:border-zinc-700">
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 italic leading-relaxed">
+                    {{ comment.anchor_text }}
+                  </p>
+                </div>
+
+                <!-- Content -->
+                <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
+                  {{ comment.content }}
+                </p>
               </div>
-              <div v-else class="py-12 text-center">
+
+              <div v-if="bookComments.length === 0" class="py-12 text-center">
                 <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
                   💬
                 </div>
@@ -894,6 +906,7 @@ const fetchData = async () => {
       bookCover: r.group_book?.book?.cover_url,
 
       // Navigation Data
+      groupBookId: r.group_book_id,  // 일관된 필드명 사용
       bookIsbn: r.group_book?.book?.isbn
     }))
 
@@ -910,7 +923,7 @@ const fetchData = async () => {
         finished_at,
         group_book:group_books (
           id,
-          book:books (title, cover_url, isbn)
+          book:books (title, author, publisher, total_pages, cover_url, isbn)
         )
       `)
       .eq('user_id', userId)
@@ -931,6 +944,9 @@ const fetchData = async () => {
         id: p.group_book?.book?.isbn, // Use ISBN as ID
         groupBookId: groupBookId, // Store the specific group_book_id
         title: p.group_book?.book?.title,
+        author: p.group_book?.book?.author,
+        publisher: p.group_book?.book?.publisher,
+        total_pages: p.group_book?.book?.total_pages,
         cover_url: p.group_book?.book?.cover_url,
         finished_at: p.finished_at,
         // Find my rating for this specific group_book
@@ -1088,13 +1104,23 @@ const getStarType = (index: number, rating: number) => {
 
 const navigateToItem = (item: any) => {
   if (item.groupId) {
-    // Navigate to group page (works for both comments and reviews)
+    // Navigate to group page with specific book context
+    const query: any = {}
+
+    // Always pass the book ID to show the correct book
+    if (item.groupBookId) {
+      query.bookId = item.groupBookId
+    }
+
+    // For comments, also pass position and highlight
+    if (item.type === 'comment') {
+      query.jumpTo = item.position_pct
+      query.highlightComment = item.id
+    }
+
     router.push({
       path: `/group/${item.groupId}`,
-      query: item.type === 'comment' ? {
-        jumpTo: item.position_pct,
-        highlightComment: item.id
-      } : {}
+      query
     })
   } else {
     toast.warning('해당 그룹을 찾을 수 없습니다.')

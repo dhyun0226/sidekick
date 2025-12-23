@@ -21,7 +21,7 @@
               <div class="flex justify-between items-center mb-0.5">
                 <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate pr-2">
                   {{ member.nickname }}
-                  <span v-if="member.role === 'admin'" class="text-lime-600 bg-lime-100 dark:bg-lime-900 dark:text-lime-400 px-1 py-0.5 rounded ml-1 inline-flex items-center justify-center">
+                  <span v-if="member.role === 'admin'" class="text-lime-600 bg-lime-100 dark:bg-lime-900 dark:text-lime-400 px-2 py-1 text-xs rounded ml-1 inline-flex items-center justify-center">
                     <Crown :size="10" />
                   </span>
                 </span>

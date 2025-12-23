@@ -610,6 +610,16 @@ const fetchData = async () => {
     // Fetch books using Composable
     await fetchBooks()
 
+    // Handle bookId from query parameter (e.g., from profile navigation)
+    if (route.query.bookId) {
+      const bookIdFromQuery = route.query.bookId as string
+      // Verify the book exists in our fetched books
+      const bookExists = allBooks.value.some(b => b.id === bookIdFromQuery)
+      if (bookExists) {
+        selectedBookId.value = bookIdFromQuery
+      }
+    }
+
     // Fetch user's reviews to track which books have been reviewed
     await fetchUserReviews()
 
@@ -645,6 +655,23 @@ onMounted(async () => {
 
   // Setup realtime subscriptions
   setupCommentSubscription()
+
+  // Handle query parameters from navigation (e.g., from profile)
+  if (route.query.jumpTo) {
+    const jumpToPct = parseFloat(route.query.jumpTo as string)
+    if (!isNaN(jumpToPct)) {
+      viewProgress.value = jumpToPct
+    }
+  }
+
+  if (route.query.highlightComment) {
+    highlightedCommentId.value = route.query.highlightComment as string
+    // Remove highlight after 2 seconds
+    if (highlightTimeout) clearTimeout(highlightTimeout)
+    highlightTimeout = setTimeout(() => {
+      highlightedCommentId.value = null
+    }, 2000)
+  }
 
   // 현재 진행도 위치로 자동 스크롤
   if (viewProgress.value > 0) {

@@ -31,7 +31,7 @@
                 : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:ring-2 focus:ring-lime-400'
             ]"
           />
-          <div v-if="anchorTextLocked" class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-zinc-600 dark:text-zinc-500 bg-white dark:bg-zinc-900 px-2 py-0.5 rounded">
+          <div v-if="anchorTextLocked" class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-600 dark:text-zinc-500 bg-white dark:bg-zinc-900 px-2 py-1 rounded">
             고정됨
           </div>
         </div>

@@ -70,7 +70,7 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between mb-1">
                 <p class="font-bold text-sm text-zinc-900 dark:text-white truncate">{{ review.user?.display_name || '익명' }}</p>
-                <div class="flex items-center gap-1 bg-lime-50 dark:bg-lime-900/20 px-2 py-1 rounded-lg">
+                <div class="flex items-center gap-1 bg-lime-50 dark:bg-lime-900/20 px-2 py-1 rounded">
                   <Star :size="12" fill="#84cc16" class="text-lime-500" />
                   <span class="text-xs font-bold text-lime-700 dark:text-lime-400">{{ review.rating.toFixed(1) }}</span>
                 </div>

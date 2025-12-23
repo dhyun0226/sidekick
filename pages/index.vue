@@ -74,13 +74,13 @@
                 </h4>
                 <div class="flex items-center gap-1.5 flex-shrink-0">
                   <!-- D-Day Badge -->
-                  <div class="bg-lime-400 text-black text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-sm border border-lime-300">
+                  <div class="flex items-center bg-lime-50/90 dark:bg-lime-900/40 text-lime-700 dark:text-lime-300 text-xs font-bold px-2 py-1 rounded backdrop-blur-sm">
                     {{ getDdayShort(group.currentBook.target_end_date) }}
                   </div>
                   <!-- Members Badge -->
-                  <div class="flex items-center gap-1 bg-black/20 px-1.5 py-0.5 rounded-full backdrop-blur-md border border-white/5">
-                    <User :size="10" class="text-white/80" />
-                    <span class="text-[10px] font-bold text-white/90">{{ group.members.length }}</span>
+                  <div class="flex items-center gap-1 bg-white/90 dark:bg-zinc-800/90 text-zinc-700 dark:text-zinc-300 px-2 py-1 rounded backdrop-blur-sm">
+                    <User :size="12" />
+                    <span class="text-xs font-bold">{{ group.members.length }}</span>
                   </div>
                 </div>
               </div>

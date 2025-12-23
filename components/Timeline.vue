@@ -8,10 +8,10 @@
     >
       <!-- Position Badge -->
       <div class="flex items-center gap-2 mb-2">
-        <div class="flex items-center gap-1 px-2 py-0.5 bg-zinc-200 dark:bg-zinc-800 rounded-full border border-zinc-300 dark:border-zinc-700">
-          <span class="text-[10px] text-lime-400 font-mono font-bold">{{ Math.round(group.position) }}%</span>
+        <div class="flex items-center gap-1 px-2 py-1 bg-zinc-200 dark:bg-zinc-800 rounded border border-zinc-300 dark:border-zinc-700">
+          <span class="text-xs text-lime-400 font-mono font-bold">{{ Math.round(group.position) }}%</span>
         </div>
-        <span class="text-[10px] text-zinc-500 dark:text-zinc-600">{{ group.totalCount }}개 댓글</span>
+        <span class="text-xs text-zinc-500 dark:text-zinc-600">{{ group.totalCount }}개 댓글</span>
       </div>
 
       <!-- Anchor Text (Quote) -->
@@ -34,10 +34,10 @@
           <!-- Spoiler Badge (Small, Top-Right) -->
           <div
             v-if="isSpoiler(group.position)"
-            class="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 bg-zinc-200 dark:bg-zinc-800/95 backdrop-blur-sm rounded-full border border-zinc-300 dark:border-zinc-700/50 z-10"
+            class="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 bg-zinc-200 dark:bg-zinc-800/95 backdrop-blur-sm rounded border border-zinc-300 dark:border-zinc-700/50 z-10"
           >
             <Lock :size="10" />
-            <span class="text-[10px] text-zinc-600 dark:text-zinc-500 font-medium">스포일러</span>
+            <span class="text-xs text-zinc-600 dark:text-zinc-500 font-medium">스포일러</span>
           </div>
 
           <!-- User Info -->
@@ -74,13 +74,13 @@
             <div class="flex gap-2 mt-2">
               <button
                 @click="saveEdit(comment.id)"
-                class="px-3 py-1 bg-lime-400 text-black text-xs font-medium rounded-lg hover:bg-lime-300"
+                class="px-3 py-1.5 bg-lime-400 text-black text-xs font-medium rounded-lg hover:bg-lime-300"
               >
                 저장
               </button>
               <button
                 @click="cancelEdit"
-                class="px-3 py-1 bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white text-xs font-medium rounded-lg hover:bg-zinc-300 dark:hover:bg-zinc-600"
+                class="px-3 py-1.5 bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white text-xs font-medium rounded-lg hover:bg-zinc-300 dark:hover:bg-zinc-600"
               >
                 취소
               </button>
@@ -163,13 +163,13 @@
                 <div class="flex gap-2 mt-2">
                   <button
                     @click="saveReplyEdit(comment.replies[0].id)"
-                    class="px-2 py-1 bg-lime-400 text-black text-[10px] font-medium rounded hover:bg-lime-300"
+                    class="px-2 py-1 bg-lime-400 text-black text-xs font-medium rounded hover:bg-lime-300"
                   >
                     저장
                   </button>
                   <button
                     @click="cancelReplyEdit"
-                    class="px-2 py-1 bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white text-[10px] font-medium rounded hover:bg-zinc-300 dark:hover:bg-zinc-600"
+                    class="px-2 py-1 bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white text-xs font-medium rounded hover:bg-zinc-300 dark:hover:bg-zinc-600"
                   >
                     취소
                   </button>

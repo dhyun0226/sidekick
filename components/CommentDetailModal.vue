@@ -61,13 +61,13 @@
             <div class="flex gap-2 mt-2">
               <button
                 @click="saveEdit(comment.id)"
-                class="px-3 py-1 bg-lime-400 text-black text-xs font-medium rounded-lg hover:bg-lime-300"
+                class="px-3 py-1.5 bg-lime-400 text-black text-xs font-medium rounded-lg hover:bg-lime-300"
               >
                 저장
               </button>
               <button
                 @click="cancelEdit"
-                class="px-3 py-1 bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white text-xs font-medium rounded-lg hover:bg-zinc-300 dark:hover:bg-zinc-600"
+                class="px-3 py-1.5 bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white text-xs font-medium rounded-lg hover:bg-zinc-300 dark:hover:bg-zinc-600"
               >
                 취소
               </button>
@@ -148,13 +148,13 @@
                 <div class="flex gap-2 mt-2">
                   <button
                     @click="saveReplyEdit(reply.id)"
-                    class="px-2 py-1 bg-lime-400 text-black text-[10px] font-medium rounded hover:bg-lime-300"
+                    class="px-2 py-1 bg-lime-400 text-black text-xs font-medium rounded hover:bg-lime-300"
                   >
                     저장
                   </button>
                   <button
                     @click="cancelReplyEdit"
-                    class="px-2 py-1 bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white text-[10px] font-medium rounded hover:bg-zinc-300 dark:hover:bg-zinc-600"
+                    class="px-2 py-1 bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white text-xs font-medium rounded hover:bg-zinc-300 dark:hover:bg-zinc-600"
                   >
                     취소
                   </button>
