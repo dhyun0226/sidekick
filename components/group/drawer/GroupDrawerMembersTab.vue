@@ -28,7 +28,6 @@
                 <div class="flex items-center gap-2">
                   <span class="text-xs font-mono font-bold" :class="member.isCompleted ? 'text-lime-500' : 'text-zinc-500'">
                     {{ member.progress }}%
-                    <span v-if="member.isCompleted">✅</span>
                   </span>
 
                   <!-- Admin Menu (관리자만 보임, 자기 자신 제외) -->
@@ -99,8 +98,7 @@
           <!-- Progress Bar -->
           <div class="h-1.5 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
             <div
-              class="h-full rounded-full transition-all duration-500 ease-out"
-              :class="member.isCompleted ? 'bg-lime-500' : 'bg-zinc-400 dark:bg-zinc-600'"
+              class="h-full bg-lime-500 dark:bg-lime-400 rounded-full transition-all duration-500 ease-out"
               :style="{ width: `${member.progress}%` }"
             ></div>
           </div>

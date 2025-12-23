@@ -1,15 +1,66 @@
 <template>
   <div class="space-y-4">
     <!-- Header -->
-    <div class="flex items-center justify-between px-1">
-      <h3 class="text-xs font-bold text-zinc-500 uppercase">책장</h3>
-      <span class="text-[10px] text-zinc-400">총 {{ historyBooks.length }}권 완독</span>
+    <div class="flex items-center justify-between px-1 h-4" :class="showSearch ? 'mb-2' : 'mb-3'">
+      <div class="flex items-center gap-2">
+        <h3 class="text-xs font-bold text-zinc-500 uppercase leading-none">책장</h3>
+        <!-- Sort Button -->
+        <div class="relative flex items-center">
+          <button
+            @click="showSortMenu = !showSortMenu"
+            class="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors text-zinc-400 leading-none"
+            title="정렬"
+          >
+            <ArrowUpDown :size="12" class="block" />
+          </button>
+          <!-- Sort Dropdown -->
+          <div v-if="showSortMenu" class="absolute left-0 top-6 min-w-[180px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[201]" @click.stop>
+            <button
+              v-for="option in sortOptions"
+              :key="option.value"
+              @click="selectSort(option.value)"
+              class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-between"
+              :class="sortBy === option.value
+                ? 'bg-lime-50 dark:bg-lime-900/20 text-lime-700 dark:text-lime-500 font-medium'
+                : 'text-zinc-700 dark:text-zinc-300'"
+            >
+              <span>{{ option.label }}</span>
+              <Check v-if="sortBy === option.value" :size="12" />
+            </button>
+          </div>
+          <div v-if="showSortMenu" class="fixed inset-0 z-[200]" @click="showSortMenu = false"></div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] text-zinc-400 leading-none">총 {{ filteredAndSortedBooks.length }}권</span>
+        <!-- Search Toggle -->
+        <button
+          @click="showSearch = !showSearch"
+          class="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors text-zinc-400 leading-none"
+          :class="{ 'text-lime-500': showSearch || searchQuery }"
+          title="검색"
+        >
+          <Search :size="12" class="block" />
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Input (Expandable) -->
+    <div v-if="showSearch" class="px-1 mb-3 animate-fade-in">
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="제목, 저자로 검색..."
+        class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-xs rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
+        autofocus
+      />
     </div>
 
     <!-- Books List -->
-    <div v-if="historyBooks.length > 0" class="space-y-2">
+    <div v-if="filteredAndSortedBooks.length > 0" class="space-y-2">
       <div
-        v-for="book in historyBooks"
+        v-for="book in filteredAndSortedBooks"
         :key="book.id"
         class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 transition-all hover:border-lime-300 dark:hover:border-lime-600 relative"
         :class="activeBookMenu === book.id ? 'z-[250] overflow-visible' : 'overflow-hidden'"
@@ -87,15 +138,15 @@
 
     <!-- Empty State -->
     <div v-else class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
-      <div class="text-4xl mb-3">📚</div>
-      <p>아직 완독한 책이 없습니다</p>
+      <div class="text-4xl mb-3">{{ searchQuery ? '🔍' : '📚' }}</div>
+      <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 완독한 책이 없습니다' }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { MessageCircle, Star, MoreVertical, RotateCcw, Calendar, Trash2, Edit3 } from 'lucide-vue-next'
+import { ref, computed } from 'vue'
+import { MessageCircle, Star, MoreVertical, RotateCcw, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check } from 'lucide-vue-next'
 
 interface HistoryBook {
   id: string
@@ -129,6 +180,54 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const activeBookMenu = ref<string | null>(null)
+const showSortMenu = ref(false)
+const showSearch = ref(false)
+const searchQuery = ref('')
+const sortBy = ref<'date-desc' | 'date-asc' | 'title' | 'author'>('date-desc')
+
+const sortOptions = [
+  { value: 'date-desc', label: '최신순' },
+  { value: 'date-asc', label: '오래된순' },
+  { value: 'title', label: '제목순' },
+  { value: 'author', label: '저자순' }
+] as const
+
+// Filtered and sorted books
+const filteredAndSortedBooks = computed(() => {
+  let books = [...props.historyBooks]
+
+  // 1. Filter by search query
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase()
+    books = books.filter(book =>
+      book.title.toLowerCase().includes(query) ||
+      book.author.toLowerCase().includes(query)
+    )
+  }
+
+  // 2. Sort
+  books.sort((a, b) => {
+    switch (sortBy.value) {
+      case 'date-desc':
+        return new Date(b.date).getTime() - new Date(a.date).getTime()
+      case 'date-asc':
+        return new Date(a.date).getTime() - new Date(b.date).getTime()
+      case 'title':
+        return a.title.localeCompare(b.title, 'ko')
+      case 'author':
+        return a.author.localeCompare(b.author, 'ko')
+      default:
+        return 0
+    }
+  })
+
+  return books
+})
+
+const selectSort = (value: typeof sortBy.value) => {
+  sortBy.value = value
+  showSortMenu.value = false
+}
 
 const toggleBookMenu = (bookId: string) => {
   activeBookMenu.value = activeBookMenu.value === bookId ? null : bookId
@@ -154,3 +253,20 @@ const handleReview = (bookId: string) => {
   emit('openReview', bookId)
 }
 </script>
+
+<style scoped>
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+</style>
