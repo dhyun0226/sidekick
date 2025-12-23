@@ -80,27 +80,30 @@
           </div>
         </div>
       </div>
+      </div>
 
       <!-- Chapter Navigation (선택된 책의 목차) -->
-      <div v-if="selectedBook && toc.length > 0 && isSelectedBookReading" class="border-t border-zinc-200 dark:border-zinc-800">
-        <div class="px-4 py-3">
-          <h4 class="text-xs font-bold text-zinc-500 uppercase">목차 바로가기</h4>
+      <div v-if="selectedBook && toc.length > 0 && isSelectedBookReading" class="mt-4">
+        <div class="flex items-center justify-between px-1 mb-3">
+          <h3 class="text-xs font-bold text-zinc-500 uppercase">목차</h3>
+          <span class="text-[10px] text-zinc-400">{{ toc.length }}개</span>
         </div>
-        <div class="divide-y divide-zinc-100 dark:divide-zinc-800/50">
-          <button
-            v-for="(chapter, index) in toc"
-            :key="index"
-            @click="emit('jumpToChapter', chapter.start)"
-            class="w-full text-left px-4 py-3 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800 flex justify-between items-center group transition-colors"
-            :class="{ 'bg-lime-50/50 dark:bg-lime-900/10': isCurrentChapter(chapter) }"
-          >
-            <span class="text-zinc-700 dark:text-zinc-300 truncate pr-2" :class="{ 'font-bold text-lime-700 dark:text-lime-400': isCurrentChapter(chapter) }">
-              {{ chapter.title }}
-            </span>
-            <span class="text-[10px] text-zinc-400">{{ Math.round(chapter.start) }}%</span>
-          </button>
+        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+          <div class="divide-y divide-zinc-100 dark:divide-zinc-800/50">
+            <button
+              v-for="(chapter, index) in toc"
+              :key="index"
+              @click="emit('jumpToChapter', chapter.start)"
+              class="w-full text-left px-4 py-3 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800 flex justify-between items-center group transition-colors"
+              :class="{ 'bg-lime-50/50 dark:bg-lime-900/10': isCurrentChapter(chapter) }"
+            >
+              <span class="text-zinc-700 dark:text-zinc-300 truncate pr-2" :class="{ 'font-bold text-lime-700 dark:text-lime-400': isCurrentChapter(chapter) }">
+                {{ chapter.title }}
+              </span>
+              <span class="text-[10px] text-zinc-400">{{ Math.round(chapter.start) }}%</span>
+            </button>
+          </div>
         </div>
-      </div>
       </div>
     </div>
   </div>

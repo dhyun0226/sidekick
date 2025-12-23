@@ -82,24 +82,24 @@
           :style="tooltipPositionStyle"
         >
           <span class="text-lime-600 dark:text-lime-400 font-bold mr-1">
-            {{ currentPage ? `${currentPage}p` : `${Math.round(currentPct)}%` }}
+            {{ Math.round(currentPct) }}%
           </span>
-          <span v-if="currentPage" class="text-zinc-500 dark:text-zinc-400 mr-2">({{ Math.round(currentPct) }}%)</span>
-          {{ currentChapterName }}
+          <span v-if="currentPage" class="text-zinc-500 dark:text-zinc-400 mr-1">· {{ currentPage }}p</span>
+          <span class="text-zinc-600 dark:text-zinc-400">{{ currentChapterName }}</span>
         </div>
         </div>
       </div>
 
       <!-- Action Bar (Optional, e.g. Write Button) -->
-      <div class="flex justify-between items-center px-4 py-3">
-        <div class="text-xs text-zinc-600 dark:text-zinc-500 font-mono">
+      <div class="flex justify-between items-center px-4 py-5 gap-4">
+        <div class="text-xs text-zinc-600 dark:text-zinc-500 font-mono flex-1 min-w-0">
           {{ currentChapterName }}
         </div>
         <button
           @click="$emit('write')"
-          class="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-lime-400 hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors"
+          class="w-12 h-12 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-lime-400 hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors flex-shrink-0"
         >
-          <PenLine :size="20" />
+          <PenLine :size="22" />
         </button>
       </div>
 
@@ -218,9 +218,12 @@ const tooltipPositionStyle = computed(() => {
 
 // Haptic feedback function
 const triggerHaptic = () => {
-  // Check if Vibration API is available (mobile devices)
+  // Note: Vibration API is NOT supported on iOS (iPhone/iPad)
+  // Only works on Android devices (both browser and PWA)
   if ('vibrate' in navigator) {
-    navigator.vibrate(10) // Light haptic feedback (10ms)
+    // Stronger haptic: 25ms vibration for better tactile feedback
+    // Pattern could be used for more complex feedback: [duration, pause, duration]
+    navigator.vibrate(25) // Medium haptic feedback (25ms)
   }
 }
 

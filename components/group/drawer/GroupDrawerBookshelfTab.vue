@@ -2,7 +2,7 @@
   <div class="space-y-4">
     <!-- Header -->
     <div class="flex items-center justify-between px-1">
-      <h3 class="text-xs font-bold text-zinc-500 uppercase">📚 책장</h3>
+      <h3 class="text-xs font-bold text-zinc-500 uppercase">책장</h3>
       <span class="text-[10px] text-zinc-400">총 {{ historyBooks.length }}권 완독</span>
     </div>
 

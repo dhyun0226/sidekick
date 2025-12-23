@@ -239,6 +239,9 @@ onMounted(async () => {
   const { data: { user: currentUser } } = await client.auth.getUser()
   if (!currentUser) return
 
+  // 🔥 Fix: Fetch initial notifications on mount to show unread badge
+  await fetchNotifications()
+
   const channel = client
     .channel('notifications')
     .on(
