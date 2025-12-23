@@ -121,15 +121,17 @@ withDefaults(defineProps<Props>(), {
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
+</style>
 
-/* Dark mode shimmer */
-:global(.dark) .skeleton {
+<style>
+/* Dark mode shimmer - 더 어두운 색상으로 눈의 피로 감소 */
+.dark .skeleton {
   background: linear-gradient(
     90deg,
-    rgb(39 39 42) 0%,
-    rgb(63 63 70) 50%,
-    rgb(39 39 42) 100%
-  );
+    rgb(24 24 27) 0%,
+    rgb(39 39 42) 50%,
+    rgb(24 24 27) 100%
+  ) !important;
   background-size: 200% 100%;
 }
 </style>
