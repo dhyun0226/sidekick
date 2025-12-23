@@ -20,7 +20,7 @@
         class="mb-3 font-serif italic text-lime-400/90 text-sm leading-relaxed transition-all duration-300 px-3 py-2 bg-lime-100 dark:bg-zinc-800/30 rounded-lg border-l-2 border-lime-400/50"
         :class="{ 'blur-sm opacity-40 select-none': isSpoiler(group.position) }"
       >
-        "{{ group.anchorText }}"
+        {{ group.anchorText }}
       </div>
 
       <!-- Preview Comments (Top 2) -->

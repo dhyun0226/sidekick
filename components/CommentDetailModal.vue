@@ -24,7 +24,7 @@
           v-if="anchorText"
           class="font-serif italic text-lime-400/90 text-sm leading-relaxed px-3 py-2 bg-lime-100 dark:bg-zinc-800/50 rounded-lg border-l-2 border-lime-400/50"
         >
-          "{{ anchorText }}"
+          {{ anchorText }}
         </div>
       </div>
 
