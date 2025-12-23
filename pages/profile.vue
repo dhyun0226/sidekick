@@ -232,8 +232,147 @@
         </div>
 
         <div v-else class="space-y-3">
-          <!-- Heatmap Component -->
-          <ReadingHeatmap :activities="timeline" />
+          <!-- Yearly Goal Card -->
+          <div class="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800 relative"
+               :class="isGoalAchieved ? 'ring-2 ring-lime-400/50' : ''">
+
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <h4 class="text-sm font-bold text-zinc-900 dark:text-white">
+                  {{ new Date().getFullYear() }}년 독서 목표
+                </h4>
+                <!-- Year-over-year growth badge (compact) -->
+                <div v-if="lastYearBooks > 0" class="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold"
+                     :class="yearOverYearGrowth >= 0
+                       ? 'bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400'
+                       : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400'">
+                  <span>{{ yearOverYearGrowth >= 0 ? '+' : '' }}{{ yearOverYearGrowth }}%</span>
+                </div>
+              </div>
+              <button v-if="!editingGoal" @click="startEditGoal" class="text-xs text-lime-600 hover:text-lime-500 font-bold">
+                수정
+              </button>
+            </div>
+
+            <!-- Goal Edit Mode -->
+            <div v-if="editingGoal" class="space-y-3">
+              <div class="flex items-center gap-2">
+                <input
+                  v-model.number="tempGoal"
+                  type="number"
+                  min="1"
+                  class="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 text-zinc-900 dark:text-white"
+                />
+                <span class="text-sm text-zinc-600 dark:text-zinc-400">권</span>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  @click="saveGoal"
+                  class="flex-1 px-3 py-1.5 bg-lime-400 text-black rounded-lg text-xs font-bold hover:bg-lime-300"
+                >
+                  저장
+                </button>
+                <button
+                  @click="cancelEditGoal"
+                  class="flex-1 px-3 py-1.5 bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white rounded-lg text-xs font-bold hover:bg-zinc-300 dark:hover:bg-zinc-600"
+                >
+                  취소
+                </button>
+              </div>
+            </div>
+
+            <!-- Goal Display Mode -->
+            <div v-else>
+              <!-- Progress -->
+              <div class="mb-2">
+                <div class="flex justify-between items-end mb-1">
+                  <span class="text-2xl font-bold text-zinc-900 dark:text-white">
+                    {{ thisYearBooks }}<span class="text-base text-zinc-500">/ {{ yearlyGoal }}</span>
+                  </span>
+                  <span class="text-sm text-zinc-500">{{ Math.round((thisYearBooks/yearlyGoal)*100) }}%</span>
+                </div>
+                <div class="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-2">
+                  <div
+                    class="bg-lime-400 h-2 rounded-full transition-all duration-500"
+                    :style="{ width: `${Math.min((thisYearBooks/yearlyGoal)*100, 100)}%` }"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Compact Info -->
+              <div class="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 mb-3">
+                <span>{{ daysLeftInYear }}일 남음</span>
+                <span>·</span>
+                <span>월 {{ booksNeededPerMonth }}권 필요</span>
+                <span>·</span>
+                <span v-if="isGoalAchieved" class="text-lime-600 dark:text-lime-400 font-bold">🎉 달성!</span>
+                <span v-else-if="onTrack" class="text-green-600 dark:text-green-400 font-bold">✅ 달성 중</span>
+                <span v-else class="text-orange-600 dark:text-orange-400 font-bold">💪 파이팅</span>
+              </div>
+
+              <!-- Monthly Progress Chart (Line Graph) -->
+              <div v-if="monthlyProgress.length > 0" class="pt-3 border-t border-zinc-200 dark:border-zinc-800">
+                <h5 class="text-xs font-bold text-zinc-600 dark:text-zinc-400 mb-2">월별 진행</h5>
+                <div class="w-full px-3">
+                  <!-- Chart Area -->
+                  <div class="h-16 w-full mb-2 relative">
+                    <svg
+                      class="absolute inset-0 w-full h-full"
+                      :viewBox="`-10 0 ${Math.max(monthlyProgress.length - 1, 1) * 100 + 20} 100`"
+                      preserveAspectRatio="none"
+                    >
+                      <!-- Line -->
+                      <polyline
+                        v-if="monthlyProgress.length > 1"
+                        :points="monthlyProgress.map((m, i) =>
+                          `${i * 100},${100 - (m.count / maxMonthlyCount) * 90}`
+                        ).join(' ')"
+                        fill="none"
+                        stroke="#a3e635"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+
+                      <!-- Points -->
+                      <g v-for="(month, i) in monthlyProgress" :key="'point-' + month.month">
+                        <circle
+                          :cx="i * 100"
+                          :cy="100 - (month.count / maxMonthlyCount) * 90"
+                          r="4"
+                          fill="#84cc16"
+                        />
+                      </g>
+                    </svg>
+                  </div>
+
+                  <!-- Labels (positioned absolutely to match SVG points exactly) -->
+                  <div class="relative w-full h-4">
+                    <span
+                      v-for="(month, i) in monthlyProgress"
+                      :key="'label-' + month.month"
+                      class="absolute text-[9px] text-zinc-400 transform -translate-x-1/2 whitespace-nowrap"
+                      :style="{
+                        left: monthlyProgress.length === 1
+                          ? '50%'
+                          : `${((i * 100 + 10) / (Math.max(monthlyProgress.length - 1, 1) * 100 + 20)) * 100}%`
+                      }"
+                    >
+                      {{ month.month }}월
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Heatmap Component with Streak Info -->
+          <ReadingHeatmap
+            :activities="timeline"
+            :currentStreak="currentStreak"
+            :longestStreak="longestStreak"
+            @day-click="handleDayClick"
+          />
 
           <!-- Stats Summary -->
           <div class="pt-3 border-t border-zinc-200 dark:border-zinc-800">
@@ -651,6 +790,88 @@
       </div>
     </div>
 
+    <!-- Day Activity Detail Modal -->
+    <div v-if="showDayActivityModal && selectedDay" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <!-- Backdrop -->
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-md" @click="closeDayActivity"></div>
+
+      <!-- Modal Content -->
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 max-h-[85vh] flex flex-col overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-800 dark:to-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-4 py-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-bold text-zinc-900 dark:text-white">{{ selectedDay.dateString }}</h2>
+              <p class="text-xs text-zinc-500 mt-1">{{ selectedDay.count }}개의 활동</p>
+            </div>
+            <button @click="closeDayActivity" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
+              <X :size="20" class="text-zinc-600 dark:text-zinc-400" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Activities List -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3">
+          <div
+            v-for="item in selectedDay.activities"
+            :key="item.id"
+            @click="navigateToItem(item)"
+            class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 cursor-pointer hover:border-lime-400 dark:hover:border-lime-500 transition-all"
+          >
+            <!-- Meta Info -->
+            <div class="flex items-center gap-2 mb-3 text-xs">
+              <span class="text-zinc-500 dark:text-zinc-400">{{ item.groupName }}</span>
+              <span class="text-zinc-300 dark:text-zinc-700">·</span>
+              <span class="text-zinc-500 dark:text-zinc-400">{{ formatTimeAgo(item.created_at) }}</span>
+              <span class="text-zinc-300 dark:text-zinc-700">·</span>
+
+              <!-- Review: Show rating stars inline -->
+              <template v-if="item.type === 'review'">
+                <div class="flex items-center gap-1">
+                  <div class="flex gap-0.5">
+                    <Star
+                      v-for="i in 5"
+                      :key="i"
+                      :size="12"
+                      :fill="getStarType(i, item.rating) !== 'empty' ? '#EAB308' : 'none'"
+                      :class="getStarType(i, item.rating) !== 'empty' ? 'text-yellow-500' : 'text-zinc-300 dark:text-zinc-600'"
+                    />
+                  </div>
+                  <span class="font-bold text-yellow-600">{{ item.rating }}</span>
+                </div>
+              </template>
+
+              <!-- Comment: Show position percentage -->
+              <span v-else class="text-lime-600 dark:text-lime-400 font-bold">
+                {{ Math.round(item.position_pct) }}%
+              </span>
+            </div>
+
+            <!-- Quote -->
+            <div v-if="item.anchor_text" class="mb-3 pl-3 border-l-2 border-zinc-200 dark:border-zinc-700">
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 italic leading-relaxed">
+                {{ item.anchor_text }}
+              </p>
+            </div>
+
+            <!-- Content -->
+            <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
+              {{ item.content }}
+            </p>
+          </div>
+
+          <!-- Empty State -->
+          <div v-if="selectedDay.count === 0" class="text-center py-12">
+            <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
+              📭
+            </div>
+            <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">활동이 없습니다</h3>
+            <p class="text-xs text-zinc-500">이 날은 기록이 없네요</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Logout Confirmation Modal -->
     <ConfirmModal
       :isOpen="showLogoutConfirm"
@@ -714,6 +935,15 @@ const showBookDetailModal = ref(false)
 const selectedBook = ref<any>(null)
 const bookDetailTab = ref<'all' | 'review' | 'comments'>('all')
 
+// Day Activity Modal State
+const showDayActivityModal = ref(false)
+const selectedDay = ref<any>(null)
+
+// Yearly Goal State
+const yearlyGoal = ref(50) // Default goal: 50 books per year
+const editingGoal = ref(false)
+const tempGoal = ref(50)
+
 // Edit Profile State
 const editNickname = ref('')
 const previewAvatar = ref('')
@@ -738,6 +968,175 @@ const thisMonthComments = computed(() => {
     const d = new Date(item.created_at)
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
   }).length
+})
+
+// Yearly goal calculations
+const thisYearBooks = computed(() => {
+  const now = new Date()
+  return library.value.filter(book => {
+    const d = new Date(book.finished_at)
+    return d.getFullYear() === now.getFullYear()
+  }).length
+})
+
+const daysLeftInYear = computed(() => {
+  const now = new Date()
+  const endOfYear = new Date(now.getFullYear(), 11, 31, 23, 59, 59)
+  return Math.ceil((endOfYear.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+})
+
+const monthsLeftInYear = computed(() => {
+  const now = new Date()
+  return 12 - now.getMonth()
+})
+
+const booksNeededPerMonth = computed(() => {
+  const remaining = yearlyGoal.value - thisYearBooks.value
+  if (remaining <= 0) return 0
+  return (remaining / monthsLeftInYear.value).toFixed(1)
+})
+
+const onTrack = computed(() => {
+  const now = new Date()
+  const monthsPassed = now.getMonth() + 1
+  const expectedBooks = (yearlyGoal.value / 12) * monthsPassed
+  return thisYearBooks.value >= expectedBooks
+})
+
+// Monthly progress chart data
+const monthlyProgress = computed(() => {
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const currentMonth = now.getMonth() // 0-11
+
+  const months = []
+  for (let month = 0; month <= currentMonth; month++) {
+    const count = library.value.filter(book => {
+      const d = new Date(book.finished_at)
+      return d.getFullYear() === currentYear && d.getMonth() === month
+    }).length
+
+    months.push({
+      month: month + 1, // 1-12
+      count,
+      name: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'][month]
+    })
+  }
+
+  return months
+})
+
+const maxMonthlyCount = computed(() => {
+  return Math.max(...monthlyProgress.value.map(m => m.count), 1)
+})
+
+// Year-over-year growth
+const lastYearBooks = computed(() => {
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const lastYear = currentYear - 1
+  const currentDayOfYear = Math.floor((now.getTime() - new Date(currentYear, 0, 0).getTime()) / (1000 * 60 * 60 * 24))
+
+  return library.value.filter(book => {
+    const d = new Date(book.finished_at)
+    if (d.getFullYear() !== lastYear) return false
+
+    const dayOfYear = Math.floor((d.getTime() - new Date(lastYear, 0, 0).getTime()) / (1000 * 60 * 60 * 24))
+    return dayOfYear <= currentDayOfYear
+  }).length
+})
+
+const yearOverYearGrowth = computed(() => {
+  if (lastYearBooks.value === 0) {
+    return thisYearBooks.value > 0 ? 100 : 0
+  }
+  return Math.round(((thisYearBooks.value - lastYearBooks.value) / lastYearBooks.value) * 100)
+})
+
+// Goal achievement
+const isGoalAchieved = computed(() => {
+  return thisYearBooks.value >= yearlyGoal.value
+})
+
+// Streak calculations
+const currentStreak = computed(() => {
+  if (timeline.value.length === 0) return 0
+
+  // Get unique dates with activity
+  const dates = [...new Set(timeline.value.map(item =>
+    new Date(item.created_at).toISOString().split('T')[0]
+  ))].sort().reverse()
+
+  if (dates.length === 0) return 0
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  const todayStr = today.toISOString().split('T')[0]
+  const yesterdayStr = yesterday.toISOString().split('T')[0]
+
+  // Streak must start from today or yesterday
+  if (dates[0] !== todayStr && dates[0] !== yesterdayStr) return 0
+
+  let streak = 1
+  for (let i = 1; i < dates.length; i++) {
+    const currentDate = new Date(dates[i - 1])
+    const nextDate = new Date(dates[i])
+    const diffDays = Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24))
+
+    if (diffDays === 1) {
+      streak++
+    } else {
+      break
+    }
+  }
+
+  return streak
+})
+
+const longestStreak = computed(() => {
+  if (timeline.value.length === 0) return 0
+
+  const dates = [...new Set(timeline.value.map(item =>
+    new Date(item.created_at).toISOString().split('T')[0]
+  ))].sort()
+
+  if (dates.length === 0) return 0
+
+  let maxStreak = 1
+  let currentStreakCount = 1
+
+  for (let i = 1; i < dates.length; i++) {
+    const prevDate = new Date(dates[i - 1])
+    const currDate = new Date(dates[i])
+    const diffDays = Math.floor((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24))
+
+    if (diffDays === 1) {
+      currentStreakCount++
+      maxStreak = Math.max(maxStreak, currentStreakCount)
+    } else {
+      currentStreakCount = 1
+    }
+  }
+
+  return maxStreak
+})
+
+const nextMilestone = computed(() => {
+  const milestones = [7, 14, 30, 50, 100, 200, 365]
+  return milestones.find(m => m > currentStreak.value) || currentStreak.value + 100
+})
+
+const daysUntilNextMilestone = computed(() => {
+  return nextMilestone.value - currentStreak.value
+})
+
+const daysLeftInMonth = computed(() => {
+  const now = new Date()
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  return lastDay.getDate() - now.getDate()
 })
 
 // Book Detail Modal Computed
@@ -977,6 +1376,16 @@ const fetchData = async () => {
     console.log('[Profile] Final stats:', stats.value)
     console.log('[Profile] Timeline items:', timeline.value.length)
     console.log('[Profile] Library items:', library.value.length)
+
+    // 4. Load yearly goal
+    const { data: userData } = await client
+      .from('users')
+      .select('yearly_reading_goal')
+      .eq('id', userId)
+      .single()
+
+    yearlyGoal.value = userData?.yearly_reading_goal || 50
+    console.log('[Profile] Yearly goal:', yearlyGoal.value)
 
   } catch (err: any) {
     console.error('[Profile] Fetch profile data error:', err)
@@ -1249,6 +1658,69 @@ const saveProfile = async () => {
   }
 }
 
+// Day Activity Modal Handlers
+const handleDayClick = (day: any) => {
+  selectedDay.value = day
+  showDayActivityModal.value = true
+}
+
+const closeDayActivity = () => {
+  showDayActivityModal.value = false
+  selectedDay.value = null
+}
+
+// Yearly Goal Handlers
+const startEditGoal = () => {
+  tempGoal.value = yearlyGoal.value
+  editingGoal.value = true
+}
+
+const saveGoal = async () => {
+  if (tempGoal.value <= 0) {
+    toast.error('목표는 1권 이상이어야 합니다')
+    return
+  }
+
+  // Get user ID more reliably
+  const userId = userStore.profile?.id || userStore.user?.id
+
+  if (!userId) {
+    console.error('[Profile] saveGoal: No user ID available')
+    console.log('[Profile] userStore.profile:', userStore.profile)
+    console.log('[Profile] userStore.user:', userStore.user)
+    toast.error('사용자 정보를 찾을 수 없습니다')
+    return
+  }
+
+  try {
+    console.log('[Profile] Saving yearly goal:', tempGoal.value, 'for user:', userId)
+
+    // DB에 저장
+    const { error } = await client
+      .from('users')
+      .update({ yearly_reading_goal: tempGoal.value })
+      .eq('id', userId)
+
+    if (error) {
+      console.error('[Profile] Update goal error:', error)
+      throw error
+    }
+
+    yearlyGoal.value = tempGoal.value
+    editingGoal.value = false
+    toast.success('목표가 저장되었습니다')
+
+    console.log('[Profile] Goal saved successfully')
+  } catch (err: any) {
+    console.error('Save goal error:', err)
+    toast.error('목표 저장에 실패했습니다: ' + err.message)
+  }
+}
+
+const cancelEditGoal = () => {
+  editingGoal.value = false
+}
+
 const showLogoutConfirm = ref(false)
 
 const handleSignOut = () => {
@@ -1281,5 +1753,15 @@ const cancelLogout = () => {
 }
 .animate-scale-up {
   animation: scale-up 0.2s ease-out;
+}
+
+/* Goal Achievement - Subtle glow effect */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(163, 230, 53, 0);
+  }
 }
 </style>
