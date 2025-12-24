@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
     <!-- Header -->
     <div class="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="px-8">
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center gap-4">
             <NuxtLink to="/" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
@@ -19,7 +19,7 @@
     </div>
 
     <!-- Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="px-8 py-8">
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <!-- Pending TOC -->
@@ -78,9 +78,9 @@
             </div>
           </NuxtLink>
 
-          <button
-            @click="toast.info('그룹 관리 기능은 곧 추가됩니다.')"
-            class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 hover:border-zinc-400 dark:hover:border-zinc-600 hover:shadow-lg transition-all group text-left"
+          <NuxtLink
+            to="/admin/groups"
+            class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-lg transition-all group"
           >
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -91,11 +91,11 @@
                 <p class="text-xs text-zinc-500">전체 그룹 조회 및 관리</p>
               </div>
             </div>
-          </button>
+          </NuxtLink>
 
-          <button
-            @click="toast.info('사용자 관리 기능은 곧 추가됩니다.')"
-            class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 hover:border-zinc-400 dark:hover:border-zinc-600 hover:shadow-lg transition-all group text-left"
+          <NuxtLink
+            to="/admin/users"
+            class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 hover:border-purple-400 dark:hover:border-purple-600 hover:shadow-lg transition-all group"
           >
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -106,7 +106,7 @@
                 <p class="text-xs text-zinc-500">권한 및 구독 관리</p>
               </div>
             </div>
-          </button>
+          </NuxtLink>
         </div>
       </div>
 
@@ -158,14 +158,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ArrowLeft, Shield, FileText, BookOpen, Users } from 'lucide-vue-next'
-import { useToastStore } from '~/stores/toast'
 
 definePageMeta({
   middleware: 'admin'
 })
 
 const client = useSupabaseClient()
-const toast = useToastStore()
 
 const loading = ref(true)
 const stats = ref({
