@@ -74,12 +74,21 @@
         </div>
       </div>
     </div>
+
+    <!-- Upgrade Prompt Modal -->
+    <UpgradePromptModal
+      :isOpen="upgradePromptOpen"
+      feature="groups"
+      :currentCount="groupLimitInfo.currentCount"
+      @close="upgradePromptOpen = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { X } from 'lucide-vue-next'
+import UpgradePromptModal from './UpgradePromptModal.vue'
 
 const props = defineProps<{
   isOpen: boolean
@@ -89,10 +98,13 @@ const emit = defineEmits(['close', 'created'])
 
 const client = useSupabaseClient()
 const user = useSupabaseUser()
+const { canCreateGroup } = useSubscription()
 
 const groupName = ref('')
 const loading = ref(false)
 const error = ref('')
+const upgradePromptOpen = ref(false)
+const groupLimitInfo = ref({ allowed: false, currentCount: 0, message: '' })
 
 const canSubmit = computed(() =>
   groupName.value.trim().length >= 2 &&
@@ -115,6 +127,15 @@ const reset = () => {
 
 const handleCreate = async () => {
   if (!canSubmit.value) return
+
+  // 1. 그룹 생성 제한 체크 (구독 tier 기반)
+  const limitCheck = await canCreateGroup()
+
+  if (!limitCheck.allowed) {
+    groupLimitInfo.value = limitCheck
+    upgradePromptOpen.value = true
+    return // 그룹 생성 중단
+  }
 
   // 현재 로그인한 유저 가져오기
   const { data: { user: currentUser } } = await client.auth.getUser()

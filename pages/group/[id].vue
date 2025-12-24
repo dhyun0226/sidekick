@@ -265,6 +265,13 @@
       @cancel="cancelRegenerateInviteCode"
     />
 
+    <!-- Upgrade Prompt Modal for Book Addition -->
+    <UpgradePromptModal
+      :isOpen="modals.upgradeBook"
+      feature="books"
+      @close="modals.upgradeBook = false"
+    />
+
   </div>
 </template>
 
@@ -289,6 +296,7 @@ import TextDisplayModal from '~/components/TextDisplayModal.vue'
 import TextInputModal from '~/components/TextInputModal.vue'
 import { Menu, Search, Plus, Settings, Share2, ChevronLeft, ChevronRight, ChevronDown, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X, BarChart3, Copy, User } from 'lucide-vue-next'
 import GroupStatsModal from '~/components/GroupStatsModal.vue'
+import UpgradePromptModal from '~/components/UpgradePromptModal.vue'
 
 // 인증 미들웨어 적용
 definePageMeta({
@@ -302,6 +310,7 @@ const toast = useToastStore()
 const client = useSupabaseClient()
 const { getBookRound } = useBookRound()
 const { formatDateRange, getDaysRemaining, getTotalDays, getDaysSinceStart } = useDateUtils()
+const { isPremium, limits } = useSubscription()
 
 // ===== Core Data & State =====
 const groupId = route.params.id as string
@@ -361,6 +370,7 @@ const modals = reactive({
   deleteBook: false,
   editFinishedDate: false,
   editingBook: null as any,  // 편집 중인 책 (selectedBookId와 독립적)
+  upgradeBook: false,  // Upgrade prompt for book addition
   // Admin action modals
   promoteMember: false,
   kickMember: false,
@@ -945,6 +955,13 @@ const handleReviewSubmit = async (data: any) => {
 
 const openSearchModal = () => {
   modals.drawer = false
+
+  // Check book addition limit for free users
+  if (!isPremium.value && readingBooks.value.length >= limits.value.maxBooksPerGroup) {
+    modals.upgradeBook = true
+    return
+  }
+
   modals.search = true
 }
 

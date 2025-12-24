@@ -22,9 +22,9 @@ import ToastContainer from '~/components/ToastContainer.vue'
 const { initTheme } = useTheme()
 const route = useRoute()
 
-// Check if current page is admin page
+// Check if current page is admin page or subscription page (needs full width)
 const isAdminPage = computed(() => {
-  return route.path.startsWith('/admin')
+  return route.path.startsWith('/admin') || route.path === '/subscription'
 })
 
 // Initialize theme on app mount

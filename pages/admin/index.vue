@@ -62,7 +62,7 @@
       <!-- Quick Actions -->
       <div class="mb-8">
         <h2 class="text-lg font-bold text-zinc-900 dark:text-white mb-4">빠른 작업</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <NuxtLink
             to="/admin/books"
             class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 hover:border-lime-400 dark:hover:border-lime-600 hover:shadow-lg transition-all group"
@@ -74,6 +74,21 @@
               <div>
                 <h3 class="font-bold text-zinc-900 dark:text-white mb-1">목차 승인</h3>
                 <p class="text-xs text-zinc-500">{{ stats.pendingToc }}개 대기 중</p>
+              </div>
+            </div>
+          </NuxtLink>
+
+          <NuxtLink
+            to="/admin/subscriptions"
+            class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 hover:border-yellow-400 dark:hover:border-yellow-600 hover:shadow-lg transition-all group"
+          >
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-600 dark:text-yellow-400"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+              </div>
+              <div>
+                <h3 class="font-bold text-zinc-900 dark:text-white mb-1">구독 & 결제</h3>
+                <p class="text-xs text-zinc-500">구독 및 결제 내역</p>
               </div>
             </div>
           </NuxtLink>

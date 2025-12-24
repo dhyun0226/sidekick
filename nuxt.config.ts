@@ -19,11 +19,14 @@ export default defineNuxtConfig({
     // 서버 사이드 전용 (클라이언트에 노출되지 않음)
     naverClientId: process.env.NAVER_CLIENT_ID,
     naverClientSecret: process.env.NAVER_CLIENT_SECRET,
+    tossSecretKey: process.env.TOSS_SECRET_KEY,
 
     // 클라이언트 사이드 (브라우저에 노출됨)
     public: {
       supabaseUrl: process.env.SUPABASE_URL,
-      supabaseKey: process.env.SUPABASE_KEY
+      supabaseKey: process.env.SUPABASE_KEY,
+      tossClientKey: process.env.NUXT_PUBLIC_TOSS_CLIENT_KEY,
+      baseUrl: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000'
     }
   },
 

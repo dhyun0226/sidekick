@@ -66,6 +66,75 @@
       </div>
     </div>
 
+    <!-- Subscription Info Card -->
+    <div class="px-4 pt-3 pb-4 border-b border-zinc-200 dark:border-zinc-800/50">
+      <!-- Premium User -->
+      <div
+        v-if="isPremium"
+        class="bg-gradient-to-br from-lime-400 via-lime-500 to-emerald-500 rounded-2xl p-4 relative overflow-hidden"
+      >
+        <div class="absolute top-3 right-3 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
+          <span class="text-xs font-bold text-white">PREMIUM</span>
+        </div>
+
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+            <Crown :size="24" class="text-white" />
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">프리미엄 회원</h3>
+            <p class="text-xs text-white/80">무제한 독서의 즐거움</p>
+          </div>
+        </div>
+
+        <div v-if="subscriptionDetails" class="space-y-2">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-white/80">구독 기간</span>
+            <span class="font-bold text-white">{{ formatDate(subscriptionDetails.end_date) }}까지</span>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-white/80">자동 갱신</span>
+            <span class="font-bold text-white">{{ subscriptionDetails.auto_renew ? '활성화' : '비활성화' }}</span>
+          </div>
+        </div>
+
+        <button
+          @click="router.push('/subscription')"
+          class="mt-3 w-full py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-lg text-sm font-medium hover:bg-white/20 transition-colors"
+        >
+          구독 관리
+        </button>
+      </div>
+
+      <!-- Free User -->
+      <div
+        v-else
+        @click="router.push('/subscription')"
+        class="bg-white dark:bg-zinc-900 rounded-2xl p-4 border-2 border-dashed border-zinc-300 dark:border-zinc-700 cursor-pointer hover:border-lime-400 transition-all group"
+      >
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
+            <Lock :size="24" class="text-zinc-400 group-hover:text-lime-500 transition-colors" />
+          </div>
+          <div class="flex-1">
+            <h3 class="text-sm font-bold text-zinc-900 dark:text-white">무료 플랜</h3>
+            <p class="text-xs text-zinc-500">기본 기능만 이용 가능</p>
+          </div>
+          <ChevronRight :size="20" class="text-zinc-400 group-hover:text-lime-500 transition-colors" />
+        </div>
+
+        <div class="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400 mb-3">
+          <span>그룹 생성 제한 (최대 2개)</span>
+          <span>•</span>
+          <span>분석 기능 제한</span>
+        </div>
+
+        <div class="flex items-center justify-between bg-lime-400/10 dark:bg-lime-900/20 rounded-lg px-3 py-2">
+          <span class="text-xs font-bold text-lime-700 dark:text-lime-400">프리미엄으로 업그레이드</span>
+          <ArrowRight :size="16" class="text-lime-600" />
+        </div>
+      </div>
+    </div>
 
     <!-- Tabs -->
     <div class="sticky top-0 z-30 bg-gray-50/95 dark:bg-[#09090b]/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
@@ -87,11 +156,14 @@
           <div v-if="activeTab === 'timeline'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
         </button>
         <button
-          @click="activeTab = 'insight'"
+          @click="handleInsightTabClick"
           class="flex-1 py-3 text-sm font-bold transition-colors relative"
           :class="activeTab === 'insight' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
         >
-          분석
+          <span class="flex items-center justify-center gap-1">
+            분석
+            <Lock v-if="!isPremium" :size="12" class="text-zinc-400" />
+          </span>
           <div v-if="activeTab === 'insight'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
         </button>
       </div>
@@ -885,6 +957,13 @@
       @cancel="cancelLogout"
     />
 
+    <!-- Upgrade Prompt Modal -->
+    <UpgradePromptModal
+      :isOpen="upgradeInsightOpen"
+      feature="insights"
+      @close="upgradeInsightOpen = false"
+    />
+
   </div>
 </template>
 
@@ -893,10 +972,11 @@ import { ref, computed, onMounted, onActivated, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { ChevronLeft, LogOut, User, Camera, Edit2, Star, StarHalf, Heart, Settings, Moon, Sun, Bell, X } from 'lucide-vue-next'
+import { ChevronLeft, LogOut, User, Camera, Edit2, Star, StarHalf, Heart, Settings, Moon, Sun, Bell, X, Crown, Lock, ChevronRight, ArrowRight } from 'lucide-vue-next'
 import ReadingHeatmap from '~/components/ReadingHeatmap.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import SkeletonLoader from '~/components/SkeletonLoader.vue'
+import UpgradePromptModal from '~/components/UpgradePromptModal.vue'
 
 // 인증 미들웨어 적용
 definePageMeta({
@@ -908,6 +988,7 @@ const userStore = useUserStore()
 const toast = useToastStore()
 const client = useSupabaseClient()
 const { isDark, toggleTheme } = useTheme()
+const { isPremium, subscription: subscriptionDetails, fetchSubscription } = useSubscription()
 
 // State
 const activeTab = ref<'timeline' | 'library' | 'insight'>('library')
@@ -943,6 +1024,9 @@ const selectedDay = ref<any>(null)
 const yearlyGoal = ref(50) // Default goal: 50 books per year
 const editingGoal = ref(false)
 const tempGoal = ref(50)
+
+// Upgrade Modal State
+const upgradeInsightOpen = ref(false)
 
 // Edit Profile State
 const editNickname = ref('')
@@ -1164,6 +1248,7 @@ const bookComments = computed(() => {
 // Initialization
 onMounted(async () => {
   await userStore.fetchProfile()
+  await fetchSubscription()
   if (userStore.profile) {
     editNickname.value = userStore.profile.nickname
     previewAvatar.value = userStore.profile.avatar_url || ''
@@ -1470,6 +1555,7 @@ const calculateStreak = async (userId: string) => {
 }
 
 const formatDate = (dateStr: string) => {
+  if (!dateStr) return ''
   const date = new Date(dateStr)
   return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`
 }
@@ -1738,6 +1824,15 @@ const confirmLogout = async () => {
 
 const cancelLogout = () => {
   showLogoutConfirm.value = false
+}
+
+// Insight Tab Handler
+const handleInsightTabClick = () => {
+  if (!isPremium.value) {
+    upgradeInsightOpen.value = true
+    return
+  }
+  activeTab.value = 'insight'
 }
 </script>
 
