@@ -73,11 +73,7 @@
             class="bg-zinc-100 dark:bg-zinc-800 rounded-lg p-2 flex items-center justify-between"
           >
             <span class="text-xs text-zinc-500 dark:text-zinc-400">목표일까지</span>
-            <span class="text-xs font-bold" :class="{
-              'text-red-500': getBookDaysRemaining(book)! <= 0,
-              'text-orange-500': getBookDaysRemaining(book)! > 0 && getBookDaysRemaining(book)! <= 7,
-              'text-lime-500': getBookDaysRemaining(book)! > 7
-            }">
+            <span class="text-xs font-bold text-lime-500 dark:text-lime-400">
               {{ getBookDaysRemaining(book)! > 0 ? `${getBookDaysRemaining(book)}일 남음` : getBookDaysRemaining(book) === 0 ? '오늘까지!' : `+${Math.abs(getBookDaysRemaining(book)!)}일 지남` }}
             </span>
           </div>
@@ -206,9 +202,11 @@ const formatBookDateRange = (book: Book) => {
 const getBookDaysRemaining = (book: Book) => {
   if (!book.target_end_date) return null
   const end = new Date(book.target_end_date)
+  end.setHours(0, 0, 0, 0)
   const today = new Date()
+  today.setHours(0, 0, 0, 0)
   const diffTime = end.getTime() - today.getTime()
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return Math.round(diffTime / (1000 * 60 * 60 * 24))
 }
 
 const isCurrentChapter = (chapter: TocChapter) => {
@@ -251,7 +249,7 @@ const handleReview = (bookId: string) => {
     opacity: 1;
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.3;
   }
 }
 
