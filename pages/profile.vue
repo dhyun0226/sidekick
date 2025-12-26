@@ -631,13 +631,22 @@
           <!-- 3. Account -->
           <section>
             <h4 class="text-xs font-bold text-zinc-500 uppercase mb-2 px-1">계정</h4>
-            <button
-              @click="handleSignOut"
-              class="w-full py-3 bg-red-50 dark:bg-red-900/10 text-red-500 rounded-xl font-medium hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors flex items-center justify-center gap-2"
-            >
-              <LogOut :size="18" />
-              로그아웃
-            </button>
+            <div class="space-y-2">
+              <button
+                @click="handleSignOut"
+                class="w-full py-3 bg-red-50 dark:bg-red-900/10 text-red-500 rounded-xl font-medium hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors flex items-center justify-center gap-2"
+              >
+                <LogOut :size="18" />
+                로그아웃
+              </button>
+              <button
+                @click="handleDeleteAccount"
+                class="w-full py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl font-medium hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/10 dark:hover:text-red-400 transition-colors flex items-center justify-center gap-2"
+              >
+                <Trash2 :size="18" />
+                계정 삭제
+              </button>
+            </div>
           </section>
         </div>
       </div>
@@ -957,6 +966,19 @@
       @cancel="cancelLogout"
     />
 
+    <!-- Delete Account Confirmation Modal -->
+    <ConfirmModal
+      :isOpen="showDeleteAccountConfirm"
+      title="계정 삭제"
+      message="정말 계정을 삭제하시겠습니까?"
+      description="모든 데이터가 영구적으로 삭제되며, 복구할 수 없습니다. 이 작업은 되돌릴 수 없습니다."
+      confirmText="삭제하기"
+      cancelText="취소"
+      variant="danger"
+      @confirm="confirmDeleteAccount"
+      @cancel="cancelDeleteAccount"
+    />
+
     <!-- Upgrade Prompt Modal -->
     <UpgradePromptModal
       :isOpen="upgradeInsightOpen"
@@ -972,7 +994,7 @@ import { ref, computed, onMounted, onActivated, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { ChevronLeft, LogOut, User, Camera, Edit2, Star, StarHalf, Heart, Settings, Moon, Sun, Bell, X, Crown, Lock, ChevronRight, ArrowRight } from 'lucide-vue-next'
+import { ChevronLeft, LogOut, User, Camera, Edit2, Star, StarHalf, Heart, Settings, Moon, Sun, Bell, X, Crown, Lock, ChevronRight, ArrowRight, Trash2 } from 'lucide-vue-next'
 import ReadingHeatmap from '~/components/ReadingHeatmap.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import SkeletonLoader from '~/components/SkeletonLoader.vue'
@@ -1811,9 +1833,14 @@ const cancelEditGoal = () => {
 }
 
 const showLogoutConfirm = ref(false)
+const showDeleteAccountConfirm = ref(false)
 
 const handleSignOut = () => {
   showLogoutConfirm.value = true
+}
+
+const handleDeleteAccount = () => {
+  showDeleteAccountConfirm.value = true
 }
 
 const confirmLogout = async () => {
@@ -1824,6 +1851,44 @@ const confirmLogout = async () => {
 
 const cancelLogout = () => {
   showLogoutConfirm.value = false
+}
+
+const confirmDeleteAccount = async () => {
+  showDeleteAccountConfirm.value = false
+
+  try {
+    const userId = userStore.profile?.id || userStore.user?.id
+
+    if (!userId) {
+      toast.error('사용자 정보를 찾을 수 없습니다.')
+      return
+    }
+
+    // 1. 사용자 데이터 삭제 (Supabase는 CASCADE로 처리)
+    const { error: deleteError } = await client
+      .from('users')
+      .delete()
+      .eq('id', userId)
+
+    if (deleteError) {
+      console.error('[Profile] Delete user error:', deleteError)
+      throw deleteError
+    }
+
+    // 2. Auth 계정 삭제 (admin API 필요하므로 서버에서 처리하거나 RPC 함수 사용)
+    // Supabase Auth는 클라이언트에서 직접 삭제 불가능하므로 로그아웃만 처리
+    await userStore.signOut()
+
+    toast.success('계정이 삭제되었습니다.')
+    router.push('/login')
+  } catch (err: any) {
+    console.error('[Profile] Delete account error:', err)
+    toast.error('계정 삭제 실패: ' + err.message)
+  }
+}
+
+const cancelDeleteAccount = () => {
+  showDeleteAccountConfirm.value = false
 }
 
 // Insight Tab Handler

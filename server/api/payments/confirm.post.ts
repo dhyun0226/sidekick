@@ -95,8 +95,25 @@ export default defineEventHandler(async (event) => {
 
     // 5. 구독 생성 (billing_period_months에 따라)
     const startDate = new Date()
-    const endDate = new Date()
-    endDate.setMonth(endDate.getMonth() + plan.billing_period_months)
+
+    // 월말 날짜 문제 해결: 정확한 만료일 계산
+    const endDate = new Date(startDate)
+    const targetMonth = endDate.getMonth() + plan.billing_period_months
+    const targetYear = endDate.getFullYear() + Math.floor(targetMonth / 12)
+    const finalMonth = targetMonth % 12
+
+    // 원본 날짜 저장
+    const originalDay = endDate.getDate()
+
+    // 월 설정
+    endDate.setFullYear(targetYear)
+    endDate.setMonth(finalMonth)
+
+    // 해당 월의 마지막 날짜 구하기
+    const lastDayOfMonth = new Date(targetYear, finalMonth + 1, 0).getDate()
+
+    // 원본 날짜가 해당 월의 마지막 날보다 크면, 해당 월의 마지막 날로 설정
+    endDate.setDate(Math.min(originalDay, lastDayOfMonth))
 
     const { data: subscription, error: subscriptionError } = await client
       .from('subscriptions')

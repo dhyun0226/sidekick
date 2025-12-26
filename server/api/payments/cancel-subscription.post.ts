@@ -3,18 +3,22 @@
  * 자동 갱신을 중지하고 현재 기간 종료 시 무료 플랜으로 전환
  */
 
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseClient } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const user = await serverSupabaseUser(event)
 
-  if (!user) {
+  // 세션 기반으로 사용자 인증 확인
+  const { data: { session }, error: sessionError } = await client.auth.getSession()
+
+  if (sessionError || !session || !session.user) {
     throw createError({
       statusCode: 401,
       message: '인증이 필요합니다.'
     })
   }
+
+  const user = session.user
 
   try {
     // 현재 활성 구독 조회
@@ -23,9 +27,14 @@ export default defineEventHandler(async (event) => {
       .select('*')
       .eq('user_id', user.id)
       .eq('status', 'active')
-      .single()
+      .maybeSingle()
 
-    if (fetchError || !subscription) {
+    if (fetchError) {
+      console.error('[CancelSubscription] Query error:', fetchError)
+      throw fetchError
+    }
+
+    if (!subscription) {
       throw createError({
         statusCode: 404,
         message: '활성화된 구독이 없습니다.'

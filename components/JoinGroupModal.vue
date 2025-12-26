@@ -57,6 +57,14 @@
         </div>
       </div>
     </div>
+
+    <!-- Upgrade Prompt Modal for Group Join Limit -->
+    <UpgradePromptModal
+      :isOpen="upgradePromptOpen"
+      feature="groups"
+      :currentCount="groupLimitInfo.currentCount"
+      @close="upgradePromptOpen = false"
+    />
   </div>
 </template>
 
@@ -65,6 +73,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { X, AlertCircle } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
+import UpgradePromptModal from './UpgradePromptModal.vue'
 
 const props = defineProps<{
   isOpen: boolean
@@ -74,10 +83,13 @@ const emit = defineEmits(['close', 'joined'])
 const router = useRouter()
 const client = useSupabaseClient()
 const toast = useToastStore()
+const { canJoinGroup } = useSubscription()
 
 const inviteCode = ref('')
 const loading = ref(false)
 const error = ref('')
+const upgradePromptOpen = ref(false)
+const groupLimitInfo = ref({ allowed: false, currentCount: 0, message: '' })
 
 const canSubmit = computed(() => inviteCode.value.trim().length >= 3 && !loading.value)
 
@@ -151,6 +163,16 @@ const joinGroup = async (groupId: string, groupName: string) => {
     emit('joined', groupId)
     close()
     return
+  }
+
+  // Check group join limit (subscription tier based)
+  const limitCheck = await canJoinGroup()
+
+  if (!limitCheck.allowed) {
+    groupLimitInfo.value = limitCheck
+    upgradePromptOpen.value = true
+    loading.value = false
+    return // Stop join process
   }
 
   // Join

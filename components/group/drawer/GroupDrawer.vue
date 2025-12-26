@@ -82,6 +82,7 @@
         <GroupDrawerBookshelfTab
           v-if="activeTab === 'bookshelf'"
           :history-books="historyBooks"
+          :locked-history-books="lockedHistoryBooks"
           :is-admin="isAdmin"
           :user-reviewed-books="userReviewedBooks"
           @select-book="(id) => emit('selectBook', id)"
@@ -90,6 +91,7 @@
           @edit-finished-date="(bookId) => emit('editFinishedDate', bookId)"
           @delete-history-book="(bookId) => emit('deleteHistoryBook', bookId)"
           @open-review="(bookId) => emit('openReview', bookId)"
+          @open-upgrade-modal="emit('openUpgradeModal')"
         />
 
         <GroupDrawerSettingsTab
@@ -125,6 +127,7 @@ interface Props {
   selectedBookId: string | null
   readingBooks: any[]
   historyBooks: any[]
+  lockedHistoryBooks: any[]
   sortedMembersWithProgress: any[]
   isAdmin: boolean
   currentUserId: string | null
@@ -152,6 +155,7 @@ interface Emits {
   (e: 'regenerateInviteCode'): void
   (e: 'saveGroupName', name: string): void
   (e: 'openSearchModal'): void
+  (e: 'openUpgradeModal'): void
   (e: 'leaveGroup'): void
   (e: 'deleteGroup'): void
   (e: 'changeMemberRole', member: any): void

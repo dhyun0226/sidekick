@@ -98,7 +98,8 @@
       :current-book="currentBook"
       :selected-book-id="selectedBookId"
       :reading-books="readingBooks"
-      :history-books="historyBooks"
+      :history-books="visibleHistoryBooks"
+      :locked-history-books="lockedHistoryBooks"
       :sorted-members-with-progress="sortedMembersWithProgress"
       :is-admin="isAdmin"
       :current-user-id="currentUserId"
@@ -119,6 +120,7 @@
       @regenerate-invite-code="regenerateInviteCode"
       @save-group-name="saveGroupName"
       @open-search-modal="modals.search = true"
+      @open-upgrade-modal="modals.upgradeBook = true"
       @leave-group="leaveGroup"
       @delete-group="deleteGroup"
       @change-member-role="handleChangeMemberRole"
@@ -310,7 +312,13 @@ const toast = useToastStore()
 const client = useSupabaseClient()
 const { getBookRound } = useBookRound()
 const { formatDateRange, getDaysRemaining, getTotalDays, getDaysSinceStart } = useDateUtils()
-const { isPremium, limits } = useSubscription()
+const {
+  isPremium,
+  limits,
+  fetchLimits,
+  getVisibleBooks,
+  getLockedBooks
+} = useSubscription()
 
 // ===== Core Data & State =====
 const groupId = route.params.id as string
@@ -550,6 +558,20 @@ const sliderMembers = computed(() => {
   return othersWithProgress.slice(0, 3)
 })
 
+// Subscription-based book filtering
+const visibleAllBooks = computed(() => getVisibleBooks(allBooks.value))
+const lockedAllBooks = computed(() => getLockedBooks(allBooks.value))
+
+const visibleHistoryBooks = computed(() => {
+  const visible = visibleAllBooks.value.map(b => b.id)
+  return historyBooks.value.filter(book => visible.includes(book.id))
+})
+
+const lockedHistoryBooks = computed(() => {
+  const locked = lockedAllBooks.value.map(b => b.id)
+  return historyBooks.value.filter(book => locked.includes(book.id))
+})
+
 // Fetch user reviews to track which books have been reviewed
 const fetchUserReviews = async () => {
   if (!currentUserId.value) return
@@ -659,6 +681,10 @@ const handleScroll = () => {
 onMounted(async () => {
   window.addEventListener('scroll', handleScroll)
   await userStore.fetchProfile()
+
+  // Fetch subscription limits from DB
+  await fetchLimits()
+
   await fetchData()
 
   // Load member progress for initial book
@@ -956,8 +982,8 @@ const handleReviewSubmit = async (data: any) => {
 const openSearchModal = () => {
   modals.drawer = false
 
-  // Check book addition limit for free users
-  if (!isPremium.value && readingBooks.value.length >= limits.value.maxBooksPerGroup) {
+  // Check book addition limit for free users (total books in group)
+  if (!isPremium.value && allBooks.value.length >= limits.value.max_books_per_group) {
     modals.upgradeBook = true
     return
   }

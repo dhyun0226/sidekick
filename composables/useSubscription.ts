@@ -1,107 +1,271 @@
 /**
- * 구독 관리 Composable
+ * 구독 관련 로직을 관리하는 Composable - DB 중심 버전
  *
- * 구독 등급(free/premium/admin)에 따른 기능 제한 및 상태 관리
+ * 🎯 핵심: subscription_limits 테이블에서 제한 값을 읽어옴
+ * → DB만 수정하면 프론트엔드도 자동 반영!
  *
  * 주요 기능:
- * - tier: 현재 구독 등급
- * - isPremium/isFree: 등급 확인 computed
- * - limits: tier별 제한 정보
- * - canCreateGroup(): 그룹 생성 가능 여부 체크
- * - fetchSubscription(): 구독 상세 정보 조회
+ * - 사용자 등급 확인 (free/premium/admin)
+ * - 책 보기 제한 (DB에서 max_books_per_group 읽기)
+ * - 잠금 책 확인
+ * - 그룹 참가/생성 제한 확인
+ * - 책 추가 제한 확인
  */
 
 export const useSubscription = () => {
-  const userStore = useUserStore()
   const client = useSupabaseClient()
+  const userStore = useUserStore()
 
-  const subscription = ref<any>(null)
-  const loading = ref(false)
+  // ============================================
+  // Computed Properties
+  // ============================================
 
-  // Computed: 현재 구독 등급
   const tier = computed(() => userStore.profile?.subscription_tier || 'free')
 
-  // Computed: 프리미엄 여부 (premium 또는 admin)
-  const isPremium = computed(() => tier.value === 'premium' || tier.value === 'admin')
+  const isPremium = computed(() =>
+    tier.value === 'premium' || tier.value === 'admin'
+  )
 
-  // Computed: 무료 여부
   const isFree = computed(() => tier.value === 'free')
 
-  // Computed: tier별 제한 정보
-  const limits = computed(() => {
-    if (isPremium.value) {
-      return {
-        maxGroups: Infinity,
-        maxBooksPerGroup: Infinity,
-        hasInsightTab: true,
-        hasPremiumBadge: true
-      }
-    }
-    return {
-      maxGroups: 2,
-      maxBooksPerGroup: 10,
-      hasInsightTab: false,
-      hasPremiumBadge: false
-    }
+  const isAdmin = computed(() => tier.value === 'admin')
+
+  // ============================================
+  // DB로부터 제한 값 관리 ⭐
+  // ============================================
+
+  const limits = ref({
+    max_groups: 1,
+    max_books_per_group: 10,
+    has_statistics_access: false
   })
 
+  const limitsLoading = ref(false)
+  const limitsLoaded = ref(false)
+
   /**
-   * 그룹 생성 가능 여부 체크
-   *
-   * @returns {Promise<{ allowed: boolean; currentCount: number; message?: string }>}
+   * ⭐ subscription_limits 테이블에서 제한 값 가져오기
+   * 앱 로딩 시 한 번만 호출하면 됨
    */
-  const canCreateGroup = async (): Promise<{
-    allowed: boolean
-    currentCount: number
-    message?: string
-  }> => {
-    // 프리미엄 사용자는 무제한
+  const fetchLimits = async () => {
+    if (limitsLoaded.value) return // 이미 로드됨
+    if (!userStore.profile?.subscription_tier) return
+
+    limitsLoading.value = true
+    try {
+      const { data, error } = await client
+        .from('subscription_limits')
+        .select('max_groups_created, max_books_per_group, has_statistics_access')
+        .eq('tier', userStore.profile.subscription_tier)
+        .single()
+
+      if (error) {
+        console.error('[fetchLimits] Error:', error)
+        return
+      }
+
+      if (data) {
+        limits.value = {
+          max_groups: data.max_groups_created,
+          max_books_per_group: data.max_books_per_group,
+          has_statistics_access: data.has_statistics_access
+        }
+        limitsLoaded.value = true
+      }
+    } catch (err) {
+      console.error('[fetchLimits] Exception:', err)
+    } finally {
+      limitsLoading.value = false
+    }
+  }
+
+  // ============================================
+  // Book Visibility Functions (DB 기반)
+  // ============================================
+
+  /**
+   * 사용자가 볼 수 있는 책 목록 반환
+   * - Premium/Admin: 전체 책
+   * - Free: DB에서 읽은 max_books_per_group만큼
+   */
+  const getVisibleBooks = (allBooks: any[]) => {
     if (isPremium.value) {
-      return { allowed: true, currentCount: 0 }
+      return allBooks
     }
 
+    // ⭐ DB에서 읽은 제한 값 사용 (하드코딩 없음!)
+    const limit = limits.value.max_books_per_group
+
+    // Free 유저: 생성일 기준 오래된 순으로 제한 개수만큼
+    return [...allBooks]
+      .sort((a, b) => {
+        const dateA = new Date(a.created_at).getTime()
+        const dateB = new Date(b.created_at).getTime()
+        return dateA - dateB
+      })
+      .slice(0, limit)
+  }
+
+  /**
+   * 사용자가 볼 수 없는 (잠금된) 책 목록 반환
+   * - Premium/Admin: 없음
+   * - Free: max_books_per_group 이후의 모든 책
+   */
+  const getLockedBooks = (allBooks: any[]) => {
+    if (isPremium.value) {
+      return []
+    }
+
+    // ⭐ DB에서 읽은 제한 값 사용
+    const limit = limits.value.max_books_per_group
+
+    const sortedBooks = [...allBooks]
+      .sort((a, b) => {
+        const dateA = new Date(a.created_at).getTime()
+        const dateB = new Date(b.created_at).getTime()
+        return dateA - dateB
+      })
+
+    // limit+1번째 책부터는 잠금
+    return sortedBooks.slice(limit)
+  }
+
+  /**
+   * 특정 책이 현재 사용자에게 잠겨있는지 확인
+   */
+  const isBookLocked = (book: any, allBooks: any[]) => {
+    if (isPremium.value) {
+      return false
+    }
+
+    const visibleBooks = getVisibleBooks(allBooks)
+    return !visibleBooks.some(b => b.id === book.id)
+  }
+
+  /**
+   * 잠긴 책 개수 반환
+   */
+  const getLockedBooksCount = (totalBooks: number) => {
+    if (isPremium.value) {
+      return 0
+    }
+    // ⭐ DB에서 읽은 제한 값 사용
+    return Math.max(0, totalBooks - limits.value.max_books_per_group)
+  }
+
+  // ============================================
+  // Permission Check Functions (DB 기반)
+  // ============================================
+
+  /**
+   * 그룹에 책을 추가할 수 있는지 확인
+   * - Premium/Admin: 항상 가능
+   * - Free: DB에서 읽은 max_books_per_group 확인
+   */
+  const canAddBookToGroup = async (groupId: string): Promise<{
+    allowed: boolean
+    reason: string
+    currentCount?: number
+  }> => {
+    if (isPremium.value) {
+      return { allowed: true, reason: '' }
+    }
+
+    // Free 유저: 그룹의 현재 책 개수 확인
+    const { count, error } = await client
+      .from('group_books')
+      .select('*', { count: 'exact', head: true })
+      .eq('group_id', groupId)
+
+    if (error) {
+      console.error('[canAddBookToGroup] Error:', error)
+      return { allowed: false, reason: '오류가 발생했습니다.' }
+    }
+
+    const currentCount = count || 0
+
+    // ⭐ DB에서 읽은 제한 값 사용
+    const limit = limits.value.max_books_per_group
+
+    if (currentCount >= limit) {
+      return {
+        allowed: false,
+        reason: `무료 플랜은 그룹당 ${limit}권까지만 추가할 수 있습니다.`,
+        currentCount
+      }
+    }
+
+    return { allowed: true, reason: '', currentCount }
+  }
+
+  /**
+   * 그룹에 참가할 수 있는지 확인 (생성 포함)
+   * - Premium/Admin: 항상 가능
+   * - Free: DB에서 읽은 max_groups_created 확인
+   */
+  const canJoinGroup = async (): Promise<{
+    allowed: boolean
+    currentCount: number
+    message: string
+  }> => {
     if (!userStore.profile?.id) {
       return {
         allowed: false,
         currentCount: 0,
-        message: '사용자 정보를 찾을 수 없습니다.'
+        message: '로그인이 필요합니다.'
       }
     }
 
-    try {
-      // 현재 생성한 그룹 수 카운트
-      const { count } = await client
-        .from('groups')
-        .select('*', { count: 'exact', head: true })
-        .eq('created_by', userStore.profile.id)
+    if (isPremium.value) {
+      return { allowed: true, currentCount: 0, message: '' }
+    }
 
-      const currentCount = count || 0
+    // Free 유저: 현재 참가 중인 그룹 수 확인
+    const { count, error } = await client
+      .from('group_members')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userStore.profile.id)
 
-      // 제한 초과 체크
-      if (currentCount >= limits.value.maxGroups) {
-        return {
-          allowed: false,
-          currentCount,
-          message: `무료 플랜은 최대 ${limits.value.maxGroups}개 그룹만 생성할 수 있습니다.`
-        }
-      }
-
-      return { allowed: true, currentCount }
-    } catch (error) {
-      console.error('[useSubscription] canCreateGroup error:', error)
+    if (error) {
+      console.error('[canJoinGroup] Error:', error)
       return {
         allowed: false,
         currentCount: 0,
-        message: '그룹 생성 가능 여부를 확인할 수 없습니다.'
+        message: '오류가 발생했습니다.'
       }
     }
+
+    const currentCount = count || 0
+
+    // ⭐ DB에서 읽은 제한 값 사용
+    const limit = limits.value.max_groups
+
+    if (currentCount >= limit) {
+      return {
+        allowed: false,
+        currentCount,
+        message: `무료 플랜은 ${limit}개 그룹만 참가할 수 있습니다.`
+      }
+    }
+
+    return { allowed: true, currentCount, message: '' }
   }
 
   /**
-   * 활성 구독 정보 조회
-   *
-   * subscriptions 테이블에서 현재 사용자의 활성 구독 정보 조회
-   * (만료일, 자동갱신 여부 등)
+   * 그룹을 생성할 수 있는지 확인
+   * (canJoinGroup과 동일한 로직)
+   */
+  const canCreateGroup = canJoinGroup
+
+  // ============================================
+  // Subscription Data Fetching
+  // ============================================
+
+  const subscription = ref<any>(null)
+  const loading = ref(false)
+
+  /**
+   * 현재 활성 구독 정보 가져오기
    */
   const fetchSubscription = async () => {
     if (!userStore.profile?.id) return
@@ -116,26 +280,48 @@ export const useSubscription = () => {
         .maybeSingle()
 
       if (error) {
-        console.error('[useSubscription] fetchSubscription error:', error)
-        return
+        console.error('[fetchSubscription] Error:', error)
+      } else {
+        subscription.value = data
       }
-
-      subscription.value = data
-    } catch (error) {
-      console.error('[useSubscription] Unexpected error:', error)
+    } catch (err) {
+      console.error('[fetchSubscription] Exception:', err)
     } finally {
       loading.value = false
     }
   }
 
+  // ============================================
+  // Return
+  // ============================================
+
   return {
+    // Tier info
     tier,
     isPremium,
     isFree,
+    isAdmin,
+
+    // ⭐ DB로부터 읽은 제한 값
     limits,
+    limitsLoading,
+    limitsLoaded,
+    fetchLimits,
+
+    // Book visibility
+    getVisibleBooks,
+    getLockedBooks,
+    isBookLocked,
+    getLockedBooksCount,
+
+    // Permissions
+    canAddBookToGroup,
+    canJoinGroup,
+    canCreateGroup,
+
+    // Subscription data
     subscription,
     loading,
-    canCreateGroup,
     fetchSubscription
   }
 }

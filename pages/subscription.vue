@@ -8,21 +8,60 @@
       </div>
 
       <!-- Current Plan (if subscribed) -->
-      <div v-if="currentSubscription" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-8">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="font-bold text-blue-900 dark:text-blue-100 mb-1">현재 구독 중</h3>
-            <p class="text-sm text-blue-700 dark:text-blue-300">
-              {{ currentSubscription.plan?.display_name }} - {{ formatDate(currentSubscription.end_date) }}까지
-            </p>
+      <div v-if="currentSubscription" class="bg-gradient-to-br from-lime-50 via-emerald-50 to-teal-50 dark:from-lime-950/20 dark:via-emerald-950/20 dark:to-teal-950/20 border-2 border-lime-200 dark:border-lime-800 rounded-2xl p-6 mb-8 relative overflow-hidden">
+        <!-- Background pattern -->
+        <div class="absolute inset-0 opacity-5">
+          <div class="absolute inset-0" style="background-image: radial-gradient(circle, #84cc16 1px, transparent 1px); background-size: 20px 20px;"></div>
+        </div>
+
+        <div class="relative">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-lime-400 rounded-full flex items-center justify-center">
+                <Check :size="24" class="text-black font-bold" />
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-lime-900 dark:text-lime-100">{{ currentSubscription.plan?.display_name }}</h3>
+                <p class="text-xs text-lime-700 dark:text-lime-300">활성 구독</p>
+              </div>
+            </div>
+            <div v-if="currentSubscription.auto_renew" class="px-3 py-1 bg-lime-400/30 dark:bg-lime-400/20 rounded-full">
+              <span class="text-xs font-bold text-lime-900 dark:text-lime-100">자동 갱신</span>
+            </div>
           </div>
-          <button
-            v-if="currentSubscription.auto_renew"
-            @click="cancelSubscription"
-            class="px-4 py-2 bg-white dark:bg-zinc-800 border border-blue-300 dark:border-blue-700 rounded-lg text-sm font-medium text-blue-900 dark:text-blue-100 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
-          >
-            구독 취소
-          </button>
+
+          <!-- Details -->
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="bg-white/50 dark:bg-black/20 rounded-xl p-3">
+              <p class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">다음 결제일</p>
+              <p class="text-sm font-bold text-zinc-900 dark:text-white">{{ formatDate(currentSubscription.end_date) }}</p>
+            </div>
+            <div class="bg-white/50 dark:bg-black/20 rounded-xl p-3">
+              <p class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">갱신 상태</p>
+              <p class="text-sm font-bold text-zinc-900 dark:text-white">
+                {{ currentSubscription.auto_renew ? '자동 갱신' : '갱신 안 함' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-3">
+            <button
+              v-if="currentSubscription.auto_renew"
+              @click="handleCancelClick"
+              :disabled="canceling"
+              class="flex-1 py-3 bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-700 rounded-xl text-sm font-bold text-zinc-700 dark:text-zinc-300 hover:border-red-400 hover:text-red-600 dark:hover:border-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <AlertCircle :size="18" />
+              {{ canceling ? '처리 중...' : '자동 갱신 취소' }}
+            </button>
+            <div v-else class="flex-1 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-3">
+              <p class="text-xs text-yellow-800 dark:text-yellow-200">
+                <strong>{{ formatDate(currentSubscription.end_date) }}</strong>까지 프리미엄 기능을 사용할 수 있습니다.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -220,15 +259,29 @@
         </div>
       </div>
     </div>
+
+    <!-- Cancel Subscription Confirmation Modal -->
+    <ConfirmModal
+      :isOpen="showCancelConfirm"
+      title="구독 취소"
+      message="정말 자동 갱신을 취소하시겠습니까?"
+      description="취소해도 현재 결제 기간이 끝날 때까지 프리미엄 기능을 계속 사용할 수 있습니다. 기간 종료 후 무료 플랜으로 전환됩니다."
+      confirmText="취소하기"
+      cancelText="유지하기"
+      variant="warning"
+      @confirm="confirmCancelSubscription"
+      @cancel="cancelCancelSubscription"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Check, X, Users, TrendingUp, BookOpen } from 'lucide-vue-next'
+import { Check, X, Users, TrendingUp, BookOpen, AlertCircle } from 'lucide-vue-next'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
 import { loadTossPayments } from '@tosspayments/payment-sdk'
+import ConfirmModal from '~/components/ConfirmModal.vue'
 
 definePageMeta({
   middleware: 'auth'
@@ -242,6 +295,8 @@ const currentSubscription = ref<any>(null)
 const paying = ref(false)
 const payingMonthly = ref(false)
 const payingYearly = ref(false)
+const showCancelConfirm = ref(false)
+const canceling = ref(false)
 
 onMounted(async () => {
   await userStore.fetchProfile()
@@ -335,10 +390,13 @@ const startPayment = async (planName: string) => {
   }
 }
 
-const cancelSubscription = async () => {
-  if (!confirm('정말 구독을 취소하시겠습니까?\n다음 결제일까지는 프리미엄 기능을 계속 사용할 수 있습니다.')) {
-    return
-  }
+const handleCancelClick = () => {
+  showCancelConfirm.value = true
+}
+
+const confirmCancelSubscription = async () => {
+  showCancelConfirm.value = false
+  canceling.value = true
 
   try {
     await $fetch('/api/payments/cancel-subscription', {
@@ -350,7 +408,13 @@ const cancelSubscription = async () => {
   } catch (error: any) {
     console.error('[Subscription] Cancel error:', error)
     toast.error('구독 취소 중 오류가 발생했습니다.')
+  } finally {
+    canceling.value = false
   }
+}
+
+const cancelCancelSubscription = () => {
+  showCancelConfirm.value = false
 }
 
 const formatDate = (dateStr: string) => {

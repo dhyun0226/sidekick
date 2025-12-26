@@ -57,7 +57,7 @@
       />
     </div>
 
-    <!-- Books List -->
+    <!-- Books List (Visible) -->
     <div v-if="filteredAndSortedBooks.length > 0" class="space-y-2">
       <div
         v-for="book in filteredAndSortedBooks"
@@ -136,8 +136,61 @@
       </div>
     </div>
 
+    <!-- Locked Books Section -->
+    <div v-if="lockedHistoryBooks.length > 0" class="space-y-2 mt-4">
+      <!-- Locked Section Header -->
+      <div class="flex items-center gap-2 px-1 mb-2">
+        <Lock :size="12" class="text-zinc-400" />
+        <h4 class="text-xs font-bold text-zinc-500 uppercase">잠긴 책 ({{ lockedHistoryBooks.length }}권)</h4>
+      </div>
+
+      <!-- Locked Books List -->
+      <div
+        v-for="book in lockedHistoryBooks"
+        :key="'locked-' + book.id"
+        @click="emit('openUpgradeModal')"
+        class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-300 dark:border-zinc-700 border-dashed relative overflow-hidden cursor-pointer hover:border-lime-400 dark:hover:border-lime-500 transition-all group"
+      >
+        <!-- Locked Book Info -->
+        <div class="p-3 flex gap-3 relative opacity-60 group-hover:opacity-70 transition-opacity">
+          <!-- Blurred Cover with Lock -->
+          <div class="relative flex-shrink-0">
+            <img
+              :src="book.cover_url"
+              :alt="book.title"
+              class="w-14 h-20 object-cover rounded shadow-sm bg-zinc-200 dark:bg-zinc-800 blur-sm"
+              @error="(e) => (e.target as HTMLImageElement).src = '/placeholder-book.png'"
+            />
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-8 h-8 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center">
+                <Lock :size="16" class="text-white" />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <h4 class="font-bold text-sm text-zinc-800 dark:text-zinc-200 line-clamp-2 mb-1">{{ book.title }}</h4>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-1">{{ book.author }}</p>
+            <div class="flex items-center gap-1.5 text-[10px] text-zinc-400 mb-2">
+              <span v-if="book.publisher">{{ book.publisher }}</span>
+              <span v-if="book.publisher && book.total_pages">·</span>
+              <span v-if="book.total_pages">{{ book.total_pages }}p</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Locked Message -->
+        <div class="border-t border-zinc-200 dark:border-zinc-700 bg-lime-50 dark:bg-lime-900/20 px-3 py-2.5">
+          <div class="flex items-center justify-center gap-2 text-xs font-medium text-lime-700 dark:text-lime-400">
+            <Lock :size="14" />
+            <span>프리미엄으로 업그레이드하여 잠금 해제</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Empty State -->
-    <div v-else class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
+    <div v-else-if="filteredAndSortedBooks.length === 0" class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
       <div class="text-4xl mb-3">{{ searchQuery ? '🔍' : '📚' }}</div>
       <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 완주한 책이 없습니다' }}</p>
     </div>
@@ -146,7 +199,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { MessageCircle, Star, MoreVertical, RotateCcw, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check } from 'lucide-vue-next'
+import { MessageCircle, Star, MoreVertical, RotateCcw, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check, Lock } from 'lucide-vue-next'
 
 interface HistoryBook {
   id: string
@@ -163,6 +216,7 @@ interface HistoryBook {
 
 interface Props {
   historyBooks: HistoryBook[]
+  lockedHistoryBooks: HistoryBook[]
   isAdmin: boolean
   userReviewedBooks: Set<string>
 }
@@ -174,6 +228,7 @@ interface Emits {
   (e: 'editFinishedDate', bookId: string): void
   (e: 'deleteHistoryBook', bookId: string): void
   (e: 'openReview', bookId: string): void
+  (e: 'openUpgradeModal'): void
 }
 
 const props = defineProps<Props>()
