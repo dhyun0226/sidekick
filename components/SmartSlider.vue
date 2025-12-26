@@ -78,7 +78,7 @@
         <!-- Tooltip (Visible on Drag) -->
         <div
           v-if="isDragging"
-          class="absolute -top-12 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-3 py-1.5 rounded-lg text-xs font-medium shadow-xl border border-zinc-300 dark:border-zinc-700 whitespace-nowrap pointer-events-none animate-fade-in-up"
+          class="absolute -top-8 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-3 py-1.5 rounded-lg text-xs font-medium shadow-xl border border-zinc-300 dark:border-zinc-700 whitespace-nowrap pointer-events-none animate-fade-in-up"
           :style="tooltipPositionStyle"
         >
           <span class="text-lime-600 dark:text-lime-400 font-bold mr-1">
@@ -199,7 +199,7 @@ const tooltipPositionStyle = computed(() => {
       transform: 'translateX(0)',
       right: 'auto'
     }
-  } else if (pct > 90) {
+  } else if (pct > 50) {
     // Right edge: anchor to right side instead of left
     return {
       right: `${100 - pct}%`,
