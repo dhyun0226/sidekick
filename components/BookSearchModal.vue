@@ -28,10 +28,8 @@
         </div>
 
         <div class="space-y-2 mt-4">
-          <div v-if="loading && searchResults.length === 0" class="space-y-3">
-            <SkeletonLoader type="list-item" />
-            <SkeletonLoader type="list-item" />
-            <SkeletonLoader type="list-item" />
+          <div v-if="loading && searchResults.length === 0" class="flex items-center justify-center py-8">
+            <LoadingSpinner size="md" message="검색 중..." />
           </div>
           <div
             v-for="book in searchResults"
@@ -188,7 +186,7 @@
 import { ref } from 'vue'
 import { X, Search } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
-import SkeletonLoader from '~/components/SkeletonLoader.vue'
+import LoadingSpinner from '~/components/LoadingSpinner.vue'
 
 const props = defineProps<{
   isOpen: boolean

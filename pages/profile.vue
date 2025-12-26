@@ -174,10 +174,8 @@
 
       <!-- Tab 1: Library Grid -->
       <div v-if="activeTab === 'library'">
-        <div v-if="loading" class="space-y-3">
-          <SkeletonLoader type="list-item" />
-          <SkeletonLoader type="list-item" />
-          <SkeletonLoader type="list-item" />
+        <div v-if="loading" class="flex items-center justify-center py-12">
+          <LoadingSpinner size="md" message="서재 불러오는 중..." />
         </div>
 
         <div v-else-if="library.length === 0" class="py-12 flex flex-col items-center text-center">
@@ -223,10 +221,8 @@
       
       <!-- Tab 2: Timeline Feed -->
       <div v-if="activeTab === 'timeline'">
-        <div v-if="loading" class="space-y-3">
-          <SkeletonLoader type="card" />
-          <SkeletonLoader type="card" />
-          <SkeletonLoader type="card" />
+        <div v-if="loading" class="flex items-center justify-center py-12">
+          <LoadingSpinner size="md" message="타임라인 불러오는 중..." />
         </div>
 
         <div v-else-if="timeline.length === 0" class="py-12 flex flex-col items-center text-center">
@@ -297,10 +293,8 @@
 
       <!-- Tab 3: Insight -->
       <div v-if="activeTab === 'insight'">
-        <div v-if="loading" class="space-y-3">
-          <SkeletonLoader type="list-item" />
-          <SkeletonLoader type="list-item" />
-          <SkeletonLoader type="list-item" />
+        <div v-if="loading" class="flex items-center justify-center py-12">
+          <LoadingSpinner size="md" message="통계 불러오는 중..." />
         </div>
 
         <div v-else class="space-y-3">
@@ -997,7 +991,7 @@ import { useToastStore } from '~/stores/toast'
 import { ChevronLeft, LogOut, User, Camera, Edit2, Star, StarHalf, Heart, Settings, Moon, Sun, Bell, X, Crown, Lock, ChevronRight, ArrowRight, Trash2 } from 'lucide-vue-next'
 import ReadingHeatmap from '~/components/ReadingHeatmap.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
-import SkeletonLoader from '~/components/SkeletonLoader.vue'
+import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import UpgradePromptModal from '~/components/UpgradePromptModal.vue'
 
 // 인증 미들웨어 적용

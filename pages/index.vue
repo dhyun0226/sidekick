@@ -181,10 +181,8 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="space-y-4 px-4">
-      <SkeletonLoader type="card" />
-      <SkeletonLoader type="card" />
-      <SkeletonLoader type="card" />
+    <div v-if="loading" class="flex items-center justify-center py-16">
+      <LoadingSpinner size="lg" message="그룹 목록 불러오는 중..." />
     </div>
 
     <!-- FAB -->
@@ -219,7 +217,7 @@ import { User, Plus, KeyRound, ChevronRight, MessageCircle, Coffee } from 'lucid
 import NotificationCenter from '~/components/NotificationCenter.vue'
 import CreateGroupModal from '~/components/CreateGroupModal.vue'
 import JoinGroupModal from '~/components/JoinGroupModal.vue'
-import SkeletonLoader from '~/components/SkeletonLoader.vue'
+import LoadingSpinner from '~/components/LoadingSpinner.vue'
 
 // 인증 미들웨어 적용
 definePageMeta({
