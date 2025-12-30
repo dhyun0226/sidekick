@@ -254,7 +254,9 @@ const filteredAndSortedBooks = ref<HistoryBook[]>([])
 
 // 정렬 적용 함수
 const applySorting = () => {
+  console.log('[APPLY] applySorting called, sortBy:', sortBy.value)
   let books = [...props.historyBooks]
+  console.log('[APPLY] Total books:', books.length)
 
   // 1. Filter by search query
   if (searchQuery.value.trim()) {
@@ -281,7 +283,10 @@ const applySorting = () => {
     }
   })
 
+  console.log('[APPLY] After sort, first book:', books[0]?.title)
+  console.log('[APPLY] After sort, last book:', books[books.length - 1]?.title)
   filteredAndSortedBooks.value = books
+  console.log('[APPLY] Updated filteredAndSortedBooks.value')
 }
 
 // Props 변경 감지
@@ -297,35 +302,39 @@ watch(searchQuery, () => {
 const toast = useToastStore()
 
 const selectSort = (value: typeof sortBy.value) => {
-  console.log('[DEBUG] selectSort called with:', value)
-  console.log('[DEBUG] Before - sortBy:', sortBy.value)
-  const beforeBook = filteredAndSortedBooks.value[0]?.title || '없음'
-  console.log('[DEBUG] Before - first book:', beforeBook)
+  console.log('[SELECT] selectSort called with:', value)
+
+  const beforeFirst = filteredAndSortedBooks.value[0]?.title || '없음'
+  const beforeLast = filteredAndSortedBooks.value[filteredAndSortedBooks.value.length - 1]?.title || '없음'
+
+  console.log('[SELECT] BEFORE - First:', beforeFirst)
+  console.log('[SELECT] BEFORE - Last:', beforeLast)
 
   sortBy.value = value
   showSortMenu.value = false
 
   // 🔥 직접 정렬 함수 호출!
+  console.log('[SELECT] Calling applySorting...')
   applySorting()
+  console.log('[SELECT] applySorting done')
 
-  // 디버깅: 정렬이 적용되었는지 확인
+  const afterFirst = filteredAndSortedBooks.value[0]?.title || '없음'
+  const afterLast = filteredAndSortedBooks.value[filteredAndSortedBooks.value.length - 1]?.title || '없음'
+
+  console.log('[SELECT] AFTER - First:', afterFirst)
+  console.log('[SELECT] AFTER - Last:', afterLast)
+
+  // 디버깅 Toast
   const label = sortOptions.find(o => o.value === value)?.label
+  toast.success(`${label}`)
 
-  // 첫 번째 toast: 정렬 변경
-  toast.success(`정렬: ${label}`)
+  setTimeout(() => {
+    toast.success(`전:${beforeFirst.substring(0, 8)}`)
+  }, 600)
 
-  // nextTick으로 DOM 업데이트 후 확인
-  nextTick(() => {
-    console.log('[DEBUG] After - sortBy:', sortBy.value)
-    const afterBook = filteredAndSortedBooks.value[0]?.title || '없음'
-    console.log('[DEBUG] After - first book:', afterBook)
-
-    // 두 번째 toast: 첫 번째 책 (0.5초 후)
-    setTimeout(() => {
-      const firstTitle = afterBook.substring(0, 10)
-      toast.success(`첫책: ${firstTitle}`)
-    }, 500)
-  })
+  setTimeout(() => {
+    toast.success(`후:${afterFirst.substring(0, 8)}`)
+  }, 1200)
 }
 
 const toggleBookMenu = (bookId: string) => {
