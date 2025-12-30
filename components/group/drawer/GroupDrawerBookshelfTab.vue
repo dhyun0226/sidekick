@@ -20,7 +20,8 @@
             <button
               v-for="option in sortOptions"
               :key="option.value"
-              @click="selectSort(option.value)"
+              @click.stop="selectSort(option.value)"
+              @touchend.stop="selectSort(option.value)"
               class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-between"
               :class="sortBy === option.value
                 ? 'bg-lime-50 dark:bg-lime-900/20 text-lime-700 dark:text-lime-500 font-medium'
