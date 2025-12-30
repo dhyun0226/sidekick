@@ -286,7 +286,8 @@ const toast = useToastStore()
 const selectSort = (value: typeof sortBy.value) => {
   console.log('[DEBUG] selectSort called with:', value)
   console.log('[DEBUG] Before - sortBy:', sortBy.value)
-  console.log('[DEBUG] Before - first book:', filteredAndSortedBooks.value[0]?.title)
+  const beforeBook = filteredAndSortedBooks.value[0]?.title || '없음'
+  console.log('[DEBUG] Before - first book:', beforeBook)
 
   sortBy.value = value
   showSortMenu.value = false
@@ -294,12 +295,20 @@ const selectSort = (value: typeof sortBy.value) => {
   // 디버깅: computed가 재계산되는지 확인
   const label = sortOptions.find(o => o.value === value)?.label
 
+  // 첫 번째 toast: 정렬 변경
+  toast.success(`정렬: ${label}`)
+
   // nextTick으로 DOM 업데이트 후 확인
   nextTick(() => {
     console.log('[DEBUG] After - sortBy:', sortBy.value)
-    console.log('[DEBUG] After - first book:', filteredAndSortedBooks.value[0]?.title)
-    const firstBook = filteredAndSortedBooks.value[0]?.title?.substring(0, 15) || '없음'
-    toast.success(`${label} / 첫책: ${firstBook}`)
+    const afterBook = filteredAndSortedBooks.value[0]?.title || '없음'
+    console.log('[DEBUG] After - first book:', afterBook)
+
+    // 두 번째 toast: 첫 번째 책 (0.5초 후)
+    setTimeout(() => {
+      const firstTitle = afterBook.substring(0, 10)
+      toast.success(`첫책: ${firstTitle}`)
+    }, 500)
   })
 }
 
