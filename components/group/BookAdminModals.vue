@@ -14,21 +14,25 @@
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">시작일</label>
-            <input
-              v-model="localStartDate"
-              type="date"
-              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-3 sm:px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
-            />
+            <div class="overflow-hidden">
+              <input
+                v-model="localStartDate"
+                type="date"
+                class="w-full min-w-0 box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-2 sm:px-4 py-2.5 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
+              />
+            </div>
           </div>
 
           <div>
             <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">종료일</label>
-            <input
-              v-model="localEndDate"
-              type="date"
-              :min="localStartDate"
-              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-3 sm:px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
-            />
+            <div class="overflow-hidden">
+              <input
+                v-model="localEndDate"
+                type="date"
+                :min="localStartDate"
+                class="w-full min-w-0 box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-2 sm:px-4 py-2.5 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
+              />
+            </div>
           </div>
 
           <div v-if="localStartDate && localEndDate" class="p-3 bg-lime-400/10 border border-lime-400/30 rounded-lg">
@@ -157,11 +161,13 @@
 
           <div>
             <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">완주 날짜</label>
-            <input
-              v-model="localFinishedDate"
-              type="date"
-              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-3 sm:px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
-            />
+            <div class="overflow-hidden">
+              <input
+                v-model="localFinishedDate"
+                type="date"
+                class="w-full min-w-0 box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-2 sm:px-4 py-2.5 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
+              />
+            </div>
           </div>
         </div>
 
