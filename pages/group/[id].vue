@@ -10,9 +10,9 @@
 
     <!-- Loading State -->
     <template v-if="isLoading">
-      <SkeletonLoader type="hero" />
-      <SkeletonLoader type="timeline" />
-      <SkeletonLoader type="slider" />
+      <div class="flex items-center justify-center min-h-[60vh]">
+        <LoadingSpinner size="lg" message="타임라인 불러오는 중..."/>
+      </div>
     </template>
 
     <!-- Loaded Content -->
@@ -292,7 +292,7 @@ import BookHeroSection from '~/components/group/BookHeroSection.vue'
 import CommentInputOverlay from '~/components/group/CommentInputOverlay.vue'
 import BookAdminModals from '~/components/group/BookAdminModals.vue'
 import GroupDrawer from '~/components/group/drawer/GroupDrawer.vue'
-import SkeletonLoader from '~/components/SkeletonLoader.vue'
+import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import TextDisplayModal from '~/components/TextDisplayModal.vue'
 import TextInputModal from '~/components/TextInputModal.vue'

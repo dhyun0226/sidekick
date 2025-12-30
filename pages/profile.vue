@@ -458,25 +458,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Overall Stats -->
-          <div class="pt-3 border-t border-zinc-200 dark:border-zinc-800">
-            <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-3">전체 통계</h3>
-            <div class="grid grid-cols-3 gap-3 text-center">
-              <div>
-                <div class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.books }}</div>
-                <div class="text-[10px] text-zinc-500">📚 완독</div>
-              </div>
-              <div>
-                <div class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.comments }}</div>
-                <div class="text-[10px] text-zinc-500">💬 생각</div>
-              </div>
-              <div>
-                <div class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.groups }}</div>
-                <div class="text-[10px] text-zinc-500">👥 그룹</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
