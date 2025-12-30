@@ -266,15 +266,11 @@ const filteredAndSortedBooks = computed(() => {
   books.sort((a, b) => {
     switch (sortBy.value) {
       case 'date-desc':
-        // 날짜 형식: YYYY.MM.DD → YYYY-MM-DD 변환
-        const dateB = new Date(b.date.replace(/\./g, '-')).getTime()
-        const dateA = new Date(a.date.replace(/\./g, '-')).getTime()
-        return dateB - dateA
+        // 최신순: YYYY.MM.DD 형식은 문자열 비교로 정렬 가능
+        return b.date.localeCompare(a.date)
       case 'date-asc':
-        // 날짜 형식: YYYY.MM.DD → YYYY-MM-DD 변환
-        const dateB2 = new Date(b.date.replace(/\./g, '-')).getTime()
-        const dateA2 = new Date(a.date.replace(/\./g, '-')).getTime()
-        return dateA2 - dateB2
+        // 오래된순
+        return a.date.localeCompare(b.date)
       case 'title':
         return a.title.localeCompare(b.title, 'ko')
       case 'author':
