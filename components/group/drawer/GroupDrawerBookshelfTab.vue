@@ -201,7 +201,6 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from 'vue'
 import { MessageCircle, Star, MoreVertical, RotateCcw, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check, Lock } from 'lucide-vue-next'
-import { useToastStore } from '~/stores/toast'
 
 interface HistoryBook {
   id: string
@@ -282,8 +281,6 @@ const filteredAndSortedBooks = computed(() => {
 
   return books
 })
-
-const toast = useToastStore()
 
 const selectSort = (value: typeof sortBy.value) => {
   sortBy.value = value
