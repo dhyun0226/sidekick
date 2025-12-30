@@ -304,37 +304,39 @@ const toast = useToastStore()
 const selectSort = (value: typeof sortBy.value) => {
   console.log('[SELECT] selectSort called with:', value)
 
+  // 디버깅 정보
+  const beforeSortBy = sortBy.value
+  const bookCount = filteredAndSortedBooks.value.length
   const beforeFirst = filteredAndSortedBooks.value[0]?.title || '없음'
-  const beforeLast = filteredAndSortedBooks.value[filteredAndSortedBooks.value.length - 1]?.title || '없음'
 
-  console.log('[SELECT] BEFORE - First:', beforeFirst)
-  console.log('[SELECT] BEFORE - Last:', beforeLast)
+  console.log('[SELECT] BEFORE - sortBy:', beforeSortBy)
+  console.log('[SELECT] Book count:', bookCount)
 
   sortBy.value = value
   showSortMenu.value = false
 
+  console.log('[SELECT] NEW sortBy.value:', sortBy.value)
+
   // 🔥 직접 정렬 함수 호출!
-  console.log('[SELECT] Calling applySorting...')
   applySorting()
-  console.log('[SELECT] applySorting done')
 
   const afterFirst = filteredAndSortedBooks.value[0]?.title || '없음'
-  const afterLast = filteredAndSortedBooks.value[filteredAndSortedBooks.value.length - 1]?.title || '없음'
 
-  console.log('[SELECT] AFTER - First:', afterFirst)
-  console.log('[SELECT] AFTER - Last:', afterLast)
-
-  // 디버깅 Toast
-  const label = sortOptions.find(o => o.value === value)?.label
-  toast.success(`${label}`)
+  // Toast로 디버깅 정보 표시
+  toast.success(`책${bookCount}권`)
 
   setTimeout(() => {
-    toast.success(`전:${beforeFirst.substring(0, 8)}`)
+    toast.success(`${beforeSortBy}→${value}`)
   }, 600)
 
   setTimeout(() => {
-    toast.success(`후:${afterFirst.substring(0, 8)}`)
+    const changed = beforeFirst !== afterFirst ? '변경O' : '변경X'
+    toast.success(changed)
   }, 1200)
+
+  setTimeout(() => {
+    toast.success(`첫:${afterFirst.substring(0, 7)}`)
+  }, 1800)
 }
 
 const toggleBookMenu = (bookId: string) => {
