@@ -13,8 +13,10 @@
           >
             <ArrowUpDown :size="12" class="block" />
           </button>
-          <!-- Sort Dropdown -->
-          <div v-if="showSortMenu" class="absolute left-0 top-6 min-w-[180px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[201]" @click.stop>
+          <!-- Backdrop (먼저 렌더링) -->
+          <div v-if="showSortMenu" class="fixed inset-0 z-[100]" @click="showSortMenu = false"></div>
+          <!-- Sort Dropdown (나중 렌더링 - 클릭 우선순위 높음) -->
+          <div v-if="showSortMenu" class="absolute left-0 top-6 min-w-[180px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[101]" @click.stop>
             <button
               v-for="option in sortOptions"
               :key="option.value"
@@ -28,7 +30,6 @@
               <Check v-if="sortBy === option.value" :size="12" />
             </button>
           </div>
-          <div v-if="showSortMenu" class="fixed inset-0 z-[200]" @click="showSortMenu = false"></div>
         </div>
       </div>
 

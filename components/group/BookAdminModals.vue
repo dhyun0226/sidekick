@@ -139,9 +139,9 @@
     </div>
 
     <!-- Edit Finished Date Modal -->
-    <div v-if="editFinishedDateOpen" class="fixed inset-0 z-[100] flex items-center justify-center">
+    <div v-if="editFinishedDateOpen" class="fixed inset-0 z-[100] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditFinishedDate')"></div>
-      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-4 sm:p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">완주 날짜 수정</h2>
           <button @click="emit('closeEditFinishedDate')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
