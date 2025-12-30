@@ -31,25 +31,25 @@
 
         <!-- 챕터가 있을 때 -->
         <template v-else>
-          <div v-for="(chapter, idx) in localChapters" :key="chapter.id" class="flex gap-2">
+          <div v-for="(chapter, idx) in localChapters" :key="chapter.id" class="flex gap-1.5">
             <input
               v-model="chapter.title"
               type="text"
               placeholder="챕터명"
-              class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
+              class="flex-1 min-w-0 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
             <input
               v-model.number="chapter.startPage"
               type="number"
-              placeholder="시작 쪽"
+              placeholder="쪽"
               :min="idx === 0 ? 1 : localChapters[idx - 1].startPage + 1"
               :max="totalPages || undefined"
               @blur="validateChapterPage(idx)"
-              class="w-20 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-lime-400"
+              class="w-16 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
             <button
               @click="removeChapter(idx)"
-              class="text-zinc-600 dark:text-zinc-500 hover:text-red-400 px-2"
+              class="text-zinc-600 dark:text-zinc-500 hover:text-red-400 px-1.5 flex-shrink-0"
             >
               <X :size="18" />
             </button>
@@ -103,13 +103,20 @@ const localChapters = ref<Chapter[]>(
   }))
 )
 
-// Watch props changes
+// Watch props changes (only update if content actually changed)
 watch(() => props.chapters, (newChapters) => {
-  localChapters.value = newChapters.map(c => ({
-    id: generateChapterId(),
-    title: c.title,
-    startPage: c.startPage
-  }))
+  // Compare content (ignore IDs)
+  const currentContent = localChapters.value.map(c => ({ title: c.title, startPage: c.startPage }))
+  const newContent = newChapters.map(c => ({ title: c.title, startPage: c.startPage }))
+
+  // Only update if content is different
+  if (JSON.stringify(currentContent) !== JSON.stringify(newContent)) {
+    localChapters.value = newChapters.map(c => ({
+      id: generateChapterId(),
+      title: c.title,
+      startPage: c.startPage
+    }))
+  }
 }, { deep: true })
 
 // Watch local changes and emit

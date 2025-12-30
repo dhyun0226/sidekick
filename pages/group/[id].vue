@@ -267,6 +267,18 @@
       @cancel="cancelRegenerateInviteCode"
     />
 
+    <ConfirmModal
+      :is-open="modals.deleteHistoryBook"
+      variant="danger"
+      title="책 삭제"
+      :message="`'${pendingBookToDelete?.title || '이 책'}'을(를) 정말 삭제하시겠습니까?`"
+      description="모든 댓글과 리뷰가 함께 삭제됩니다."
+      confirm-text="삭제"
+      cancel-text="취소"
+      @confirm="confirmDeleteHistoryBook"
+      @cancel="modals.deleteHistoryBook = false; pendingBookToDelete = null"
+    />
+
     <!-- Upgrade Prompt Modal for Book Addition -->
     <UpgradePromptModal
       :isOpen="modals.upgradeBook"
@@ -386,11 +398,13 @@ const modals = reactive({
   deleteGroup: false,
   deleteGroupConfirm: false,
   clipboardFallback: false,
-  regenerateInviteCode: false
+  regenerateInviteCode: false,
+  deleteHistoryBook: false
 })
 
 // Admin action state
 const pendingMemberAction = ref<{ id: string, nickname: string } | null>(null)
+const pendingBookToDelete = ref<{ id: string, title: string } | null>(null)
 const clipboardFallbackData = ref({ title: '', message: '', text: '' })
 
 // Realtime subscriptions
@@ -404,6 +418,12 @@ const {
   currentUserId,
   (comment) => addComment(comment),
   (progress) => {
+    // 현재 선택된 책의 progress만 업데이트 (다른 그룹의 같은 책 데이터 무시)
+    if (progress.group_book_id !== selectedBookId.value) {
+      console.log('[Realtime] Ignoring progress for different book:', progress.group_book_id)
+      return
+    }
+
     const index = memberProgress.value.findIndex(p => p.user_id === progress.user_id)
     if (index >= 0) {
       memberProgress.value[index] = progress
@@ -488,7 +508,10 @@ const sortedMembersWithProgress = computed(() => {
   const { formatTimeAgo, isInactive, formatShortDate } = useDateUtils()
 
   const membersWithData = members.value.map(member => {
-    const progressData = memberProgress.value.find(p => p.user_id === member.id)
+    // 현재 선택된 책의 progress만 매칭 (다른 그룹의 같은 책 데이터 제외)
+    const progressData = memberProgress.value.find(
+      p => p.user_id === member.id && p.group_book_id === selectedBookId.value
+    )
 
     // 진행도 (현재 사용자는 viewProgress 사용)
     const progress = member.id === currentUserId.value
@@ -504,9 +527,9 @@ const sortedMembersWithProgress = computed(() => {
     // 현재 사용자는 viewProgress 기준으로 즉시 계산 (빠른 반응)
     const finishedAt = member.id === currentUserId.value
       ? (Math.round(viewProgress.value) >= 100 ? new Date().toISOString() : null)
-      : progressData?.finished_at
+      : (progressData?.finished_at || null)  // undefined를 null로 변환
     const finishedDate = finishedAt ? formatShortDate(new Date(finishedAt)) : null
-    const isCompleted = finishedAt !== null  // 개인이 100% 완독했는지만 체크
+    const isCompleted = !!finishedAt  // undefined와 null 모두 false
 
     return {
       ...member,
@@ -1050,7 +1073,7 @@ const handleEditFinishedDate = (bookId: string) => {
   modals.editFinishedDate = true
 }
 
-const handleDeleteHistoryBook = async (bookId: string) => {
+const handleDeleteHistoryBook = (bookId: string) => {
   const book = allBooks.value.find(b => b.id === bookId)
   if (!book) return
 
@@ -1060,9 +1083,19 @@ const handleDeleteHistoryBook = async (bookId: string) => {
     return
   }
 
-  if (!confirm(`'${book.book?.title || '이 책'}'을(를) 정말 삭제하시겠습니까?\n\n모든 댓글과 리뷰가 함께 삭제됩니다.`)) {
-    return
+  pendingBookToDelete.value = {
+    id: bookId,
+    title: book.book?.title || '이 책'
   }
+  modals.deleteHistoryBook = true
+}
+
+const confirmDeleteHistoryBook = async () => {
+  if (!pendingBookToDelete.value) return
+
+  const bookId = pendingBookToDelete.value.id
+  modals.deleteHistoryBook = false
+  pendingBookToDelete.value = null
 
   try {
     // Delete comments first
@@ -1234,7 +1267,7 @@ const markAsCompleted = async () => {
 
     modals.markCompleted = false
     modals.editingBook = null
-    toast.success('완주 처리되었습니다! 🎉 히스토리로 이동합니다.')
+    toast.success('완주 처리되었습니다! 🎉 책장으로 이동합니다.')
 
     // Refresh other data
     await fetchData()

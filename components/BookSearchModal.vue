@@ -159,7 +159,7 @@
             class="flex-1 bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             :disabled="!startDate || !endDate"
           >
-            시작하기! 🚀
+            시작하기
           </button>
         </div>
       </div>
@@ -330,16 +330,14 @@ const calculateDays = () => {
 }
 
 const confirmBook = () => {
-  // Final validation before confirm
-  if (!tocFormRef.value) return
+  console.log('[BookSearchModal] confirmBook called')
 
-  const validation = tocFormRef.value.validate()
-  if (!validation.valid) {
-    toast.error(validation.message || '목차 정보를 확인해주세요.')
+  // Validation already done in goToStep3, just check totalPages
+  if (!totalPages.value) {
+    console.log('[BookSearchModal] No totalPages')
+    toast.error('전체 페이지를 입력해주세요.')
     return
   }
-
-  if (!totalPages.value) return
 
   // Convert pages to % (목차가 없으면 빈 배열)
   const toc = chapters.value.map((c, i) => {
@@ -351,6 +349,14 @@ const confirmBook = () => {
       start: startPct,
       end: endPct
     }
+  })
+
+  console.log('[BookSearchModal] Emitting confirm with:', {
+    book: selectedBook.value?.title,
+    totalPages: totalPages.value,
+    toc,
+    startDate: startDate.value,
+    endDate: endDate.value
   })
 
   emit('confirm', {

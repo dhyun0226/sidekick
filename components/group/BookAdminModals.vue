@@ -184,20 +184,20 @@
     </div>
 
     <!-- Edit TOC Modal -->
-    <div v-if="editTocOpen" class="fixed inset-0 z-[100] flex items-center justify-center">
+    <div v-if="editTocOpen" class="fixed inset-0 z-[100] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditToc')"></div>
-      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between items-center mb-6">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-2xl border border-zinc-300 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white dark:bg-zinc-900 z-10 flex justify-between items-center p-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
           <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">📑 목차 수정</h2>
-          <button @click="emit('closeEditToc')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
+          <button @click="emit('closeEditToc')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white flex-shrink-0">
             <X :size="24" />
           </button>
         </div>
 
-        <div class="space-y-4">
-          <div v-if="currentBook" class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl mb-4">
-            <p class="font-bold text-zinc-800 dark:text-zinc-200 text-sm">{{ currentBook.book?.title }}</p>
-            <p class="text-xs text-zinc-600 dark:text-zinc-400">{{ currentBook.book?.author }}</p>
+        <div class="p-6 pt-4 space-y-4">
+          <div v-if="currentBook" class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
+            <p class="font-bold text-zinc-800 dark:text-zinc-200 text-sm break-words">{{ currentBook.book?.title }}</p>
+            <p class="text-xs text-zinc-600 dark:text-zinc-400 break-words">{{ currentBook.book?.author }}</p>
           </div>
 
           <!-- TOC Input Form (공통 컴포넌트) -->
@@ -206,22 +206,21 @@
             v-model:totalPages="localTotalPages"
             v-model:chapters="localChapters"
           />
-        </div>
-
-        <div class="flex gap-3 mt-6">
-          <button
-            @click="emit('closeEditToc')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-3 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-          >
-            취소
-          </button>
-          <button
-            @click="handleSaveToc"
-            class="flex-1 bg-lime-400 text-black font-bold py-3 rounded-xl hover:bg-lime-300 transition-colors"
-            :disabled="!localTotalPages || localTotalPages <= 0"
-          >
-            저장
-          </button>
+          <div class="flex gap-3 pt-2">
+            <button
+              @click="emit('closeEditToc')"
+              class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-3 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+            >
+              취소
+            </button>
+            <button
+              @click="handleSaveToc"
+              class="flex-1 bg-lime-400 text-black font-bold py-3 rounded-xl hover:bg-lime-300 transition-colors"
+              :disabled="!localTotalPages || localTotalPages <= 0"
+            >
+              저장
+            </button>
+          </div>
         </div>
       </div>
     </div>
