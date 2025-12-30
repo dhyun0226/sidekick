@@ -127,7 +127,7 @@
               <input
                 v-model="startDate"
                 type="date"
-                class="w-full min-w-0 box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white px-1 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
+                class="w-full min-w-0 box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white px-2 sm:px-4 py-2.5 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
               />
             </div>
           </div>
@@ -139,7 +139,7 @@
                 v-model="endDate"
                 type="date"
                 :min="startDate"
-                class="w-full min-w-0 box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white px-1 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
+                class="w-full min-w-0 box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white px-2 sm:px-4 py-2.5 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
               />
             </div>
           </div>
