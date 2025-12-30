@@ -199,7 +199,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { MessageCircle, Star, MoreVertical, RotateCcw, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check, Lock } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 
@@ -285,13 +285,22 @@ const toast = useToastStore()
 
 const selectSort = (value: typeof sortBy.value) => {
   console.log('[DEBUG] selectSort called with:', value)
+  console.log('[DEBUG] Before - sortBy:', sortBy.value)
+  console.log('[DEBUG] Before - first book:', filteredAndSortedBooks.value[0]?.title)
+
   sortBy.value = value
   showSortMenu.value = false
 
-  // 디버깅: 정렬이 실제로 실행되는지 확인
+  // 디버깅: computed가 재계산되는지 확인
   const label = sortOptions.find(o => o.value === value)?.label
-  toast.success(`정렬 변경: ${label}`)
-  console.log('[DEBUG] sortBy.value is now:', sortBy.value)
+
+  // nextTick으로 DOM 업데이트 후 확인
+  nextTick(() => {
+    console.log('[DEBUG] After - sortBy:', sortBy.value)
+    console.log('[DEBUG] After - first book:', filteredAndSortedBooks.value[0]?.title)
+    const firstBook = filteredAndSortedBooks.value[0]?.title?.substring(0, 15) || '없음'
+    toast.success(`${label} / 첫책: ${firstBook}`)
+  })
 }
 
 const toggleBookMenu = (bookId: string) => {
