@@ -269,9 +269,16 @@ const applySorting = () => {
   books.sort((a, b) => {
     switch (sortBy.value) {
       case 'date-desc':
-        return new Date(b.date).getTime() - new Date(a.date).getTime()
+        // 날짜 형식: YYYY.MM.DD → YYYY-MM-DD 변환
+        const dateB = new Date(b.date.replace(/\./g, '-')).getTime()
+        const dateA = new Date(a.date.replace(/\./g, '-')).getTime()
+        console.log('[SORT] Comparing:', a.date, '→', dateA, 'vs', b.date, '→', dateB)
+        return dateB - dateA
       case 'date-asc':
-        return new Date(a.date).getTime() - new Date(b.date).getTime()
+        // 날짜 형식: YYYY.MM.DD → YYYY-MM-DD 변환
+        const dateB2 = new Date(b.date.replace(/\./g, '-')).getTime()
+        const dateA2 = new Date(a.date.replace(/\./g, '-')).getTime()
+        return dateA2 - dateB2
       case 'title':
         return a.title.localeCompare(b.title, 'ko')
       case 'author':
