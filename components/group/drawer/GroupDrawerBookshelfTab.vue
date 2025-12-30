@@ -254,9 +254,7 @@ const filteredAndSortedBooks = ref<HistoryBook[]>([])
 
 // 정렬 적용 함수
 const applySorting = () => {
-  console.log('[APPLY] applySorting called, sortBy:', sortBy.value)
   let books = [...props.historyBooks]
-  console.log('[APPLY] Total books:', books.length)
 
   // 1. Filter by search query
   if (searchQuery.value.trim()) {
@@ -283,10 +281,7 @@ const applySorting = () => {
     }
   })
 
-  console.log('[APPLY] After sort, first book:', books[0]?.title)
-  console.log('[APPLY] After sort, last book:', books[books.length - 1]?.title)
   filteredAndSortedBooks.value = books
-  console.log('[APPLY] Updated filteredAndSortedBooks.value')
 }
 
 // Props 변경 감지
@@ -309,18 +304,20 @@ const selectSort = (value: typeof sortBy.value) => {
   const bookCount = filteredAndSortedBooks.value.length
   const beforeFirst = filteredAndSortedBooks.value[0]?.title || '없음'
 
-  console.log('[SELECT] BEFORE - sortBy:', beforeSortBy)
-  console.log('[SELECT] Book count:', bookCount)
+  // 🔍 날짜 데이터 확인
+  const firstBook = filteredAndSortedBooks.value[0]
+  const firstDate = firstBook?.date
+  console.log('[SELECT] First book date:', firstDate)
+  console.log('[SELECT] First book date type:', typeof firstDate)
 
   sortBy.value = value
   showSortMenu.value = false
-
-  console.log('[SELECT] NEW sortBy.value:', sortBy.value)
 
   // 🔥 직접 정렬 함수 호출!
   applySorting()
 
   const afterFirst = filteredAndSortedBooks.value[0]?.title || '없음'
+  const afterDate = filteredAndSortedBooks.value[0]?.date || '없음'
 
   // Toast로 디버깅 정보 표시
   toast.success(`책${bookCount}권`)
@@ -337,6 +334,11 @@ const selectSort = (value: typeof sortBy.value) => {
   setTimeout(() => {
     toast.success(`첫:${afterFirst.substring(0, 7)}`)
   }, 1800)
+
+  // 🔍 날짜 값 표시
+  setTimeout(() => {
+    toast.success(`날짜:${afterDate}`)
+  }, 2400)
 }
 
 const toggleBookMenu = (bookId: string) => {
