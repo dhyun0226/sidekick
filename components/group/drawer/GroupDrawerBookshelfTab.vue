@@ -7,14 +7,14 @@
         <!-- Sort Button -->
         <div class="relative flex items-center">
           <button
-            @click="showSortMenu = !showSortMenu"
+            @click.stop="showSortMenu = !showSortMenu"
             class="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors text-zinc-400 leading-none"
             title="정렬"
           >
             <ArrowUpDown :size="12" class="block" />
           </button>
-          <!-- Sort Dropdown -->
-          <div v-if="showSortMenu" class="absolute left-0 top-6 min-w-[180px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[9999]" @click.stop>
+          <!-- Sort Dropdown (먼저 렌더링) -->
+          <div v-if="showSortMenu" class="absolute left-0 top-6 min-w-[180px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[301] overflow-visible" @click.stop>
             <button
               v-for="option in sortOptions"
               :key="option.value"
@@ -28,6 +28,8 @@
               <Check v-if="sortBy === option.value" :size="12" />
             </button>
           </div>
+          <!-- Backdrop (나중 렌더링) -->
+          <div v-if="showSortMenu" class="fixed inset-0 z-[300]" @click.stop="showSortMenu = false"></div>
         </div>
       </div>
 
@@ -199,6 +201,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { MessageCircle, Star, MoreVertical, RotateCcw, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check, Lock } from 'lucide-vue-next'
+import { useToastStore } from '~/stores/toast'
 
 interface HistoryBook {
   id: string
@@ -278,9 +281,17 @@ const filteredAndSortedBooks = computed(() => {
   return books
 })
 
+const toast = useToastStore()
+
 const selectSort = (value: typeof sortBy.value) => {
+  console.log('[DEBUG] selectSort called with:', value)
   sortBy.value = value
   showSortMenu.value = false
+
+  // 디버깅: 정렬이 실제로 실행되는지 확인
+  const label = sortOptions.find(o => o.value === value)?.label
+  toast.success(`정렬 변경: ${label}`)
+  console.log('[DEBUG] sortBy.value is now:', sortBy.value)
 }
 
 const toggleBookMenu = (bookId: string) => {
