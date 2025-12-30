@@ -199,7 +199,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
 import { MessageCircle, Star, MoreVertical, RotateCcw, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check, Lock } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 
@@ -249,8 +249,11 @@ const sortOptions = [
   { value: 'author', label: '저자순' }
 ] as const
 
-// Filtered and sorted books
-const filteredAndSortedBooks = computed(() => {
+// Filtered and sorted books (ref로 변경)
+const filteredAndSortedBooks = ref<HistoryBook[]>([])
+
+// 정렬 적용 함수
+const applySorting = () => {
   let books = [...props.historyBooks]
 
   // 1. Filter by search query
@@ -278,7 +281,17 @@ const filteredAndSortedBooks = computed(() => {
     }
   })
 
-  return books
+  filteredAndSortedBooks.value = books
+}
+
+// Props 변경 감지
+watch(() => props.historyBooks, () => {
+  applySorting()
+}, { immediate: true })
+
+// 검색 감지
+watch(searchQuery, () => {
+  applySorting()
 })
 
 const toast = useToastStore()
@@ -292,7 +305,10 @@ const selectSort = (value: typeof sortBy.value) => {
   sortBy.value = value
   showSortMenu.value = false
 
-  // 디버깅: computed가 재계산되는지 확인
+  // 🔥 직접 정렬 함수 호출!
+  applySorting()
+
+  // 디버깅: 정렬이 적용되었는지 확인
   const label = sortOptions.find(o => o.value === value)?.label
 
   // 첫 번째 toast: 정렬 변경
