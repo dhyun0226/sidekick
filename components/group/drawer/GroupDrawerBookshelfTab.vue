@@ -13,15 +13,13 @@
           >
             <ArrowUpDown :size="12" class="block" />
           </button>
-          <!-- Backdrop (먼저 렌더링) -->
-          <div v-if="showSortMenu" class="fixed inset-0 z-[9998]" @click="showSortMenu = false"></div>
-          <!-- Sort Dropdown (나중 렌더링 - 클릭 우선순위 높음) -->
-          <div v-if="showSortMenu" class="absolute left-0 top-6 min-w-[180px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[9999] pointer-events-auto" @click.stop>
+          <!-- Sort Dropdown -->
+          <div v-if="showSortMenu" class="absolute left-0 top-6 min-w-[180px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[9999]" @click.stop>
             <button
               v-for="option in sortOptions"
               :key="option.value"
-              @click.stop="selectSort(option.value)"
-              @touchend.stop="selectSort(option.value)"
+              @touchstart.prevent.stop="selectSort(option.value)"
+              @click.prevent.stop="selectSort(option.value)"
               class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-between"
               :class="sortBy === option.value
                 ? 'bg-lime-50 dark:bg-lime-900/20 text-lime-700 dark:text-lime-500 font-medium'
