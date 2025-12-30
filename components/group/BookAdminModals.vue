@@ -17,7 +17,7 @@
             <input
               v-model="localStartDate"
               type="date"
-              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
+              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-3 sm:px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
             />
           </div>
 
@@ -27,7 +27,7 @@
               v-model="localEndDate"
               type="date"
               :min="localStartDate"
-              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
+              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-3 sm:px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
             />
           </div>
 
@@ -160,7 +160,7 @@
             <input
               v-model="localFinishedDate"
               type="date"
-              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
+              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-3 sm:px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
             />
           </div>
         </div>
