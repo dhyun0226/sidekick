@@ -678,8 +678,10 @@
                   <div class="flex items-center bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">
                     <span class="text-xs font-bold text-zinc-600 dark:text-zinc-400">{{ bookTimeline.length }}개 기록</span>
                   </div>
+                  <div v-if="selectedBook.finished_at" class="flex items-center gap-1 bg-lime-50 dark:bg-lime-900/20 px-2 py-1 rounded">
+                    <span class="text-xs font-bold text-lime-700 dark:text-lime-400">{{ formatCompletionDate(selectedBook.finished_at) }} 완독</span>
+                  </div>
                 </div>
-                <div class="text-xs text-zinc-500">{{ formatMonthOnly(selectedBook.finished_at) }} 완독</div>
               </div>
             </div>
           </div>
@@ -1468,7 +1470,7 @@ const fetchData = async () => {
     // 3. Stats
     stats.value = {
       books: library.value.length,
-      comments: commentsData?.length || 0,
+      comments: (commentsData?.length || 0) + (reviewsData?.length || 0),
       streak: await calculateStreak(userId),
       groups: groupCount || 0
     }
@@ -1601,6 +1603,15 @@ const formatMonthOnly = (dateStr: string) => {
   const month = date.getMonth() + 1
   const day = date.getDate()
   return `${month}.${day}`
+}
+
+const formatCompletionDate = (dateStr: string) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const year = String(date.getFullYear()).slice(-2)
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}.${month}.${day}`
 }
 
 const getStarType = (index: number, rating: number) => {

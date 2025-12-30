@@ -113,6 +113,8 @@
       @edit-dates="openEditDatesModal"
       @edit-toc="openEditTocModal"
       @mark-completed="openMarkCompletedModal"
+      @mark-finished="handleMarkFinished"
+      @unmark-finished="handleUnmarkFinished"
       @delete-book="openDeleteBookModal"
       @open-reviews="openReviews"
       @copy-invite-code="copyInviteCode"
@@ -137,6 +139,51 @@
       @close="modals.search = false"
       @confirm="handleBookAdd"
     />
+
+    <!-- 완독 처리 확인 모달 -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="modals.completionConfirm" class="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-black/70 backdrop-blur-md" @click="cancelCompletion"></div>
+
+          <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800">
+            <!-- Header -->
+            <div class="bg-gradient-to-br from-lime-400 via-lime-500 to-emerald-500 p-6 text-center">
+              <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-2">완독 처리 하시겠어요?</h3>
+              <p class="text-sm text-white/80">리뷰를 남기고 독서를 마무리해보세요</p>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6">
+              <div class="bg-zinc-100 dark:bg-zinc-800/50 rounded-xl p-4 mb-6">
+                <p class="text-sm text-zinc-700 dark:text-zinc-300 text-center">
+                  완독 처리하면 서재에 기록되고<br>리뷰를 작성할 수 있습니다
+                </p>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex gap-3">
+                <button
+                  @click="cancelCompletion"
+                  class="flex-1 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                >
+                  아니요
+                </button>
+                <button
+                  @click="confirmCompletion"
+                  class="flex-1 py-3 bg-gradient-to-r from-lime-400 to-lime-500 text-black font-bold rounded-xl hover:scale-[1.02] transition-all"
+                >
+                  네, 완독했어요
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
 
     <!-- Review Modal -->
     <ReviewModal
@@ -389,6 +436,7 @@ const modals = reactive({
   markCompleted: false,
   deleteBook: false,
   editFinishedDate: false,
+  completionConfirm: false,  // 완독 처리 확인 모달
   editingBook: null as any,  // 편집 중인 책 (selectedBookId와 독립적)
   upgradeBook: false,  // Upgrade prompt for book addition
   // Admin action modals
@@ -801,41 +849,20 @@ const handleSliderChange = async (val: number) => {
     scrollToPosition(Math.round(val))
   })
 
-  // 100% 도달 시 리뷰 모달 (한 번만)
+  // 100% 도달 시 완독 확인 모달 (한 번만)
   if (val >= 100) {
     if (hasShownReviewModal.value) return // Already shown for this book
 
     if (reviewModalTimeout) clearTimeout(reviewModalTimeout)
-    reviewModalTimeout = setTimeout(async () => {
+    reviewModalTimeout = setTimeout(() => {
       if (!selectedBook.value || !currentUserId.value) return
 
-      // Set the book being reviewed
-      reviewingBookId.value = selectedBook.value.id
-
-      // Check for existing review for this group_book
-      const { data: existingReview } = await client
-        .from('reviews')
-        .select('*')
-        .eq('user_id', currentUserId.value)
-        .eq('group_book_id', selectedBook.value.id)
-        .maybeSingle()
-
-      if (existingReview) {
-        reviewInitialData.value = {
-          rating: parseFloat(existingReview.rating),
-          content: existingReview.content || ''
-        }
-        isEditingReview.value = true
-      } else {
-        reviewInitialData.value = { rating: 0, content: '' }
-        isEditingReview.value = false
-      }
-
-      modals.review = true
+      // Show completion confirmation modal
+      modals.completionConfirm = true
       hasShownReviewModal.value = true // Mark as shown
-    }, 300) // Reduced from 500ms to 300ms
+    }, 300)
   } else {
-    // Cancel review modal if user drags away from 100%
+    // Cancel modal if user drags away from 100%
     if (reviewModalTimeout) {
       clearTimeout(reviewModalTimeout)
       reviewModalTimeout = null
@@ -1071,6 +1098,102 @@ const handleRestartReading = async (bookId: string) => {
 const handleEditFinishedDate = (bookId: string) => {
   modals.editingBook = allBooks.value.find(b => b.id === bookId) || null
   modals.editFinishedDate = true
+}
+
+// 완독 처리 (드로어 메뉴에서)
+const handleMarkFinished = async (bookId: string) => {
+  if (!currentUserId.value) return
+
+  try {
+    const { error } = await client
+      .from('user_reading_progress')
+      .update({ finished_at: new Date().toISOString() })
+      .eq('group_book_id', bookId)
+      .eq('user_id', currentUserId.value)
+
+    if (error) throw error
+
+    toast.success('완독 처리되었습니다! 🎉')
+    await fetchBooks() // 책 목록 새로고침
+  } catch (error: any) {
+    console.error('[HandleMarkFinished] Error:', error)
+    toast.error('완독 처리 중 오류가 발생했습니다.')
+  }
+}
+
+// 완독 취소 (책장 탭에서)
+const handleUnmarkFinished = async (bookId: string) => {
+  if (!currentUserId.value) return
+
+  try {
+    const { error } = await client
+      .from('user_reading_progress')
+      .update({ finished_at: null })
+      .eq('group_book_id', bookId)
+      .eq('user_id', currentUserId.value)
+
+    if (error) throw error
+
+    toast.success('완독이 취소되었습니다.')
+    await fetchBooks() // 책 목록 새로고침
+  } catch (error: any) {
+    console.error('[HandleUnmarkFinished] Error:', error)
+    toast.error('완독 취소 중 오류가 발생했습니다.')
+  }
+}
+
+// 완독 처리 확인 (슬라이더 100%에서)
+const confirmCompletion = async () => {
+  if (!selectedBook.value || !currentUserId.value) return
+
+  modals.completionConfirm = false
+
+  try {
+    // Update user_reading_progress to mark as finished
+    const { error } = await client
+      .from('user_reading_progress')
+      .update({ finished_at: new Date().toISOString() })
+      .eq('group_book_id', selectedBook.value.id)
+      .eq('user_id', currentUserId.value)
+
+    if (error) throw error
+
+    toast.success('완독 처리되었습니다! 🎉')
+
+    // Set the book being reviewed
+    reviewingBookId.value = selectedBook.value.id
+
+    // Check for existing review
+    const { data: existingReview } = await client
+      .from('reviews')
+      .select('*')
+      .eq('user_id', currentUserId.value)
+      .eq('group_book_id', selectedBook.value.id)
+      .maybeSingle()
+
+    if (existingReview) {
+      reviewInitialData.value = {
+        rating: parseFloat(existingReview.rating),
+        content: existingReview.content || ''
+      }
+      isEditingReview.value = true
+    } else {
+      reviewInitialData.value = { rating: 0, content: '' }
+      isEditingReview.value = false
+    }
+
+    // Open review modal
+    modals.review = true
+
+  } catch (error: any) {
+    console.error('[ConfirmCompletion] Error:', error)
+    toast.error('완독 처리 중 오류가 발생했습니다.')
+  }
+}
+
+// 완독 처리 취소
+const cancelCompletion = () => {
+  modals.completionConfirm = false
 }
 
 const handleDeleteHistoryBook = (bookId: string) => {

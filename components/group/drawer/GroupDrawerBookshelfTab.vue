@@ -74,14 +74,17 @@
               <MoreVertical :size="14" class="text-zinc-400" />
             </button>
             <div v-if="activeBookMenu === book.id" class="absolute right-0 top-6 min-w-[160px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[201] overflow-visible" @click.stop>
-              <!-- Review (All Users) -->
+              <!-- All Users -->
               <button @click.stop="handleReview(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
                 <Edit3 :size="12" /> {{ props.userReviewedBooks.has(book.id) ? '리뷰 수정' : '리뷰 작성' }}
+              </button>
+              <button @click.stop="handleUnmarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                <X :size="12" /> 완독 취소
               </button>
               <!-- Admin Only -->
               <template v-if="isAdmin">
                 <button @click.stop="handleRestartReading(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
-                  <RotateCcw :size="12" /> 다시 읽기
+                  <RotateCcw :size="12" /> 완주 취소
                 </button>
                 <button @click.stop="handleEditFinishedDate(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
                   <Calendar :size="12" /> 완주 날짜 수정
@@ -200,7 +203,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from 'vue'
-import { MessageCircle, Star, MoreVertical, RotateCcw, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check, Lock } from 'lucide-vue-next'
+import { MessageCircle, Star, MoreVertical, RotateCcw, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check, Lock, X } from 'lucide-vue-next'
 
 interface HistoryBook {
   id: string
@@ -229,6 +232,7 @@ interface Emits {
   (e: 'editFinishedDate', bookId: string): void
   (e: 'deleteHistoryBook', bookId: string): void
   (e: 'openReview', bookId: string): void
+  (e: 'unmarkFinished', bookId: string): void
   (e: 'openUpgradeModal'): void
 }
 
@@ -309,6 +313,11 @@ const handleDeleteHistoryBook = (bookId: string) => {
 const handleReview = (bookId: string) => {
   activeBookMenu.value = null
   emit('openReview', bookId)
+}
+
+const handleUnmarkFinished = (bookId: string) => {
+  activeBookMenu.value = null
+  emit('unmarkFinished', bookId)
 }
 </script>
 

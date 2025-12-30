@@ -33,9 +33,12 @@
               <MoreVertical :size="14" class="text-zinc-400" />
             </button>
             <div v-if="activeBookMenu === book.id" class="absolute right-0 top-6 min-w-[160px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[10000] overflow-visible" @click.stop>
-              <!-- Review (All Users) -->
+              <!-- All Users -->
               <button @click.stop="handleReview(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
                 <Edit3 :size="12" /> {{ props.userReviewedBooks.has(book.id) ? '리뷰 수정' : '리뷰 작성' }}
+              </button>
+              <button @click.stop="handleMarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                <Check :size="12" /> 완독 처리
               </button>
               <!-- Admin Only -->
               <template v-if="isAdmin">
@@ -110,7 +113,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { MoreVertical, Edit2, Settings, UserCheck, UserX, Edit3 } from 'lucide-vue-next'
+import { MoreVertical, Edit2, Settings, UserCheck, UserX, Edit3, Check } from 'lucide-vue-next'
 
 interface Book {
   id: string
@@ -146,6 +149,7 @@ interface Emits {
   (e: 'editDates', bookId: string): void
   (e: 'editToc', bookId: string): void
   (e: 'markCompleted', bookId: string): void
+  (e: 'markFinished', bookId: string): void
   (e: 'deleteBook', bookId: string): void
   (e: 'openReview', bookId: string): void
 }
@@ -230,6 +234,11 @@ const handleEditToc = (bookId: string) => {
 const handleMarkCompleted = (bookId: string) => {
   activeBookMenu.value = null
   emit('markCompleted', bookId)
+}
+
+const handleMarkFinished = (bookId: string) => {
+  activeBookMenu.value = null
+  emit('markFinished', bookId)
 }
 
 const handleDeleteBook = (bookId: string) => {

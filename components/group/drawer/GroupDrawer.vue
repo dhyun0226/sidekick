@@ -66,6 +66,7 @@
           @edit-dates="(bookId) => emit('editDates', bookId)"
           @edit-toc="(bookId) => emit('editToc', bookId)"
           @mark-completed="(bookId) => emit('markCompleted', bookId)"
+          @mark-finished="(bookId) => emit('markFinished', bookId)"
           @delete-book="(bookId) => emit('deleteBook', bookId)"
           @open-review="(bookId) => emit('openReview', bookId)"
         />
@@ -91,6 +92,7 @@
           @edit-finished-date="(bookId) => emit('editFinishedDate', bookId)"
           @delete-history-book="(bookId) => emit('deleteHistoryBook', bookId)"
           @open-review="(bookId) => emit('openReview', bookId)"
+          @unmark-finished="(bookId) => emit('unmarkFinished', bookId)"
           @open-upgrade-modal="emit('openUpgradeModal')"
         />
 
@@ -144,12 +146,14 @@ interface Emits {
   (e: 'editDates', bookId: string): void
   (e: 'editToc', bookId: string): void
   (e: 'markCompleted', bookId: string): void
+  (e: 'markFinished', bookId: string): void
   (e: 'deleteBook', bookId: string): void
   (e: 'openReviews', bookId: string): void
   (e: 'restartReading', bookId: string): void
   (e: 'editFinishedDate', bookId: string): void
   (e: 'deleteHistoryBook', bookId: string): void
   (e: 'openReview', bookId: string): void
+  (e: 'unmarkFinished', bookId: string): void
   (e: 'copyInviteCode'): void
   (e: 'copyInviteLink'): void
   (e: 'regenerateInviteCode'): void
