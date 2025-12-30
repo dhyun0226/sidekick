@@ -249,11 +249,8 @@ const sortOptions = [
   { value: 'author', label: '저자순' }
 ] as const
 
-// Filtered and sorted books (ref로 변경)
-const filteredAndSortedBooks = ref<HistoryBook[]>([])
-
-// 정렬 적용 함수
-const applySorting = () => {
+// Filtered and sorted books (computed로 복원)
+const filteredAndSortedBooks = computed(() => {
   let books = [...props.historyBooks]
 
   // 1. Filter by search query
@@ -272,7 +269,6 @@ const applySorting = () => {
         // 날짜 형식: YYYY.MM.DD → YYYY-MM-DD 변환
         const dateB = new Date(b.date.replace(/\./g, '-')).getTime()
         const dateA = new Date(a.date.replace(/\./g, '-')).getTime()
-        console.log('[SORT] Comparing:', a.date, '→', dateA, 'vs', b.date, '→', dateB)
         return dateB - dateA
       case 'date-asc':
         // 날짜 형식: YYYY.MM.DD → YYYY-MM-DD 변환
@@ -288,64 +284,14 @@ const applySorting = () => {
     }
   })
 
-  filteredAndSortedBooks.value = books
-}
-
-// Props 변경 감지
-watch(() => props.historyBooks, () => {
-  applySorting()
-}, { immediate: true })
-
-// 검색 감지
-watch(searchQuery, () => {
-  applySorting()
+  return books
 })
 
 const toast = useToastStore()
 
 const selectSort = (value: typeof sortBy.value) => {
-  console.log('[SELECT] selectSort called with:', value)
-
-  // 디버깅 정보
-  const beforeSortBy = sortBy.value
-  const bookCount = filteredAndSortedBooks.value.length
-  const beforeFirst = filteredAndSortedBooks.value[0]?.title || '없음'
-
-  // 🔍 날짜 데이터 확인
-  const firstBook = filteredAndSortedBooks.value[0]
-  const firstDate = firstBook?.date
-  console.log('[SELECT] First book date:', firstDate)
-  console.log('[SELECT] First book date type:', typeof firstDate)
-
   sortBy.value = value
   showSortMenu.value = false
-
-  // 🔥 직접 정렬 함수 호출!
-  applySorting()
-
-  const afterFirst = filteredAndSortedBooks.value[0]?.title || '없음'
-  const afterDate = filteredAndSortedBooks.value[0]?.date || '없음'
-
-  // Toast로 디버깅 정보 표시
-  toast.success(`책${bookCount}권`)
-
-  setTimeout(() => {
-    toast.success(`${beforeSortBy}→${value}`)
-  }, 600)
-
-  setTimeout(() => {
-    const changed = beforeFirst !== afterFirst ? '변경O' : '변경X'
-    toast.success(changed)
-  }, 1200)
-
-  setTimeout(() => {
-    toast.success(`첫:${afterFirst.substring(0, 7)}`)
-  }, 1800)
-
-  // 🔍 날짜 값 표시
-  setTimeout(() => {
-    toast.success(`날짜:${afterDate}`)
-  }, 2400)
 }
 
 const toggleBookMenu = (bookId: string) => {
