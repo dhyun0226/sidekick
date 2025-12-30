@@ -180,10 +180,12 @@ export const useGroupBooks = (groupId: string) => {
       console.error('Book check error:', bookCheckError)
     }
 
-    let tocToUse = data.toc
+    // ✅ official_toc는 화면에 미리 채워주는 가이드 역할
+    // ✅ 저장은 항상 사용자가 최종 확인/수정한 data.toc 사용
+    const tocToUse = data.toc
 
     if (!existingBook) {
-      // 새 책: draft_toc에 임시 저장 (관리자 승인 전)
+      // ✅ 새 책: draft_toc에 임시 저장 (관리자 승인 전)
       const { error: bookInsertError } = await client
         .from('books')
         .insert({
@@ -203,22 +205,35 @@ export const useGroupBooks = (groupId: string) => {
       }
 
       console.log('[Group] New book created with draft_toc')
-    } else if (existingBook.official_toc) {
-      // 기존 책 + 승인된 목차 있음 → 자동 로드
-      tocToUse = existingBook.official_toc
-      console.log('[Group] Using official_toc from existing book')
+    } else if (!existingBook.official_toc) {
+      // ✅ 기존 책 + official_toc 없음 → draft_toc 업데이트 (관리자 승인 대기)
+      const { error: bookUpdateError } = await client
+        .from('books')
+        .update({
+          total_pages: data.totalPages,
+          draft_toc: data.toc,
+          updated_at: new Date().toISOString()
+        })
+        .eq('isbn', data.book.isbn)
+
+      if (bookUpdateError) {
+        console.error('Book update error:', bookUpdateError)
+        throw new Error('책 정보 업데이트에 실패했습니다.')
+      }
+
+      console.log('[Group] Updated draft_toc for existing book (awaiting approval)')
     } else {
-      // 기존 책이지만 승인된 목차 없음 → 사용자 입력 사용
-      console.log('[Group] No official_toc, using user input')
+      // ❌ 기존 책 + official_toc 있음 → books 테이블 건드리지 않음 (승인된 공식 버전 유지)
+      console.log('[Group] Using official_toc as guide, saving user-confirmed TOC to group_books only')
     }
 
-    // 2. Add new book to group_books (기존 책은 유지)
+    // 2. Add new book to group_books (항상 사용자 입력 사용)
     const { error: groupBookError } = await client
       .from('group_books')
       .insert({
         group_id: groupId,
         isbn: data.book.isbn,
-        toc_snapshot: tocToUse,  // 승인된 목차 또는 사용자 입력
+        toc_snapshot: tocToUse,  // 항상 사용자가 확인/수정한 내용 사용
         status: 'reading',
         target_start_date: data.startDate,
         target_end_date: data.endDate
@@ -229,7 +244,50 @@ export const useGroupBooks = (groupId: string) => {
       throw new Error('그룹에 책 추가에 실패했습니다.')
     }
 
-    console.log('[Group] Book added successfully')
+    console.log('[Group] Book added successfully with user-confirmed TOC')
+
+    // 3. Create notifications for group members (except self)
+    const currentUserId = userStore.profile?.id
+    if (currentUserId) {
+      // Fetch group members with notification settings (excluding self)
+      const { data: members } = await client
+        .from('group_members')
+        .select('user_id, user:users(notification_settings)')
+        .eq('group_id', groupId)
+        .neq('user_id', currentUserId)
+
+      if (members && members.length > 0) {
+        const currentUserName = userStore.profile?.nickname || '누군가'
+
+        // Filter members who have book_added notifications enabled
+        const notificationsToSend = members
+          .filter((member: any) => {
+            const settings = member.user?.notification_settings
+            return settings?.book_added !== false // Default to true if not set
+          })
+          .map((member: any) => ({
+            user_id: member.user_id,
+            type: 'book_added',
+            title: '📚 새로운 책이 시작되었습니다',
+            message: `${currentUserName}님이 "${data.book.title}"을(를) 추가했습니다`,
+            source_id: groupId,
+            link: `/group/${groupId}`
+          }))
+
+        if (notificationsToSend.length > 0) {
+          const { error: notifError } = await client
+            .from('notifications')
+            .insert(notificationsToSend)
+
+          if (notifError) {
+            console.error('Notification insert error:', notifError)
+            // Don't throw - notifications are not critical
+          } else {
+            console.log(`[Group] Sent notifications to ${notificationsToSend.length} members`)
+          }
+        }
+      }
+    }
 
     // Refresh data
     await fetchBooks()
@@ -265,7 +323,7 @@ export const useGroupBooks = (groupId: string) => {
     totalPages: number,
     chapters: { title: string; startPage: number }[]
   ) => {
-    // Calculate new TOC based on new total pages
+    // Calculate new TOC based on new total pages (목차가 없으면 빈 배열)
     const toc = chapters.map((c, i) => {
       const nextStart = chapters[i + 1]?.startPage || totalPages
       const startPct = (c.startPage / totalPages) * 100

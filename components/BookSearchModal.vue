@@ -76,26 +76,12 @@
           </div>
         </div>
 
-        <div>
-          <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">전체 페이지 수</label>
-          <input
-            v-model.number="totalPages"
-            type="number"
-            class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
-          />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">챕터 설정 (선택사항)</label>
-          <div class="space-y-2">
-            <div v-for="(chapter, idx) in chapters" :key="idx" class="flex gap-2">
-              <input v-model="chapter.title" type="text" placeholder="챕터명" class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-3 py-2 text-sm" />
-              <input v-model.number="chapter.startPage" type="number" placeholder="시작 쪽" class="w-20 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-3 py-2 text-sm text-center" />
-              <button @click="removeChapter(idx)" class="text-zinc-600 dark:text-zinc-500 hover:text-red-400 px-2">×</button>
-            </div>
-            <button @click="addChapter" class="text-sm text-lime-400 font-medium hover:underline">+ 챕터 추가</button>
-          </div>
-        </div>
+        <!-- TOC Input Form (공통 컴포넌트) -->
+        <TocInputForm
+          ref="tocFormRef"
+          v-model:totalPages="totalPages"
+          v-model:chapters="chapters"
+        />
 
         <div class="flex gap-3">
           <button
@@ -140,7 +126,7 @@
             <input
               v-model="startDate"
               type="date"
-              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
             />
           </div>
 
@@ -150,7 +136,7 @@
               v-model="endDate"
               type="date"
               :min="startDate"
-              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
             />
           </div>
 
@@ -187,6 +173,7 @@ import { ref } from 'vue'
 import { X, Search } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
+import TocInputForm from '~/components/TocInputForm.vue'
 
 const props = defineProps<{
   isOpen: boolean
@@ -201,11 +188,12 @@ const loading = ref(false)
 const searchResults = ref<any[]>([])
 const selectedBook = ref<any>(null)
 const totalPages = ref<number | null>(null)
-const chapters = ref<{ title: string; startPage: number }[]>([
-  { title: 'Chapter 1', startPage: 1 }
-])
+const chapters = ref<{ title: string; startPage: number }[]>([])
 const currentStart = ref(1)
 const hasMore = ref(false)
+
+// TocInputForm ref for validation
+const tocFormRef = ref<InstanceType<typeof TocInputForm> | null>(null)
 
 // Step 3: Date selection - Initialize with default dates
 const getDefaultDates = () => {
@@ -233,7 +221,7 @@ const reset = () => {
   searchResults.value = []
   selectedBook.value = null
   totalPages.value = null
-  chapters.value = [{ title: 'Chapter 1', startPage: 1 }]
+  chapters.value = []
   currentStart.value = 1
   hasMore.value = false
 
@@ -285,22 +273,50 @@ const loadMore = async () => {
   }
 }
 
-const selectBook = (book: any) => {
+const selectBook = async (book: any) => {
   selectedBook.value = book
-  totalPages.value = book.totalPages || null
+
+  // DB에서 기존 책 정보 확인
+  const client = useSupabaseClient()
+  const { data: existingBook } = await client
+    .from('books')
+    .select('official_toc, total_pages')
+    .eq('isbn', book.isbn)
+    .maybeSingle()
+
+  if (existingBook?.official_toc) {
+    // ✅ official_toc 있음 → 자동으로 totalPages, chapters 채워짐
+    const totalPagesFromDB = existingBook.total_pages || 100
+
+    totalPages.value = totalPagesFromDB
+
+    // % → page 번호 변환
+    chapters.value = existingBook.official_toc.map((c: any) => ({
+      title: c.title,
+      startPage: Math.round((c.start / 100) * totalPagesFromDB)
+    }))
+
+    console.log('[BookSearchModal] Auto-loaded official_toc from DB')
+  } else {
+    // ❌ draft_toc만 있거나 없음 → 빈 입력 필드
+    totalPages.value = null
+    chapters.value = []
+    console.log('[BookSearchModal] No official_toc, showing empty fields')
+  }
+
   step.value = 2
 }
 
-const addChapter = () => {
-  chapters.value.push({ title: '', startPage: 0 })
-}
-
-const removeChapter = (idx: number) => {
-  chapters.value.splice(idx, 1)
-}
-
 const goToStep3 = () => {
-  if (!totalPages.value || totalPages.value <= 0) return
+  // Validate TOC before moving to step 3
+  if (!tocFormRef.value) return
+
+  const validation = tocFormRef.value.validate()
+  if (!validation.valid) {
+    toast.error(validation.message || '목차 정보를 확인해주세요.')
+    return
+  }
+
   step.value = 3
 }
 
@@ -314,9 +330,18 @@ const calculateDays = () => {
 }
 
 const confirmBook = () => {
+  // Final validation before confirm
+  if (!tocFormRef.value) return
+
+  const validation = tocFormRef.value.validate()
+  if (!validation.valid) {
+    toast.error(validation.message || '목차 정보를 확인해주세요.')
+    return
+  }
+
   if (!totalPages.value) return
 
-  // Convert pages to %
+  // Convert pages to % (목차가 없으면 빈 배열)
   const toc = chapters.value.map((c, i) => {
     const nextStart = chapters.value[i + 1]?.startPage || totalPages.value!
     const startPct = (c.startPage / totalPages.value!) * 100

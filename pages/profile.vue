@@ -618,6 +618,20 @@
                     ></div>
                   </div>
                 </div>
+
+                <!-- 5. Book Added -->
+                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.book_added = !notificationSettings.book_added">
+                  <span class="text-xs text-zinc-600 dark:text-zinc-400">새 책 추가 알림</span>
+                  <div
+                    class="w-11 h-6 rounded-full transition-colors duration-200 relative"
+                    :class="notificationSettings.book_added ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
+                  >
+                    <div
+                      class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
+                      :class="notificationSettings.book_added ? 'translate-x-5' : 'translate-x-0'"
+                    ></div>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -1024,7 +1038,8 @@ const notificationSettings = ref({
   comment_reply: true,
   reaction: true,
   member_join: true,
-  completion: true
+  completion: true,
+  book_added: true
 })
 
 // Book Detail Modal State

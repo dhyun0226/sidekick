@@ -17,7 +17,7 @@
             <input
               v-model="localStartDate"
               type="date"
-              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
             />
           </div>
 
@@ -27,7 +27,7 @@
               v-model="localEndDate"
               type="date"
               :min="localStartDate"
-              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
             />
           </div>
 
@@ -160,7 +160,7 @@
             <input
               v-model="localFinishedDate"
               type="date"
-              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
+              class="w-full max-w-full box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
             />
           </div>
         </div>
@@ -200,55 +200,12 @@
             <p class="text-xs text-zinc-600 dark:text-zinc-400">{{ currentBook.book?.author }}</p>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">전체 페이지 수</label>
-            <input
-              v-model.number="localTotalPages"
-              type="number"
-              min="1"
-              @input="validateTotalPages"
-              @blur="validateTotalPages"
-              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">챕터 설정</label>
-            <div class="space-y-2">
-              <div v-for="(chapter, idx) in localChapters" :key="chapter.id" class="flex gap-2">
-                <input
-                  v-model="chapter.title"
-                  type="text"
-                  placeholder="챕터명"
-                  required
-                  class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
-                />
-                <input
-                  v-model.number="chapter.startPage"
-                  type="number"
-                  placeholder="시작 쪽"
-                  :min="idx === 0 ? 1 : localChapters[idx - 1].startPage + 1"
-                  :max="localTotalPages || undefined"
-                  @input="validateChapterPage(idx)"
-                  @blur="validateChapterPage(idx)"
-                  class="w-20 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-lime-400"
-                />
-                <button
-                  @click="removeChapter(idx)"
-                  class="text-zinc-600 dark:text-zinc-500 hover:text-red-400 px-2"
-                  :disabled="localChapters.length === 1"
-                >
-                  <X :size="18" />
-                </button>
-              </div>
-              <button
-                @click="addChapter"
-                class="text-sm text-lime-400 font-medium hover:underline"
-              >
-                + 챕터 추가
-              </button>
-            </div>
-          </div>
+          <!-- TOC Input Form (공통 컴포넌트) -->
+          <TocInputForm
+            ref="tocFormRef"
+            v-model:totalPages="localTotalPages"
+            v-model:chapters="localChapters"
+          />
         </div>
 
         <div class="flex gap-3 mt-6">
@@ -275,6 +232,7 @@
 import { ref, watch } from 'vue'
 import { X } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
+import TocInputForm from '~/components/TocInputForm.vue'
 
 interface Props {
   editDatesOpen: boolean
@@ -351,15 +309,11 @@ const handleSaveFinishedDate = () => {
 }
 
 // Edit TOC
-// 간단하고 안전한 고유 ID 생성
-const generateChapterId = () => `ch-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-
 const localTotalPages = ref<number | null>(null)
-const localChapters = ref<{ id: string; title: string; startPage: number }[]>([{
-  id: generateChapterId(),
-  title: 'Chapter 1',
-  startPage: 1
-}])
+const localChapters = ref<{ title: string; startPage: number }[]>([])
+
+// TocInputForm ref for validation
+const tocFormRef = ref<InstanceType<typeof TocInputForm> | null>(null)
 
 watch([() => props.editTocOpen, () => props.currentBook], ([isOpen, currentBook]) => {
   if (isOpen && currentBook) {
@@ -368,122 +322,29 @@ watch([() => props.editTocOpen, () => props.currentBook], ([isOpen, currentBook]
     if (currentBook.toc_snapshot && currentBook.toc_snapshot.length > 0) {
       const totalPages = localTotalPages.value || 100
       localChapters.value = currentBook.toc_snapshot.map((c: any) => ({
-        id: generateChapterId(),
         title: c.title,
         startPage: Math.round((c.start / 100) * totalPages)
       }))
     } else {
-      localChapters.value = [{
-        id: generateChapterId(),
-        title: 'Chapter 1',
-        startPage: 1
-      }]
+      localChapters.value = []
     }
   }
 })
 
-const addChapter = () => {
-  // 마지막 챕터의 다음 페이지를 기본값으로 설정
-  const lastChapter = localChapters.value[localChapters.value.length - 1]
-  const nextStartPage = lastChapter ? lastChapter.startPage + 1 : 1
-
-  localChapters.value.push({
-    id: generateChapterId(),
-    title: `Chapter ${localChapters.value.length + 1}`,
-    startPage: nextStartPage
-  })
-}
-
-const removeChapter = (index: number) => {
-  if (localChapters.value.length > 1) {
-    localChapters.value.splice(index, 1)
-  }
-}
-
-// Validation functions
-const validateTotalPages = () => {
-  if (localTotalPages.value !== null && localTotalPages.value <= 0) {
-    localTotalPages.value = 1
-    toast.error('전체 페이지는 1 이상이어야 합니다.')
-  }
-}
-
-const validateChapterPage = (idx: number) => {
-  const chapter = localChapters.value[idx]
-
-  // 0 이하면 최소값으로 설정
-  if (chapter.startPage <= 0) {
-    chapter.startPage = idx === 0 ? 1 : localChapters.value[idx - 1].startPage + 1
-    toast.error('시작 페이지는 1 이상이어야 합니다.')
-    return
-  }
-
-  // 이전 챕터보다 작거나 같으면 이전 챕터 + 1로 설정
-  if (idx > 0) {
-    const prevChapter = localChapters.value[idx - 1]
-    if (chapter.startPage <= prevChapter.startPage) {
-      chapter.startPage = prevChapter.startPage + 1
-      toast.error('다음 챕터는 이전 챕터보다 뒤에 있어야 합니다.')
-      return
-    }
-  }
-
-  // 전체 페이지를 초과하면 전체 페이지로 설정
-  if (localTotalPages.value && chapter.startPage > localTotalPages.value) {
-    chapter.startPage = localTotalPages.value
-    toast.error(`전체 페이지(${localTotalPages.value})를 초과할 수 없습니다.`)
-  }
-}
-
 const handleSaveToc = () => {
-  // 유효성 검사
-  const totalPages = localTotalPages.value!
+  // Validate using TocInputForm
+  if (!tocFormRef.value) return
 
-  // 1. 전체 페이지 수 검사
-  if (!totalPages || totalPages <= 0) {
-    toast.error('전체 페이지는 1 이상이어야 합니다.')
+  const validation = tocFormRef.value.validate()
+  if (!validation.valid) {
+    toast.error(validation.message || '목차 정보를 확인해주세요.')
     return
   }
 
-  // 2. 챕터별 검사
-  for (let i = 0; i < localChapters.value.length; i++) {
-    const chapter = localChapters.value[i]
-
-    // 챕터명이 비어있으면 안됨
-    if (!chapter.title.trim()) {
-      toast.error(`${i + 1}번째 챕터의 제목을 입력해주세요.`)
-      return
-    }
-
-    // 페이지 번호가 0보다 커야 함
-    if (chapter.startPage <= 0) {
-      toast.error(`"${chapter.title}" 시작 페이지는 1 이상이어야 합니다.`)
-      return
-    }
-
-    // 페이지 번호가 전체 페이지 수 이하여야 함
-    if (chapter.startPage > totalPages) {
-      toast.error(`"${chapter.title}" 시작 페이지(${chapter.startPage})가 전체 페이지(${totalPages})를 초과합니다.`)
-      return
-    }
-
-    // 다음 챕터의 시작 페이지가 이전 챕터보다 커야 함
-    if (i > 0) {
-      const prevChapter = localChapters.value[i - 1]
-      if (chapter.startPage <= prevChapter.startPage) {
-        toast.error(`"${chapter.title}" 시작 페이지(${chapter.startPage})는 이전 챕터(${prevChapter.startPage})보다 커야 합니다.`)
-        return
-      }
-    }
-  }
-
-  // 유효성 검사 통과 (ID는 제외하고 전송)
+  // Validation passed, emit save event
   emit('saveEditedToc', {
     totalPages: localTotalPages.value!,
-    chapters: localChapters.value.map(c => ({
-      title: c.title,
-      startPage: c.startPage
-    }))
+    chapters: localChapters.value
   })
 }
 </script>

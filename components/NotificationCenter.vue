@@ -44,6 +44,7 @@
             <div class="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex-shrink-0 flex items-center justify-center">
               <MessageCircle v-if="noti.type === 'reply'" :size="14" class="text-blue-400" />
               <Heart v-else-if="noti.type === 'reaction'" :size="14" class="text-red-400" />
+              <BookOpen v-else-if="noti.type === 'book_added'" :size="14" class="text-lime-400" />
               <Info v-else :size="14" class="text-lime-400" />
             </div>
             <div class="flex-1 min-w-0">
@@ -87,7 +88,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Bell, MessageCircle, Heart, Info, X, Trash2 } from 'lucide-vue-next'
+import { Bell, MessageCircle, Heart, Info, X, Trash2, BookOpen } from 'lucide-vue-next'
 import ConfirmModal from './ConfirmModal.vue'
 import { useToastStore } from '~/stores/toast'
 
