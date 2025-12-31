@@ -17,12 +17,15 @@
           ref="sliderRef"
         >
           <!-- Chapter Backgrounds -->
-          <div class="absolute inset-0 flex h-full opacity-30">
+          <div class="absolute inset-0 h-full opacity-30">
           <div
             v-for="(chapter, index) in chapters"
             :key="index"
-            :style="{ width: `${chapter.width}%` }"
-            class="h-full border-r border-zinc-300 dark:border-zinc-700 last:border-r-0 transition-colors duration-300"
+            :style="{
+              left: `${chapter.start}%`,
+              width: `${chapter.width}%`
+            }"
+            class="absolute h-full border-r border-zinc-300 dark:border-zinc-700 transition-colors duration-300"
             :class="[
               currentPct >= chapter.start && currentPct < chapter.end ? 'bg-lime-400/20' : 'bg-transparent'
             ]"
@@ -85,7 +88,7 @@
             {{ Math.round(currentPct) }}%
           </span>
           <span v-if="currentPage" class="text-zinc-500 dark:text-zinc-400 mr-1">· {{ currentPage }}p</span>
-          <span class="text-zinc-600 dark:text-zinc-400">{{ currentChapterName }}</span>
+          <span v-if="currentChapterName" class="text-zinc-600 dark:text-zinc-400">{{ currentChapterName }}</span>
         </div>
         </div>
       </div>
@@ -93,7 +96,8 @@
       <!-- Action Bar (Optional, e.g. Write Button) -->
       <div class="flex justify-between items-center px-4 py-5 gap-4">
         <div class="text-xs text-zinc-600 dark:text-zinc-500 font-mono flex-1 min-w-0">
-          {{ currentChapterName }}
+          <span v-if="currentChapterName">{{ currentChapterName }}</span>
+          <span v-else class="text-zinc-400 dark:text-zinc-600">·</span>
         </div>
         <button
           @click="$emit('write')"
@@ -161,11 +165,17 @@ const currentPct = computed(() => isDragging.value ? localPct.value : props.mode
 
 const currentPage = computed(() => {
   if (!props.totalPages) return null
-  return Math.round((currentPct.value / 100) * props.totalPages)
+  // 페이지는 1부터 시작 (0페이지 방지)
+  return Math.max(1, Math.round((currentPct.value / 100) * props.totalPages))
 })
 
 const currentChapterName = computed(() => {
   const pct = currentPct.value
+
+  // toc가 없으면 빈 문자열
+  if (!props.toc || props.toc.length === 0) {
+    return ''
+  }
 
   // Find chapter where pct is within range
   const found = chapters.value.find((c, index) => {
@@ -178,14 +188,8 @@ const currentChapterName = computed(() => {
     }
   })
 
-  // If no chapter found and we're before the first chapter, show first chapter name
-  if (!found && chapters.value.length > 0) {
-    if (pct < chapters.value[0].start) {
-      return chapters.value[0].title
-    }
-  }
-
-  return found ? found.title : 'End'
+  // 목차 범위 밖이면 빈 문자열 (서문/후기 등)
+  return found ? found.title : ''
 })
 
 // Dynamic tooltip positioning to prevent clipping at edges
