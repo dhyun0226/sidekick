@@ -15,6 +15,12 @@ interface BookData {
     cover_url: string
     total_pages?: number
   }
+  user_reading_progress?: Array<{
+    last_read_at?: string
+    progress_pct?: number
+    finished_at?: string
+  }>
+  user_finished_at?: string // 사용자의 개인 완독일 (computed)
 }
 
 interface HistoryBook {
@@ -28,6 +34,7 @@ interface HistoryBook {
   date: string
   round?: number
   reviewCount?: number
+  user_finished_at?: string | null
 }
 
 interface BookAddData {
@@ -75,7 +82,8 @@ export const useGroupBooks = (groupId: string) => {
         book:books(*),
         user_reading_progress!left (
           last_read_at,
-          progress_pct
+          progress_pct,
+          finished_at
         )
       `)
       .eq('group_id', groupId)
@@ -100,10 +108,16 @@ export const useGroupBooks = (groupId: string) => {
         return new Date(bLastRead).getTime() - new Date(aLastRead).getTime()
       })
 
-      allBooks.value = sortedAllBooks
+      // Add user_finished_at field from user_reading_progress
+      const booksWithUserProgress = sortedAllBooks.map((b: any) => ({
+        ...b,
+        user_finished_at: b.user_reading_progress?.[0]?.finished_at || null
+      }))
+
+      allBooks.value = booksWithUserProgress
 
       // Find all reading books (여러 권 동시 읽기 가능, 이미 정렬됨)
-      readingBooks.value = sortedAllBooks.filter((b: any) => b.status === 'reading')
+      readingBooks.value = booksWithUserProgress.filter((b: any) => b.status === 'reading')
 
       // Current book = 내가 가장 최근에 읽은 reading 책
       currentBook.value = readingBooks.value[0] || null
@@ -118,18 +132,13 @@ export const useGroupBooks = (groupId: string) => {
       currentBook.value = null
     }
 
-    // Fetch history (for display)
-    const { data: historyData } = await client
-      .from('group_books')
-      .select('*, book:books(*)')
-      .eq('group_id', groupId)
-      .eq('status', 'done')
-      .order('finished_at', { ascending: false })
+    // Create history books from allBooks (status='done')
+    const doneBooks = allBooks.value.filter((b: any) => b.status === 'done')
 
-    if (historyData) {
+    if (doneBooks.length > 0) {
       // Calculate round numbers and review counts for history books
       const historyBooksWithRounds = await Promise.all(
-        historyData.map(async (gb: any) => {
+        doneBooks.map(async (gb: any) => {
           const round = await getBookRound(groupId, gb.isbn, gb.id)
 
           // Get review count for this book
@@ -148,11 +157,17 @@ export const useGroupBooks = (groupId: string) => {
             total_pages: gb.book.total_pages,
             date: new Date(gb.finished_at || gb.created_at).toLocaleDateString(),
             round,
-            reviewCount: count || 0
+            reviewCount: count || 0,
+            user_finished_at: gb.user_finished_at
           }
         })
       )
-      historyBooks.value = historyBooksWithRounds
+      // Sort by finished_at (most recent first)
+      historyBooks.value = historyBooksWithRounds.sort((a, b) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      )
+    } else {
+      historyBooks.value = []
     }
 
     return {

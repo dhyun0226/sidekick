@@ -37,12 +37,15 @@
               <button @click.stop="handleReview(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
                 <Edit3 :size="12" /> {{ props.userReviewedBooks.has(book.id) ? '리뷰 수정' : '리뷰 작성' }}
               </button>
-              <button @click.stop="handleMarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+              <button v-if="!book.user_finished_at" @click.stop="handleMarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
                 <Check :size="12" /> 완독 처리
+              </button>
+              <button v-else @click.stop="handleUnmarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                <X :size="12" /> 완독 취소
               </button>
               <!-- Admin Only -->
               <template v-if="isAdmin">
-                <button @click.stop="handleEditDates(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                <button @click.stop="handleEditDates(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap border-t border-zinc-100 dark:border-zinc-700/50">
                   <Edit2 :size="12" /> 기간 수정
                 </button>
                 <button @click.stop="handleEditToc(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
@@ -112,8 +115,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { MoreVertical, Edit2, Settings, UserCheck, UserX, Edit3, Check } from 'lucide-vue-next'
+import { ref, computed, watch } from 'vue'
+import { MoreVertical, Edit2, Settings, UserCheck, UserX, Edit3, Check, X } from 'lucide-vue-next'
 
 interface Book {
   id: string
@@ -125,6 +128,7 @@ interface Book {
   }
   target_start_date?: string
   target_end_date?: string
+  user_finished_at?: string
 }
 
 interface TocChapter {
@@ -150,6 +154,7 @@ interface Emits {
   (e: 'editToc', bookId: string): void
   (e: 'markCompleted', bookId: string): void
   (e: 'markFinished', bookId: string): void
+  (e: 'unmarkFinished', bookId: string): void
   (e: 'deleteBook', bookId: string): void
   (e: 'openReview', bookId: string): void
 }
@@ -237,9 +242,25 @@ const handleMarkCompleted = (bookId: string) => {
 }
 
 const handleMarkFinished = (bookId: string) => {
+  console.log('[InfoTab] Mark Finished clicked:', bookId)
   activeBookMenu.value = null
   emit('markFinished', bookId)
 }
+
+const handleUnmarkFinished = (bookId: string) => {
+  console.log('[InfoTab] Unmark Finished clicked:', bookId)
+  activeBookMenu.value = null
+  emit('unmarkFinished', bookId)
+}
+
+// Watch for changes to readingBooks to debug reactivity
+watch(() => props.readingBooks, (newBooks) => {
+  console.log('[InfoTab] readingBooks updated:', newBooks.map(b => ({
+    id: b.id,
+    title: b.book?.title,
+    user_finished_at: b.user_finished_at
+  })))
+}, { deep: true })
 
 const handleDeleteBook = (bookId: string) => {
   activeBookMenu.value = null

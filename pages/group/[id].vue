@@ -140,51 +140,6 @@
       @confirm="handleBookAdd"
     />
 
-    <!-- 완독 처리 확인 모달 -->
-    <Teleport to="body">
-      <Transition name="modal">
-        <div v-if="modals.completionConfirm" class="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-          <div class="absolute inset-0 bg-black/70 backdrop-blur-md" @click="cancelCompletion"></div>
-
-          <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800">
-            <!-- Header -->
-            <div class="bg-gradient-to-br from-lime-400 via-lime-500 to-emerald-500 p-6 text-center">
-              <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <h3 class="text-xl font-bold text-white mb-2">완독 처리 하시겠어요?</h3>
-              <p class="text-sm text-white/80">리뷰를 남기고 독서를 마무리해보세요</p>
-            </div>
-
-            <!-- Content -->
-            <div class="p-6">
-              <div class="bg-zinc-100 dark:bg-zinc-800/50 rounded-xl p-4 mb-6">
-                <p class="text-sm text-zinc-700 dark:text-zinc-300 text-center">
-                  완독 처리하면 서재에 기록되고<br>리뷰를 작성할 수 있습니다
-                </p>
-              </div>
-
-              <!-- Actions -->
-              <div class="flex gap-3">
-                <button
-                  @click="cancelCompletion"
-                  class="flex-1 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-                >
-                  아니요
-                </button>
-                <button
-                  @click="confirmCompletion"
-                  class="flex-1 py-3 bg-gradient-to-r from-lime-400 to-lime-500 text-black font-bold rounded-xl hover:scale-[1.02] transition-all"
-                >
-                  네, 완독했어요
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
-
     <!-- Review Modal -->
     <ReviewModal
       :isOpen="modals.review"
@@ -436,7 +391,6 @@ const modals = reactive({
   markCompleted: false,
   deleteBook: false,
   editFinishedDate: false,
-  completionConfirm: false,  // 완독 처리 확인 모달
   editingBook: null as any,  // 편집 중인 책 (selectedBookId와 독립적)
   upgradeBook: false,  // Upgrade prompt for book addition
   // Admin action modals
@@ -572,10 +526,8 @@ const sortedMembersWithProgress = computed(() => {
     const inactive = lastReadAt ? isInactive(lastReadAt) : true
 
     // 개인 완독 정보 (그룹 완료 여부와 무관)
-    // 현재 사용자는 viewProgress 기준으로 즉시 계산 (빠른 반응)
-    const finishedAt = member.id === currentUserId.value
-      ? (Math.round(viewProgress.value) >= 100 ? new Date().toISOString() : null)
-      : (progressData?.finished_at || null)  // undefined를 null로 변환
+    // finished_at 필드로만 판단 (진행도 100% ≠ 완독)
+    const finishedAt = progressData?.finished_at || null
     const finishedDate = finishedAt ? formatShortDate(new Date(finishedAt)) : null
     const isCompleted = !!finishedAt  // undefined와 null 모두 false
 
@@ -798,15 +750,8 @@ watch(() => modals.drawer, async (isOpen) => {
   }
 })
 
-// Reset review modal flag when book changes
+// Load member progress when book changes
 watch(selectedBookId, async (newBookId) => {
-  hasShownReviewModal.value = false
-  if (reviewModalTimeout) {
-    clearTimeout(reviewModalTimeout)
-    reviewModalTimeout = null
-  }
-
-  // Load member progress for the selected book
   if (newBookId) {
     await loadMemberProgress(newBookId)
   }
@@ -831,53 +776,42 @@ onUnmounted(() => {
 
   // Clean up timeouts
   if (progressSaveTimeout) clearTimeout(progressSaveTimeout)
-  if (reviewModalTimeout) clearTimeout(reviewModalTimeout)
   if (highlightTimeout) clearTimeout(highlightTimeout)
 })
 
 // ===== Event Handlers =====
 let progressSaveTimeout: NodeJS.Timeout | null = null
-let reviewModalTimeout: NodeJS.Timeout | null = null
 let highlightTimeout: NodeJS.Timeout | null = null
-const hasShownReviewModal = ref(false) // Prevent duplicate review modal
 
 const handleSliderChange = async (val: number) => {
   viewProgress.value = val
 
-  // 타임라인 스크롤
+  // 타임라인 스크롤 (항상 실행)
   nextTick(() => {
     scrollToPosition(Math.round(val))
   })
 
-  // 100% 도달 시 완독 확인 모달 (한 번만)
-  if (val >= 100) {
-    if (hasShownReviewModal.value) return // Already shown for this book
+  // 완독 여부 확인
+  const currentBookData = allBooks.value.find(b => b.id === selectedBookId.value)
+  const isFinished = currentBookData?.user_finished_at != null
 
-    if (reviewModalTimeout) clearTimeout(reviewModalTimeout)
-    reviewModalTimeout = setTimeout(() => {
-      if (!selectedBook.value || !currentUserId.value) return
-
-      // Show completion confirmation modal
-      modals.completionConfirm = true
-      hasShownReviewModal.value = true // Mark as shown
-    }, 300)
+  if (isFinished) {
+    // 완독 후: 네비게이션 모드 (진행도 저장 안함)
+    console.log('[Slider] Navigation mode - book is finished, not saving progress')
   } else {
-    // Cancel modal if user drags away from 100%
-    if (reviewModalTimeout) {
-      clearTimeout(reviewModalTimeout)
-      reviewModalTimeout = null
-    }
+    // 완독 전: 진행도 추적 모드 (진행도 저장)
+    console.log('[Slider] Tracking mode - saving progress:', val)
+
+    // Optimistic Update
+    updateOptimistic(val)
+
+    // Save progress to DB (debounced)
+    if (progressSaveTimeout) clearTimeout(progressSaveTimeout)
+    progressSaveTimeout = setTimeout(async () => {
+      if (!selectedBookId.value) return
+      await saveProgress(val)
+    }, 2000)
   }
-
-  // Optimistic Update (from composable)
-  updateOptimistic(val)
-
-  // Save progress to DB (debounced)
-  if (progressSaveTimeout) clearTimeout(progressSaveTimeout)
-  progressSaveTimeout = setTimeout(async () => {
-    if (!selectedBookId.value) return
-    await saveProgress(val)
-  }, 2000) // Save after 2 seconds (DB 부담 절감)
 }
 
 // Fetch book round number when current book changes
@@ -1100,100 +1034,135 @@ const handleEditFinishedDate = (bookId: string) => {
   modals.editFinishedDate = true
 }
 
-// 완독 처리 (드로어 메뉴에서)
-const handleMarkFinished = async (bookId: string) => {
+/**
+ * 완독 처리 핵심 로직 (공통 함수)
+ * @param bookId - 완독 처리할 책 ID
+ * @param openReviewModal - 리뷰 모달 열지 여부 (기본: true)
+ */
+const markAsFinished = async (bookId: string, openReviewModal = true) => {
   if (!currentUserId.value) return
 
   try {
-    const { error } = await client
-      .from('user_reading_progress')
-      .update({ finished_at: new Date().toISOString() })
-      .eq('group_book_id', bookId)
-      .eq('user_id', currentUserId.value)
+    const now = new Date().toISOString()
 
-    if (error) throw error
+    console.log('[MarkAsFinished] Starting...', { bookId, userId: currentUserId.value })
+
+    // 1. DB 업데이트 (upsert로 변경 - row 없어도 생성)
+    const { data, error } = await client
+      .from('user_reading_progress')
+      .upsert({
+        user_id: currentUserId.value,
+        group_book_id: bookId,
+        finished_at: now,
+        progress_pct: 100,
+        last_read_at: now
+      }, {
+        onConflict: 'user_id,group_book_id'
+      })
+      .select()
+
+    if (error) {
+      console.error('[MarkAsFinished] DB Error:', error)
+      throw error
+    }
+
+    console.log('[MarkAsFinished] DB updated:', data)
+
+    // 2. 데이터 새로고침 (DB에서 최신 데이터 가져오기)
+    await loadMemberProgress(bookId)
+    await fetchBooks()
+
+    // Vue가 DOM 업데이트 완료할 때까지 대기
+    await nextTick()
+
+    console.log('[MarkAsFinished] After fetchBooks - readingBooks:',
+      readingBooks.value.find(b => b.id === bookId)?.user_finished_at)
+
+    // 3. UI 업데이트
+    viewProgress.value = 100
 
     toast.success('완독 처리되었습니다! 🎉')
-    await fetchBooks() // 책 목록 새로고침
+
+    // 4. 리뷰 모달 열기 (옵션)
+    if (openReviewModal) {
+      await openReviewModalForBook(bookId)
+    }
   } catch (error: any) {
-    console.error('[HandleMarkFinished] Error:', error)
+    console.error('[MarkAsFinished] Error:', error)
     toast.error('완독 처리 중 오류가 발생했습니다.')
   }
 }
 
-// 완독 취소 (책장 탭에서)
+/**
+ * 리뷰 모달 열기
+ */
+const openReviewModalForBook = async (bookId: string) => {
+  reviewingBookId.value = bookId
+
+  // Check for existing review
+  const { data: existingReview } = await client
+    .from('reviews')
+    .select('*')
+    .eq('user_id', currentUserId.value)
+    .eq('group_book_id', bookId)
+    .maybeSingle()
+
+  if (existingReview) {
+    reviewInitialData.value = {
+      rating: parseFloat(existingReview.rating),
+      content: existingReview.content || ''
+    }
+    isEditingReview.value = true
+  } else {
+    reviewInitialData.value = { rating: 0, content: '' }
+    isEditingReview.value = false
+  }
+
+  modals.review = true
+}
+
+// 드로어 메뉴에서 완독 처리
+const handleMarkFinished = (bookId: string) => markAsFinished(bookId, true)
+
+/**
+ * 완독 취소
+ */
 const handleUnmarkFinished = async (bookId: string) => {
   if (!currentUserId.value) return
 
   try {
-    const { error } = await client
+    console.log('[UnmarkFinished] Starting...', { bookId, userId: currentUserId.value })
+
+    // 1. DB 업데이트
+    const { data, error } = await client
       .from('user_reading_progress')
       .update({ finished_at: null })
       .eq('group_book_id', bookId)
       .eq('user_id', currentUserId.value)
+      .select()
 
-    if (error) throw error
-
-    toast.success('완독이 취소되었습니다.')
-    await fetchBooks() // 책 목록 새로고침
-  } catch (error: any) {
-    console.error('[HandleUnmarkFinished] Error:', error)
-    toast.error('완독 취소 중 오류가 발생했습니다.')
-  }
-}
-
-// 완독 처리 확인 (슬라이더 100%에서)
-const confirmCompletion = async () => {
-  if (!selectedBook.value || !currentUserId.value) return
-
-  modals.completionConfirm = false
-
-  try {
-    // Update user_reading_progress to mark as finished
-    const { error } = await client
-      .from('user_reading_progress')
-      .update({ finished_at: new Date().toISOString() })
-      .eq('group_book_id', selectedBook.value.id)
-      .eq('user_id', currentUserId.value)
-
-    if (error) throw error
-
-    toast.success('완독 처리되었습니다! 🎉')
-
-    // Set the book being reviewed
-    reviewingBookId.value = selectedBook.value.id
-
-    // Check for existing review
-    const { data: existingReview } = await client
-      .from('reviews')
-      .select('*')
-      .eq('user_id', currentUserId.value)
-      .eq('group_book_id', selectedBook.value.id)
-      .maybeSingle()
-
-    if (existingReview) {
-      reviewInitialData.value = {
-        rating: parseFloat(existingReview.rating),
-        content: existingReview.content || ''
-      }
-      isEditingReview.value = true
-    } else {
-      reviewInitialData.value = { rating: 0, content: '' }
-      isEditingReview.value = false
+    if (error) {
+      console.error('[UnmarkFinished] DB Error:', error)
+      throw error
     }
 
-    // Open review modal
-    modals.review = true
+    console.log('[UnmarkFinished] DB updated:', data)
 
+    // 2. 데이터 새로고침 (DB에서 최신 데이터 가져오기)
+    await loadMemberProgress(bookId)
+    await fetchBooks()
+
+    // Vue가 DOM 업데이트 완료할 때까지 대기
+    await nextTick()
+
+    console.log('[UnmarkFinished] After fetchBooks - readingBooks:',
+      readingBooks.value.find(b => b.id === bookId)?.user_finished_at)
+
+    toast.success('완독이 취소되었습니다.')
   } catch (error: any) {
-    console.error('[ConfirmCompletion] Error:', error)
-    toast.error('완독 처리 중 오류가 발생했습니다.')
+    console.error('[UnmarkFinished] Error:', error)
+    toast.error('완독 취소 중 오류가 발생했습니다.')
   }
-}
-
-// 완독 처리 취소
-const cancelCompletion = () => {
-  modals.completionConfirm = false
 }
 
 const handleDeleteHistoryBook = (bookId: string) => {

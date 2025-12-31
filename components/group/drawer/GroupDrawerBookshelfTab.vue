@@ -78,12 +78,15 @@
               <button @click.stop="handleReview(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
                 <Edit3 :size="12" /> {{ props.userReviewedBooks.has(book.id) ? '리뷰 수정' : '리뷰 작성' }}
               </button>
-              <button @click.stop="handleUnmarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+              <button v-if="!book.user_finished_at" @click.stop="handleMarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                <Check :size="12" /> 완독 처리
+              </button>
+              <button v-else @click.stop="handleUnmarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
                 <X :size="12" /> 완독 취소
               </button>
               <!-- Admin Only -->
               <template v-if="isAdmin">
-                <button @click.stop="handleRestartReading(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                <button @click.stop="handleRestartReading(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap border-t border-zinc-100 dark:border-zinc-700/50">
                   <RotateCcw :size="12" /> 완주 취소
                 </button>
                 <button @click.stop="handleEditFinishedDate(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
@@ -216,6 +219,7 @@ interface HistoryBook {
   date: string
   round?: number
   reviewCount?: number
+  user_finished_at?: string | null
 }
 
 interface Props {
@@ -232,6 +236,7 @@ interface Emits {
   (e: 'editFinishedDate', bookId: string): void
   (e: 'deleteHistoryBook', bookId: string): void
   (e: 'openReview', bookId: string): void
+  (e: 'markFinished', bookId: string): void
   (e: 'unmarkFinished', bookId: string): void
   (e: 'openUpgradeModal'): void
 }
@@ -313,6 +318,11 @@ const handleDeleteHistoryBook = (bookId: string) => {
 const handleReview = (bookId: string) => {
   activeBookMenu.value = null
   emit('openReview', bookId)
+}
+
+const handleMarkFinished = (bookId: string) => {
+  activeBookMenu.value = null
+  emit('markFinished', bookId)
 }
 
 const handleUnmarkFinished = (bookId: string) => {

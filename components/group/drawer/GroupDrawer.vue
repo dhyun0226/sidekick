@@ -67,6 +67,7 @@
           @edit-toc="(bookId) => emit('editToc', bookId)"
           @mark-completed="(bookId) => emit('markCompleted', bookId)"
           @mark-finished="(bookId) => emit('markFinished', bookId)"
+          @unmark-finished="(bookId) => emit('unmarkFinished', bookId)"
           @delete-book="(bookId) => emit('deleteBook', bookId)"
           @open-review="(bookId) => emit('openReview', bookId)"
         />
@@ -92,6 +93,7 @@
           @edit-finished-date="(bookId) => emit('editFinishedDate', bookId)"
           @delete-history-book="(bookId) => emit('deleteHistoryBook', bookId)"
           @open-review="(bookId) => emit('openReview', bookId)"
+          @mark-finished="(bookId) => emit('markFinished', bookId)"
           @unmark-finished="(bookId) => emit('unmarkFinished', bookId)"
           @open-upgrade-modal="emit('openUpgradeModal')"
         />

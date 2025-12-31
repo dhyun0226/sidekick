@@ -20,34 +20,33 @@ export const useReadingProgress = (
   /**
    * Optimistically update memberProgress before DB save
    * Provides instant UI feedback
+   * NOTE: finished_at은 건드리지 않음 (완독/완독취소는 별도 함수로 처리)
    */
   const updateOptimistic = (progress: number) => {
     if (!groupBookId.value || !userId.value) return
 
     const roundedProgress = Math.round(progress)
-    // 100% 이상이면 완독 처리, 미만이면 완독 취소
-    const finishedAt = roundedProgress >= 100 ? new Date().toISOString() : null
     const index = memberProgress.value.findIndex(p => p.user_id === userId.value)
 
     if (index >= 0) {
-      // Update existing progress
+      // Update existing progress (finished_at은 그대로 유지)
       memberProgress.value[index].progress_pct = roundedProgress
       memberProgress.value[index].last_read_at = new Date().toISOString()
-      memberProgress.value[index].finished_at = finishedAt  // 완독 상태도 즉시 업데이트
     } else {
-      // Add new progress entry (first time recording)
+      // Add new progress entry (first time recording, finished_at은 null)
       memberProgress.value.push({
         user_id: userId.value,
         group_book_id: groupBookId.value,
         progress_pct: roundedProgress,
         last_read_at: new Date().toISOString(),
-        finished_at: finishedAt
+        finished_at: null
       })
     }
   }
 
   /**
    * Save progress to database with optimistic rollback on error
+   * NOTE: finished_at은 건드리지 않음 (완독/완독취소는 별도 함수로 처리)
    */
   const saveProgress = async (progress: number) => {
     if (!groupBookId.value || !userId.value) {
@@ -59,8 +58,6 @@ export const useReadingProgress = (
     }
 
     const roundedProgress = Math.round(progress)
-    // 100% 이상이면 완독 처리, 미만이면 완독 취소
-    const finishedAt = roundedProgress >= 100 ? new Date().toISOString() : null
 
     // Backup current value for rollback
     const index = memberProgress.value.findIndex(p => p.user_id === userId.value)
@@ -70,9 +67,7 @@ export const useReadingProgress = (
       console.log('[Progress] Saving to DB:', {
         user_id: userId.value,
         group_book_id: groupBookId.value,
-        progress_pct: roundedProgress,
-        finished_at: finishedAt,
-        action: roundedProgress >= 100 ? 'COMPLETE' : 'IN_PROGRESS'
+        progress_pct: roundedProgress
       })
 
       const { data, error } = await client
@@ -81,8 +76,8 @@ export const useReadingProgress = (
           user_id: userId.value,
           group_book_id: groupBookId.value,
           progress_pct: roundedProgress,
-          last_read_at: new Date().toISOString(),
-          finished_at: finishedAt  // null이면 완독 취소
+          last_read_at: new Date().toISOString()
+          // finished_at은 건드리지 않음 (완독 처리는 별도 함수에서만)
         }, {
           onConflict: 'user_id,group_book_id'
         })
