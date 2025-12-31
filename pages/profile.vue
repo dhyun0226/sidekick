@@ -243,8 +243,13 @@
           <div
             v-for="item in timeline"
             :key="item.id"
-            @click="navigateToItem(item)"
-            class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 cursor-pointer hover:border-lime-400 dark:hover:border-lime-500 transition-all"
+            @click="isBookFinished(item.groupBookId) ? navigateToItem(item) : null"
+            :class="[
+              'bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all',
+              isBookFinished(item.groupBookId)
+                ? 'cursor-pointer hover:border-lime-400 dark:hover:border-lime-500'
+                : 'cursor-default opacity-60'
+            ]"
           >
             <!-- Title -->
             <h4 class="font-bold text-sm text-zinc-900 dark:text-white mb-2 line-clamp-1">
@@ -724,8 +729,13 @@
               <div
                 v-for="item in bookTimeline"
                 :key="item.id"
-                @click="navigateToItem(item)"
-                class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 cursor-pointer hover:border-lime-400 dark:hover:border-lime-500 transition-all"
+                @click="selectedBook?.finished_at ? navigateToItem(item) : null"
+                :class="[
+                  'bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all',
+                  selectedBook?.finished_at
+                    ? 'cursor-pointer hover:border-lime-400 dark:hover:border-lime-500'
+                    : 'cursor-default opacity-60'
+                ]"
               >
                 <!-- Meta Info -->
                 <div class="flex items-center gap-2 mb-3 text-xs">
@@ -781,8 +791,13 @@
             <div v-if="bookDetailTab === 'review'">
               <div
                 v-if="bookReview"
-                @click="navigateToItem(bookReview)"
-                class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 cursor-pointer hover:border-lime-400 dark:hover:border-lime-500 transition-all"
+                @click="selectedBook?.finished_at ? navigateToItem(bookReview) : null"
+                :class="[
+                  'bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all',
+                  selectedBook?.finished_at
+                    ? 'cursor-pointer hover:border-lime-400 dark:hover:border-lime-500'
+                    : 'cursor-default opacity-60'
+                ]"
               >
                 <!-- Meta Info -->
                 <div class="flex items-center gap-2 mb-3 text-xs">
@@ -821,8 +836,13 @@
               <div
                 v-for="comment in bookComments"
                 :key="comment.id"
-                @click="navigateToItem(comment)"
-                class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 cursor-pointer hover:border-lime-400 dark:hover:border-lime-500 transition-all"
+                @click="selectedBook?.finished_at ? navigateToItem(comment) : null"
+                :class="[
+                  'bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all',
+                  selectedBook?.finished_at
+                    ? 'cursor-pointer hover:border-lime-400 dark:hover:border-lime-500'
+                    : 'cursor-default opacity-60'
+                ]"
               >
                 <!-- Meta Info -->
                 <div class="flex items-center gap-2 mb-3 text-xs">
@@ -1258,6 +1278,12 @@ const bookReview = computed(() => {
 const bookComments = computed(() => {
   return bookTimeline.value.filter(item => item.type === 'comment')
 })
+
+// Helper: Check if book is finished (for timeline navigation)
+const isBookFinished = (groupBookId: string) => {
+  const book = library.value.find(b => b.groupBookId === groupBookId)
+  return book?.finished_at != null
+}
 
 // Initialization
 onMounted(async () => {

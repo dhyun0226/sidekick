@@ -60,6 +60,7 @@
           :hasMore="hasMore"
           :isLoadingMore="isLoadingMore"
           :highlightedCommentId="highlightedCommentId"
+          :isFinished="selectedBook?.user_finished_at != null"
           @modalOpen="modals.comment = true"
           @modalClose="modals.comment = false"
           @writeComment="handleWriteFromModal"
@@ -75,6 +76,7 @@
         :totalPages="selectedBook.book?.total_pages"
         :members="selectedBook.status === 'reading' ? sliderMembers : []"
         class="z-30"
+        @update:modelValue="handleSliderInput"
         @change="handleSliderChange"
         @write="handleWrite"
       />
@@ -515,10 +517,18 @@ const sortedMembersWithProgress = computed(() => {
       p => p.user_id === member.id && p.group_book_id === selectedBookId.value
     )
 
-    // 진행도 (현재 사용자는 viewProgress 사용)
-    const progress = member.id === currentUserId.value
-      ? Math.round(viewProgress.value)
-      : progressData?.progress_pct || 0
+    // 진행도
+    let progress: number
+    if (member.id === currentUserId.value) {
+      // 현재 사용자: 완독 여부에 따라 다르게 처리
+      const isFinished = progressData?.finished_at != null
+      progress = isFinished
+        ? (progressData?.progress_pct || 100)  // 완독: DB 값 고정 (슬라이더 움직여도 아바타 고정)
+        : Math.round(viewProgress.value)       // 미완독: 실시간 값 (슬라이더 따라 움직임)
+    } else {
+      // 다른 멤버들: 항상 DB 값
+      progress = progressData?.progress_pct || 0
+    }
 
     // 마지막 활동 시간
     const lastReadAt = progressData?.last_read_at
@@ -783,10 +793,18 @@ onUnmounted(() => {
 let progressSaveTimeout: NodeJS.Timeout | null = null
 let highlightTimeout: NodeJS.Timeout | null = null
 
+// 슬라이더 드래그 중 실시간 타임라인 스크롤 (진행도 저장 안함)
+const handleSliderInput = (val: number) => {
+  nextTick(() => {
+    scrollToPosition(Math.round(val))
+  })
+}
+
+// 슬라이더 드래그 완료 시 진행도 저장
 const handleSliderChange = async (val: number) => {
   viewProgress.value = val
 
-  // 타임라인 스크롤 (항상 실행)
+  // 타임라인 스크롤 (최종 위치 확정)
   nextTick(() => {
     scrollToPosition(Math.round(val))
   })
@@ -794,6 +812,13 @@ const handleSliderChange = async (val: number) => {
   // 완독 여부 확인
   const currentBookData = allBooks.value.find(b => b.id === selectedBookId.value)
   const isFinished = currentBookData?.user_finished_at != null
+
+  console.log('[Slider] 🎯 Check:', {
+    bookId: selectedBookId.value,
+    user_finished_at: currentBookData?.user_finished_at,
+    isFinished,
+    memberProgress_finished_at: memberProgress.value.find(p => p.group_book_id === selectedBookId.value && p.user_id === currentUserId.value)?.finished_at
+  })
 
   if (isFinished) {
     // 완독 후: 네비게이션 모드 (진행도 저장 안함)
@@ -1155,8 +1180,18 @@ const handleUnmarkFinished = async (bookId: string) => {
     // Vue가 DOM 업데이트 완료할 때까지 대기
     await nextTick()
 
-    console.log('[UnmarkFinished] After fetchBooks - readingBooks:',
-      readingBooks.value.find(b => b.id === bookId)?.user_finished_at)
+    console.log('[UnmarkFinished] ✅ After refresh:')
+    console.log('  - allBooks user_finished_at:', allBooks.value.find(b => b.id === bookId)?.user_finished_at)
+    console.log('  - memberProgress finished_at:', memberProgress.value.find(p => p.group_book_id === bookId && p.user_id === currentUserId.value)?.finished_at)
+
+    // 3. viewProgress를 DB의 실제 진행도로 복원 (완독 취소 시 100%로)
+    const progressData = memberProgress.value.find(
+      p => p.group_book_id === bookId && p.user_id === currentUserId.value
+    )
+    if (progressData) {
+      viewProgress.value = progressData.progress_pct || 100
+      console.log('  - viewProgress restored to:', viewProgress.value)
+    }
 
     toast.success('완독이 취소되었습니다.')
   } catch (error: any) {

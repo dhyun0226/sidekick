@@ -320,6 +320,7 @@ const props = defineProps<{
   hasMore?: boolean
   isLoadingMore?: boolean
   highlightedCommentId?: string | null
+  isFinished?: boolean
 }>()
 
 const activeReplyId = ref<string | null>(null)
@@ -392,6 +393,9 @@ const groupedComments = computed(() => {
 })
 
 const isSpoiler = (position: number) => {
+  // 완독한 경우 스포일러 잠금 해제
+  if (props.isFinished) return false
+
   // Round both values to match the displayed percentage
   return Math.round(position) > Math.round(props.viewProgress)
 }
