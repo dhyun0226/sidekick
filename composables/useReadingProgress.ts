@@ -57,6 +57,15 @@ export const useReadingProgress = (
       return
     }
 
+    // 🔥 완독한 책은 저장하지 않음 (last_read_at 업데이트 방지)
+    const existing = memberProgress.value.find(
+      p => p.user_id === userId.value && p.group_book_id === groupBookId.value
+    )
+    if (existing?.finished_at) {
+      console.log('[Progress] 완독한 책은 업데이트하지 않음 (finished_at:', existing.finished_at, ')')
+      return
+    }
+
     const roundedProgress = Math.round(progress)
 
     // Backup current value for rollback

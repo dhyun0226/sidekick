@@ -11,6 +11,7 @@
           @pointerdown="handlePointerDown"
           @pointermove="handlePointerMove"
           @pointerup="handlePointerUp"
+          @pointercancel="handlePointerCancel"
           @pointerleave="handlePointerUp"
           @touchstart.prevent
           @touchmove.prevent
@@ -256,6 +257,9 @@ const handlePointerDown = (event: PointerEvent) => {
   event.preventDefault()
   event.stopPropagation()
 
+  // 🔥 Defensive cleanup: reset state before starting new drag
+  isDragging.value = false
+
   isDragging.value = true
   sliderRef.value?.setPointerCapture(event.pointerId)
   updatePosition(event)
@@ -271,17 +275,30 @@ const handlePointerMove = (event: PointerEvent) => {
   updatePosition(event)
 }
 
-const handlePointerUp = (event: PointerEvent) => {
-  if (!isDragging.value) return
-
+const cleanupDrag = (event: PointerEvent) => {
   // 브라우저 기본 동작 방지
   event.preventDefault()
   event.stopPropagation()
 
+  // 🔥 Always cleanup, even if isDragging is false
+  const wasDragging = isDragging.value
   isDragging.value = false
-  sliderRef.value?.releasePointerCapture(event.pointerId)
-  emit('change', localPct.value)
+
+  // Release pointer capture (safe even if not captured)
+  try {
+    sliderRef.value?.releasePointerCapture(event.pointerId)
+  } catch (e) {
+    // Ignore errors if pointer wasn't captured
+  }
+
+  // Only emit change if we were actually dragging
+  if (wasDragging) {
+    emit('change', localPct.value)
+  }
 }
+
+const handlePointerUp = cleanupDrag
+const handlePointerCancel = cleanupDrag
 </script>
 
 <style scoped>

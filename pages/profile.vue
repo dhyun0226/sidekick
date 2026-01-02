@@ -907,8 +907,13 @@
           <div
             v-for="item in selectedDay.activities"
             :key="item.id"
-            @click="navigateToItem(item)"
-            class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 cursor-pointer hover:border-lime-400 dark:hover:border-lime-500 transition-all"
+            @click="isBookFinished(item.groupBookId) ? navigateToItem(item) : null"
+            :class="[
+              'bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all',
+              isBookFinished(item.groupBookId)
+                ? 'cursor-pointer hover:border-lime-400 dark:hover:border-lime-500'
+                : 'cursor-default opacity-60'
+            ]"
           >
             <!-- Meta Info -->
             <div class="flex items-center gap-2 mb-3 text-xs">
@@ -1069,6 +1074,14 @@ const avatarFile = ref<File | null>(null)
 const isSaving = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
 
+// Helper function to get local date string (YYYY-MM-DD) without timezone conversion
+const getLocalDateString = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 // Computed
 const currentUserId = computed(() => userStore.user?.id)
 
@@ -1125,10 +1138,10 @@ const onTrack = computed(() => {
 const monthlyProgress = computed(() => {
   const now = new Date()
   const currentYear = now.getFullYear()
-  const currentMonth = now.getMonth() // 0-11
 
   const months = []
-  for (let month = 0; month <= currentMonth; month++) {
+  // Always show all 12 months (Jan-Dec), with 0 count for future/empty months
+  for (let month = 0; month < 12; month++) {
     const count = library.value.filter(book => {
       const d = new Date(book.finished_at)
       return d.getFullYear() === currentYear && d.getMonth() === month
@@ -1180,20 +1193,19 @@ const isGoalAchieved = computed(() => {
 const currentStreak = computed(() => {
   if (timeline.value.length === 0) return 0
 
-  // Get unique dates with activity
+  // Get unique dates with activity (using local timezone)
   const dates = [...new Set(timeline.value.map(item =>
-    new Date(item.created_at).toISOString().split('T')[0]
+    getLocalDateString(new Date(item.created_at))
   ))].sort().reverse()
 
   if (dates.length === 0) return 0
 
   const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const yesterday = new Date(today)
+  const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
 
-  const todayStr = today.toISOString().split('T')[0]
-  const yesterdayStr = yesterday.toISOString().split('T')[0]
+  const todayStr = getLocalDateString(today)
+  const yesterdayStr = getLocalDateString(yesterday)
 
   // Streak must start from today or yesterday
   if (dates[0] !== todayStr && dates[0] !== yesterdayStr) return 0
@@ -1218,7 +1230,7 @@ const longestStreak = computed(() => {
   if (timeline.value.length === 0) return 0
 
   const dates = [...new Set(timeline.value.map(item =>
-    new Date(item.created_at).toISOString().split('T')[0]
+    getLocalDateString(new Date(item.created_at))
   ))].sort()
 
   if (dates.length === 0) return 0
@@ -1552,10 +1564,10 @@ const calculateStreak = async (userId: string) => {
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
-    // 2. Extract dates (YYYY-MM-DD format)
+    // 2. Extract dates (YYYY-MM-DD format) using local timezone
     const allDates = [
-      ...(commentsData || []).map(c => c.created_at.split('T')[0]),
-      ...(reviewsData || []).map(r => r.created_at.split('T')[0])
+      ...(commentsData || []).map(c => getLocalDateString(new Date(c.created_at))),
+      ...(reviewsData || []).map(r => getLocalDateString(new Date(r.created_at)))
     ]
 
     // 3. Remove duplicates and sort descending
@@ -1564,10 +1576,12 @@ const calculateStreak = async (userId: string) => {
     if (uniqueDates.length === 0) return 0
 
     // 4. Check if streak is still active (today or yesterday)
-    const today = new Date().toISOString().split('T')[0]
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+    const today = getLocalDateString(new Date())
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    const yesterdayStr = getLocalDateString(yesterday)
 
-    if (uniqueDates[0] !== today && uniqueDates[0] !== yesterday) {
+    if (uniqueDates[0] !== today && uniqueDates[0] !== yesterdayStr) {
       return 0 // Streak broken
     }
 

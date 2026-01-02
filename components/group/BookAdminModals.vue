@@ -293,6 +293,14 @@ const handleSaveDates = () => {
   })
 }
 
+// Helper function to get local date string (YYYY-MM-DD) without timezone conversion
+const getLocalDateString = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 // Edit Finished Date
 const localFinishedDate = ref('')
 
@@ -302,7 +310,7 @@ watch(() => props.editFinishedDateOpen, (isOpen) => {
     if (finishedAt) {
       // Convert timestamp to YYYY-MM-DD format for date input
       const date = new Date(finishedAt)
-      localFinishedDate.value = date.toISOString().split('T')[0]
+      localFinishedDate.value = getLocalDateString(date)
     } else {
       localFinishedDate.value = ''
     }

@@ -233,6 +233,14 @@ const emit = defineEmits<{
   (e: 'day-click', day: { date: Date; dateString: string; count: number; activities: any[] }): void
 }>()
 
+// Helper function to get local date string (YYYY-MM-DD) without timezone conversion
+const getLocalDateString = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 const weekDays = ['일', '월', '화', '수', '목', '금', '토']
 const now = new Date()
 const currentYear = ref(now.getFullYear())
@@ -346,18 +354,19 @@ const calendarDays = computed(() => {
     const d = new Date(year, month, 1 - (i + 1))
     days.push({
       date: d,
-      dateString: d.toISOString().split('T')[0],
+      dateString: getLocalDateString(d),
       dayNumber: d.getDate(),
       isCurrentMonth: false,
       count: 0,
       activities: []
     })
   }
-  
+
   // Current month days
   const activityMap: Record<string, { count: number; items: any[] }> = {}
   props.activities.forEach(item => {
-    const dateStr = new Date(item.created_at).toISOString().split('T')[0]
+    const date = new Date(item.created_at)
+    const dateStr = getLocalDateString(date)
     if (!activityMap[dateStr]) {
       activityMap[dateStr] = { count: 0, items: [] }
     }
@@ -367,7 +376,7 @@ const calendarDays = computed(() => {
 
   for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
     const d = new Date(year, month, i)
-    const dateStr = d.toISOString().split('T')[0]
+    const dateStr = getLocalDateString(d)
     const dayData = activityMap[dateStr] || { count: 0, items: [] }
 
     days.push({
@@ -379,7 +388,7 @@ const calendarDays = computed(() => {
       activities: dayData.items
     })
   }
-  
+
   // Padding for next month to fill grid (up to 35 or 42 cells)
   const remainingCells = 7 - (days.length % 7)
   if (remainingCells < 7) {
@@ -387,7 +396,7 @@ const calendarDays = computed(() => {
       const d = new Date(year, month + 1, i)
       days.push({
         date: d,
-        dateString: d.toISOString().split('T')[0],
+        dateString: getLocalDateString(d),
         dayNumber: i,
         isCurrentMonth: false,
         count: 0,
