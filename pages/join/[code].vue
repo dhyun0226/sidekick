@@ -76,7 +76,6 @@ definePageMeta({
 const route = useRoute()
 const router = useRouter()
 const client = useSupabaseClient()
-const user = useSupabaseUser()
 const toast = useToastStore()
 
 const code = route.params.code as string
@@ -91,6 +90,12 @@ onMounted(async () => {
   if (!code) {
     error.value = '초대 코드가 없습니다.'
     loading.value = false
+    return
+  }
+
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) {
+    router.push('/login')
     return
   }
 
@@ -128,7 +133,7 @@ onMounted(async () => {
       .from('group_members')
       .select('*')
       .eq('group_id', groupData.id)
-      .eq('user_id', user.value!.id)
+      .eq('user_id', user.id)
       .maybeSingle()
 
     if (existingMember) {
@@ -147,14 +152,8 @@ onMounted(async () => {
 })
 
 const joinGroup = async () => {
-  if (!group.value || !user.value) return
-
-  // 현재 로그인한 유저 가져오기
-  const { data: { user: currentUser } } = await client.auth.getUser()
-  if (!currentUser) {
-    router.push('/login')
-    return
-  }
+  const { data: { user } } = await client.auth.getUser()
+  if (!group.value || !user) return
 
   joining.value = true
 
@@ -166,7 +165,7 @@ const joinGroup = async () => {
       .from('group_members')
       .insert({
         group_id: group.value.id,
-        user_id: currentUser.id,
+        user_id: user.id,
         role: 'member'
       })
 

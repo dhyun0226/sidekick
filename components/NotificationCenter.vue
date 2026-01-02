@@ -94,7 +94,6 @@ import { useToastStore } from '~/stores/toast'
 
 const router = useRouter()
 const client = useSupabaseClient()
-const user = useSupabaseUser()
 const toast = useToastStore()
 
 const isOpen = ref(false)
@@ -115,9 +114,8 @@ const toggleOpen = async () => {
 }
 
 const fetchNotifications = async () => {
-  // 현재 로그인한 유저 가져오기
-  const { data: { user: currentUser } } = await client.auth.getUser()
-  if (!currentUser) return
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) return
 
   loading.value = true
 
@@ -125,7 +123,7 @@ const fetchNotifications = async () => {
     const { data, error } = await client
       .from('notifications')
       .select('*')
-      .eq('user_id', currentUser.id)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(20)
 
@@ -143,14 +141,13 @@ const fetchNotifications = async () => {
 }
 
 const markAllRead = async () => {
-  // 현재 로그인한 유저 가져오기
-  const { data: { user: currentUser } } = await client.auth.getUser()
-  if (!currentUser) return
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) return
 
   const { error } = await client
     .from('notifications')
     .update({ is_read: true })
-    .eq('user_id', currentUser.id)
+    .eq('user_id', user.id)
     .eq('is_read', false)
 
   if (!error) {
@@ -193,14 +190,14 @@ const deleteAll = () => {
 }
 
 const executeDeleteAll = async () => {
-  const { data: { user: currentUser } } = await client.auth.getUser()
-  if (!currentUser) return
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) return
 
   try {
     const { error } = await client
       .from('notifications')
       .delete()
-      .eq('user_id', currentUser.id)
+      .eq('user_id', user.id)
 
     if (error) throw error
 
@@ -236,11 +233,10 @@ const formatTimeAgo = (dateStr: string) => {
 
 // Realtime subscription for new notifications
 onMounted(async () => {
-  // 현재 로그인한 유저 가져오기
-  const { data: { user: currentUser } } = await client.auth.getUser()
-  if (!currentUser) return
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) return
 
-  // 🔥 Fix: Fetch initial notifications on mount to show unread badge
+  // Fetch initial notifications on mount to show unread badge
   await fetchNotifications()
 
   const channel = client
@@ -251,7 +247,7 @@ onMounted(async () => {
         event: 'INSERT',
         schema: 'public',
         table: 'notifications',
-        filter: `user_id=eq.${currentUser.id}`
+        filter: `user_id=eq.${user.id}`
       },
       (payload) => {
         console.log('New notification:', payload)

@@ -136,16 +136,26 @@ export const useGroupBooks = (groupId: string) => {
     const doneBooks = allBooks.value.filter((b: any) => b.status === 'done')
 
     if (doneBooks.length > 0) {
-      // Calculate round numbers and review counts for history books
+      // 🔥 성능 최적화: 리뷰 개수 N+1 쿼리 제거 (10권 기준 10개 쿼리 → 1개 쿼리)
+
+      // 1. 모든 완독 책의 리뷰 개수를 한 번에 조회 (1개 쿼리)
+      const bookIds = doneBooks.map((gb: any) => gb.id)
+      const { data: allReviews } = await client
+        .from('reviews')
+        .select('group_book_id')
+        .in('group_book_id', bookIds)
+
+      // 2. JavaScript에서 책별 리뷰 개수 계산 (쿼리 없음)
+      const reviewCountMap = new Map<string, number>()
+      allReviews?.forEach(review => {
+        const count = reviewCountMap.get(review.group_book_id) || 0
+        reviewCountMap.set(review.group_book_id, count + 1)
+      })
+
+      // 3. Calculate round numbers and combine data
       const historyBooksWithRounds = await Promise.all(
         doneBooks.map(async (gb: any) => {
           const round = await getBookRound(groupId, gb.isbn, gb.id)
-
-          // Get review count for this book
-          const { count } = await client
-            .from('reviews')
-            .select('*', { count: 'exact', head: true })
-            .eq('group_book_id', gb.id)
 
           return {
             id: gb.id,
@@ -157,7 +167,7 @@ export const useGroupBooks = (groupId: string) => {
             total_pages: gb.book.total_pages,
             date: new Date(gb.finished_at || gb.created_at).toLocaleDateString(),
             round,
-            reviewCount: count || 0,
+            reviewCount: reviewCountMap.get(gb.id) || 0,
             user_finished_at: gb.user_finished_at
           }
         })

@@ -6,11 +6,9 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const client = useSupabaseClient()
 
-  // 현재 사용자 정보 가져오기
-  const { data: { user }, error: authError } = await client.auth.getUser()
-
-  if (authError || !user) {
-    console.error('[Admin Middleware] Auth error:', authError)
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) {
+    console.error('[Admin Middleware] No authenticated user')
     return navigateTo('/')
   }
 

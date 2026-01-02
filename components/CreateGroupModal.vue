@@ -97,7 +97,6 @@ const props = defineProps<{
 const emit = defineEmits(['close', 'created'])
 
 const client = useSupabaseClient()
-const user = useSupabaseUser()
 const { canCreateGroup } = useSubscription()
 
 const groupName = ref('')
@@ -137,9 +136,8 @@ const handleCreate = async () => {
     return // 그룹 생성 중단
   }
 
-  // 현재 로그인한 유저 가져오기
-  const { data: { user: currentUser } } = await client.auth.getUser()
-  if (!currentUser) return
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) return
 
   loading.value = true
   error.value = ''
@@ -152,7 +150,7 @@ const handleCreate = async () => {
       .from('groups')
       .insert({
         name: groupName.value.trim(),
-        created_by: currentUser.id
+        created_by: user.id
       })
       .select()
       .single()
@@ -169,7 +167,7 @@ const handleCreate = async () => {
       .from('group_members')
       .insert({
         group_id: newGroup.id,
-        user_id: currentUser.id,
+        user_id: user.id,
         role: 'admin'
       })
 

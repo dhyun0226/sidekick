@@ -114,7 +114,6 @@ import { useToastStore } from '~/stores/toast'
 
 const router = useRouter()
 const client = useSupabaseClient()
-const user = useSupabaseUser()
 const toast = useToastStore()
 
 // State
@@ -134,11 +133,8 @@ const canSubmit = computed(() =>
 )
 
 onMounted(async () => {
-  // 현재 로그인한 유저 가져오기
-  const { data: { user: currentUser } } = await client.auth.getUser()
-
-  // 사용자가 로그인하지 않았으면 로그인 페이지로
-  if (!currentUser) {
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) {
     router.push('/login')
     return
   }
@@ -147,7 +143,7 @@ onMounted(async () => {
   const { data: existingProfile } = await client
     .from('users')
     .select('*')
-    .eq('id', currentUser.id)
+    .eq('id', user.id)
     .maybeSingle()
 
   if (existingProfile && existingProfile.nickname) {
@@ -157,12 +153,12 @@ onMounted(async () => {
   }
 
   // OAuth 프로바이더의 프로필 이미지는 미리보기로 표시 (사용자가 선택 가능)
-  if (currentUser.user_metadata?.avatar_url) {
-    avatarPreview.value = currentUser.user_metadata.avatar_url
-    avatarUrl.value = currentUser.user_metadata.avatar_url
-  } else if (currentUser.user_metadata?.picture) {
-    avatarPreview.value = currentUser.user_metadata.picture
-    avatarUrl.value = currentUser.user_metadata.picture
+  if (user.user_metadata?.avatar_url) {
+    avatarPreview.value = user.user_metadata.avatar_url
+    avatarUrl.value = user.user_metadata.avatar_url
+  } else if (user.user_metadata?.picture) {
+    avatarPreview.value = user.user_metadata.picture
+    avatarUrl.value = user.user_metadata.picture
   }
 })
 
@@ -206,9 +202,8 @@ const handleSubmit = async () => {
     return
   }
 
-  // 현재 로그인한 유저 가져오기
-  const { data: { user: currentUser } } = await client.auth.getUser()
-  if (!currentUser) {
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) {
     console.error('User not authenticated')
     toast.error('로그인 정보가 없습니다. 다시 로그인해주세요.')
     router.push('/login')
@@ -229,7 +224,7 @@ const handleSubmit = async () => {
         const fileExt = avatarFile.value.name.split('.').pop()
         const fileName = `${Date.now()}.${fileExt}`
         // RLS 정책에 맞게 사용자 ID 폴더 안에 저장
-        const filePath = `${currentUser.id}/${fileName}`
+        const filePath = `${user.id}/${fileName}`
 
         console.log('[Onboarding] Uploading avatar to:', filePath)
 
@@ -262,14 +257,14 @@ const handleSubmit = async () => {
     }
 
     // 2. users 테이블의 프로필 UPDATE (트리거가 이미 row 생성함)
-    console.log('Updating profile for user:', currentUser.id)
+    console.log('Updating profile for user:', user.id)
     const { error: updateError } = await client
       .from('users')
       .update({
         nickname: nickname.value.trim(),
         avatar_url: finalAvatarUrl
       })
-      .eq('id', currentUser.id)
+      .eq('id', user.id)
 
     if (updateError) {
       throw updateError

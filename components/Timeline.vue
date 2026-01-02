@@ -401,8 +401,8 @@ const isSpoiler = (position: number) => {
 }
 
 const toggleLike = async (commentId: string) => {
-  const { data: { user: currentUser } } = await client.auth.getUser()
-  if (!currentUser) return
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) return
 
   try {
     const comment = props.comments.find(c => c.id === commentId)
@@ -412,7 +412,7 @@ const toggleLike = async (commentId: string) => {
       .from('reactions')
       .select('*')
       .eq('comment_id', commentId)
-      .eq('user_id', currentUser.id)
+      .eq('user_id', user.id)
       .eq('type', 'like')
       .maybeSingle()
 
@@ -429,7 +429,7 @@ const toggleLike = async (commentId: string) => {
         .from('reactions')
         .insert({
           comment_id: commentId,
-          user_id: currentUser.id,
+          user_id: user.id,
           type: 'like'
         })
 
@@ -455,8 +455,8 @@ const emit = defineEmits(['replySubmitted', 'modalOpen', 'modalClose', 'writeCom
 const submitReply = async (parentId: string) => {
   if (!replyContent.value.trim()) return
 
-  const { data: { user: currentUser } } = await client.auth.getUser()
-  if (!currentUser) return
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) return
 
   try {
     const parentComment = props.comments.find(c => c.id === parentId)
@@ -466,7 +466,7 @@ const submitReply = async (parentId: string) => {
       .from('comments')
       .insert({
         group_book_id: parentComment.group_book_id,
-        user_id: currentUser.id,
+        user_id: user.id,
         parent_id: parentId,
         content: replyContent.value,
         position_pct: Math.round(parentComment.position_pct)
@@ -483,7 +483,7 @@ const submitReply = async (parentId: string) => {
     parentComment.replies.push({
       id: newReply.id,
       user: newReply.user,
-      user_id: currentUser.id,
+      user_id: user.id,
       content: newReply.content,
       created_at: newReply.created_at
     })

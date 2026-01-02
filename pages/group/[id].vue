@@ -675,8 +675,12 @@ const fetchData = async () => {
       return
     }
 
-    // Fetch books using Composable
-    await fetchBooks()
+    // 🔥 성능 최적화: 독립적인 작업 병렬 실행
+    // 1. 책 정보와 사용자 리뷰를 병렬로 조회
+    await Promise.all([
+      fetchBooks(),
+      fetchUserReviews()
+    ])
 
     // Handle bookId from query parameter (e.g., from profile navigation)
     if (route.query.bookId) {
@@ -688,18 +692,17 @@ const fetchData = async () => {
       }
     }
 
-    // Fetch user's reviews to track which books have been reviewed
-    await fetchUserReviews()
-
-    // Fetch comments for selected book
+    // 2. 댓글과 진행도를 병렬로 조회
     if (selectedBookId.value) {
-      await fetchComments(selectedBookId.value)
-    }
-
-    // Load user's reading progress
-    if (currentUserId.value && selectedBookId.value) {
-      const progress = await loadProgress(selectedBookId.value, currentUserId.value)
-      viewProgress.value = progress
+      if (currentUserId.value) {
+        const [_, progress] = await Promise.all([
+          fetchComments(selectedBookId.value),
+          loadProgress(selectedBookId.value, currentUserId.value)
+        ])
+        viewProgress.value = progress
+      } else {
+        await fetchComments(selectedBookId.value)
+      }
     }
   } finally {
     isLoading.value = false
@@ -713,10 +716,12 @@ const handleScroll = () => {
 // ===== Lifecycle =====
 onMounted(async () => {
   window.addEventListener('scroll', handleScroll)
-  await userStore.fetchProfile()
 
-  // Fetch subscription limits from DB
-  await fetchLimits()
+  // 🔥 성능 최적화: 독립적인 초기화 작업 병렬 실행
+  await Promise.all([
+    userStore.fetchProfile(),
+    fetchLimits()
+  ])
 
   await fetchData()
 

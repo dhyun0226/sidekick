@@ -62,16 +62,7 @@ onMounted(async () => {
     }
 
     // 2. Supabase가 OAuth 콜백을 자동으로 처리하고 세션 확인
-    // getUser()는 현재 액세스 토큰을 검증하고 사용자 정보를 반환
-    const { data: { user }, error: authError } = await client.auth.getUser()
-
-    if (authError) {
-      console.error('[OAuth Callback] Auth error:', authError)
-      error.value = '인증에 실패했습니다. 다시 로그인해주세요.'
-      setTimeout(redirectToLogin, 3000)
-      return
-    }
-
+    const { data: { user } } = await client.auth.getUser()
     if (!user) {
       console.error('[OAuth Callback] No user found')
       error.value = '사용자 정보를 찾을 수 없습니다.'
