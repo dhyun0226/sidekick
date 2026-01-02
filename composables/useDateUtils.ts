@@ -65,9 +65,9 @@ export const useDateUtils = () => {
   }
 
   /**
-   * Format time difference as human-readable string
+   * Format time difference as human-readable string with date/time
    * @param dateString - Date string (ISO format)
-   * @returns Human-readable time like "10분 전", "2시간 전", "3일 전"
+   * @returns Human-readable time like "3시간 전" / "3일 전 (25.12.20 14:30)" / "25.12.20 14:30"
    */
   const formatTimeAgo = (dateString: string | undefined): string | null => {
     if (!dateString) return null
@@ -83,14 +83,26 @@ export const useDateUtils = () => {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
+    // 24시간 이내: 상대 시간만
     if (diffMins < 1) return '방금 전'
     if (diffMins < 60) return `${diffMins}분 전`
     if (diffHours < 24) return `${diffHours}시간 전`
-    if (diffDays < 7) return `${diffDays}일 전`
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)}주 전`
 
-    // 30일 이상이면 날짜 표시
-    return formatShortDate(past)
+    // 날짜 + 시간 포맷 헬퍼
+    const year = String(past.getFullYear()).slice(-2)
+    const month = String(past.getMonth() + 1).padStart(2, '0')
+    const day = String(past.getDate()).padStart(2, '0')
+    const hours = String(past.getHours()).padStart(2, '0')
+    const minutes = String(past.getMinutes()).padStart(2, '0')
+    const dateTimeFormat = `${year}.${month}.${day} ${hours}:${minutes}`
+
+    // 1주일 이내: "n일 전 (날짜+시간)"
+    if (diffDays < 7) {
+      return `${diffDays}일 전 (${dateTimeFormat})`
+    }
+
+    // 그 이상: 날짜+시간만
+    return dateTimeFormat
   }
 
   /**

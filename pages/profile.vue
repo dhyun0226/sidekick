@@ -192,28 +192,73 @@
           </button>
         </div>
 
-        <div v-else class="grid grid-cols-4 gap-2">
-          <div
-            v-for="book in library"
-            :key="book.id"
-            @click="openBookDetail(book)"
-            class="cursor-pointer active:opacity-70 transition-opacity"
-          >
-            <div class="aspect-[1/1.5] overflow-hidden rounded-lg shadow-sm">
-              <img
-                :src="book.cover_url"
-                class="w-full h-full object-cover"
-              />
+        <div v-else class="space-y-6">
+          <!-- Reading Books Section (Not Finished) -->
+          <div v-if="readingBooks.length > 0">
+            <div class="flex items-center gap-3 mb-4">
+              <h3 class="text-sm font-bold text-zinc-900 dark:text-white">읽고 있는 책</h3>
+              <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ readingBooks.length }}권</span>
             </div>
-            <div class="mt-1 text-center">
-              <div v-if="book.myRating" class="flex items-center justify-center gap-0.5 mb-0.5">
-                <Star :size="10" fill="#EAB308" class="text-yellow-500" />
-                <span class="text-[10px] font-bold text-zinc-900 dark:text-white">{{ book.myRating }}</span>
+
+            <!-- Reading Books Grid -->
+            <div class="grid grid-cols-4 gap-2">
+              <div
+                v-for="book in readingBooks"
+                :key="book.id"
+                @click="openBookDetail(book)"
+                class="cursor-pointer active:opacity-70 transition-opacity opacity-60"
+              >
+                <div class="aspect-[1/1.5] overflow-hidden rounded-lg shadow-sm">
+                  <img
+                    :src="book.cover_url"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <div class="mt-1 text-center">
+                  <div class="h-3 mb-0.5 flex items-center justify-center">
+                    <span class="text-[10px] text-zinc-400">읽는 중</span>
+                  </div>
+                  <div class="text-[9px] text-zinc-400">{{ Math.round(book.progress_pct) }}%</div>
+                </div>
               </div>
-              <div v-else class="h-3 mb-0.5 flex items-center justify-center">
-                <span class="text-[10px] text-zinc-400">──</span>
+            </div>
+          </div>
+
+          <!-- Finished Books by Year -->
+          <div v-for="yearGroup in libraryByYear" :key="yearGroup.year">
+            <!-- Year Divider -->
+            <div class="flex items-center gap-3 mb-4">
+              <h3 class="text-sm font-bold text-zinc-900 dark:text-white">{{ yearGroup.year }}년</h3>
+              <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ yearGroup.books.length }}권</span>
+            </div>
+
+            <!-- Books Grid for This Year -->
+            <div class="grid grid-cols-4 gap-2">
+              <div
+                v-for="book in yearGroup.books"
+                :key="book.id"
+                @click="openBookDetail(book)"
+                class="cursor-pointer active:opacity-70 transition-opacity"
+              >
+                <div class="aspect-[1/1.5] overflow-hidden rounded-lg shadow-sm">
+                  <img
+                    :src="book.cover_url"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <div class="mt-1 text-center">
+                  <div v-if="book.myRating" class="flex items-center justify-center gap-0.5 mb-0.5">
+                    <Star :size="10" fill="#EAB308" class="text-yellow-500" />
+                    <span class="text-[10px] font-bold text-zinc-900 dark:text-white">{{ book.myRating }}</span>
+                  </div>
+                  <div v-else class="h-3 mb-0.5 flex items-center justify-center">
+                    <span class="text-[10px] text-zinc-400">──</span>
+                  </div>
+                  <div class="text-[9px] text-zinc-500">{{ formatMonthOnly(book.finished_at) }}</div>
+                </div>
               </div>
-              <div class="text-[9px] text-zinc-500">{{ formatMonthOnly(book.finished_at) }}</div>
             </div>
           </div>
         </div>
@@ -741,7 +786,7 @@
                 <div class="flex items-center gap-2 mb-3 text-xs">
                   <span class="text-zinc-500 dark:text-zinc-400">{{ item.groupName }}</span>
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  <span class="text-zinc-500 dark:text-zinc-400">{{ formatTimeAgo(item.created_at) }}</span>
+                  <span class="text-zinc-500 dark:text-zinc-400">{{ formatDateTime(item.created_at) }}</span>
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
 
                   <!-- Review: Show rating stars -->
@@ -803,7 +848,7 @@
                 <div class="flex items-center gap-2 mb-3 text-xs">
                   <span class="text-zinc-500 dark:text-zinc-400">{{ bookReview.groupName }}</span>
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  <span class="text-zinc-500 dark:text-zinc-400">{{ formatTimeAgo(bookReview.created_at) }}</span>
+                  <span class="text-zinc-500 dark:text-zinc-400">{{ formatDateTime(bookReview.created_at) }}</span>
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
                   <div class="flex items-center gap-1">
                     <div class="flex gap-0.5">
@@ -848,7 +893,7 @@
                 <div class="flex items-center gap-2 mb-3 text-xs">
                   <span class="text-zinc-500 dark:text-zinc-400">{{ comment.groupName }}</span>
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  <span class="text-zinc-500 dark:text-zinc-400">{{ formatTimeAgo(comment.created_at) }}</span>
+                  <span class="text-zinc-500 dark:text-zinc-400">{{ formatDateTime(comment.created_at) }}</span>
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
                   <span class="text-lime-600 dark:text-lime-400">
                     {{ Math.round(comment.position_pct) }}%
@@ -919,7 +964,7 @@
             <div class="flex items-center gap-2 mb-3 text-xs">
               <span class="text-zinc-500 dark:text-zinc-400">{{ item.groupName }}</span>
               <span class="text-zinc-300 dark:text-zinc-700">·</span>
-              <span class="text-zinc-500 dark:text-zinc-400">{{ formatTimeAgo(item.created_at) }}</span>
+              <span class="text-zinc-500 dark:text-zinc-400">{{ formatTimeOnly(item.created_at) }}</span>
               <span class="text-zinc-300 dark:text-zinc-700">·</span>
 
               <!-- Review: Show rating stars inline -->
@@ -1099,6 +1144,35 @@ const thisMonthComments = computed(() => {
     const d = new Date(item.created_at)
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
   }).length
+})
+
+// Reading books (not finished yet)
+const readingBooks = computed(() => {
+  return library.value.filter(book => !book.finished_at)
+})
+
+// Library grouped by year (for display with year dividers)
+const libraryByYear = computed(() => {
+  const grouped: Record<number, any[]> = {}
+
+  // Only include finished books
+  library.value
+    .filter(book => book.finished_at)
+    .forEach(book => {
+      const year = new Date(book.finished_at).getFullYear()
+      if (!grouped[year]) {
+        grouped[year] = []
+      }
+      grouped[year].push(book)
+    })
+
+  // Convert to array and sort by year (newest first)
+  return Object.entries(grouped)
+    .map(([year, books]) => ({
+      year: Number(year),
+      books: books
+    }))
+    .sort((a, b) => b.year - a.year)
 })
 
 // Yearly goal calculations
@@ -1473,25 +1547,33 @@ const fetchData = async () => {
     }
     console.log('[Profile] Library fetched:', progressData?.length || 0, 'books')
 
-    library.value = (progressData || []).map((p: any) => {
-      const groupBookId = p.group_book?.id
-      const myReview = reviewsData?.find((r: any) => r.group_book_id === groupBookId)
+    library.value = (progressData || [])
+      .filter((p: any) => {
+        // 유효하지 않은 날짜만 제외 (1970년 같은 이상한 값)
+        // 완독 안한 책(finished_at이 null)은 포함
+        if (!p.finished_at) return true // 완독 안한 책도 포함
+        const year = new Date(p.finished_at).getFullYear()
+        return year >= 2000 && year <= new Date().getFullYear()
+      })
+      .map((p: any) => {
+        const groupBookId = p.group_book?.id
+        const myReview = reviewsData?.find((r: any) => r.group_book_id === groupBookId)
 
-      return {
-        id: p.group_book?.book?.isbn, // Use ISBN as ID
-        groupBookId: groupBookId, // Store the specific group_book_id
-        title: p.group_book?.book?.title,
-        author: p.group_book?.book?.author,
-        publisher: p.group_book?.book?.publisher,
-        total_pages: p.group_book?.book?.total_pages,
-        cover_url: p.group_book?.book?.cover_url,
-        finished_at: p.finished_at,
-        progress_pct: p.progress_pct, // 진행도 추가
-        last_read_at: p.last_read_at, // 마지막 읽은 날짜
-        // Find my rating for this specific group_book
-        myRating: myReview?.rating || null
-      }
-    })
+        return {
+          id: p.group_book?.book?.isbn, // Use ISBN as ID
+          groupBookId: groupBookId, // Store the specific group_book_id
+          title: p.group_book?.book?.title,
+          author: p.group_book?.book?.author,
+          publisher: p.group_book?.book?.publisher,
+          total_pages: p.group_book?.book?.total_pages,
+          cover_url: p.group_book?.book?.cover_url,
+          finished_at: p.finished_at,
+          progress_pct: p.progress_pct, // 진행도 추가
+          last_read_at: p.last_read_at, // 마지막 읽은 날짜
+          // Find my rating for this specific group_book
+          myRating: myReview?.rating || null
+        }
+      })
 
     // 2.5 Fetch Group Count
     const { count: groupCount, error: groupCountError } = await client
@@ -1620,6 +1702,7 @@ const formatDateSimple = (dateStr: string) => {
   return `${date.getFullYear()}.${date.getMonth() + 1}`
 }
 
+// 하이브리드 포맷 (기록 탭용): "3시간 전" / "3일 전 (25.12.20 14:30)" / "25.12.20 14:30"
 const formatTimeAgo = (dateStr: string) => {
   const now = new Date()
   const date = new Date(dateStr)
@@ -1628,13 +1711,47 @@ const formatTimeAgo = (dateStr: string) => {
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
 
-  if (diffMins < 1) return '방금'
-  if (diffMins < 60) return `${diffMins}분전`
-  if (diffHours < 24) return `${diffHours}시간전`
-  if (diffDays < 7) return `${diffDays}일전`
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)}주전`
-  if (diffDays < 365) return `${Math.floor(diffDays / 30)}개월전`
-  return `${Math.floor(diffDays / 365)}년전`
+  // 24시간 이내: 상대 시간만
+  if (diffMins < 1) return '방금 전'
+  if (diffMins < 60) return `${diffMins}분 전`
+  if (diffHours < 24) return `${diffHours}시간 전`
+
+  // 날짜 + 시간 포맷 헬퍼
+  const year = String(date.getFullYear()).slice(-2)
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const dateTimeFormat = `${year}.${month}.${day} ${hours}:${minutes}`
+
+  // 1주일 이내: "n일 전 (날짜+시간)"
+  if (diffDays < 7) {
+    return `${diffDays}일 전 (${dateTimeFormat})`
+  }
+
+  // 그 이상: 날짜+시간만
+  return dateTimeFormat
+}
+
+// 날짜 + 시간 포맷 (책 모달용): "25.12.20 14:30"
+const formatDateTime = (dateStr: string) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const year = String(date.getFullYear()).slice(-2)
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${year}.${month}.${day} ${hours}:${minutes}`
+}
+
+// 시간만 포맷 (Day Activity Modal용): "14:30"
+const formatTimeOnly = (dateStr: string) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${hours}:${minutes}`
 }
 
 const formatMonthOnly = (dateStr: string) => {
