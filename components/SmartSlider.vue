@@ -257,8 +257,25 @@ const handlePointerDown = (event: PointerEvent) => {
   event.preventDefault()
   event.stopPropagation()
 
-  // 🔥 Defensive cleanup: reset state before starting new drag
-  isDragging.value = false
+  // 🔥 Fix: Force release any stuck pointer captures from previous drag
+  if (sliderRef.value) {
+    try {
+      // Release current pointerId first (prevents stuck captures)
+      sliderRef.value.releasePointerCapture(event.pointerId)
+    } catch (e) {
+      // Ignore if not captured
+    }
+
+    // Also try to release common pointer IDs (mobile touch usually 0-2)
+    // This handles cases where pointerup/pointercancel was missed
+    try {
+      for (let i = 0; i < 5; i++) {
+        sliderRef.value.releasePointerCapture(i)
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+  }
 
   isDragging.value = true
   sliderRef.value?.setPointerCapture(event.pointerId)
