@@ -11,10 +11,7 @@
           @pointerdown="handlePointerDown"
           @pointermove="handlePointerMove"
           @pointerup="handlePointerUp"
-          @pointercancel="handlePointerCancel"
-          @pointerleave="handlePointerUp"
-          @touchstart.prevent
-          @touchmove.prevent
+          @pointercancel="handlePointerUp"
           ref="sliderRef"
         >
           <!-- Chapter Backgrounds -->
