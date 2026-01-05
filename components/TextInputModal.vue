@@ -105,13 +105,20 @@ const resetState = () => {
   errorMessage.value = ''
 }
 
-// Watch isOpen to focus input and reset state
+// Watch isOpen to focus input, reset state, and prevent body scroll
 watch(() => props.isOpen, (isOpen) => {
   if (isOpen) {
     resetState()
     nextTick(() => {
       inputElement.value?.focus()
     })
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = 'hidden'
+    }
+  } else {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = ''
+    }
   }
 })
 </script>

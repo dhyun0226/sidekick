@@ -361,10 +361,17 @@ const formatDate = (dateStr: string) => {
   return date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })
 }
 
-// Watch for modal open
+// Watch for modal open and prevent body scroll
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     fetchStats()
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = 'hidden'
+    }
+  } else {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = ''
+    }
   }
 })
 </script>

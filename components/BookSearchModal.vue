@@ -173,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { X, Search } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
@@ -185,6 +185,17 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'confirm'])
 const toast = useToastStore()
+
+// Prevent body scroll when modal is open
+watch(() => props.isOpen, (isOpen) => {
+  if (typeof document !== 'undefined') {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  }
+})
 
 const step = ref(1)
 const query = ref('')

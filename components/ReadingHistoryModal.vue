@@ -175,7 +175,14 @@ const totalComments = computed(() => books.value.reduce((sum, b) => sum + (b.com
 
 watch(() => props.isOpen, async (isOpen) => {
   if (isOpen) {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = 'hidden'
+    }
     await fetchReadingHistory()
+  } else {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = ''
+    }
   }
 })
 

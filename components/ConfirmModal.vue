@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { AlertTriangle, AlertCircle, Info } from 'lucide-vue-next'
 
 interface Props {
@@ -97,6 +97,17 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
+
+// Prevent body scroll when modal is open
+watch(() => props.isOpen, (isOpen) => {
+  if (typeof document !== 'undefined') {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  }
+})
 
 const iconComponent = computed(() => {
   switch (props.variant) {

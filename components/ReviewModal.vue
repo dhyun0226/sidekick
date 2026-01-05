@@ -80,12 +80,19 @@ const emit = defineEmits(['close', 'submit'])
 const rating = ref(0)
 const content = ref('')
 
-// Watch for opening to set initial values
+// Watch for opening to set initial values and prevent body scroll
 import { watch } from 'vue'
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     rating.value = props.initialRating || 0
     content.value = props.initialContent || ''
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = 'hidden'
+    }
+  } else {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = ''
+    }
   }
 })
 

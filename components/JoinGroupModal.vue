@@ -69,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { X, AlertCircle } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
@@ -84,6 +84,17 @@ const router = useRouter()
 const client = useSupabaseClient()
 const toast = useToastStore()
 const { canJoinGroup } = useSubscription()
+
+// Prevent body scroll when modal is open
+watch(() => props.isOpen, (isOpen) => {
+  if (typeof document !== 'undefined') {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  }
+})
 
 const inviteCode = ref('')
 const loading = ref(false)

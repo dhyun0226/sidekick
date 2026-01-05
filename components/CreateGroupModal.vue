@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { X } from 'lucide-vue-next'
 import UpgradePromptModal from './UpgradePromptModal.vue'
 
@@ -98,6 +98,17 @@ const emit = defineEmits(['close', 'created'])
 
 const client = useSupabaseClient()
 const { canCreateGroup } = useSubscription()
+
+// Prevent body scroll when modal is open
+watch(() => props.isOpen, (isOpen) => {
+  if (typeof document !== 'undefined') {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  }
+})
 
 const groupName = ref('')
 const loading = ref(false)

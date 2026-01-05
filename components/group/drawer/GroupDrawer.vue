@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex justify-end">
+  <div v-if="isOpen" class="fixed inset-0 z-[10000] flex justify-end">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('close')"></div>
 
@@ -51,7 +51,7 @@
       </div>
 
       <!-- Tab Content -->
-      <div class="flex-1 overflow-y-auto overflow-x-visible p-4 bg-zinc-50 dark:bg-[#09090b]">
+      <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 bg-zinc-50 dark:bg-[#09090b]">
         <GroupDrawerInfoTab
           v-if="activeTab === 'info'"
           :current-book="currentBook"
