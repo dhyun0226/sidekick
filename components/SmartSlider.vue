@@ -260,7 +260,7 @@ const updatePosition = (clientX: number) => {
 const handleGlobalTouchMove = (event: TouchEvent) => {
   if (!isDragging.value || event.touches.length !== 1) return
 
-  event.preventDefault()
+  // NOTE: preventDefault() 제거! CSS touch-action: none이 이미 처리함
   const touch = event.touches[0]
   updatePosition(touch.clientX)
 }
@@ -295,18 +295,22 @@ const handleGlobalTouchEnd = (event: TouchEvent) => {
 const handleTouchStart = (event: TouchEvent) => {
   if (event.touches.length !== 1) return
 
-  event.preventDefault()
+  // NOTE: preventDefault() 제거!
+  // - CSS touch-action: none이 이미 모든 터치 제스처를 막음
+  // - Vue의 @touchstart는 passive: true listener이므로 preventDefault()가 무시됨
+  // - passive listener에서 preventDefault() 호출 시 브라우저 경고 누적 → PWA 불안정!
 
   // 🔥 Defensive: If already dragging, clean up old listeners first
   if (isDragging.value) {
     window.removeEventListener('touchmove', handleGlobalTouchMove, { passive: false } as any)
     window.removeEventListener('touchend', handleGlobalTouchEnd, { passive: false } as any)
     window.removeEventListener('touchcancel', handleGlobalTouchEnd, { passive: false } as any)
+    // 강제로 상태 리셋
+    isDragging.value = false
+    document.body.style.overflow = ''
   }
 
   // Block body scroll during drag
-  // NOTE: touch-action은 이미 슬라이더 element의 CSS에 설정되어 있음 (Line 10)
-  // body 전체에 설정하면 복원 실패 시 모든 터치가 막히므로 제거함!
   document.body.style.overflow = 'hidden'
 
   // Clear any existing safety timeout
@@ -347,18 +351,17 @@ const handleTouchStart = (event: TouchEvent) => {
 }
 
 const handleTouchMove = (event: TouchEvent) => {
-  // Local handler - not used during drag (window handlers take over)
-  event.preventDefault()
+  // Local handler - 실제로는 사용되지 않음 (window global handlers가 처리)
+  // NOTE: preventDefault() 제거! passive listener에서는 무시되고 경고만 발생
 }
 
 const handleTouchEnd = (event: TouchEvent) => {
-  // Local handler - not used during drag (window handlers take over)
+  // Local handler - 실제로는 사용되지 않음 (window global handlers가 처리)
 }
 
 // 🖱️ Mouse Events (데스크톱 지원)
 const handleMouseDown = (event: MouseEvent) => {
-  event.preventDefault()
-
+  // NOTE: preventDefault() 제거 - CSS로 충분히 처리됨
   isDragging.value = true
   emit('dragging', true)
   updatePosition(event.clientX)
@@ -366,16 +369,11 @@ const handleMouseDown = (event: MouseEvent) => {
 
 const handleMouseMove = (event: MouseEvent) => {
   if (!isDragging.value) return
-
-  event.preventDefault()
-
   updatePosition(event.clientX)
 }
 
 const handleMouseEnd = (event: MouseEvent) => {
   if (!isDragging.value) return
-
-  event.preventDefault()
 
   const wasDragging = isDragging.value
   isDragging.value = false
