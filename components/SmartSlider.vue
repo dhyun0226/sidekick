@@ -1,12 +1,12 @@
 <template>
   <div class="fixed bottom-0 left-0 right-0 z-[100] overflow-visible pointer-events-auto">
     <!-- Glassmorphism Container -->
-    <div class="max-w-[480px] mx-auto bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-zinc-300 dark:border-zinc-800 pb-safe overflow-visible pointer-events-auto">
+    <div class="max-w-[480px] mx-auto bg-white dark:bg-black backdrop-blur-md border-t border-zinc-300 dark:border-zinc-800 pb-safe overflow-visible pointer-events-auto">
 
       <!-- Slider Area Wrapper with Padding -->
-      <div class="px-4">
+      <div class="px-4 pointer-events-auto">
         <div
-          class="relative h-16 w-full cursor-pointer select-none overflow-visible overscroll-none"
+          class="relative h-16 w-full cursor-pointer select-none overflow-visible overscroll-none pointer-events-auto"
           style="overscroll-behavior: none; -webkit-overflow-scrolling: auto; touch-action: none;"
           @touchstart="handleTouchStart"
           @touchmove="handleTouchMove"
@@ -98,7 +98,7 @@
       </div>
 
       <!-- Action Bar (Optional, e.g. Write Button) -->
-      <div class="flex justify-between items-center px-4 py-5 gap-4">
+      <div class="flex justify-between items-center px-4 py-5 gap-4 pointer-events-auto">
         <div class="text-xs text-zinc-600 dark:text-zinc-500 font-mono flex-1 min-w-0">
           <span v-if="currentChapterName">{{ currentChapterName }}</span>
           <span v-else class="text-zinc-400 dark:text-zinc-600">·</span>
