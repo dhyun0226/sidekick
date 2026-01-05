@@ -543,14 +543,14 @@
             <div>
               <label class="block text-xs font-bold text-zinc-500 mb-1 px-1">닉네임</label>
               <div class="flex gap-2">
-                <input 
-                  v-model="editNickname" 
-                  type="text" 
-                  class="flex-1 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 text-zinc-900 dark:text-white"
+                <input
+                  v-model="editNickname"
+                  type="text"
+                  class="flex-1 min-w-0 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 text-zinc-900 dark:text-white"
                 />
-                <button 
-                  @click="saveProfile" 
-                  class="px-4 py-2 bg-lime-400 text-black rounded-xl text-sm font-bold flex items-center justify-center gap-2" 
+                <button
+                  @click="saveProfile"
+                  class="flex-shrink-0 px-4 py-2 bg-lime-400 text-black rounded-xl text-sm font-bold flex items-center justify-center gap-2"
                   :disabled="isSaving"
                 >
                   <div v-if="isSaving" class="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
