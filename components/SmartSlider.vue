@@ -7,11 +7,11 @@
       <div class="px-4">
         <div
           class="relative h-16 w-full cursor-pointer select-none overflow-visible overscroll-none"
-          style="overscroll-behavior-x: none; -webkit-overflow-scrolling: auto; touch-action: manipulation;"
-          @touchstart.passive="handleTouchStart"
+          style="overscroll-behavior: none; -webkit-overflow-scrolling: auto; touch-action: none;"
+          @touchstart="handleTouchStart"
           @touchmove="handleTouchMove"
-          @touchend.passive="handleTouchEnd"
-          @touchcancel.passive="handleTouchEnd"
+          @touchend="handleTouchEnd"
+          @touchcancel="handleTouchEnd"
           @mousedown="handleMouseDown"
           @mousemove="handleMouseMove"
           @mouseup="handleMouseEnd"
@@ -260,6 +260,13 @@ const updatePosition = (clientX: number) => {
 const handleTouchStart = (event: TouchEvent) => {
   if (event.touches.length !== 1) return
 
+  // 🔥 CRITICAL: Prevent page scroll during slider drag
+  event.preventDefault()
+
+  // Block body scroll to prevent scroll/drag conflict
+  document.body.style.overflow = 'hidden'
+  document.body.style.touchAction = 'none'
+
   // Clear any existing safety timeout
   if (dragTimeout) {
     clearTimeout(dragTimeout)
@@ -277,6 +284,9 @@ const handleTouchStart = (event: TouchEvent) => {
       console.warn('[SmartSlider] Auto-resetting stuck drag state')
       isDragging.value = false
       emit('change', localPct.value)
+      // Restore scroll
+      document.body.style.overflow = ''
+      document.body.style.touchAction = ''
     }
     dragTimeout = null
   }, 5000)
@@ -294,6 +304,10 @@ const handleTouchMove = (event: TouchEvent) => {
 
 const handleTouchEnd = (event: TouchEvent) => {
   if (!isDragging.value) return
+
+  // Restore body scroll
+  document.body.style.overflow = ''
+  document.body.style.touchAction = ''
 
   // Clear safety timeout
   if (dragTimeout) {
@@ -344,6 +358,9 @@ onUnmounted(() => {
     clearTimeout(dragTimeout)
     dragTimeout = null
   }
+  // Restore scroll in case component unmounts during drag
+  document.body.style.overflow = ''
+  document.body.style.touchAction = ''
 })
 </script>
 
