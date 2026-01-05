@@ -514,7 +514,7 @@
     </div>
 
     <!-- Settings Modal -->
-    <div v-if="settingsModalOpen" class="fixed inset-0 z-50 flex items-center justify-center px-4">
+    <div v-if="settingsModalOpen" class="fixed inset-0 z-[10000] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="settingsModalOpen = false"></div>
       <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-2xl animate-scale-up border border-zinc-200 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-6">
