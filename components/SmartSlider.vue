@@ -1,8 +1,16 @@
 <template>
   <!-- 🔍 Debug Panel (Fixed Top) -->
-  <div class="fixed top-0 left-0 right-0 z-[200] bg-black/90 text-white text-[10px] font-mono p-2 max-h-[200px] overflow-y-auto pointer-events-none">
+  <div class="fixed top-0 left-0 right-0 z-[200] bg-black/95 text-white text-[10px] font-mono p-2 max-h-[200px] overflow-y-auto">
     <div class="max-w-[480px] mx-auto">
-      <div class="font-bold text-lime-400 mb-1">🔍 SLIDER DEBUG (최근 15개)</div>
+      <div class="flex items-center justify-between mb-1">
+        <div class="font-bold text-lime-400">🔍 SLIDER DEBUG</div>
+        <button
+          @click="forceResetBodyStyles"
+          class="px-2 py-1 bg-red-500 text-white text-[10px] font-bold rounded pointer-events-auto hover:bg-red-600 active:bg-red-700"
+        >
+          🔧 복구
+        </button>
+      </div>
       <div v-for="(log, idx) in debugLogs" :key="idx" class="leading-tight opacity-90">
         {{ log }}
       </div>
@@ -127,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { PenLine } from 'lucide-vue-next'
 import Avatar from './Avatar.vue'
 
@@ -161,6 +169,30 @@ const addDebugLog = (message: string) => {
     debugLogs.value.shift()
   }
 }
+
+// 🔥 CRITICAL: Force reset body styles on mount and whenever needed
+const forceResetBodyStyles = () => {
+  const overflow = document.body.style.overflow
+  const touchAction = document.body.style.touchAction
+
+  document.body.style.overflow = ''
+  document.body.style.touchAction = ''
+
+  if (overflow || touchAction) {
+    addDebugLog(`🔧 FORCE RESET (was: overflow=${overflow}, touchAction=${touchAction})`)
+  }
+
+  if (isDragging.value) {
+    isDragging.value = false
+    addDebugLog('🔧 Reset isDragging to false')
+  }
+}
+
+// Mount 시 강제 리셋
+onMounted(() => {
+  forceResetBodyStyles()
+  addDebugLog('🚀 Component mounted, styles reset')
+})
 
 // 🔥 Critical Fix: Sync localPct with external modelValue changes (e.g., from jumpToChapter)
 watch(() => props.modelValue, (newVal) => {
