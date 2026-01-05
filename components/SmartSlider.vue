@@ -272,10 +272,10 @@ const handleGlobalTouchEnd = (event: TouchEvent) => {
   document.body.style.overflow = ''
   document.body.style.touchAction = ''
 
-  // Remove global listeners
-  window.removeEventListener('touchmove', handleGlobalTouchMove)
-  window.removeEventListener('touchend', handleGlobalTouchEnd)
-  window.removeEventListener('touchcancel', handleGlobalTouchEnd)
+  // Remove global listeners (options must match!)
+  window.removeEventListener('touchmove', handleGlobalTouchMove, { passive: false } as any)
+  window.removeEventListener('touchend', handleGlobalTouchEnd, { passive: false } as any)
+  window.removeEventListener('touchcancel', handleGlobalTouchEnd, { passive: false } as any)
 
   // Clear safety timeout
   if (dragTimeout) {
@@ -297,6 +297,13 @@ const handleTouchStart = (event: TouchEvent) => {
   if (event.touches.length !== 1) return
 
   event.preventDefault()
+
+  // 🔥 Defensive: If already dragging, clean up old listeners first
+  if (isDragging.value) {
+    window.removeEventListener('touchmove', handleGlobalTouchMove, { passive: false } as any)
+    window.removeEventListener('touchend', handleGlobalTouchEnd, { passive: false } as any)
+    window.removeEventListener('touchcancel', handleGlobalTouchEnd, { passive: false } as any)
+  }
 
   // Block body scroll during drag
   document.body.style.overflow = 'hidden'
@@ -354,6 +361,7 @@ const handleMouseDown = (event: MouseEvent) => {
   event.preventDefault()
 
   isDragging.value = true
+  emit('dragging', true)
   updatePosition(event.clientX)
 }
 
@@ -372,6 +380,7 @@ const handleMouseEnd = (event: MouseEvent) => {
 
   const wasDragging = isDragging.value
   isDragging.value = false
+  emit('dragging', false)
 
   if (wasDragging) {
     emit('change', localPct.value)
@@ -385,10 +394,10 @@ onUnmounted(() => {
     dragTimeout = null
   }
 
-  // Remove global listeners
-  window.removeEventListener('touchmove', handleGlobalTouchMove)
-  window.removeEventListener('touchend', handleGlobalTouchEnd)
-  window.removeEventListener('touchcancel', handleGlobalTouchEnd)
+  // Remove global listeners (options must match!)
+  window.removeEventListener('touchmove', handleGlobalTouchMove, { passive: false } as any)
+  window.removeEventListener('touchend', handleGlobalTouchEnd, { passive: false } as any)
+  window.removeEventListener('touchcancel', handleGlobalTouchEnd, { passive: false } as any)
 
   // Restore scroll in case component unmounts during drag
   document.body.style.overflow = ''
