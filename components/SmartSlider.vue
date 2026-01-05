@@ -14,9 +14,11 @@
           v-model.number="localPct"
           @input="handleInput"
           @change="handleChange"
+          @touchstart="handleTouchStart"
+          @mousedown="handleMouseDown"
           ref="rangeInput"
-          class="absolute opacity-0 w-full h-16 cursor-pointer"
-          style="top: 0; left: 0; z-index: 20;"
+          class="absolute opacity-0 w-full h-16 cursor-pointer z-20"
+          style="touch-action: none;"
         />
 
         <!-- Visual Slider (styled) -->
@@ -134,7 +136,7 @@ const props = defineProps<{
   members?: Array<{ id: string; nickname: string; avatar_url?: string; progress: number }>
 }>()
 
-const emit = defineEmits(['update:modelValue', 'change', 'write'])
+const emit = defineEmits(['update:modelValue', 'change', 'write', 'dragging'])
 
 const rangeInput = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
@@ -224,51 +226,38 @@ const triggerHaptic = () => {
   }
 }
 
+// Handle touch/mouse start - mark as dragging
+const handleTouchStart = () => {
+  isDragging.value = true
+  emit('dragging', true) // Tell parent to block Timeline
+}
+
+const handleMouseDown = () => {
+  isDragging.value = true
+  emit('dragging', true) // Tell parent to block Timeline
+}
+
 // Handle input event (fires during drag)
 const handleInput = () => {
-  // Detect drag start
-  if (!isDragging.value) {
-    isDragging.value = true
-  }
-
   // Trigger haptic on value change
   if (localPct.value !== lastPct.value) {
     triggerHaptic()
     lastPct.value = localPct.value
   }
 
-  // Emit to parent (triggers Timeline scroll in real-time)
+  // Emit update during drag for real-time scroll
+  // Parent should throttle this to prevent excessive data loading
   emit('update:modelValue', localPct.value)
 }
 
 // Handle change event (fires when drag ends)
 const handleChange = () => {
   isDragging.value = false
+  emit('dragging', false) // Tell parent to unblock Timeline
+
+  // Now emit final value - Timeline will scroll
+  emit('update:modelValue', localPct.value)
   emit('change', localPct.value)
-}
-
-// Track mouse/touch events for isDragging state
-if (typeof window !== 'undefined') {
-  let dragCheckTimer: NodeJS.Timeout | null = null
-
-  const resetDragging = () => {
-    if (dragCheckTimer) clearTimeout(dragCheckTimer)
-    dragCheckTimer = setTimeout(() => {
-      isDragging.value = false
-    }, 100)
-  }
-
-  // These events help track drag state more accurately
-  if (rangeInput.value) {
-    rangeInput.value.addEventListener('mousedown', () => {
-      isDragging.value = true
-    })
-    rangeInput.value.addEventListener('touchstart', () => {
-      isDragging.value = true
-    })
-    rangeInput.value.addEventListener('mouseup', resetDragging)
-    rangeInput.value.addEventListener('touchend', resetDragging)
-  }
 }
 </script>
 

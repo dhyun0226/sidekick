@@ -800,6 +800,8 @@ onUnmounted(() => {
 let progressSaveTimeout: NodeJS.Timeout | null = null
 let highlightTimeout: NodeJS.Timeout | null = null
 let scrollRAF: number | null = null
+let scrollThrottleTimer: NodeJS.Timeout | null = null
+let lastScrollTime = 0
 const isSliderDragging = ref(false)
 
 // 슬라이더 드래그 상태 추적 (완독 여부 체크용)
@@ -807,10 +809,17 @@ const handleSliderDragging = (dragging: boolean) => {
   isSliderDragging.value = dragging
 }
 
-// 슬라이더 입력 중 실시간 타임라인 스크롤
+// 슬라이더 입력 중 실시간 타임라인 스크롤 (Throttled)
 const handleSliderInput = (val: number) => {
-  // 드래그 중에는 스크롤 차단 (드래그 종료 후 @change에서 처리)
-  if (isSliderDragging.value) return
+  // 🎯 실시간 스크롤이지만 Throttle로 성능 보호
+  const now = Date.now()
+  const THROTTLE_MS = 150 // 150ms = 초당 최대 6-7번 스크롤
+
+  // 너무 자주 호출되면 무시 (무한 스크롤 데이터 로드 방지)
+  if (now - lastScrollTime < THROTTLE_MS) {
+    return
+  }
+  lastScrollTime = now
 
   // Cancel any pending RAF to prevent queue buildup
   if (scrollRAF !== null) {
@@ -2015,11 +2024,11 @@ html {
   animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* 🎯 Completely disable Timeline during slider drag */
+/* 🎯 Disable Timeline touch during slider drag (but allow programmatic scroll) */
 .slider-dragging-block {
   pointer-events: none !important;
   touch-action: none !important;
-  overflow: hidden !important;
   user-select: none !important;
+  /* overflow는 그대로 둠 - 프로그래밍 스크롤은 허용 */
 }
 </style>
