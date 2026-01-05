@@ -792,17 +792,31 @@ onUnmounted(() => {
   // Clean up timeouts
   if (progressSaveTimeout) clearTimeout(progressSaveTimeout)
   if (highlightTimeout) clearTimeout(highlightTimeout)
+  if (scrollThrottleTimeout) clearTimeout(scrollThrottleTimeout)
 })
 
 // ===== Event Handlers =====
 let progressSaveTimeout: NodeJS.Timeout | null = null
 let highlightTimeout: NodeJS.Timeout | null = null
+let scrollThrottleTimeout: NodeJS.Timeout | null = null
+let isScrollThrottled = false
 
 // 슬라이더 드래그 중 실시간 타임라인 스크롤 (진행도 저장 안함)
+// 🔥 Performance: Throttled to run max once per 100ms
 const handleSliderInput = (val: number) => {
-  nextTick(() => {
-    scrollToPosition(Math.round(val))
-  })
+  // Update viewProgress immediately for smooth slider movement
+  viewProgress.value = val
+
+  // Throttle the expensive scrollToPosition call
+  if (isScrollThrottled) return
+
+  isScrollThrottled = true
+  scrollThrottleTimeout = setTimeout(() => {
+    isScrollThrottled = false
+    nextTick(() => {
+      scrollToPosition(Math.round(val))
+    })
+  }, 100) // 100ms throttle = max 10 updates per second
 }
 
 // 슬라이더 드래그 완료 시 진행도 저장
