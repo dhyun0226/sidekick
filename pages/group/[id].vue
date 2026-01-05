@@ -789,34 +789,30 @@ onUnmounted(() => {
   // Clean up subscriptions
   cleanupSubscriptions()
 
-  // Clean up timeouts
+  // Clean up timeouts and animation frames
   if (progressSaveTimeout) clearTimeout(progressSaveTimeout)
   if (highlightTimeout) clearTimeout(highlightTimeout)
-  if (scrollThrottleTimeout) clearTimeout(scrollThrottleTimeout)
+  if (scrollRAF !== null) cancelAnimationFrame(scrollRAF)
 })
 
 // ===== Event Handlers =====
 let progressSaveTimeout: NodeJS.Timeout | null = null
 let highlightTimeout: NodeJS.Timeout | null = null
-let scrollThrottleTimeout: NodeJS.Timeout | null = null
-let isScrollThrottled = false
+let scrollRAF: number | null = null
 
 // 슬라이더 드래그 중 실시간 타임라인 스크롤 (진행도 저장 안함)
-// 🔥 Performance: Throttled to run max once per 100ms
+// 🔥 Performance: Use RAF (requestAnimationFrame) for buttery smooth 60fps updates
 const handleSliderInput = (val: number) => {
-  // Update viewProgress immediately for smooth slider movement
-  viewProgress.value = val
+  // Cancel any pending RAF to prevent queue buildup
+  if (scrollRAF !== null) {
+    cancelAnimationFrame(scrollRAF)
+  }
 
-  // Throttle the expensive scrollToPosition call
-  if (isScrollThrottled) return
-
-  isScrollThrottled = true
-  scrollThrottleTimeout = setTimeout(() => {
-    isScrollThrottled = false
-    nextTick(() => {
-      scrollToPosition(Math.round(val))
-    })
-  }, 100) // 100ms throttle = max 10 updates per second
+  // Schedule scroll update on next animation frame (automatically syncs with display refresh)
+  scrollRAF = requestAnimationFrame(() => {
+    scrollRAF = null
+    scrollToPosition(Math.round(val))
+  })
 }
 
 // 슬라이더 드래그 완료 시 진행도 저장

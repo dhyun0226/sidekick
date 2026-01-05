@@ -67,14 +67,16 @@
         </div>
 
         <!-- Progress Bar (Active) -->
-        <div 
-          class="absolute bottom-0 left-0 h-1 bg-lime-400 transition-all duration-75 ease-out"
+        <div
+          class="absolute bottom-0 left-0 h-1 bg-lime-400"
+          :class="{ 'transition-none': isDragging, 'transition-all duration-75 ease-out': !isDragging }"
           :style="{ width: `${currentPct}%` }"
         ></div>
 
         <!-- Thumb / Handle -->
         <div
           class="absolute top-1/2 -translate-y-1/4 -translate-x-1/2 w-11 h-11 flex items-center justify-center"
+          :class="{ 'transition-none': isDragging }"
           :style="{ left: `${currentPct}%` }"
         >
           <div class="w-5 h-5 rounded-full bg-lime-400 shadow-[0_0_15px_rgba(163,230,53,0.5)] ring-2 ring-white/20"></div>
@@ -114,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { PenLine } from 'lucide-vue-next'
 import Avatar from './Avatar.vue'
 
@@ -137,6 +139,7 @@ const sliderRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 const localPct = ref(props.modelValue)
 const lastPct = ref(props.modelValue) // Track last value for haptic feedback
+let dragTimeout: NodeJS.Timeout | null = null // Safety timeout to prevent stuck state
 
 // 🔥 Critical Fix: Sync localPct with external modelValue changes (e.g., from jumpToChapter)
 watch(() => props.modelValue, (newVal) => {
@@ -257,19 +260,33 @@ const updatePosition = (clientX: number) => {
 const handleTouchStart = (event: TouchEvent) => {
   if (event.touches.length !== 1) return
 
-  event.preventDefault()
-  event.stopPropagation()
+  // Clear any existing safety timeout
+  if (dragTimeout) {
+    clearTimeout(dragTimeout)
+    dragTimeout = null
+  }
 
   isDragging.value = true
+
   const touch = event.touches[0]
   updatePosition(touch.clientX)
+
+  // Safety timeout: auto-reset if touchend doesn't fire within 5 seconds
+  dragTimeout = setTimeout(() => {
+    if (isDragging.value) {
+      console.warn('[SmartSlider] Auto-resetting stuck drag state')
+      isDragging.value = false
+      emit('change', localPct.value)
+    }
+    dragTimeout = null
+  }, 5000)
 }
 
 const handleTouchMove = (event: TouchEvent) => {
   if (!isDragging.value || event.touches.length !== 1) return
 
+  // Only prevent default on touchmove to stop scrolling (not on touchstart/end for better PWA compatibility)
   event.preventDefault()
-  event.stopPropagation()
 
   const touch = event.touches[0]
   updatePosition(touch.clientX)
@@ -278,8 +295,11 @@ const handleTouchMove = (event: TouchEvent) => {
 const handleTouchEnd = (event: TouchEvent) => {
   if (!isDragging.value) return
 
-  event.preventDefault()
-  event.stopPropagation()
+  // Clear safety timeout
+  if (dragTimeout) {
+    clearTimeout(dragTimeout)
+    dragTimeout = null
+  }
 
   const wasDragging = isDragging.value
   isDragging.value = false
@@ -292,7 +312,6 @@ const handleTouchEnd = (event: TouchEvent) => {
 // 🖱️ Mouse Events (데스크톱 지원)
 const handleMouseDown = (event: MouseEvent) => {
   event.preventDefault()
-  event.stopPropagation()
 
   isDragging.value = true
   updatePosition(event.clientX)
@@ -302,7 +321,6 @@ const handleMouseMove = (event: MouseEvent) => {
   if (!isDragging.value) return
 
   event.preventDefault()
-  event.stopPropagation()
 
   updatePosition(event.clientX)
 }
@@ -311,7 +329,6 @@ const handleMouseEnd = (event: MouseEvent) => {
   if (!isDragging.value) return
 
   event.preventDefault()
-  event.stopPropagation()
 
   const wasDragging = isDragging.value
   isDragging.value = false
@@ -320,6 +337,14 @@ const handleMouseEnd = (event: MouseEvent) => {
     emit('change', localPct.value)
   }
 }
+
+// Cleanup on unmount
+onUnmounted(() => {
+  if (dragTimeout) {
+    clearTimeout(dragTimeout)
+    dragTimeout = null
+  }
+})
 </script>
 
 <style scoped>
