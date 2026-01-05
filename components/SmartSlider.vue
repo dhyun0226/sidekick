@@ -6,15 +6,16 @@
       <!-- Slider Area Wrapper with Padding -->
       <div class="px-4">
         <div
-          class="relative h-16 w-full cursor-pointer touch-none select-none overflow-visible overscroll-none"
-          style="overscroll-behavior-x: none; -webkit-overflow-scrolling: auto;"
-          @pointerdown="handlePointerDown"
-          @pointermove="handlePointerMove"
-          @pointerup="handlePointerUp"
-          @pointercancel="handlePointerCancel"
-          @pointerleave="handlePointerLeave"
-          @touchstart.prevent
-          @touchmove.prevent
+          class="relative h-16 w-full cursor-pointer select-none overflow-visible overscroll-none"
+          style="overscroll-behavior-x: none; -webkit-overflow-scrolling: auto; touch-action: none;"
+          @touchstart="handleTouchStart"
+          @touchmove="handleTouchMove"
+          @touchend="handleTouchEnd"
+          @touchcancel="handleTouchEnd"
+          @mousedown="handleMouseDown"
+          @mousemove="handleMouseMove"
+          @mouseup="handleMouseEnd"
+          @mouseleave="handleMouseEnd"
           ref="sliderRef"
         >
           <!-- Chapter Backgrounds -->
@@ -136,7 +137,6 @@ const sliderRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 const localPct = ref(props.modelValue)
 const lastPct = ref(props.modelValue) // Track last value for haptic feedback
-const activePointerId = ref<number | null>(null) // 🔥 Track which pointer is currently captured
 
 // 🔥 Critical Fix: Sync localPct with external modelValue changes (e.g., from jumpToChapter)
 watch(() => props.modelValue, (newVal) => {
@@ -233,11 +233,11 @@ const triggerHaptic = () => {
   }
 }
 
-const updatePosition = (event: PointerEvent) => {
+const updatePosition = (clientX: number) => {
   if (!sliderRef.value) return
 
   const rect = sliderRef.value.getBoundingClientRect()
-  const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width))
+  const x = Math.max(0, Math.min(clientX - rect.left, rect.width))
   const pct = (x / rect.width) * 100
 
   // Snap to integer (0, 1, 2, ..., 100)
@@ -253,85 +253,73 @@ const updatePosition = (event: PointerEvent) => {
   emit('update:modelValue', roundedPct)
 }
 
-const handlePointerDown = (event: PointerEvent) => {
-  // 브라우저 기본 동작 방지 (뒤로가기 제스처 등)
+// 🔥 Touch Events (PWA에서 가장 안정적)
+const handleTouchStart = (event: TouchEvent) => {
+  if (event.touches.length !== 1) return
+
   event.preventDefault()
   event.stopPropagation()
 
-  // 🔥 Critical Fix: Force cleanup of any previous drag state
-  if (isDragging.value || activePointerId.value !== null) {
-    console.log('[Slider] Force cleanup - previous drag was not cleaned up properly')
-
-    // Release the previous pointer if it exists
-    if (activePointerId.value !== null && sliderRef.value) {
-      try {
-        sliderRef.value.releasePointerCapture(activePointerId.value)
-      } catch (e) {
-        // Ignore
-      }
-    }
-
-    // Reset state
-    isDragging.value = false
-    activePointerId.value = null
-  }
-
-  // Start new drag
   isDragging.value = true
-  activePointerId.value = event.pointerId
-
-  try {
-    sliderRef.value?.setPointerCapture(event.pointerId)
-  } catch (e) {
-    console.error('[Slider] Failed to capture pointer:', e)
-  }
-
-  updatePosition(event)
+  const touch = event.touches[0]
+  updatePosition(touch.clientX)
 }
 
-const handlePointerMove = (event: PointerEvent) => {
+const handleTouchMove = (event: TouchEvent) => {
+  if (!isDragging.value || event.touches.length !== 1) return
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  const touch = event.touches[0]
+  updatePosition(touch.clientX)
+}
+
+const handleTouchEnd = (event: TouchEvent) => {
   if (!isDragging.value) return
 
-  // 브라우저 기본 동작 방지
   event.preventDefault()
   event.stopPropagation()
-
-  updatePosition(event)
-}
-
-const cleanupDrag = (event: PointerEvent) => {
-  // 브라우저 기본 동작 방지
-  event.preventDefault()
-  event.stopPropagation()
-
-  // 🔥 Only cleanup if this is the active pointer
-  if (activePointerId.value !== null && event.pointerId !== activePointerId.value) {
-    console.log('[Slider] Ignoring cleanup for non-active pointer')
-    return
-  }
 
   const wasDragging = isDragging.value
-
-  // Reset state
   isDragging.value = false
-  activePointerId.value = null
 
-  // Release pointer capture
-  try {
-    sliderRef.value?.releasePointerCapture(event.pointerId)
-  } catch (e) {
-    // Ignore errors if pointer wasn't captured
-  }
-
-  // Only emit change if we were actually dragging
   if (wasDragging) {
     emit('change', localPct.value)
   }
 }
 
-const handlePointerUp = cleanupDrag
-const handlePointerCancel = cleanupDrag
-const handlePointerLeave = cleanupDrag
+// 🖱️ Mouse Events (데스크톱 지원)
+const handleMouseDown = (event: MouseEvent) => {
+  event.preventDefault()
+  event.stopPropagation()
+
+  isDragging.value = true
+  updatePosition(event.clientX)
+}
+
+const handleMouseMove = (event: MouseEvent) => {
+  if (!isDragging.value) return
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  updatePosition(event.clientX)
+}
+
+const handleMouseEnd = (event: MouseEvent) => {
+  if (!isDragging.value) return
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  const wasDragging = isDragging.value
+  isDragging.value = false
+
+  if (wasDragging) {
+    emit('change', localPct.value)
+  }
+}
 </script>
 
 <style scoped>
