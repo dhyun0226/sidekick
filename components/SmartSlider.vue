@@ -1,4 +1,15 @@
 <template>
+  <!-- 🔍 Debug Panel (Fixed Top) -->
+  <div class="fixed top-0 left-0 right-0 z-[200] bg-black/90 text-white text-[10px] font-mono p-2 max-h-[200px] overflow-y-auto pointer-events-none">
+    <div class="max-w-[480px] mx-auto">
+      <div class="font-bold text-lime-400 mb-1">🔍 SLIDER DEBUG (최근 15개)</div>
+      <div v-for="(log, idx) in debugLogs" :key="idx" class="leading-tight opacity-90">
+        {{ log }}
+      </div>
+      <div v-if="debugLogs.length === 0" class="text-zinc-500">로그 없음 - 슬라이더를 터치해보세요</div>
+    </div>
+  </div>
+
   <div class="fixed bottom-0 left-0 right-0 z-[100] overflow-visible pointer-events-auto">
     <!-- Glassmorphism Container -->
     <div class="max-w-[480px] mx-auto bg-white dark:bg-black backdrop-blur-md border-t border-zinc-300 dark:border-zinc-800 pb-safe overflow-visible pointer-events-auto">
@@ -141,6 +152,16 @@ const localPct = ref(props.modelValue)
 const lastPct = ref(props.modelValue) // Track last value for haptic feedback
 let dragTimeout: NodeJS.Timeout | null = null // Safety timeout to prevent stuck state
 
+// 🔍 Debug logs for mobile
+const debugLogs = ref<string[]>([])
+const addDebugLog = (message: string) => {
+  const timestamp = new Date().toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 })
+  debugLogs.value.push(`${timestamp} ${message}`)
+  if (debugLogs.value.length > 15) {
+    debugLogs.value.shift()
+  }
+}
+
 // 🔥 Critical Fix: Sync localPct with external modelValue changes (e.g., from jumpToChapter)
 watch(() => props.modelValue, (newVal) => {
   if (!isDragging.value) {
@@ -257,25 +278,43 @@ const updatePosition = (clientX: number) => {
 }
 
 // 🔥 Global touch handlers - bound to window to prevent event loss during scroll
+let moveCount = 0
 const handleGlobalTouchMove = (event: TouchEvent) => {
-  if (!isDragging.value || event.touches.length !== 1) return
+  if (!isDragging.value) {
+    addDebugLog('⚠️ MOVE but isDragging=false!')
+    return
+  }
+  if (event.touches.length !== 1) {
+    addDebugLog('⚠️ MOVE multiple touches')
+    return
+  }
 
-  // NOTE: preventDefault() 제거! CSS touch-action: none이 이미 처리함
+  moveCount++
+  if (moveCount === 1) addDebugLog('🔄 MOVE started')
+
   const touch = event.touches[0]
   updatePosition(touch.clientX)
 }
 
 const handleGlobalTouchEnd = (event: TouchEvent) => {
-  if (!isDragging.value) return
+  addDebugLog(`🔴 END (type: ${event.type}, moves: ${moveCount})`)
+  moveCount = 0
+
+  if (!isDragging.value) {
+    addDebugLog('⚠️ END but isDragging=false!')
+    return
+  }
 
   // Restore body scroll and touch
   document.body.style.overflow = ''
   document.body.style.touchAction = ''
+  addDebugLog('🔓 Body unlocked')
 
   // Remove global listeners (options must match!)
   window.removeEventListener('touchmove', handleGlobalTouchMove, { passive: false } as any)
   window.removeEventListener('touchend', handleGlobalTouchEnd, { passive: false } as any)
   window.removeEventListener('touchcancel', handleGlobalTouchEnd, { passive: false } as any)
+  addDebugLog('👋 Listeners removed')
 
   // Clear safety timeout
   if (dragTimeout) {
@@ -286,36 +325,38 @@ const handleGlobalTouchEnd = (event: TouchEvent) => {
   const wasDragging = isDragging.value
   isDragging.value = false
   emit('dragging', false)
+  addDebugLog('✅ isDragging=false')
 
   if (wasDragging) {
     emit('change', localPct.value)
+    addDebugLog(`📤 change: ${localPct.value}%`)
   }
 }
 
 // 🔥 Touch Events (PWA에서 가장 안정적)
 const handleTouchStart = (event: TouchEvent) => {
-  if (event.touches.length !== 1) return
+  addDebugLog('🟢 START')
 
-  // NOTE: preventDefault() 제거!
-  // - CSS touch-action: none이 이미 모든 터치 제스처를 막음
-  // - Vue의 @touchstart는 passive: true listener이므로 preventDefault()가 무시됨
-  // - passive listener에서 preventDefault() 호출 시 브라우저 경고 누적 → PWA 불안정!
+  if (event.touches.length !== 1) {
+    addDebugLog('❌ Multiple touches')
+    return
+  }
 
   // 🔥 Defensive: If already dragging, clean up old listeners first
   if (isDragging.value) {
+    addDebugLog('⚠️ Already dragging! Cleanup')
     window.removeEventListener('touchmove', handleGlobalTouchMove, { passive: false } as any)
     window.removeEventListener('touchend', handleGlobalTouchEnd, { passive: false } as any)
     window.removeEventListener('touchcancel', handleGlobalTouchEnd, { passive: false } as any)
-    // 강제로 상태 리셋
     isDragging.value = false
     document.body.style.overflow = ''
     document.body.style.touchAction = ''
   }
 
   // Block body scroll + touch during drag
-  // 손가락이 슬라이더 밖으로 나가도 터치가 취소되지 않도록!
   document.body.style.overflow = 'hidden'
   document.body.style.touchAction = 'none'
+  addDebugLog('🔒 Body locked')
 
   // Clear any existing safety timeout
   if (dragTimeout) {
@@ -325,6 +366,7 @@ const handleTouchStart = (event: TouchEvent) => {
 
   isDragging.value = true
   emit('dragging', true)
+  addDebugLog('✅ isDragging=true')
 
   const touch = event.touches[0]
   updatePosition(touch.clientX)
@@ -333,13 +375,13 @@ const handleTouchStart = (event: TouchEvent) => {
   window.addEventListener('touchmove', handleGlobalTouchMove, { passive: false })
   window.addEventListener('touchend', handleGlobalTouchEnd, { passive: false })
   window.addEventListener('touchcancel', handleGlobalTouchEnd, { passive: false })
+  addDebugLog('👂 Listeners added')
 
   // Safety timeout: auto-reset if touchend doesn't fire within 5 seconds
   dragTimeout = setTimeout(() => {
     if (isDragging.value) {
-      console.warn('[SmartSlider] Auto-resetting stuck drag state')
+      addDebugLog('⏰ SAFETY TIMEOUT!')
 
-      // Cleanup - options must match registration!
       window.removeEventListener('touchmove', handleGlobalTouchMove, { passive: false } as any)
       window.removeEventListener('touchend', handleGlobalTouchEnd, { passive: false } as any)
       window.removeEventListener('touchcancel', handleGlobalTouchEnd, { passive: false } as any)
@@ -350,6 +392,7 @@ const handleTouchStart = (event: TouchEvent) => {
 
       document.body.style.overflow = ''
       document.body.style.touchAction = ''
+      addDebugLog('🔓 Timeout cleanup done')
     }
     dragTimeout = null
   }, 5000)
@@ -357,11 +400,12 @@ const handleTouchStart = (event: TouchEvent) => {
 
 const handleTouchMove = (event: TouchEvent) => {
   // Local handler - 실제로는 사용되지 않음 (window global handlers가 처리)
-  // NOTE: preventDefault() 제거! passive listener에서는 무시되고 경고만 발생
+  addDebugLog('👁️ Local MOVE (ignored)')
 }
 
 const handleTouchEnd = (event: TouchEvent) => {
   // Local handler - 실제로는 사용되지 않음 (window global handlers가 처리)
+  addDebugLog('👁️ Local END (ignored)')
 }
 
 // 🖱️ Mouse Events (데스크톱 지원)
