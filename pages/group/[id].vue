@@ -61,6 +61,7 @@
           :isLoadingMore="isLoadingMore"
           :highlightedCommentId="highlightedCommentId"
           :isFinished="selectedBook?.user_finished_at != null"
+          :style="{ pointerEvents: isSliderDragging ? 'none' : 'auto' }"
           @modalOpen="modals.comment = true"
           @modalClose="modals.comment = false"
           @writeComment="handleWriteFromModal"

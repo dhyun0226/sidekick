@@ -268,8 +268,9 @@ const handleGlobalTouchMove = (event: TouchEvent) => {
 const handleGlobalTouchEnd = (event: TouchEvent) => {
   if (!isDragging.value) return
 
-  // Restore body scroll (touch-action은 슬라이더 element CSS에만 있으므로 복원 불필요)
+  // Restore body scroll and touch
   document.body.style.overflow = ''
+  document.body.style.touchAction = ''
 
   // Remove global listeners (options must match!)
   window.removeEventListener('touchmove', handleGlobalTouchMove, { passive: false } as any)
@@ -308,10 +309,13 @@ const handleTouchStart = (event: TouchEvent) => {
     // 강제로 상태 리셋
     isDragging.value = false
     document.body.style.overflow = ''
+    document.body.style.touchAction = ''
   }
 
-  // Block body scroll during drag
+  // Block body scroll + touch during drag
+  // 손가락이 슬라이더 밖으로 나가도 터치가 취소되지 않도록!
   document.body.style.overflow = 'hidden'
+  document.body.style.touchAction = 'none'
 
   // Clear any existing safety timeout
   if (dragTimeout) {
@@ -345,6 +349,7 @@ const handleTouchStart = (event: TouchEvent) => {
       emit('change', localPct.value)
 
       document.body.style.overflow = ''
+      document.body.style.touchAction = ''
     }
     dragTimeout = null
   }, 5000)
@@ -396,8 +401,9 @@ onUnmounted(() => {
   window.removeEventListener('touchend', handleGlobalTouchEnd, { passive: false } as any)
   window.removeEventListener('touchcancel', handleGlobalTouchEnd, { passive: false } as any)
 
-  // Restore scroll in case component unmounts during drag
+  // Restore scroll and touch in case component unmounts during drag
   document.body.style.overflow = ''
+  document.body.style.touchAction = ''
 })
 </script>
 
