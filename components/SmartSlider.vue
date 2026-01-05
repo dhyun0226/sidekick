@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed bottom-0 left-0 right-0 z-50 overflow-visible">
+  <div class="fixed bottom-0 left-0 right-0 z-[9999] overflow-visible">
     <!-- Glassmorphism Container -->
     <div class="max-w-[480px] mx-auto bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-zinc-300 dark:border-zinc-800 pb-safe overflow-visible">
 
@@ -230,11 +230,22 @@ const triggerHaptic = () => {
 const handleTouchStart = () => {
   isDragging.value = true
   emit('dragging', true) // Tell parent to block Timeline
+
+  // 🔥 핵심: body 스크롤 완전 차단 (iOS 모멘텀 스크롤 방지)
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = 'hidden'
+    document.body.style.touchAction = 'none'
+  }
 }
 
 const handleMouseDown = () => {
   isDragging.value = true
   emit('dragging', true) // Tell parent to block Timeline
+
+  // Desktop도 동일하게 차단
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = 'hidden'
+  }
 }
 
 // Handle input event (fires during drag)
@@ -254,6 +265,12 @@ const handleInput = () => {
 const handleChange = () => {
   isDragging.value = false
   emit('dragging', false) // Tell parent to unblock Timeline
+
+  // 🔥 body 스크롤 복구
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
+    document.body.style.touchAction = ''
+  }
 
   // Now emit final value - Timeline will scroll
   emit('update:modelValue', localPct.value)
