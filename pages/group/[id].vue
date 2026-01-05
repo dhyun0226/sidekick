@@ -78,6 +78,7 @@
         @update:modelValue="handleSliderInput"
         @change="handleSliderChange"
         @write="handleWrite"
+        @dragging="handleSliderDragging"
       />
     </template>
 
@@ -798,9 +799,15 @@ onUnmounted(() => {
 let progressSaveTimeout: NodeJS.Timeout | null = null
 let highlightTimeout: NodeJS.Timeout | null = null
 let scrollRAF: number | null = null
+const isSliderDragging = ref(false)
 
-// 슬라이더 드래그 중 실시간 타임라인 스크롤 (진행도 저장 안함)
-// 🔥 Performance: Use RAF (requestAnimationFrame) for buttery smooth 60fps updates
+// 슬라이더 드래그 상태 추적 (완독 여부 체크용)
+const handleSliderDragging = (dragging: boolean) => {
+  isSliderDragging.value = dragging
+}
+
+// 슬라이더 입력 중 실시간 타임라인 스크롤 (드래그/클릭 모두)
+// 🔥 드래그 중에도 실시간으로 따라다녀야 함!
 const handleSliderInput = (val: number) => {
   // Cancel any pending RAF to prevent queue buildup
   if (scrollRAF !== null) {

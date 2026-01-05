@@ -133,7 +133,7 @@ const props = defineProps<{
   members?: Array<{ id: string; nickname: string; avatar_url?: string; progress: number }>
 }>()
 
-const emit = defineEmits(['update:modelValue', 'change', 'write'])
+const emit = defineEmits(['update:modelValue', 'change', 'write', 'dragging'])
 
 const sliderRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
@@ -256,14 +256,49 @@ const updatePosition = (clientX: number) => {
   emit('update:modelValue', roundedPct)
 }
 
+// 🔥 Global touch handlers - bound to window to prevent event loss during scroll
+const handleGlobalTouchMove = (event: TouchEvent) => {
+  if (!isDragging.value || event.touches.length !== 1) return
+
+  event.preventDefault()
+  const touch = event.touches[0]
+  updatePosition(touch.clientX)
+}
+
+const handleGlobalTouchEnd = (event: TouchEvent) => {
+  if (!isDragging.value) return
+
+  // Restore body scroll
+  document.body.style.overflow = ''
+  document.body.style.touchAction = ''
+
+  // Remove global listeners
+  window.removeEventListener('touchmove', handleGlobalTouchMove)
+  window.removeEventListener('touchend', handleGlobalTouchEnd)
+  window.removeEventListener('touchcancel', handleGlobalTouchEnd)
+
+  // Clear safety timeout
+  if (dragTimeout) {
+    clearTimeout(dragTimeout)
+    dragTimeout = null
+  }
+
+  const wasDragging = isDragging.value
+  isDragging.value = false
+  emit('dragging', false)
+
+  if (wasDragging) {
+    emit('change', localPct.value)
+  }
+}
+
 // 🔥 Touch Events (PWA에서 가장 안정적)
 const handleTouchStart = (event: TouchEvent) => {
   if (event.touches.length !== 1) return
 
-  // 🔥 CRITICAL: Prevent page scroll during slider drag
   event.preventDefault()
 
-  // Block body scroll to prevent scroll/drag conflict
+  // Block body scroll during drag
   document.body.style.overflow = 'hidden'
   document.body.style.touchAction = 'none'
 
@@ -274,17 +309,30 @@ const handleTouchStart = (event: TouchEvent) => {
   }
 
   isDragging.value = true
+  emit('dragging', true)
 
   const touch = event.touches[0]
   updatePosition(touch.clientX)
+
+  // 🔥 CRITICAL: Bind to window to prevent event loss during timeline scroll!
+  window.addEventListener('touchmove', handleGlobalTouchMove, { passive: false })
+  window.addEventListener('touchend', handleGlobalTouchEnd, { passive: false })
+  window.addEventListener('touchcancel', handleGlobalTouchEnd, { passive: false })
 
   // Safety timeout: auto-reset if touchend doesn't fire within 5 seconds
   dragTimeout = setTimeout(() => {
     if (isDragging.value) {
       console.warn('[SmartSlider] Auto-resetting stuck drag state')
+
+      // Cleanup
+      window.removeEventListener('touchmove', handleGlobalTouchMove)
+      window.removeEventListener('touchend', handleGlobalTouchEnd)
+      window.removeEventListener('touchcancel', handleGlobalTouchEnd)
+
       isDragging.value = false
+      emit('dragging', false)
       emit('change', localPct.value)
-      // Restore scroll
+
       document.body.style.overflow = ''
       document.body.style.touchAction = ''
     }
@@ -293,34 +341,12 @@ const handleTouchStart = (event: TouchEvent) => {
 }
 
 const handleTouchMove = (event: TouchEvent) => {
-  if (!isDragging.value || event.touches.length !== 1) return
-
-  // Only prevent default on touchmove to stop scrolling (not on touchstart/end for better PWA compatibility)
+  // Local handler - not used during drag (window handlers take over)
   event.preventDefault()
-
-  const touch = event.touches[0]
-  updatePosition(touch.clientX)
 }
 
 const handleTouchEnd = (event: TouchEvent) => {
-  if (!isDragging.value) return
-
-  // Restore body scroll
-  document.body.style.overflow = ''
-  document.body.style.touchAction = ''
-
-  // Clear safety timeout
-  if (dragTimeout) {
-    clearTimeout(dragTimeout)
-    dragTimeout = null
-  }
-
-  const wasDragging = isDragging.value
-  isDragging.value = false
-
-  if (wasDragging) {
-    emit('change', localPct.value)
-  }
+  // Local handler - not used during drag (window handlers take over)
 }
 
 // 🖱️ Mouse Events (데스크톱 지원)
@@ -358,6 +384,12 @@ onUnmounted(() => {
     clearTimeout(dragTimeout)
     dragTimeout = null
   }
+
+  // Remove global listeners
+  window.removeEventListener('touchmove', handleGlobalTouchMove)
+  window.removeEventListener('touchend', handleGlobalTouchEnd)
+  window.removeEventListener('touchcancel', handleGlobalTouchEnd)
+
   // Restore scroll in case component unmounts during drag
   document.body.style.overflow = ''
   document.body.style.touchAction = ''
