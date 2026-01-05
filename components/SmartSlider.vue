@@ -6,12 +6,15 @@
       <!-- Slider Area Wrapper with Padding -->
       <div class="px-4 pointer-events-auto">
         <div
-          class="relative h-16 w-full cursor-pointer select-none overflow-visible overscroll-none pointer-events-auto"
-          style="touch-action: none;"
-          @mousedown="handleMouseDown"
-          @mousemove="handleMouseMove"
-          @mouseup="handleMouseEnd"
-          @mouseleave="handleMouseEnd"
+          class="relative h-16 w-full cursor-pointer touch-none select-none overflow-visible overscroll-none pointer-events-auto"
+          style="overscroll-behavior-x: none; -webkit-overflow-scrolling: auto;"
+          @pointerdown="handlePointerDown"
+          @pointermove="handlePointerMove"
+          @pointerup="handlePointerUp"
+          @pointercancel="handlePointerUp"
+          @pointerleave="handlePointerUp"
+          @touchstart.prevent
+          @touchmove.prevent
           ref="sliderRef"
         >
           <!-- Chapter Backgrounds -->
@@ -112,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { PenLine } from 'lucide-vue-next'
 import Avatar from './Avatar.vue'
 
@@ -135,7 +138,6 @@ const sliderRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 const localPct = ref(props.modelValue)
 const lastPct = ref(props.modelValue)
-const activeTouchId = ref<number | null>(null)
 
 // 🔥 Critical Fix: Sync localPct with external modelValue changes (e.g., from jumpToChapter)
 watch(() => props.modelValue, (newVal) => {
@@ -232,24 +234,17 @@ const triggerHaptic = () => {
   }
 }
 
-const updatePosition = (clientX: number) => {
-  if (!sliderRef.value) {
-    console.warn('[SmartSlider] sliderRef is null')
-    return
-  }
+const updatePosition = (event: PointerEvent) => {
+  if (!sliderRef.value) return
 
   const rect = sliderRef.value.getBoundingClientRect()
-
-  // Safety check: ensure rect is valid
-  if (!rect || rect.width === 0) {
-    console.warn('[SmartSlider] Invalid rect:', rect)
-    return
-  }
-
-  const x = Math.max(0, Math.min(clientX - rect.left, rect.width))
+  const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width))
   const pct = (x / rect.width) * 100
-  const roundedPct = Math.max(0, Math.min(100, Math.round(pct)))
 
+  // Snap to integer (0, 1, 2, ..., 100)
+  const roundedPct = Math.round(pct)
+
+  // Trigger haptic feedback when value changes
   if (roundedPct !== lastPct.value) {
     triggerHaptic()
     lastPct.value = roundedPct
@@ -257,149 +252,43 @@ const updatePosition = (clientX: number) => {
 
   localPct.value = roundedPct
 
-  // 드래그 중이 아닐 때만 emit (클릭 등)
+  // 드래그 중이 아닐 때만 emit
   if (!isDragging.value) {
     emit('update:modelValue', roundedPct)
   }
 }
 
-// 🎯 Touch Events with proper identifier tracking
-const handleTouchStart = (event: TouchEvent) => {
-  // Only handle single touch, ignore if already dragging
-  if (event.touches.length !== 1 || isDragging.value) return
-
-  const touch = event.touches[0]
-  if (!touch) return
-
+const handlePointerDown = (event: PointerEvent) => {
   event.preventDefault()
   event.stopPropagation()
 
-  // Track this specific touch
-  activeTouchId.value = touch.identifier
   isDragging.value = true
   emit('dragging', true)
-  updatePosition(touch.clientX)
+  sliderRef.value?.setPointerCapture(event.pointerId)
+  updatePosition(event)
 }
 
-const handleTouchMove = (event: TouchEvent) => {
-  if (!isDragging.value || activeTouchId.value === null) return
-
-  // Find the touch we're tracking
-  const touch = Array.from(event.touches).find(t => t.identifier === activeTouchId.value)
-  if (!touch) return
-
-  event.preventDefault()
-  event.stopPropagation()
-  updatePosition(touch.clientX)
-}
-
-const handleTouchEnd = (event: TouchEvent) => {
-  if (!isDragging.value || activeTouchId.value === null) return
-
-  // Check if our tracked touch ended
-  const touch = Array.from(event.changedTouches).find(t => t.identifier === activeTouchId.value)
-  if (!touch) return
-
-  isDragging.value = false
-  activeTouchId.value = null
-  emit('dragging', false)
-  emit('update:modelValue', localPct.value)
-  emit('change', localPct.value)
-}
-
-const handleTouchCancel = () => {
+const handlePointerMove = (event: PointerEvent) => {
   if (!isDragging.value) return
 
-  isDragging.value = false
-  activeTouchId.value = null
-  emit('dragging', false)
+  event.preventDefault()
+  event.stopPropagation()
+
+  updatePosition(event)
 }
 
-// 🖱️ Mouse Events (데스크톱 지원)
-const handleMouseDown = (event: MouseEvent) => {
-  // Ignore if already dragging or if touch is active
-  if (isDragging.value || activeTouchId.value !== null) return
+const handlePointerUp = (event: PointerEvent) => {
+  if (!isDragging.value) return
 
   event.preventDefault()
   event.stopPropagation()
-  isDragging.value = true
-  emit('dragging', true)
-  updatePosition(event.clientX)
-}
-
-const handleMouseMove = (event: MouseEvent) => {
-  // Only handle mouse move if we started with mouse (not touch)
-  if (!isDragging.value || activeTouchId.value !== null) return
-  event.preventDefault()
-  event.stopPropagation()
-  updatePosition(event.clientX)
-}
-
-const handleMouseEnd = (event: MouseEvent) => {
-  // Only handle mouse end if we started with mouse
-  if (!isDragging.value || activeTouchId.value !== null) return
 
   isDragging.value = false
   emit('dragging', false)
+  sliderRef.value?.releasePointerCapture(event.pointerId)
   emit('update:modelValue', localPct.value)
   emit('change', localPct.value)
 }
-
-// 🔧 Manual event listener registration with { passive: false }
-// Use watch instead of onMounted to handle timing issues and re-mounting
-let cleanupListeners: (() => void) | null = null
-
-watch(sliderRef, (newEl, oldEl) => {
-  // Cleanup old listeners
-  if (cleanupListeners) {
-    cleanupListeners()
-    cleanupListeners = null
-  }
-
-  // Setup new listeners
-  if (newEl) {
-    const options = { passive: false, capture: false }
-
-    newEl.addEventListener('touchstart', handleTouchStart as any, options)
-    newEl.addEventListener('touchmove', handleTouchMove as any, options)
-    newEl.addEventListener('touchend', handleTouchEnd as any, options)
-    newEl.addEventListener('touchcancel', handleTouchCancel as any, options)
-
-    console.log('[SmartSlider] Event listeners attached')
-
-    cleanupListeners = () => {
-      newEl.removeEventListener('touchstart', handleTouchStart as any)
-      newEl.removeEventListener('touchmove', handleTouchMove as any)
-      newEl.removeEventListener('touchend', handleTouchEnd as any)
-      newEl.removeEventListener('touchcancel', handleTouchCancel as any)
-      console.log('[SmartSlider] Event listeners removed')
-    }
-  }
-}, { immediate: true })
-
-onUnmounted(() => {
-  // Reset all state
-  isDragging.value = false
-  activeTouchId.value = null
-
-  if (cleanupListeners) {
-    cleanupListeners()
-    cleanupListeners = null
-  }
-
-  console.log('[SmartSlider] Component unmounted, state reset')
-})
-
-// Reset state when modelValue changes externally (e.g., book change)
-watch(() => props.modelValue, (newVal, oldVal) => {
-  if (Math.abs(newVal - oldVal) > 10) {
-    // Large change = likely a book change or jump, reset dragging state
-    isDragging.value = false
-    activeTouchId.value = null
-    console.log('[SmartSlider] Large value change detected, state reset')
-  }
-})
-
 </script>
 
 <style scoped>
