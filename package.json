@@ -21,7 +21,8 @@
     "lucide-vue-next": "^0.555.0",
     "nanoid": "^5.1.6",
     "nuxt": "^3.15.0",
-    "pinia": "2.2.8"
+    "pinia": "2.2.8",
+    "pretendard": "^1.3.9"
   },
   "devDependencies": {
     "vite-tsconfig-paths": "^5.1.4"

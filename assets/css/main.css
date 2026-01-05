@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;700&display=swap');
+@import "pretendard/dist/web/static/pretendard.css";
 
 @tailwind base;
 @tailwind components;

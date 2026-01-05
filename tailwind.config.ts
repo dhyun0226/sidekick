@@ -19,8 +19,7 @@ export default <Partial<Config>>{
                 lime: colors.lime,
             },
             fontFamily: {
-                sans: ['Inter', 'sans-serif'],
-                serif: ['Noto Serif KR', 'serif'],
+                sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
             },
             minHeight: {
                 'touch': '44px',
