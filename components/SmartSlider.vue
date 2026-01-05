@@ -192,6 +192,23 @@ const forceResetBodyStyles = () => {
 onMounted(() => {
   forceResetBodyStyles()
   addDebugLog('🚀 Component mounted, styles reset')
+
+  // 🔥 AUTO-RECOVERY: 매 1초마다 체크해서 자동 복구
+  const autoRecoveryInterval = setInterval(() => {
+    // isDragging이 false인데 body styles가 설정되어 있으면 복구
+    if (!isDragging.value) {
+      const hasLock = document.body.style.touchAction === 'none' || document.body.style.overflow === 'hidden'
+      if (hasLock) {
+        addDebugLog('⚡ AUTO-RECOVERY triggered!')
+        forceResetBodyStyles()
+      }
+    }
+  }, 1000)
+
+  // Cleanup on unmount
+  onUnmounted(() => {
+    clearInterval(autoRecoveryInterval)
+  })
 })
 
 // 🔥 Critical Fix: Sync localPct with external modelValue changes (e.g., from jumpToChapter)

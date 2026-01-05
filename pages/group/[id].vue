@@ -61,7 +61,11 @@
           :isLoadingMore="isLoadingMore"
           :highlightedCommentId="highlightedCommentId"
           :isFinished="selectedBook?.user_finished_at != null"
-          :style="{ pointerEvents: isSliderDragging ? 'none' : 'auto' }"
+          :style="{
+            pointerEvents: isSliderDragging ? 'none' : 'auto',
+            overflow: isSliderDragging ? 'hidden !important' : 'auto',
+            touchAction: isSliderDragging ? 'none' : 'auto'
+          }"
           @modalOpen="modals.comment = true"
           @modalClose="modals.comment = false"
           @writeComment="handleWriteFromModal"
@@ -808,8 +812,14 @@ const handleSliderDragging = (dragging: boolean) => {
 }
 
 // 슬라이더 입력 중 실시간 타임라인 스크롤 (드래그/클릭 모두)
-// 🔥 드래그 중에도 실시간으로 따라다녀야 함!
+// 🔥 CRITICAL FIX: 드래그 중에는 스크롤하지 않음! (브라우저가 터치 취소시킴)
 const handleSliderInput = (val: number) => {
+  // 드래그 중에는 스크롤 차단! (드래그 종료 후 @change에서 처리)
+  if (isSliderDragging.value) {
+    console.log('[Slider] 🚫 Scroll blocked during drag')
+    return
+  }
+
   // Cancel any pending RAF to prevent queue buildup
   if (scrollRAF !== null) {
     cancelAnimationFrame(scrollRAF)
