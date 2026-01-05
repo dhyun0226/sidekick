@@ -1,5 +1,5 @@
 <template>
-  <div class="relative min-h-[100dvh] bg-gray-50 dark:bg-background pb-32 pb-safe pt-safe" style="overscroll-behavior: none;">
+  <div class="relative h-[100dvh] bg-gray-50 dark:bg-background overflow-y-auto overflow-x-hidden" style="overscroll-behavior: none;">
     <!-- 1. Fixed Navigation Bar (Always visible) -->
     <NavigationBar
       :title="bookTitle || groupName"

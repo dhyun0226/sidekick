@@ -77,11 +77,15 @@ onMounted(async () => {
 </script>
 
 <style>
-body {
+html, body {
   margin: 0;
-  overflow-x: hidden; /* Prevent horizontal scroll */
-  overscroll-behavior: none; /* 🔥 바운스 스크롤 방지 (iOS) */
-  -webkit-overflow-scrolling: touch; /* 부드러운 스크롤 */
+  padding: 0;
+  overflow: hidden; /* 🔥 페이지 전체 스크롤 완전 제거 */
+  height: 100vh;
+  height: 100dvh;
+  position: fixed; /* iOS Safari 주소창 문제 방지 */
+  width: 100%;
+  overscroll-behavior: none;
 }
 
 /* Scrollbar styling for desktop aesthetic */
