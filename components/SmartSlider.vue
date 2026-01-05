@@ -8,10 +8,6 @@
         <div
           class="relative h-16 w-full cursor-pointer select-none overflow-visible overscroll-none pointer-events-auto"
           style="touch-action: none;"
-          @touchstart="handleTouchStart"
-          @touchmove="handleTouchMove"
-          @touchend="handleTouchEnd"
-          @touchcancel="handleTouchEnd"
           @mousedown="handleMouseDown"
           @mousemove="handleMouseMove"
           @mouseup="handleMouseEnd"
@@ -116,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { PenLine } from 'lucide-vue-next'
 import Avatar from './Avatar.vue'
 
@@ -139,6 +135,7 @@ const sliderRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 const localPct = ref(props.modelValue)
 const lastPct = ref(props.modelValue)
+const activeTouchId = ref<number | null>(null)
 
 // 🔥 Critical Fix: Sync localPct with external modelValue changes (e.g., from jumpToChapter)
 watch(() => props.modelValue, (newVal) => {
@@ -236,12 +233,22 @@ const triggerHaptic = () => {
 }
 
 const updatePosition = (clientX: number) => {
-  if (!sliderRef.value) return
+  if (!sliderRef.value) {
+    console.warn('[SmartSlider] sliderRef is null')
+    return
+  }
 
   const rect = sliderRef.value.getBoundingClientRect()
+
+  // Safety check: ensure rect is valid
+  if (!rect || rect.width === 0) {
+    console.warn('[SmartSlider] Invalid rect:', rect)
+    return
+  }
+
   const x = Math.max(0, Math.min(clientX - rect.left, rect.width))
   const pct = (x / rect.width) * 100
-  const roundedPct = Math.round(pct)
+  const roundedPct = Math.max(0, Math.min(100, Math.round(pct)))
 
   if (roundedPct !== lastPct.value) {
     triggerHaptic()
@@ -256,35 +263,63 @@ const updatePosition = (clientX: number) => {
   }
 }
 
-// Touch Events
+// 🎯 Touch Events with proper identifier tracking
 const handleTouchStart = (event: TouchEvent) => {
-  if (event.touches.length !== 1) return
+  // Only handle single touch, ignore if already dragging
+  if (event.touches.length !== 1 || isDragging.value) return
+
+  const touch = event.touches[0]
+  if (!touch) return
 
   event.preventDefault()
   event.stopPropagation()
+
+  // Track this specific touch
+  activeTouchId.value = touch.identifier
   isDragging.value = true
   emit('dragging', true)
-  updatePosition(event.touches[0].clientX)
+  updatePosition(touch.clientX)
 }
 
 const handleTouchMove = (event: TouchEvent) => {
-  if (!isDragging.value || event.touches.length !== 1) return
+  if (!isDragging.value || activeTouchId.value === null) return
+
+  // Find the touch we're tracking
+  const touch = Array.from(event.touches).find(t => t.identifier === activeTouchId.value)
+  if (!touch) return
+
   event.preventDefault()
   event.stopPropagation()
-  updatePosition(event.touches[0].clientX)
+  updatePosition(touch.clientX)
 }
 
-const handleTouchEnd = () => {
-  if (!isDragging.value) return
+const handleTouchEnd = (event: TouchEvent) => {
+  if (!isDragging.value || activeTouchId.value === null) return
+
+  // Check if our tracked touch ended
+  const touch = Array.from(event.changedTouches).find(t => t.identifier === activeTouchId.value)
+  if (!touch) return
 
   isDragging.value = false
+  activeTouchId.value = null
   emit('dragging', false)
   emit('update:modelValue', localPct.value)
   emit('change', localPct.value)
 }
 
+const handleTouchCancel = () => {
+  if (!isDragging.value) return
+
+  isDragging.value = false
+  activeTouchId.value = null
+  emit('dragging', false)
+}
+
 // 🖱️ Mouse Events (데스크톱 지원)
 const handleMouseDown = (event: MouseEvent) => {
+  // Ignore if already dragging or if touch is active
+  if (isDragging.value || activeTouchId.value !== null) return
+
   event.preventDefault()
   event.stopPropagation()
   isDragging.value = true
@@ -293,20 +328,44 @@ const handleMouseDown = (event: MouseEvent) => {
 }
 
 const handleMouseMove = (event: MouseEvent) => {
-  if (!isDragging.value) return
+  // Only handle mouse move if we started with mouse (not touch)
+  if (!isDragging.value || activeTouchId.value !== null) return
   event.preventDefault()
   event.stopPropagation()
   updatePosition(event.clientX)
 }
 
 const handleMouseEnd = (event: MouseEvent) => {
-  if (!isDragging.value) return
+  // Only handle mouse end if we started with mouse
+  if (!isDragging.value || activeTouchId.value !== null) return
 
   isDragging.value = false
   emit('dragging', false)
   emit('update:modelValue', localPct.value)
   emit('change', localPct.value)
 }
+
+// 🔧 Manual event listener registration with { passive: false }
+// This ensures preventDefault() actually works (Vue might register as passive by default)
+onMounted(() => {
+  if (!sliderRef.value) return
+
+  const options = { passive: false, capture: false }
+
+  sliderRef.value.addEventListener('touchstart', handleTouchStart as any, options)
+  sliderRef.value.addEventListener('touchmove', handleTouchMove as any, options)
+  sliderRef.value.addEventListener('touchend', handleTouchEnd as any, options)
+  sliderRef.value.addEventListener('touchcancel', handleTouchCancel as any, options)
+})
+
+onUnmounted(() => {
+  if (!sliderRef.value) return
+
+  sliderRef.value.removeEventListener('touchstart', handleTouchStart as any)
+  sliderRef.value.removeEventListener('touchmove', handleTouchMove as any)
+  sliderRef.value.removeEventListener('touchend', handleTouchEnd as any)
+  sliderRef.value.removeEventListener('touchcancel', handleTouchCancel as any)
+})
 
 </script>
 
