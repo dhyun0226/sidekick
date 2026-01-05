@@ -268,9 +268,8 @@ const handleGlobalTouchMove = (event: TouchEvent) => {
 const handleGlobalTouchEnd = (event: TouchEvent) => {
   if (!isDragging.value) return
 
-  // Restore body scroll
+  // Restore body scroll (touch-action은 슬라이더 element CSS에만 있으므로 복원 불필요)
   document.body.style.overflow = ''
-  document.body.style.touchAction = ''
 
   // Remove global listeners (options must match!)
   window.removeEventListener('touchmove', handleGlobalTouchMove, { passive: false } as any)
@@ -306,8 +305,9 @@ const handleTouchStart = (event: TouchEvent) => {
   }
 
   // Block body scroll during drag
+  // NOTE: touch-action은 이미 슬라이더 element의 CSS에 설정되어 있음 (Line 10)
+  // body 전체에 설정하면 복원 실패 시 모든 터치가 막히므로 제거함!
   document.body.style.overflow = 'hidden'
-  document.body.style.touchAction = 'none'
 
   // Clear any existing safety timeout
   if (dragTimeout) {
@@ -331,17 +331,16 @@ const handleTouchStart = (event: TouchEvent) => {
     if (isDragging.value) {
       console.warn('[SmartSlider] Auto-resetting stuck drag state')
 
-      // Cleanup
-      window.removeEventListener('touchmove', handleGlobalTouchMove)
-      window.removeEventListener('touchend', handleGlobalTouchEnd)
-      window.removeEventListener('touchcancel', handleGlobalTouchEnd)
+      // Cleanup - options must match registration!
+      window.removeEventListener('touchmove', handleGlobalTouchMove, { passive: false } as any)
+      window.removeEventListener('touchend', handleGlobalTouchEnd, { passive: false } as any)
+      window.removeEventListener('touchcancel', handleGlobalTouchEnd, { passive: false } as any)
 
       isDragging.value = false
       emit('dragging', false)
       emit('change', localPct.value)
 
       document.body.style.overflow = ''
-      document.body.style.touchAction = ''
     }
     dragTimeout = null
   }, 5000)
@@ -401,7 +400,6 @@ onUnmounted(() => {
 
   // Restore scroll in case component unmounts during drag
   document.body.style.overflow = ''
-  document.body.style.touchAction = ''
 })
 </script>
 
