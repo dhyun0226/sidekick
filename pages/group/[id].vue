@@ -716,6 +716,14 @@ const handleScroll = () => {
 
 // ===== Lifecycle =====
 onMounted(async () => {
+  // 🔥 이 페이지만 body 스크롤 고정 (슬라이더 작동 보장)
+  if (typeof document !== 'undefined') {
+    document.documentElement.style.overflow = 'hidden'
+    document.documentElement.style.height = '100vh'
+    document.body.style.overflow = 'hidden'
+    document.body.style.height = '100vh'
+  }
+
   window.addEventListener('scroll', handleScroll)
 
   // 🔥 성능 최적화: 독립적인 초기화 작업 병렬 실행
@@ -784,6 +792,14 @@ onBeforeUnmount(async () => {
 })
 
 onUnmounted(() => {
+  // 🔥 body 스크롤 복구 (다른 페이지 정상 작동)
+  if (typeof document !== 'undefined') {
+    document.documentElement.style.overflow = ''
+    document.documentElement.style.height = ''
+    document.body.style.overflow = ''
+    document.body.style.height = ''
+  }
+
   // Clean up event listeners
   window.removeEventListener('scroll', handleScroll)
 

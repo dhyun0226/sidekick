@@ -80,12 +80,9 @@ onMounted(async () => {
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden; /* 🔥 페이지 전체 스크롤 완전 제거 */
-  height: 100vh;
-  height: 100dvh;
-  position: fixed; /* iOS Safari 주소창 문제 방지 */
   width: 100%;
   overscroll-behavior: none;
+  overflow-x: hidden; /* 가로 스크롤만 차단 */
 }
 
 /* Scrollbar styling for desktop aesthetic */
