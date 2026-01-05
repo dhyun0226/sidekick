@@ -323,7 +323,12 @@ const updatePosition = (clientX: number) => {
   }
 
   localPct.value = roundedPct
-  emit('update:modelValue', roundedPct)
+
+  // 🔥 CRITICAL: 드래그 중에는 emit 하지 않음! (Timeline 스크롤 방지)
+  // 드래그 종료 시 handleGlobalTouchEnd에서 최종 값 emit
+  if (!isDragging.value) {
+    emit('update:modelValue', roundedPct)
+  }
 }
 
 // 🔥 Global touch handlers - bound to window to prevent event loss during scroll
@@ -375,6 +380,10 @@ const handleGlobalTouchEnd = (event: TouchEvent) => {
   isDragging.value = false
   emit('dragging', false)
   addDebugLog('✅ isDragging=false')
+
+  // 🔥 CRITICAL: 드래그 종료 시 최종 값 emit (Timeline 스크롤 트리거)
+  emit('update:modelValue', localPct.value)
+  addDebugLog(`📤 modelValue: ${localPct.value}%`)
 
   if (wasDragging) {
     emit('change', localPct.value)
@@ -437,6 +446,9 @@ const handleTouchStart = (event: TouchEvent) => {
 
       isDragging.value = false
       emit('dragging', false)
+
+      // 최종 값 emit
+      emit('update:modelValue', localPct.value)
       emit('change', localPct.value)
 
       document.body.style.overflow = ''
