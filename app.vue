@@ -80,6 +80,8 @@ onMounted(async () => {
 body {
   margin: 0;
   overflow-x: hidden; /* Prevent horizontal scroll */
+  overscroll-behavior: none; /* 🔥 바운스 스크롤 방지 (iOS) */
+  -webkit-overflow-scrolling: touch; /* 부드러운 스크롤 */
 }
 
 /* Scrollbar styling for desktop aesthetic */

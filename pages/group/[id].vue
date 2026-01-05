@@ -1,5 +1,5 @@
 <template>
-  <div class="relative min-h-[100dvh] bg-gray-50 dark:bg-background pb-32 pb-safe pt-safe">
+  <div class="relative min-h-[100dvh] bg-gray-50 dark:bg-background pb-32 pb-safe pt-safe" style="overscroll-behavior: none;">
     <!-- 1. Fixed Navigation Bar (Always visible) -->
     <NavigationBar
       :title="bookTitle || groupName"
@@ -32,7 +32,7 @@
       />
 
       <!-- Timeline Content (Flows naturally) -->
-      <div class="px-safe max-w-[480px] mx-auto min-h-[50vh]">
+      <div class="px-safe max-w-[480px] mx-auto min-h-[50vh] pb-[200px]">
         <!-- 책이 없을 때 Empty State (기존 유지) -->
         <div v-if="!selectedBook" class="flex flex-col items-center justify-center pt-32 px-4">
           <div class="w-24 h-24 bg-gradient-to-br from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner">
