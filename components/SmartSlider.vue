@@ -1,103 +1,105 @@
 <template>
-  <div class="fixed bottom-0 left-0 right-0 z-[100] overflow-visible pointer-events-auto">
+  <div class="fixed bottom-0 left-0 right-0 z-50 overflow-visible">
     <!-- Glassmorphism Container -->
-    <div class="max-w-[480px] mx-auto bg-white dark:bg-black backdrop-blur-md border-t border-zinc-300 dark:border-zinc-800 pb-safe overflow-visible pointer-events-auto">
+    <div class="max-w-[480px] mx-auto bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-zinc-300 dark:border-zinc-800 pb-safe overflow-visible">
 
       <!-- Slider Area Wrapper with Padding -->
-      <div class="px-4 pointer-events-auto">
-        <div
-          class="relative h-16 w-full cursor-pointer touch-none select-none overflow-visible overscroll-none pointer-events-auto"
-          style="overscroll-behavior-x: none; -webkit-overflow-scrolling: auto;"
-          @pointerdown="handlePointerDown"
-          @pointermove="handlePointerMove"
-          @pointerup="handlePointerUp"
-          @pointercancel="handlePointerUp"
-          @pointerleave="handlePointerUp"
-          @touchstart.prevent
-          @touchmove.prevent
-          ref="sliderRef"
-        >
+      <div class="px-4 py-4">
+        <!-- Native Range Input (hidden, controls logic) -->
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          v-model.number="localPct"
+          @input="handleInput"
+          @change="handleChange"
+          ref="rangeInput"
+          class="absolute opacity-0 w-full h-16 cursor-pointer"
+          style="top: 0; left: 0; z-index: 20;"
+        />
+
+        <!-- Visual Slider (styled) -->
+        <div class="relative h-16 w-full pointer-events-none">
           <!-- Chapter Backgrounds -->
           <div class="absolute inset-0 h-full opacity-30">
-          <div
-            v-for="(chapter, index) in chapters"
-            :key="index"
-            :style="{
-              left: `${chapter.start}%`,
-              width: `${chapter.width}%`
-            }"
-            class="absolute h-full border-r border-zinc-300 dark:border-zinc-700 transition-colors duration-300"
-            :class="[
-              currentPct >= chapter.start && currentPct < chapter.end ? 'bg-lime-400/20' : 'bg-transparent'
-            ]"
-          ></div>
-        </div>
-
-        <!-- Ruler Ticks (5% intervals) -->
-        <div class="absolute inset-0 pb-2 pointer-events-none">
-          <div
-            v-for="i in 21"
-            :key="i"
-            class="absolute bottom-0 w-px bg-zinc-300 dark:bg-zinc-700"
-            :class="(i - 1) % 2 === 0 ? 'h-5' : 'h-2.5'"
-            :style="{ left: `${(i - 1) * 5}%` }"
-          ></div>
-        </div>
-
-        <!-- Pacemaker Avatars (Members) -->
-        <div class="absolute inset-0 pointer-events-none overflow-visible z-10">
-          <div
-            v-for="member in members"
-            :key="member.id"
-            class="absolute top-0 -translate-x-1/2 translate-y-2 flex flex-col items-center transition-all duration-500 hover:z-20 group"
-            :style="{ left: `${member.progress}%` }"
-          >
-            <!-- Avatar Bubble -->
-            <Avatar
-              :src="member.avatar_url"
-              :fallback="member.nickname || 'U'"
-              size="xs"
-              :alt="member.nickname"
-              className="border border-white dark:border-zinc-800 shadow-md relative z-10"
-            />
-            <!-- Small Triangle pointing down -->
-            <div class="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-b-[4px] border-b-white dark:border-b-zinc-800 -mt-0.5 drop-shadow-sm rotate-180"></div>
+            <div
+              v-for="(chapter, index) in chapters"
+              :key="index"
+              :style="{
+                left: `${chapter.start}%`,
+                width: `${chapter.width}%`
+              }"
+              class="absolute h-full border-r border-zinc-300 dark:border-zinc-700 transition-colors duration-300"
+              :class="[
+                currentPct >= chapter.start && currentPct < chapter.end ? 'bg-lime-400/20' : 'bg-transparent'
+              ]"
+            ></div>
           </div>
-        </div>
 
-        <!-- Progress Bar (Active) -->
-        <div
-          class="absolute bottom-0 left-0 h-1 bg-lime-400"
-          :class="{ 'transition-none': isDragging, 'transition-all duration-75 ease-out': !isDragging }"
-          :style="{ width: `${currentPct}%` }"
-        ></div>
+          <!-- Ruler Ticks (5% intervals) -->
+          <div class="absolute inset-0 pb-2 pointer-events-none">
+            <div
+              v-for="i in 21"
+              :key="i"
+              class="absolute bottom-0 w-px bg-zinc-300 dark:bg-zinc-700"
+              :class="(i - 1) % 2 === 0 ? 'h-5' : 'h-2.5'"
+              :style="{ left: `${(i - 1) * 5}%` }"
+            ></div>
+          </div>
 
-        <!-- Thumb / Handle -->
-        <div
-          class="absolute top-1/2 -translate-y-1/4 -translate-x-1/2 w-11 h-11 flex items-center justify-center"
-          :class="{ 'transition-none': isDragging }"
-          :style="{ left: `${currentPct}%` }"
-        >
-          <div class="w-5 h-5 rounded-full bg-lime-400 shadow-[0_0_15px_rgba(163,230,53,0.5)] ring-2 ring-white/20"></div>
-        </div>
+          <!-- Pacemaker Avatars (Members) -->
+          <div class="absolute inset-0 pointer-events-none overflow-visible z-10">
+            <div
+              v-for="member in members"
+              :key="member.id"
+              class="absolute top-0 -translate-x-1/2 translate-y-2 flex flex-col items-center transition-all duration-500"
+              :style="{ left: `${member.progress}%` }"
+            >
+              <!-- Avatar Bubble -->
+              <Avatar
+                :src="member.avatar_url"
+                :fallback="member.nickname || 'U'"
+                size="xs"
+                :alt="member.nickname"
+                className="border border-white dark:border-zinc-800 shadow-md relative z-10"
+              />
+              <!-- Small Triangle pointing down -->
+              <div class="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-b-[4px] border-b-white dark:border-b-zinc-800 -mt-0.5 drop-shadow-sm rotate-180"></div>
+            </div>
+          </div>
 
-        <!-- Tooltip (Visible on Drag) -->
-        <div
-          v-if="isDragging"
-          class="absolute -top-8 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-3 py-1.5 rounded-lg text-xs font-medium shadow-xl border border-zinc-300 dark:border-zinc-700 whitespace-nowrap pointer-events-none animate-fade-in-up"
-          :style="tooltipPositionStyle"
-        >
-          <span class="text-lime-600 dark:text-lime-400 font-bold mr-1">
-            {{ Math.round(currentPct) }}%
-          </span>
-          <span v-if="currentPage" class="text-zinc-500 dark:text-zinc-400 mr-1">· {{ currentPage }}p</span>
-          <span v-if="currentChapterName" class="text-zinc-600 dark:text-zinc-400">{{ currentChapterName }}</span>
-        </div>
+          <!-- Progress Bar (Active) -->
+          <div
+            class="absolute bottom-0 left-0 h-1 bg-lime-400 transition-all duration-75 ease-out"
+            :style="{ width: `${currentPct}%` }"
+          ></div>
+
+          <!-- Thumb / Handle -->
+          <div
+            class="absolute top-1/2 -translate-y-1/4 -translate-x-1/2 w-11 h-11 flex items-center justify-center"
+            :style="{ left: `${currentPct}%` }"
+          >
+            <div class="w-5 h-5 rounded-full bg-lime-400 shadow-[0_0_15px_rgba(163,230,53,0.5)] ring-2 ring-white/20"></div>
+          </div>
+
+          <!-- Tooltip (Visible on Drag) -->
+          <div
+            v-if="isDragging"
+            class="absolute -top-8 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-3 py-1.5 rounded-lg text-xs font-medium shadow-xl border border-zinc-300 dark:border-zinc-700 whitespace-nowrap pointer-events-none animate-fade-in-up"
+            :style="tooltipPositionStyle"
+          >
+            <span class="text-lime-600 dark:text-lime-400 font-bold mr-1">
+              {{ Math.round(currentPct) }}%
+            </span>
+            <span v-if="currentPage" class="text-zinc-500 dark:text-zinc-400 mr-1">· {{ currentPage }}p</span>
+            <span v-if="currentChapterName" class="text-zinc-600 dark:text-zinc-400">{{ currentChapterName }}</span>
+          </div>
         </div>
       </div>
 
       <!-- Action Bar (Optional, e.g. Write Button) -->
-      <div class="flex justify-between items-center px-4 py-5 gap-4 pointer-events-auto">
+      <div class="flex justify-between items-center px-4 py-5 gap-4">
         <div class="text-xs text-zinc-600 dark:text-zinc-500 font-mono flex-1 min-w-0">
           <span v-if="currentChapterName">{{ currentChapterName }}</span>
           <span v-else class="text-zinc-400 dark:text-zinc-600">·</span>
@@ -132,14 +134,14 @@ const props = defineProps<{
   members?: Array<{ id: string; nickname: string; avatar_url?: string; progress: number }>
 }>()
 
-const emit = defineEmits(['update:modelValue', 'change', 'write', 'dragging'])
+const emit = defineEmits(['update:modelValue', 'change', 'write'])
 
-const sliderRef = ref<HTMLElement | null>(null)
+const rangeInput = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
 const localPct = ref(props.modelValue)
 const lastPct = ref(props.modelValue)
 
-// 🔥 Critical Fix: Sync localPct with external modelValue changes (e.g., from jumpToChapter)
+// Sync localPct with external modelValue changes
 watch(() => props.modelValue, (newVal) => {
   if (!isDragging.value) {
     localPct.value = newVal
@@ -164,26 +166,22 @@ const chapters = computed(() => {
 
 const members = computed(() => props.members || [])
 
-const currentPct = computed(() => isDragging.value ? localPct.value : props.modelValue)
+const currentPct = computed(() => localPct.value)
 
 const currentPage = computed(() => {
   if (!props.totalPages) return null
-  // 페이지는 1부터 시작 (0페이지 방지)
   return Math.max(1, Math.round((currentPct.value / 100) * props.totalPages))
 })
 
 const currentChapterName = computed(() => {
   const pct = currentPct.value
 
-  // toc가 없으면 빈 문자열
   if (!props.toc || props.toc.length === 0) {
     return ''
   }
 
-  // Find chapter where pct is within range
   const found = chapters.value.find((c, index) => {
     const isLast = index === chapters.value.length - 1
-    // For last chapter, include the end point
     if (isLast) {
       return pct >= c.start && pct <= c.end
     } else {
@@ -191,7 +189,6 @@ const currentChapterName = computed(() => {
     }
   })
 
-  // 목차 범위 밖이면 빈 문자열 (서문/후기 등)
   return found ? found.title : ''
 })
 
@@ -200,21 +197,18 @@ const tooltipPositionStyle = computed(() => {
   const pct = currentPct.value
 
   if (pct < 10) {
-    // Left edge: anchor to left side, no transform
     return {
       left: `${pct}%`,
       transform: 'translateX(0)',
       right: 'auto'
     }
   } else if (pct > 50) {
-    // Right edge: anchor to right side instead of left
     return {
       right: `${100 - pct}%`,
       transform: 'translateX(0)',
       left: 'auto'
     }
   } else {
-    // Middle: centered
     return {
       left: `${pct}%`,
       transform: 'translateX(-50%)',
@@ -225,74 +219,99 @@ const tooltipPositionStyle = computed(() => {
 
 // Haptic feedback function
 const triggerHaptic = () => {
-  // Note: Vibration API is NOT supported on iOS (iPhone/iPad)
-  // Only works on Android devices (both browser and PWA)
   if ('vibrate' in navigator) {
-    // Stronger haptic: 25ms vibration for better tactile feedback
-    // Pattern could be used for more complex feedback: [duration, pause, duration]
-    navigator.vibrate(25) // Medium haptic feedback (25ms)
+    navigator.vibrate(25)
   }
 }
 
-const updatePosition = (event: PointerEvent) => {
-  if (!sliderRef.value) return
-
-  const rect = sliderRef.value.getBoundingClientRect()
-  const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width))
-  const pct = (x / rect.width) * 100
-
-  // Snap to integer (0, 1, 2, ..., 100)
-  const roundedPct = Math.round(pct)
-
-  // Trigger haptic feedback when value changes
-  if (roundedPct !== lastPct.value) {
-    triggerHaptic()
-    lastPct.value = roundedPct
-  }
-
-  localPct.value = roundedPct
-
-  // 드래그 중이 아닐 때만 emit
+// Handle input event (fires during drag)
+const handleInput = () => {
+  // Detect drag start
   if (!isDragging.value) {
-    emit('update:modelValue', roundedPct)
+    isDragging.value = true
   }
-}
 
-const handlePointerDown = (event: PointerEvent) => {
-  event.preventDefault()
-  event.stopPropagation()
+  // Trigger haptic on value change
+  if (localPct.value !== lastPct.value) {
+    triggerHaptic()
+    lastPct.value = localPct.value
+  }
 
-  isDragging.value = true
-  emit('dragging', true)
-  sliderRef.value?.setPointerCapture(event.pointerId)
-  updatePosition(event)
-}
-
-const handlePointerMove = (event: PointerEvent) => {
-  if (!isDragging.value) return
-
-  event.preventDefault()
-  event.stopPropagation()
-
-  updatePosition(event)
-}
-
-const handlePointerUp = (event: PointerEvent) => {
-  if (!isDragging.value) return
-
-  event.preventDefault()
-  event.stopPropagation()
-
-  isDragging.value = false
-  emit('dragging', false)
-  sliderRef.value?.releasePointerCapture(event.pointerId)
+  // Emit to parent (triggers Timeline scroll in real-time)
   emit('update:modelValue', localPct.value)
+}
+
+// Handle change event (fires when drag ends)
+const handleChange = () => {
+  isDragging.value = false
   emit('change', localPct.value)
+}
+
+// Track mouse/touch events for isDragging state
+if (typeof window !== 'undefined') {
+  let dragCheckTimer: NodeJS.Timeout | null = null
+
+  const resetDragging = () => {
+    if (dragCheckTimer) clearTimeout(dragCheckTimer)
+    dragCheckTimer = setTimeout(() => {
+      isDragging.value = false
+    }, 100)
+  }
+
+  // These events help track drag state more accurately
+  if (rangeInput.value) {
+    rangeInput.value.addEventListener('mousedown', () => {
+      isDragging.value = true
+    })
+    rangeInput.value.addEventListener('touchstart', () => {
+      isDragging.value = true
+    })
+    rangeInput.value.addEventListener('mouseup', resetDragging)
+    rangeInput.value.addEventListener('touchend', resetDragging)
+  }
 }
 </script>
 
 <style scoped>
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* Hide native range input slider appearance */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  outline: none;
+}
+
+/* Remove default track */
+input[type="range"]::-webkit-slider-track {
+  background: transparent;
+  border: none;
+}
+
+input[type="range"]::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+/* Remove default thumb */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 44px;
+  height: 64px;
+  background: transparent;
+  cursor: pointer;
+  border: none;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 44px;
+  height: 64px;
+  background: transparent;
+  cursor: pointer;
+  border: none;
 }
 </style>
