@@ -61,11 +61,7 @@
           :isLoadingMore="isLoadingMore"
           :highlightedCommentId="highlightedCommentId"
           :isFinished="selectedBook?.user_finished_at != null"
-          :style="{
-            pointerEvents: isSliderDragging ? 'none' : 'auto',
-            overflow: isSliderDragging ? 'hidden !important' : 'auto',
-            touchAction: isSliderDragging ? 'none' : 'auto'
-          }"
+          :class="{ 'slider-dragging-block': isSliderDragging }"
           @modalOpen="modals.comment = true"
           @modalClose="modals.comment = false"
           @writeComment="handleWriteFromModal"
@@ -2017,5 +2013,13 @@ html {
 }
 .animate-slide-up {
   animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 🎯 Completely disable Timeline during slider drag */
+.slider-dragging-block {
+  pointer-events: none !important;
+  touch-action: none !important;
+  overflow: hidden !important;
+  user-select: none !important;
 }
 </style>

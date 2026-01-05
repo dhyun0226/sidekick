@@ -346,25 +346,58 @@ const handleMouseEnd = (event: MouseEvent) => {
 }
 
 // 🔧 Manual event listener registration with { passive: false }
-// This ensures preventDefault() actually works (Vue might register as passive by default)
-onMounted(() => {
-  if (!sliderRef.value) return
+// Use watch instead of onMounted to handle timing issues and re-mounting
+let cleanupListeners: (() => void) | null = null
 
-  const options = { passive: false, capture: false }
+watch(sliderRef, (newEl, oldEl) => {
+  // Cleanup old listeners
+  if (cleanupListeners) {
+    cleanupListeners()
+    cleanupListeners = null
+  }
 
-  sliderRef.value.addEventListener('touchstart', handleTouchStart as any, options)
-  sliderRef.value.addEventListener('touchmove', handleTouchMove as any, options)
-  sliderRef.value.addEventListener('touchend', handleTouchEnd as any, options)
-  sliderRef.value.addEventListener('touchcancel', handleTouchCancel as any, options)
-})
+  // Setup new listeners
+  if (newEl) {
+    const options = { passive: false, capture: false }
+
+    newEl.addEventListener('touchstart', handleTouchStart as any, options)
+    newEl.addEventListener('touchmove', handleTouchMove as any, options)
+    newEl.addEventListener('touchend', handleTouchEnd as any, options)
+    newEl.addEventListener('touchcancel', handleTouchCancel as any, options)
+
+    console.log('[SmartSlider] Event listeners attached')
+
+    cleanupListeners = () => {
+      newEl.removeEventListener('touchstart', handleTouchStart as any)
+      newEl.removeEventListener('touchmove', handleTouchMove as any)
+      newEl.removeEventListener('touchend', handleTouchEnd as any)
+      newEl.removeEventListener('touchcancel', handleTouchCancel as any)
+      console.log('[SmartSlider] Event listeners removed')
+    }
+  }
+}, { immediate: true })
 
 onUnmounted(() => {
-  if (!sliderRef.value) return
+  // Reset all state
+  isDragging.value = false
+  activeTouchId.value = null
 
-  sliderRef.value.removeEventListener('touchstart', handleTouchStart as any)
-  sliderRef.value.removeEventListener('touchmove', handleTouchMove as any)
-  sliderRef.value.removeEventListener('touchend', handleTouchEnd as any)
-  sliderRef.value.removeEventListener('touchcancel', handleTouchCancel as any)
+  if (cleanupListeners) {
+    cleanupListeners()
+    cleanupListeners = null
+  }
+
+  console.log('[SmartSlider] Component unmounted, state reset')
+})
+
+// Reset state when modelValue changes externally (e.g., book change)
+watch(() => props.modelValue, (newVal, oldVal) => {
+  if (Math.abs(newVal - oldVal) > 10) {
+    // Large change = likely a book change or jump, reset dragging state
+    isDragging.value = false
+    activeTouchId.value = null
+    console.log('[SmartSlider] Large value change detected, state reset')
+  }
 })
 
 </script>
