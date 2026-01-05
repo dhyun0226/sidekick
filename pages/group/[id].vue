@@ -75,7 +75,6 @@
         :toc="toc"
         :totalPages="selectedBook.book?.total_pages"
         :members="selectedBook.status === 'reading' ? sliderMembers : []"
-        class="z-30"
         @update:modelValue="handleSliderInput"
         @change="handleSliderChange"
         @write="handleWrite"

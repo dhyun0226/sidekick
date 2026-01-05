@@ -1,17 +1,17 @@
 <template>
-  <div class="fixed bottom-0 left-0 right-0 z-50 overflow-visible">
+  <div class="fixed bottom-0 left-0 right-0 z-[100] overflow-visible pointer-events-auto">
     <!-- Glassmorphism Container -->
-    <div class="max-w-[480px] mx-auto bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-zinc-300 dark:border-zinc-800 pb-safe overflow-visible">
+    <div class="max-w-[480px] mx-auto bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-zinc-300 dark:border-zinc-800 pb-safe overflow-visible pointer-events-auto">
 
       <!-- Slider Area Wrapper with Padding -->
       <div class="px-4">
         <div
           class="relative h-16 w-full cursor-pointer select-none overflow-visible overscroll-none"
-          style="overscroll-behavior-x: none; -webkit-overflow-scrolling: auto; touch-action: none;"
-          @touchstart="handleTouchStart"
+          style="overscroll-behavior-x: none; -webkit-overflow-scrolling: auto; touch-action: manipulation;"
+          @touchstart.passive="handleTouchStart"
           @touchmove="handleTouchMove"
-          @touchend="handleTouchEnd"
-          @touchcancel="handleTouchEnd"
+          @touchend.passive="handleTouchEnd"
+          @touchcancel.passive="handleTouchEnd"
           @mousedown="handleMouseDown"
           @mousemove="handleMouseMove"
           @mouseup="handleMouseEnd"

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col space-y-6 pb-32 px-4 pt-4">
+  <div class="flex flex-col space-y-6 pb-64 px-4 pt-4">
     <div
       v-for="group in groupedComments"
       :key="group.key"
