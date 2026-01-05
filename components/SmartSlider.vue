@@ -11,7 +11,10 @@
           @pointerdown="handlePointerDown"
           @pointermove="handlePointerMove"
           @pointerup="handlePointerUp"
-          @pointercancel="handlePointerUp"
+          @pointercancel="handlePointerCancel"
+          @pointerleave="handlePointerLeave"
+          @touchstart.prevent
+          @touchmove.prevent
           ref="sliderRef"
         >
           <!-- Chapter Backgrounds -->
@@ -133,6 +136,7 @@ const sliderRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 const localPct = ref(props.modelValue)
 const lastPct = ref(props.modelValue) // Track last value for haptic feedback
+const activePointerId = ref<number | null>(null) // 🔥 Track which pointer is currently captured
 
 // 🔥 Critical Fix: Sync localPct with external modelValue changes (e.g., from jumpToChapter)
 watch(() => props.modelValue, (newVal) => {
@@ -254,28 +258,34 @@ const handlePointerDown = (event: PointerEvent) => {
   event.preventDefault()
   event.stopPropagation()
 
-  // 🔥 Fix: Force release any stuck pointer captures from previous drag
-  if (sliderRef.value) {
-    try {
-      // Release current pointerId first (prevents stuck captures)
-      sliderRef.value.releasePointerCapture(event.pointerId)
-    } catch (e) {
-      // Ignore if not captured
+  // 🔥 Critical Fix: Force cleanup of any previous drag state
+  if (isDragging.value || activePointerId.value !== null) {
+    console.log('[Slider] Force cleanup - previous drag was not cleaned up properly')
+
+    // Release the previous pointer if it exists
+    if (activePointerId.value !== null && sliderRef.value) {
+      try {
+        sliderRef.value.releasePointerCapture(activePointerId.value)
+      } catch (e) {
+        // Ignore
+      }
     }
 
-    // Also try to release common pointer IDs (mobile touch usually 0-2)
-    // This handles cases where pointerup/pointercancel was missed
-    try {
-      for (let i = 0; i < 5; i++) {
-        sliderRef.value.releasePointerCapture(i)
-      }
-    } catch (e) {
-      // Ignore errors
-    }
+    // Reset state
+    isDragging.value = false
+    activePointerId.value = null
   }
 
+  // Start new drag
   isDragging.value = true
-  sliderRef.value?.setPointerCapture(event.pointerId)
+  activePointerId.value = event.pointerId
+
+  try {
+    sliderRef.value?.setPointerCapture(event.pointerId)
+  } catch (e) {
+    console.error('[Slider] Failed to capture pointer:', e)
+  }
+
   updatePosition(event)
 }
 
@@ -294,11 +304,19 @@ const cleanupDrag = (event: PointerEvent) => {
   event.preventDefault()
   event.stopPropagation()
 
-  // 🔥 Always cleanup, even if isDragging is false
-  const wasDragging = isDragging.value
-  isDragging.value = false
+  // 🔥 Only cleanup if this is the active pointer
+  if (activePointerId.value !== null && event.pointerId !== activePointerId.value) {
+    console.log('[Slider] Ignoring cleanup for non-active pointer')
+    return
+  }
 
-  // Release pointer capture (safe even if not captured)
+  const wasDragging = isDragging.value
+
+  // Reset state
+  isDragging.value = false
+  activePointerId.value = null
+
+  // Release pointer capture
   try {
     sliderRef.value?.releasePointerCapture(event.pointerId)
   } catch (e) {
@@ -313,6 +331,7 @@ const cleanupDrag = (event: PointerEvent) => {
 
 const handlePointerUp = cleanupDrag
 const handlePointerCancel = cleanupDrag
+const handlePointerLeave = cleanupDrag
 </script>
 
 <style scoped>
