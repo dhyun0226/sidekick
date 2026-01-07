@@ -13,8 +13,8 @@
           </div>
         </div>
         <div>
-          <h1 class="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">My Library</h1>
-          <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">오늘의 독서를 시작해볼까요?</p>
+          <h1 class="text-xl font-bold text-zinc-900 dark:text-white tracking-tight text-gradient">Sidekick</h1>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">반가워요, {{ userStore.profile?.nickname }}님!</p>
         </div>
       </div>
       <div class="flex gap-2 items-center">
@@ -43,84 +43,73 @@
           v-for="group in readingGroups"
           :key="group.id"
           @click="router.push(`/group/${group.id}`)"
-          class="relative w-full rounded-2xl overflow-hidden shadow-lg cursor-pointer group transition-transform active:scale-[0.98] min-h-[140px]"
+          class="relative w-full rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 flex gap-4 items-stretch shadow-sm cursor-pointer group transition-all hover:border-lime-400 dark:hover:border-lime-500 active:scale-[0.98] min-h-[140px]"
         >
-          <!-- Background Image (Maximum Vibrancy) -->
-          <div class="absolute inset-0 z-0">
-            <img :src="group.currentBook.cover_url" class="w-full h-full object-cover blur-2xl opacity-85 scale-125" />
-            <!-- Theme-aware Overlay -->
-            <div class="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/10 dark:from-black/30 dark:via-transparent dark:to-black/40"></div>
+          <!-- Left: Book Cover (Fixed Aspect Ratio) -->
+          <div class="w-16 sm:w-20 aspect-[2/3] flex-shrink-0 self-center">
+            <div class="w-full h-full shadow-md bg-zinc-100 dark:bg-zinc-800 rounded-sm overflow-hidden">
+              <img
+                :src="group.currentBook.cover_url"
+                class="w-full h-full object-cover"
+              />
+            </div>
           </div>
 
-          <!-- Content Wrapper -->
-          <div class="absolute inset-0 z-10 p-4 flex gap-4 items-stretch">
-
-            <!-- Left: Book Cover (Fixed Aspect Ratio) -->
-            <div class="w-16 sm:w-20 aspect-[2/3] flex-shrink-0 self-center">
-              <div class="w-full h-full shadow-2xl bg-zinc-800 rounded-sm overflow-hidden">
-                <img
-                  :src="group.currentBook.cover_url"
-                  class="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-
-            <!-- Right: Info -->
-            <div class="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5">
-              
-              <!-- Top: Group Name & Badges -->
-              <div class="flex justify-between items-start mb-0.5">
-                <h4 class="text-sm font-bold text-zinc-900 dark:text-white truncate pr-2">
-                  {{ group.name }}
-                </h4>
+                      <!-- Right: Info -->
+                      <div class="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5">
+                        
+                        <!-- Top: Group Name & Badges -->
+                        <div class="flex justify-between items-start mb-1 gap-2">
+                          <h4 class="text-[13px] font-bold text-zinc-500 dark:text-zinc-400 truncate min-w-0">
+                            {{ group.name }}
+                          </h4>
                 <div class="flex items-center gap-1.5 flex-shrink-0">
-                  <!-- D-Day Badge (Drawer Style Match) -->
-                  <div class="text-[10px] font-bold text-lime-700 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/20 px-1.5 py-0.5 rounded shadow-sm">
+                  <!-- D-Day Badge (Common Component) -->
+                  <Badge variant="lime" size="sm">
                     {{ getDdayShort(group.currentBook.target_end_date) }}
-                  </div>
-                  <!-- Members Badge (Drawer Style Match) -->
-                  <div class="flex items-center gap-1 text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded shadow-sm">
-                    <User :size="10" />
-                    <span>{{ group.members.length }}</span>
-                  </div>
+                  </Badge>
+                  <!-- Members Badge (Common Component) -->
+                  <Badge size="sm">
+                    <template #icon><User :size="10" /></template>
+                    {{ group.members.length }}
+                  </Badge>
                 </div>
+                          
+                        </div>
+                      <!-- Middle: Title & Author -->
+            <div class="flex-1 flex flex-col justify-center min-h-0 overflow-hidden">
+              <h3 class="text-base font-bold text-zinc-900 dark:text-white leading-tight line-clamp-2 mb-1 min-h-0">
+                {{ group.currentBook.title }}
+              </h3>
+              <div class="flex items-center h-4 gap-1 mt-1 whitespace-nowrap overflow-hidden leading-none text-[11px] text-zinc-600 dark:text-zinc-300">
+                <p class="truncate max-w-[100px] font-bold flex-shrink-0">
+                  {{ group.currentBook.author }}
+                </p>
+                
+                <template v-if="group.currentBook.publisher || group.currentBook.total_pages">
+                  <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold relative -translate-y-[0.5px] flex-shrink-0">·</span>
+                  <span v-if="group.currentBook.publisher" class="truncate max-w-[80px] font-medium flex-shrink-0">{{ group.currentBook.publisher }}</span>
+                  <span v-if="group.currentBook.publisher && group.currentBook.total_pages" class="text-[10px] text-zinc-300 dark:text-zinc-600 flex-shrink-0">·</span>
+                  <span v-if="group.currentBook.total_pages" class="font-medium flex-shrink-0">{{ group.currentBook.total_pages }}p</span>
+                </template>
               </div>
-
-              <!-- Middle: Title & Author -->
-              <div class="flex-1 flex flex-col justify-center">
-                <h3 class="text-base font-bold text-zinc-900 dark:text-white leading-tight line-clamp-2 mb-1">
-                  {{ group.currentBook.title }}
-                </h3>
-                <div class="flex items-center h-4 gap-1 mt-1 whitespace-nowrap overflow-hidden leading-none text-[11px] text-zinc-700 dark:text-zinc-100">
-                  <p class="truncate max-w-[100px] font-bold">
-                    {{ group.currentBook.author }}
-                  </p>
-                  
-                  <template v-if="group.currentBook.publisher || group.currentBook.total_pages">
-                    <span class="text-[10px] text-zinc-400 dark:text-white/60 font-bold relative -translate-y-[0.5px]">·</span>
-                    <span v-if="group.currentBook.publisher" class="truncate max-w-[80px] font-bold">{{ group.currentBook.publisher }}</span>
-                    <span v-if="group.currentBook.publisher && group.currentBook.total_pages" class="text-[10px] opacity-60">·</span>
-                    <span v-if="group.currentBook.total_pages" class="font-bold">{{ group.currentBook.total_pages }}p</span>
-                  </template>
-                </div>
-              </div>
-
-              <!-- Bottom: Date & Progress -->
-              <div class="w-full mt-auto">
-                <div class="flex justify-between items-center mb-1 px-0.5">
-                  <div class="text-[10px] text-zinc-800 dark:text-white flex gap-0.5 font-mono font-bold">
-                    <span>{{ group.currentBook.target_start_date ? formatDateSimple(group.currentBook.target_start_date) : 'Start' }}</span>
-                    <span>~</span>
-                    <span>{{ group.currentBook.target_end_date ? formatDateSimple(group.currentBook.target_end_date) : 'End' }}</span>
-                  </div>
-                  <span class="text-[10px] font-bold text-lime-600 dark:text-lime-400">{{ Math.round(group.currentBook.progress) }}%</span>
-                </div>
-                <div class="h-1.5 w-full bg-black/10 dark:bg-white/20 rounded-full overflow-hidden">
-                  <div class="h-full bg-lime-500 rounded-full transition-all duration-300" :style="{ width: `${group.currentBook.progress}%` }"></div>
-                </div>
-              </div>
-
             </div>
+
+            <!-- Bottom: Date & Progress -->
+            <div class="w-full mt-auto pt-2">
+              <div class="flex justify-between items-center mb-0.5 px-0.5">
+                <div class="text-[10px] text-zinc-500 dark:text-zinc-400 flex gap-0.5 font-mono">
+                  <span>{{ group.currentBook.target_start_date ? formatDateSimple(group.currentBook.target_start_date) : 'Start' }}</span>
+                  <span>~</span>
+                  <span>{{ group.currentBook.target_end_date ? formatDateSimple(group.currentBook.target_end_date) : 'End' }}</span>
+                </div>
+                <span class="text-[10px] font-bold text-lime-600 dark:text-lime-400">{{ Math.round(group.currentBook.progress) }}%</span>
+              </div>
+              <div class="h-1 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                <div class="h-full bg-lime-500 rounded-full transition-all duration-300" :style="{ width: `${group.currentBook.progress}%` }"></div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -138,25 +127,30 @@
           v-for="group in idleGroups"
           :key="group.id"
           @click="router.push(`/group/${group.id}`)"
-          class="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-200 dark:border-zinc-800 flex items-center gap-4 shadow-sm active:scale-[0.99] transition-transform cursor-pointer"
+          class="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-200 dark:border-zinc-800 flex items-center gap-4 shadow-sm active:scale-[0.99] transition-all cursor-pointer group hover:border-lime-400 dark:hover:border-lime-500"
         >
-          <!-- Left Icon Box (Mimics Book Cover) -->
-          <div class="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 border border-zinc-200 dark:border-zinc-700 flex-shrink-0">
-            <Coffee :size="24" />
+          <!-- Left Icon Box -->
+          <div class="w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 border border-zinc-100 dark:border-zinc-700 transition-colors group-hover:bg-lime-50 dark:group-hover:bg-lime-900/20 group-hover:border-lime-200 group-hover:text-lime-500 flex-shrink-0">
+            <Coffee :size="20" />
           </div>
 
           <!-- Right Content -->
           <div class="flex-1 min-w-0">
-            <h3 class="font-bold text-zinc-900 dark:text-zinc-200 mb-1 text-sm truncate">{{ group.name }}</h3>
-            <div class="flex items-center gap-1">
-               <User :size="12" class="text-zinc-400" />
-               <p class="text-xs text-zinc-500 dark:text-zinc-500">멤버 {{ group.members.length }}명</p>
+            <div class="flex items-center gap-2 mb-1">
+              <!-- Group Name (Flexible Truncate) -->
+              <h3 class="font-bold text-zinc-900 dark:text-zinc-200 text-sm truncate">{{ group.name }}</h3>
+              <!-- Member Badge (Fixed Position relative to name) -->
+              <div class="flex items-center gap-1 text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded flex-shrink-0">
+                 <User :size="10" />
+                 <span>{{ group.members.length }}</span>
+              </div>
             </div>
+            <p class="text-xs text-zinc-400 dark:text-zinc-500">
+              {{ group.members.length }}명의 멤버가 새 책을 기다리고 있어요
+            </p>
           </div>
 
-          <button class="w-8 h-8 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-lime-500 transition-colors flex-shrink-0">
-            <ChevronRight :size="18" />
-          </button>
+          <ChevronRight :size="18" class="text-zinc-300 dark:text-zinc-600 group-hover:text-lime-500 transition-colors flex-shrink-0" />
         </div>
       </div>
     </div>
@@ -381,8 +375,8 @@ const formatDateSimple = (dateStr: string) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
   const year = date.getFullYear().toString().slice(-2)
-  const month = date.getMonth() + 1
-  const day = date.getDate()
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
   return `${year}.${month}.${day}`
 }
 

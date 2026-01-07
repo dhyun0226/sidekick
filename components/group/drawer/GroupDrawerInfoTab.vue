@@ -4,8 +4,8 @@
     <div v-if="readingBooks.length > 0">
       <!-- Header -->
       <div class="flex items-center justify-between px-1 mb-3">
-        <h3 class="text-xs font-bold uppercase">
-          <span class="text-lime-500 dark:text-lime-400 animate-pulse-lime">Now Reading</span>
+        <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+          읽는 중
         </h3>
         <span class="text-[10px] text-zinc-400">{{ sortedReadingBooks.length }}권</span>
       </div>
@@ -82,17 +82,17 @@
               <div class="flex flex-wrap items-center gap-1.5 mt-2">
                 <GenreBadge v-if="book.book?.official_genre || book.book?.draft_genre" :genre="book.book?.official_genre || book.book?.draft_genre" size="sm" />
                 
-                <div v-if="book.round && book.round > 1" class="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
+                <Badge v-if="book.round && book.round > 1" size="sm">
                   {{ book.round }}회차
-                </div>
+                </Badge>
 
-                <div v-if="book.target_start_date" class="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
+                <Badge v-if="book.target_start_date" size="sm">
                   {{ formatBookDateRange(book) }}
-                </div>
+                </Badge>
 
-                <div v-if="getBookDaysRemaining(book) !== null" class="text-[10px] font-bold text-lime-700 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/20 px-1.5 py-0.5 rounded">
+                <Badge v-if="getBookDaysRemaining(book) !== null" variant="lime" size="sm">
                   {{ getBookDaysRemaining(book)! > 0 ? `D-${getBookDaysRemaining(book)}` : getBookDaysRemaining(book) === 0 ? 'D-Day' : `D+${Math.abs(getBookDaysRemaining(book)!)}` }}
-                </div>
+                </Badge>
               </div>
             </div>
           </div>
@@ -101,24 +101,58 @@
       </div>
 
       <!-- Chapter Navigation (선택된 책의 목차) -->
-      <div v-if="selectedBook && toc.length > 0 && isSelectedBookReading" class="mt-4">
+      <div v-if="selectedBook && toc.length > 0 && isSelectedBookReading" class="mt-6">
         <div class="flex items-center justify-between px-1 mb-3">
-          <h3 class="text-xs font-bold text-zinc-500 uppercase">목차</h3>
-          <span class="text-[10px] text-zinc-400">{{ toc.length }}개</span>
+          <h3 class="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">목차 이동</h3>
+          <span class="text-[10px] font-bold text-zinc-400 opacity-60">{{ toc.length }}개</span>
         </div>
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        
+        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
           <div class="divide-y divide-zinc-100 dark:divide-zinc-800/50">
             <button
               v-for="(chapter, index) in toc"
               :key="index"
               @click="emit('jumpToChapter', chapter.start)"
-              class="w-full text-left px-4 py-3 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800 flex justify-between items-center group transition-colors"
-              :class="{ 'bg-lime-50/50 dark:bg-lime-900/10': isCurrentChapter(chapter) }"
+              class="w-full flex items-center justify-between px-4 py-3.5 text-left transition-all group relative active:bg-zinc-50 dark:active:bg-zinc-800"
+              :class="{ 'bg-lime-50/30 dark:bg-lime-900/5': isCurrentChapter(chapter) }"
             >
-              <span class="text-zinc-700 dark:text-zinc-300 truncate pr-2" :class="{ 'font-bold text-lime-700 dark:text-lime-400': isCurrentChapter(chapter) }">
-                {{ chapter.title }}
-              </span>
-              <span class="text-[10px] text-zinc-400">{{ Math.round(chapter.start) }}%</span>
+              <!-- Current Indicator Bar -->
+              <div 
+                v-if="isCurrentChapter(chapter)" 
+                class="absolute left-0 top-0 bottom-0 w-1 bg-lime-400"
+              ></div>
+
+              <div class="flex items-center gap-3 min-w-0">
+                <span 
+                  class="text-[10px] font-black w-4 text-zinc-300 dark:text-zinc-600 group-hover:text-lime-500 transition-colors"
+                  :class="{ 'text-lime-500': isCurrentChapter(chapter) }"
+                >
+                  {{ (index + 1).toString().padStart(2, '0') }}
+                </span>
+                <span 
+                  class="text-xs truncate transition-colors"
+                  :class="[
+                    isCurrentChapter(chapter)
+                      ? 'font-bold text-zinc-900 dark:text-white'
+                      : 'text-zinc-600 dark:text-zinc-400 font-medium group-hover:text-zinc-900 dark:group-hover:text-zinc-200'
+                  ]"
+                >
+                  {{ chapter.title }}
+                </span>
+              </div>
+
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <span 
+                  class="text-[10px] font-mono font-bold transition-colors"
+                  :class="isCurrentChapter(chapter) ? 'text-lime-600' : 'text-zinc-400'"
+                >
+                  {{ Math.round(chapter.start) }}%
+                </span>
+                <ChevronRight 
+                  :size="14" 
+                  class="text-zinc-300 dark:text-zinc-600 transform transition-transform group-hover:translate-x-0.5 group-hover:text-lime-500" 
+                />
+              </div>
             </button>
           </div>
         </div>
@@ -219,8 +253,8 @@ const formatBookDateRange = (book: Book) => {
   const end = new Date(book.target_end_date)
   const formatDate = (date: Date) => {
     const year = date.getFullYear() % 100
-    const month = date.getMonth() + 1
-    const day = date.getDate()
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const day = date.getDate().toString().padStart(2, '0')
     return `${year}.${month}.${day}`
   }
   return `${formatDate(start)} - ${formatDate(end)}`

@@ -77,7 +77,7 @@
         <div class="absolute -right-10 -top-10 w-24 h-24 bg-lime-500/10 blur-3xl rounded-full"></div>
         
         <div class="flex items-center gap-3 relative z-10">
-          <div class="w-8 h-8 bg-gradient-to-tr from-lime-400 to-lime-500 rounded flex items-center justify-center shadow-lg shadow-lime-500/30">
+          <div class="w-8 h-8 bg-gradient-to-tr from-lime-400 to-lime-500 rounded flex items-center justify-center shadow-lg shadow-lime-500/20">
             <Crown :size="16" class="text-black" />
           </div>
           <div>
@@ -285,28 +285,19 @@
             </h4>
 
             <!-- Meta Info -->
-            <div class="flex items-center gap-2 mb-3 text-xs">
-              <span class="text-zinc-500 dark:text-zinc-400">{{ item.groupName }}</span>
+            <div class="flex items-center gap-2 mb-3 text-[13px]">
+              <span class="text-zinc-500 dark:text-zinc-400 font-medium">{{ item.groupName }}</span>
               <span class="text-zinc-300 dark:text-zinc-700">·</span>
               <span class="text-zinc-500 dark:text-zinc-400">{{ formatTimeAgo(item.created_at) }}</span>
               <span class="text-zinc-300 dark:text-zinc-700">·</span>
-              <!-- Review: Show rating stars -->
+              <!-- Review: Show unified rating badge -->
               <template v-if="item.type === 'review'">
-                <div class="flex items-center gap-1">
-                  <div class="flex gap-0.5">
-                    <template v-for="i in 5" :key="i">
-                      <Star v-if="getStarType(i, item.rating) === 'full'" :size="12" fill="#EAB308" class="text-yellow-500" />
-                      <StarHalf v-else-if="getStarType(i, item.rating) === 'half'" :size="12" fill="#EAB308" class="text-yellow-500" />
-                      <Star v-else :size="12" fill="none" class="text-yellow-500" />
-                    </template>
-                  </div>
-                  <span class="font-bold text-yellow-600 dark:text-yellow-400">{{ item.rating }}</span>
-                </div>
+                <RatingBadge :rating="item.rating" size="sm" />
               </template>
-              <!-- Comment: Show position percentage -->
-              <span v-else class="text-lime-600 dark:text-lime-400">
+              <!-- Comment: Show position percentage as badge -->
+              <Badge v-else variant="lime" size="sm">
                 {{ Math.round(item.position_pct) }}%
-              </span>
+              </Badge>
             </div>
 
             <!-- Quote -->
@@ -696,7 +687,7 @@
                 <img :src="selectedBook.cover_url" class="w-full h-full object-cover" />
               </div>
               <div class="flex-1 min-w-0 flex flex-col pt-0.5">
-                <h2 class="text-lg font-bold text-zinc-900 dark:text-white line-clamp-2 leading-tight mb-1.5">{{ selectedBook.title }}</h2>
+                <h2 class="text-lg font-bold text-zinc-900 dark:text-white line-clamp-2 leading-tight mb-3">{{ selectedBook.title }}</h2>
                 <div class="flex flex-wrap items-center gap-1.5 mb-3 text-sm text-zinc-500 dark:text-zinc-400">
                   <span class="font-medium">{{ selectedBook.author }}</span>
                   <template v-if="selectedBook.publisher || selectedBook.total_pages">
@@ -707,18 +698,15 @@
                   </template>
                 </div>
 
-                <div class="flex items-center gap-2 flex-wrap">
+                <div class="flex items-center gap-2 mb-2 flex-wrap">
                   <GenreBadge v-if="selectedBook.genre" :genre="selectedBook.genre" />
-                  <div v-if="selectedBook.myRating" class="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded">
-                    <Star :size="12" fill="#EAB308" class="text-yellow-500" />
-                    <span class="text-xs font-bold text-yellow-700 dark:text-yellow-400">{{ selectedBook.myRating }}</span>
-                  </div>
-                  <div class="flex items-center bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">
-                    <span class="text-xs font-bold text-zinc-600 dark:text-zinc-400">{{ bookTimeline.length }}개 기록</span>
-                  </div>
-                  <div v-if="selectedBook.finished_at" class="flex items-center gap-1 bg-lime-50 dark:bg-lime-900/20 px-2 py-1 rounded">
-                    <span class="text-xs font-bold text-lime-700 dark:text-lime-400">{{ formatCompletionDate(selectedBook.finished_at) }} 완독</span>
-                  </div>
+                  <RatingBadge :rating="selectedBook.myRating" />
+                  <Badge>
+                    {{ bookTimeline.length }}개 기록
+                  </Badge>
+                  <Badge v-if="selectedBook.finished_at" variant="lime">
+                    {{ formatCompletionDate(selectedBook.finished_at) }} 완독
+                  </Badge>
                 </div>
               </div>
             </div>
@@ -771,30 +759,21 @@
                 ]"
               >
                 <!-- Meta Info -->
-                <div class="flex items-center gap-2 mb-3 text-xs">
-                  <span class="text-zinc-500 dark:text-zinc-400">{{ item.groupName }}</span>
+                <div class="flex items-center gap-2 mb-3 text-[13px]">
+                  <span class="text-zinc-500 dark:text-zinc-400 font-medium">{{ item.groupName }}</span>
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
                   <span class="text-zinc-500 dark:text-zinc-400">{{ formatDateTime(item.created_at) }}</span>
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
 
-                  <!-- Review: Show rating stars -->
+                  <!-- Review: Show unified rating badge -->
                   <template v-if="item.type === 'review'">
-                    <div class="flex items-center gap-1">
-                      <div class="flex gap-0.5">
-                        <template v-for="i in 5" :key="i">
-                          <Star v-if="getStarType(i, item.rating) === 'full'" :size="12" fill="#EAB308" class="text-yellow-500" />
-                          <StarHalf v-else-if="getStarType(i, item.rating) === 'half'" :size="12" fill="#EAB308" class="text-yellow-500" />
-                          <Star v-else :size="12" fill="none" class="text-yellow-500" />
-                        </template>
-                      </div>
-                      <span class="font-bold text-yellow-600 dark:text-yellow-400">{{ item.rating }}</span>
-                    </div>
+                    <RatingBadge :rating="item.rating" size="sm" />
                   </template>
 
-                  <!-- Comment: Show position percentage -->
-                  <span v-else class="text-lime-600 dark:text-lime-400">
+                  <!-- Comment: Show position percentage as badge -->
+                  <Badge v-else variant="lime" size="sm">
                     {{ Math.round(item.position_pct) }}%
-                  </span>
+                  </Badge>
                 </div>
 
                 <!-- Quote -->
@@ -833,21 +812,14 @@
                 ]"
               >
                 <!-- Meta Info -->
-                <div class="flex items-center gap-2 mb-3 text-xs">
-                  <span class="text-zinc-500 dark:text-zinc-400">{{ bookReview.groupName }}</span>
+                <div class="flex items-center gap-2 mb-3 text-[13px]">
+                  <span class="text-zinc-500 dark:text-zinc-400 font-medium">{{ bookReview.groupName }}</span>
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
                   <span class="text-zinc-500 dark:text-zinc-400">{{ formatDateTime(bookReview.created_at) }}</span>
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  <div class="flex items-center gap-1">
-                    <div class="flex gap-0.5">
-                      <template v-for="i in 5" :key="i">
-                        <Star v-if="getStarType(i, bookReview.rating) === 'full'" :size="12" fill="#EAB308" class="text-yellow-500" />
-                        <StarHalf v-else-if="getStarType(i, bookReview.rating) === 'half'" :size="12" fill="#EAB308" class="text-yellow-500" />
-                        <Star v-else :size="12" fill="none" class="text-yellow-500" />
-                      </template>
-                    </div>
-                    <span class="font-bold text-yellow-600 dark:text-yellow-400">{{ bookReview.rating }}</span>
-                  </div>
+                  
+                  <!-- Review: Show unified rating badge -->
+                  <RatingBadge :rating="bookReview.rating" size="sm" />
                 </div>
 
                 <!-- Content -->
@@ -878,14 +850,14 @@
                 ]"
               >
                 <!-- Meta Info -->
-                <div class="flex items-center gap-2 mb-3 text-xs">
-                  <span class="text-zinc-500 dark:text-zinc-400">{{ comment.groupName }}</span>
+                <div class="flex items-center gap-2 mb-3 text-[13px]">
+                  <span class="text-zinc-500 dark:text-zinc-400 font-medium">{{ comment.groupName }}</span>
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
                   <span class="text-zinc-500 dark:text-zinc-400">{{ formatDateTime(comment.created_at) }}</span>
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  <span class="text-lime-600 dark:text-lime-400">
+                  <Badge variant="lime" size="sm">
                     {{ Math.round(comment.position_pct) }}%
-                  </span>
+                  </Badge>
                 </div>
 
                 <!-- Quote -->
@@ -1678,7 +1650,9 @@ const calculateStreakFromData = (commentsData: any[], reviewsData: any[]) => {
 const formatDate = (dateStr: string) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
-  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
+  return `${date.getFullYear()}.${month}.${day}`
 }
 
 const formatDateSimple = (dateStr: string) => {
@@ -1723,8 +1697,8 @@ const formatDateTime = (dateStr: string) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
   const year = String(date.getFullYear()).slice(-2)
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
   const hours = String(date.getHours()).padStart(2, '0')
   const minutes = String(date.getMinutes()).padStart(2, '0')
   return `${year}.${month}.${day} ${hours}:${minutes}`
@@ -1742,8 +1716,8 @@ const formatTimeOnly = (dateStr: string) => {
 const formatMonthOnly = (dateStr: string) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
-  const month = date.getMonth() + 1
-  const day = date.getDate()
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
   return `${month}.${day}`
 }
 
@@ -1751,8 +1725,8 @@ const formatCompletionDate = (dateStr: string) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
   const year = String(date.getFullYear()).slice(-2)
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
   return `${year}.${month}.${day}`
 }
 

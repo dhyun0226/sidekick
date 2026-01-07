@@ -124,18 +124,15 @@
             <div class="flex flex-wrap items-center gap-1.5 mt-2">
               <GenreBadge v-if="book.official_genre || book.draft_genre" :genre="book.official_genre || book.draft_genre" size="sm" />
               
-              <div v-if="book.averageRating" class="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded">
-                <Star :size="10" fill="currentColor" class="text-amber-500" />
-                <span>{{ book.averageRating }}</span>
-              </div>
+              <RatingBadge :rating="book.averageRating" size="sm" />
 
-              <div class="text-[10px] font-bold text-lime-700 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/20 px-1.5 py-0.5 rounded">
+              <Badge variant="lime" size="sm">
                 {{ formatDateYY(book.date) }} 완주
-              </div>
+              </Badge>
 
-              <div v-if="book.round && book.round > 1" class="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
+              <Badge v-if="book.round && book.round > 1" size="sm">
                 {{ book.round }}회차
-              </div>
+              </Badge>
             </div>
           </div>
         </div>
@@ -332,8 +329,8 @@ const selectSort = (value: typeof sortBy.value) => {
 const formatDateYY = (dateStr: string) => {
   const date = new Date(dateStr)
   const year = String(date.getFullYear()).slice(-2)
-  const month = date.getMonth() + 1
-  const day = date.getDate()
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
   return `${year}.${month}.${day}`
 }
 

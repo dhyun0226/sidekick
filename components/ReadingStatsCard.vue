@@ -97,10 +97,7 @@
               >
                 <div class="flex items-center justify-between mb-2">
                   <div class="font-medium text-zinc-900 dark:text-zinc-200 text-sm">{{ review.bookTitle }}</div>
-                  <div class="flex items-center gap-1">
-                    <Star :size="12" class="text-yellow-400 fill-yellow-400" />
-                    <span class="text-xs font-bold text-yellow-400">{{ review.rating.toFixed(1) }}</span>
-                  </div>
+                  <RatingBadge :rating="review.rating" size="sm" />
                 </div>
                 <p v-if="review.content" class="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2 mb-1">{{ review.content }}</p>
                 <div class="text-xs text-zinc-500">{{ formatDate(review.createdAt) }}</div>
@@ -289,6 +286,9 @@ const formatDate = (dateStr: string) => {
   if (diffDays === 1) return '어제'
   if (diffDays < 7) return `${diffDays}일 전`
 
-  return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+  const year = String(date.getFullYear()).slice(-2)
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
+  return `${year}.${month}.${day}`
 }
 </script>

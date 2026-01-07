@@ -469,11 +469,10 @@ const saveTocEdit = async (data: { isbn: string; totalPages: number; toc: any[] 
 
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr)
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
+  const year = String(date.getFullYear()).slice(-2)
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
+  return `${year}.${month}.${day}`
 }
 
 const toggleTocView = (isbn: string) => {

@@ -361,6 +361,9 @@ const formatDate = (dateStr: string) => {
   if (diffDays < 30) return `${Math.floor(diffDays / 7)}주 전`
   if (diffDays < 365) return `${Math.floor(diffDays / 30)}개월 전`
 
-  return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+  const year = String(date.getFullYear()).slice(-2)
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
+  return `${year}.${month}.${day}`
 }
 </script>

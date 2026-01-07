@@ -1,64 +1,100 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-6">
     <!-- Total Pages Input -->
     <div>
-      <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">전체 페이지 수</label>
-      <input
-        :value="totalPages"
-        @input="updateTotalPages"
-        @blur="validateTotalPages"
-        type="number"
-        min="1"
-        placeholder="예: 300"
-        class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400"
-      />
+      <div class="flex justify-between items-end mb-2">
+        <label class="text-sm font-bold text-zinc-700 dark:text-zinc-300">
+          전체 페이지 수 <span class="text-red-500">*</span>
+        </label>
+        <span v-if="totalPages" class="text-[10px] text-lime-600 dark:text-lime-400 font-bold bg-lime-50 dark:bg-lime-900/20 px-1.5 py-0.5 rounded">
+          입력 완료
+        </span>
+      </div>
+      <div class="relative">
+        <input
+          :value="totalPages"
+          @input="updateTotalPages"
+          @blur="validateTotalPages"
+          type="number"
+          min="1"
+          placeholder="책의 마지막 페이지 번호를 적어주세요"
+          class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3.5 pr-16 focus:outline-none focus:ring-2 focus:ring-lime-400 border-none transition-all no-spinner outline-none"
+        />
+        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400 font-bold pointer-events-none whitespace-nowrap">쪽까지</span>
+      </div>
     </div>
 
     <!-- Chapters Input -->
     <div>
-      <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">챕터 설정 (선택사항)</label>
-      <div class="space-y-2">
+      <div class="flex justify-between items-center mb-3">
+        <label class="text-sm font-bold text-zinc-700 dark:text-zinc-300">챕터 설정 (선택)</label>
+        <span class="text-[10px] text-zinc-400 font-medium">진행도를 더 정교하게 관리할 수 있어요</span>
+      </div>
+      
+      <div class="space-y-3">
         <!-- 챕터가 없을 때 -->
-        <div v-if="localChapters.length === 0" class="text-center py-4 bg-zinc-50 dark:bg-zinc-800/30 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700">
-          <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-2">목차가 없는 책입니다</p>
+        <div v-if="localChapters.length === 0" class="flex flex-col items-center justify-center py-8 bg-zinc-50 dark:bg-zinc-800/30 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-700/50 group transition-colors hover:border-zinc-300 dark:hover:border-zinc-600">
+          <div class="w-12 h-12 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-sm mb-3">
+            <ListTree :size="20" class="text-zinc-300 group-hover:text-lime-400 transition-colors" />
+          </div>
+          <p class="text-xs text-zinc-400 dark:text-zinc-500 mb-4 font-medium">챕터를 나누어 읽어볼까요?</p>
           <button
             @click="addChapter"
-            class="text-sm text-lime-400 font-medium hover:underline"
+            type="button"
+            class="px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all shadow-sm active:scale-95"
           >
-            + 챕터 추가
+            + 첫 챕터 추가하기
           </button>
         </div>
 
         <!-- 챕터가 있을 때 -->
         <template v-else>
-          <div v-for="(chapter, idx) in localChapters" :key="chapter.id" class="flex gap-1.5">
-            <input
-              v-model="chapter.title"
-              type="text"
-              placeholder="챕터명"
-              class="flex-1 min-w-0 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
-            />
-            <input
-              v-model.number="chapter.startPage"
-              type="number"
-              placeholder="쪽"
-              :min="idx === 0 ? 1 : localChapters[idx - 1].startPage + 1"
-              :max="totalPages || undefined"
-              @blur="validateChapterPage(idx)"
-              class="w-16 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-lime-400"
-            />
-            <button
-              @click="removeChapter(idx)"
-              class="text-zinc-600 dark:text-zinc-500 hover:text-red-400 px-1.5 flex-shrink-0"
-            >
-              <X :size="18" />
-            </button>
+          <div class="max-h-[340px] overflow-y-auto pr-1 space-y-3 custom-scrollbar">
+            <div v-for="(chapter, idx) in localChapters" :key="chapter.id" class="flex items-center gap-2 group animate-in slide-in-from-left-2 duration-200 px-0.5">
+              
+              <!-- Left: Index + Title Box (Fixed Height) -->
+              <div class="flex-1 flex items-center h-11 bg-zinc-100 dark:bg-zinc-800 rounded-xl px-1 transition-all focus-within:ring-2 focus-within:ring-inset focus-within:ring-lime-400">
+                <div class="w-8 h-8 flex items-center justify-center text-[10px] font-black text-zinc-400 bg-white dark:bg-zinc-700 rounded-lg shadow-sm flex-shrink-0 ml-1">
+                  {{ idx + 1 }}
+                </div>
+                <input
+                  v-model="chapter.title"
+                  type="text"
+                  placeholder="챕터 제목"
+                  class="flex-1 bg-transparent border-none focus:ring-0 text-sm px-2.5 py-2 text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none"
+                />
+              </div>
+
+              <!-- Right: Page Input Box (Fixed Height & "쪽부터") -->
+              <div class="flex items-center gap-1.5 px-3 h-11 bg-zinc-100 dark:bg-zinc-800 rounded-xl transition-all focus-within:ring-2 focus-within:ring-inset focus-within:ring-lime-400 min-w-[110px] justify-center">
+                <input
+                  v-model.number="chapter.startPage"
+                  type="number"
+                  placeholder="0"
+                  @blur="validateChapterPage(idx)"
+                  class="w-12 bg-transparent border-none focus:ring-0 text-sm font-black text-center p-0 text-lime-600 dark:text-lime-400 no-spinner outline-none"
+                />
+                <span class="text-[12px] text-zinc-400 font-bold pointer-events-none whitespace-nowrap">쪽부터</span>
+              </div>
+              
+              <!-- Delete Button -->
+              <button
+                @click="removeChapter(idx)"
+                type="button"
+                class="w-11 h-11 flex items-center justify-center text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all flex-shrink-0"
+              >
+                <Trash2 :size="18" />
+              </button>
+            </div>
           </div>
+          
           <button
             @click="addChapter"
-            class="text-sm text-lime-400 font-medium hover:underline"
+            type="button"
+            class="w-full py-3 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-400 hover:text-lime-500 hover:border-lime-200 dark:hover:border-lime-900/50 transition-all flex items-center justify-center gap-2"
           >
-            + 챕터 추가
+            <Plus :size="14" />
+            챕터 추가
           </button>
         </template>
       </div>
@@ -68,7 +104,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { X } from 'lucide-vue-next'
+import { X, Trash2, ListTree, Plus } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 
 interface Chapter {
@@ -133,19 +169,18 @@ const updateTotalPages = (e: Event) => {
 }
 
 const addChapter = () => {
-  // 마지막 챕터의 다음 페이지를 기본값으로 설정
   const lastChapter = localChapters.value[localChapters.value.length - 1]
   const nextStartPage = lastChapter ? lastChapter.startPage + 1 : 1
 
   localChapters.value.push({
     id: generateChapterId(),
-    title: `Chapter ${localChapters.value.length + 1}`,
+    title: `챕터 ${localChapters.value.length + 1}`,
     startPage: nextStartPage
   })
 }
 
 const removeChapter = (index: number) => {
-  localChapters.value.splice(index, 1)  // 제한 없이 삭제 가능 (0개까지)
+  localChapters.value.splice(index, 1)
 }
 
 // Validation functions
@@ -159,14 +194,12 @@ const validateTotalPages = () => {
 const validateChapterPage = (idx: number) => {
   const chapter = localChapters.value[idx]
 
-  // 0 이하면 최소값으로 설정
   if (chapter.startPage <= 0) {
     chapter.startPage = idx === 0 ? 1 : localChapters.value[idx - 1].startPage + 1
     toast.error('시작 페이지는 1 이상이어야 합니다.')
     return
   }
 
-  // 이전 챕터보다 작거나 같으면 이전 챕터 + 1로 설정
   if (idx > 0) {
     const prevChapter = localChapters.value[idx - 1]
     if (chapter.startPage <= prevChapter.startPage) {
@@ -176,49 +209,36 @@ const validateChapterPage = (idx: number) => {
     }
   }
 
-  // 전체 페이지를 초과하면 전체 페이지로 설정
   if (props.totalPages && chapter.startPage > props.totalPages) {
     chapter.startPage = props.totalPages
     toast.error(`전체 페이지(${props.totalPages})를 초과할 수 없습니다.`)
   }
 }
 
-// Expose validation function for parent components
 const validate = (): { valid: boolean; message?: string } => {
-  // 1. 전체 페이지 수 검사
   if (!props.totalPages || props.totalPages <= 0) {
     return { valid: false, message: '전체 페이지는 1 이상이어야 합니다.' }
   }
 
-  // 2. 챕터가 0개면 OK (목차 없는 책)
   if (localChapters.value.length === 0) {
     return { valid: true }
   }
 
-  // 3. 챕터가 있으면 검사
   for (let i = 0; i < localChapters.value.length; i++) {
     const chapter = localChapters.value[i]
-
-    // 챕터명이 비어있으면 안됨
     if (!chapter.title.trim()) {
       return { valid: false, message: `${i + 1}번째 챕터의 제목을 입력해주세요.` }
     }
-
-    // 페이지 번호가 0보다 커야 함
     if (chapter.startPage <= 0) {
       return { valid: false, message: `"${chapter.title}" 시작 페이지는 1 이상이어야 합니다.` }
     }
-
-    // 페이지 번호가 전체 페이지 수 이하여야 함
-    if (chapter.startPage > props.totalPages) {
-      return { valid: false, message: `"${chapter.title}" 시작 페이지(${chapter.startPage})가 전체 페이지(${props.totalPages})를 초과합니다.` }
+    if (props.totalPages && chapter.startPage > props.totalPages) {
+      return { valid: false, message: `"${chapter.title}" 시작 페이지가 전체 페이지를 초과합니다.` }
     }
-
-    // 다음 챕터의 시작 페이지가 이전 챕터보다 커야 함
     if (i > 0) {
       const prevChapter = localChapters.value[i - 1]
       if (chapter.startPage <= prevChapter.startPage) {
-        return { valid: false, message: `"${chapter.title}" 시작 페이지(${chapter.startPage})는 이전 챕터(${prevChapter.startPage})보다 커야 합니다.` }
+        return { valid: false, message: `"${chapter.title}" 시작 페이지는 이전 챕터보다 커야 합니다.` }
       }
     }
   }
@@ -228,3 +248,29 @@ const validate = (): { valid: boolean; message?: string } => {
 
 defineExpose({ validate })
 </script>
+
+<style scoped>
+/* 숫자 입력창 화살표 제거 */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-spinner {
+  -moz-appearance: textfield;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e4e4e7;
+  border-radius: 10px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+}
+</style>

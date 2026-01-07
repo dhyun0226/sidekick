@@ -4,232 +4,212 @@
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" @click="close"></div>
 
     <!-- Modal Content -->
-    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-[480px] rounded-t-3xl sm:rounded-2xl p-6 pointer-events-auto max-h-[90dvh] overflow-y-auto shadow-2xl border border-zinc-300 dark:border-zinc-800">
+    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-[480px] rounded-t-3xl sm:rounded-2xl p-6 pointer-events-auto max-h-[90dvh] overflow-hidden flex flex-col shadow-2xl border border-zinc-300 dark:border-zinc-800">
 
       <!-- Header -->
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">새 책 시작하기</h2>
-        <button @click="close" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
+      <div class="flex justify-between items-center mb-2">
+        <div>
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">새 책 시작하기</h2>
+          <div class="flex gap-1 mt-1.5">
+            <div v-for="i in 3" :key="i" class="h-1 rounded-full transition-all duration-300" :class="i <= step ? 'w-4 bg-lime-400' : 'w-1.5 bg-zinc-200 dark:bg-zinc-800'"></div>
+          </div>
+        </div>
+        <button @click="close" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <X :size="24" />
         </button>
       </div>
 
-      <!-- Step 1: Search -->
-      <div v-if="step === 1" class="space-y-4">
-        <div class="relative">
-          <input
-            v-model="query"
-            @keyup.enter="searchBooks"
-            type="text"
-            placeholder="책 제목이나 저자를 검색하세요"
-            class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 pl-11 focus:outline-none focus:ring-2 focus:ring-lime-400"
-          />
-          <Search class="absolute left-4 top-3.5 text-zinc-600 dark:text-zinc-400" :size="20" />
+      <!-- Step Content Area (Scrollable) -->
+      <div class="flex-1 overflow-y-auto custom-scrollbar py-4 px-0.5">
+        
+        <!-- Step 1: Search -->
+        <div v-if="step === 1" class="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div class="relative group">
+            <input
+              v-model="query"
+              @keyup.enter="searchBooks"
+              type="text"
+              placeholder="책 제목이나 저자를 검색하세요"
+              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl px-4 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-lime-400 border-none transition-all shadow-sm"
+            />
+            <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-lime-500 transition-colors" :size="20" />
+          </div>
+
+          <div class="space-y-3 pt-2">
+            <div v-if="loading && searchResults.length === 0" class="flex flex-col items-center justify-center py-12">
+              <LoadingSpinner size="md" message="책을 찾고 있어요" />
+            </div>
+            
+            <div
+              v-for="book in searchResults"
+              :key="book.isbn"
+              @click="selectBook(book)"
+              class="group flex gap-4 p-3 rounded-2xl bg-zinc-50/50 dark:bg-zinc-800/30 border border-transparent hover:border-lime-200 dark:hover:border-lime-900/50 hover:bg-white dark:hover:bg-zinc-800 cursor-pointer transition-all shadow-sm active:scale-[0.98]"
+            >
+              <div class="w-16 h-24 flex-shrink-0 shadow-md group-hover:shadow-lg transition-all">
+                <img
+                  :src="book.cover"
+                  class="w-full h-full object-cover"
+                  @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+                />
+              </div>
+              <div class="flex-1 min-w-0 flex flex-col justify-center">
+                <h3 class="font-bold text-zinc-800 dark:text-zinc-200 text-sm mb-1.5 truncate group-hover:text-lime-600 dark:group-hover:text-lime-400 transition-colors">{{ book.title }}</h3>
+                <div class="flex items-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">
+                  <span class="truncate max-w-[120px]">{{ book.author }}</span>
+                  <template v-if="book.publisher">
+                    <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                    <span class="truncate max-w-[100px]">{{ book.publisher }}</span>
+                  </template>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="!loading && query && searchResults.length === 0" class="py-12 text-center">
+              <div class="text-4xl mb-3">🔍</div>
+              <p class="text-sm text-zinc-500 font-medium">검색 결과가 없습니다</p>
+            </div>
+
+            <div v-if="hasMore && searchResults.length > 0" class="pt-4 pb-8">
+              <button
+                @click="loadMore"
+                :disabled="loading"
+                class="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+              >
+                {{ loading ? '더 불러오는 중...' : '결과 더보기' }}
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div class="space-y-2 mt-4">
-          <div v-if="loading && searchResults.length === 0" class="flex items-center justify-center py-8">
-            <LoadingSpinner size="md" message="검색 중..." />
-          </div>
-          <div
-            v-for="book in searchResults"
-            :key="book.isbn"
-            @click="selectBook(book)"
-            class="flex gap-4 p-3 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
-          >
+        <!-- Step 2: Configure TOC & Genre -->
+        <div v-if="step === 2 && selectedBook" class="space-y-8 animate-in fade-in slide-in-from-right-2 duration-300">
+          <div class="flex gap-4 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800 shadow-sm">
             <img
-              :src="book.cover"
-              class="w-16 h-24 object-cover rounded shadow-md bg-zinc-200 dark:bg-zinc-700"
+              :src="selectedBook.cover"
+              class="w-12 h-16 object-cover shadow-md bg-zinc-200 dark:bg-zinc-700"
               @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
             />
-            <div class="flex-1 min-w-0">
-              <h3 class="font-bold text-zinc-800 dark:text-zinc-200 truncate">{{ book.title }}</h3>
-              <p class="text-sm text-zinc-600 dark:text-zinc-400 truncate">{{ book.author }}</p>
-              <p class="text-xs text-zinc-600 dark:text-zinc-500 mt-1">{{ book.publisher }}</p>
+            <div class="flex-1 min-w-0 flex flex-col justify-center">
+              <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-sm mb-1.5 truncate">{{ selectedBook.title }}</h3>
+              <div class="flex flex-wrap items-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">
+                <span class="truncate max-w-[100px]">{{ selectedBook.author }}</span>
+                <template v-if="selectedBook.publisher || totalPages">
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span v-if="selectedBook.publisher" class="truncate max-w-[80px]">{{ selectedBook.publisher }}</span>
+                  <span v-if="selectedBook.publisher && totalPages">·</span>
+                  <span v-if="totalPages">{{ totalPages }}p</span>
+                </template>
+              </div>
             </div>
           </div>
 
-          <!-- Load More Button -->
-          <div v-if="hasMore && searchResults.length > 0" class="pt-4">
-            <button
-              @click="loadMore"
-              :disabled="loading"
-              class="w-full bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-medium py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {{ loading ? '로딩중...' : '더보기 (20개 더)' }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 2: Configure TOC -->
-      <div v-if="step === 2 && selectedBook" class="space-y-6">
-        <div class="flex gap-4 items-center p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
-          <img
-            :src="selectedBook.cover"
-            class="w-12 h-16 object-cover rounded bg-zinc-200 dark:bg-zinc-700"
-            @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
-          />
           <div>
-            <h3 class="font-bold text-zinc-800 dark:text-zinc-200 text-sm">{{ selectedBook.title }}</h3>
-            <p class="text-xs text-zinc-600 dark:text-zinc-400">{{ selectedBook.author }}</p>
-          </div>
-        </div>
-
-        <!-- Genre Selection -->
-        <div>
-          <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">
-            장르 <span class="text-red-500">*</span>
-          </label>
-          <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
-            <button
-              v-for="genre in genres"
-              :key="genre"
-              @click="selectedGenre = genre"
-              type="button"
-              class="relative flex flex-col items-center justify-center py-3 px-2 rounded-xl border transition-all duration-200"
-              :class="selectedGenre === genre
-                ? 'bg-lime-50 dark:bg-lime-400/10 border-lime-400 ring-1 ring-lime-400'
-                : 'bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'"
-            >
-              <GenreBadge :genre="genre" size="sm" class="mb-1 pointer-events-none" />
-              <div
-                v-if="selectedGenre === genre"
-                class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-lime-400 rounded-full flex items-center justify-center shadow-sm"
+            <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-3">
+              장르 <span class="text-red-500">*</span>
+            </label>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="genre in genres"
+                :key="genre"
+                @click="selectedGenre = genre"
+                type="button"
+                class="transition-all duration-200 transform active:scale-90"
               >
-                <Check :size="12" class="text-black font-bold" />
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <!-- TOC Input Form (공통 컴포넌트) -->
-        <TocInputForm
-          ref="tocFormRef"
-          v-model:totalPages="totalPages"
-          v-model:chapters="chapters"
-        />
-
-        <div class="flex gap-3">
-          <button
-            @click="step = 1"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-          >
-            ← 이전
-          </button>
-          <button
-            @click="goToStep3"
-            class="flex-1 bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            :disabled="!totalPages || totalPages <= 0"
-          >
-            다음 →
-          </button>
-        </div>
-      </div>
-
-      <!-- Step 3: Date Selection -->
-      <div v-if="step === 3 && selectedBook" class="space-y-6">
-        <div class="flex gap-4 items-center p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
-          <img
-            :src="selectedBook.cover"
-            class="w-12 h-16 object-cover rounded bg-zinc-200 dark:bg-zinc-700"
-            @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
-          />
-          <div class="flex-1 min-w-0">
-            <h3 class="font-bold text-zinc-800 dark:text-zinc-200 text-sm mb-1">{{ selectedBook.title }}</h3>
-            <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <p class="text-xs text-zinc-600 dark:text-zinc-400 truncate max-w-[150px]">{{ selectedBook.author }}</p>
-              <div v-if="selectedBook.publisher || totalPages" class="flex items-center gap-1 text-[10px] text-zinc-500">
-                <span v-if="selectedBook.publisher" class="truncate max-w-[100px]">{{ selectedBook.publisher }}</span>
-                <span v-if="selectedBook.publisher && totalPages">·</span>
-                <span v-if="totalPages">{{ totalPages }}p</span>
-              </div>
-              <GenreBadge v-if="selectedGenre" :genre="selectedGenre" size="sm" />
+                <GenreBadge v-if="selectedGenre === genre" :genre="genre" />
+                <div v-else class="inline-flex items-center px-2 py-1 rounded bg-zinc-50 dark:bg-zinc-800/50 text-zinc-400 dark:text-zinc-500 text-xs font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors border border-transparent">
+                  {{ genre }}
+                </div>
+              </button>
             </div>
           </div>
+
+          <TocInputForm ref="tocFormRef" v-model:totalPages="totalPages" v-model:chapters="chapters" />
         </div>
 
-        <div class="text-center">
-          <div class="text-3xl mb-2">📅</div>
-          <h3 class="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-1">독서 기간 설정</h3>
-          <p class="text-xs text-zinc-600 dark:text-zinc-500">함께 읽을 기간을 정해보세요</p>
-        </div>
-
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">시작일</label>
-            <div class="overflow-hidden rounded-xl">
-              <input
-                v-model="startDate"
-                type="date"
-                class="w-full min-w-0 box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white px-2 sm:px-4 py-2.5 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
-              />
+        <!-- Step 3: Date Selection -->
+        <div v-if="step === 3 && selectedBook" class="space-y-8 animate-in fade-in slide-in-from-right-2 duration-300">
+          <div class="flex gap-4 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800 shadow-sm">
+            <img
+              :src="selectedBook.cover"
+              class="w-12 h-16 object-cover shadow-md bg-zinc-200 dark:bg-zinc-700"
+              @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+            />
+            <div class="flex-1 min-w-0 flex flex-col justify-center">
+              <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-sm mb-1.5 truncate">{{ selectedBook.title }}</h3>
+              <div class="flex flex-wrap items-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">
+                <span class="truncate max-w-[100px]">{{ selectedBook.author }}</span>
+                <template v-if="selectedBook.publisher || totalPages">
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span v-if="selectedBook.publisher" class="truncate max-w-[80px]">{{ selectedBook.publisher }}</span>
+                  <span v-if="selectedBook.publisher && totalPages">·</span>
+                  <span v-if="totalPages">{{ totalPages }}p</span>
+                </template>
+                <template v-if="selectedGenre">
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <GenreBadge :genre="selectedGenre" />
+                </template>
+              </div>
             </div>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">종료일 (목표)</label>
-            <div class="overflow-hidden rounded-xl">
-              <input
-                v-model="endDate"
-                type="date"
-                :min="startDate"
-                class="w-full min-w-0 box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white px-2 sm:px-4 py-2.5 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
-              />
+            <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-3">
+              독서 기간 설정 <span class="text-red-500">*</span>
+            </label>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-zinc-500 dark:text-zinc-400 ml-1">시작일</label>
+                <input v-model="startDate" type="date" class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark]" />
+              </div>
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-zinc-500 dark:text-zinc-400 ml-1">종료일 (목표)</label>
+                <input v-model="endDate" type="date" :min="startDate" class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark]" />
+              </div>
             </div>
           </div>
 
-          <div v-if="startDate && endDate" class="p-3 bg-lime-400/10 border border-lime-400/30 rounded-lg">
-            <p class="text-sm text-lime-400 text-center">
-              💡 {{ calculateDays() }}일 독서 계획
-            </p>
+          <div v-if="startDate && endDate" class="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800 flex items-center justify-between animate-in fade-in zoom-in-95 duration-300">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 bg-white dark:bg-zinc-700 rounded-lg flex items-center justify-center shadow-sm">
+                <Calendar :size="16" class="text-lime-500" />
+              </div>
+              <span class="text-sm font-bold text-zinc-700 dark:text-zinc-300">총 독서 기간</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="text-lg font-black text-lime-600 dark:text-lime-400">{{ calculateDays() }}</span>
+              <span class="text-sm font-bold text-zinc-400">일</span>
+            </div>
           </div>
-        </div>
-
-        <div class="flex gap-3">
-          <button
-            @click="step = 2"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-          >
-            ← 이전
-          </button>
-          <button
-            @click="confirmBook"
-            class="flex-1 bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            :disabled="!startDate || !endDate"
-          >
-            시작하기
-          </button>
         </div>
       </div>
 
+      <!-- Footer Buttons -->
+      <div v-if="step > 1" class="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex gap-3">
+        <button @click="step--" class="flex-1 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all">이전</button>
+        <button v-if="step === 2" @click="goToStep3" class="flex-[2] py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20">다음 단계</button>
+        <button v-else @click="confirmBook" class="flex-[2] py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20" :disabled="!startDate || !endDate">지금 시작하기</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { X, Search, Check } from 'lucide-vue-next'
+import { X, Search, Check, Calendar, ListTree, Plus, Sparkles } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import TocInputForm from '~/components/TocInputForm.vue'
+import GenreBadge from '~/components/GenreBadge.vue'
 
-const props = defineProps<{
-  isOpen: boolean
-}>()
-
+const props = defineProps<{ isOpen: boolean }>()
 const emit = defineEmits(['close', 'confirm'])
 const toast = useToastStore()
 const { genres } = useGenres()
 
-// Prevent body scroll when modal is open
 watch(() => props.isOpen, (isOpen) => {
   if (typeof document !== 'undefined') {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
+    document.body.style.overflow = isOpen ? 'hidden' : ''
   }
 })
 
@@ -243,11 +223,8 @@ const totalPages = ref<number | null>(null)
 const chapters = ref<{ title: string; startPage: number }[]>([])
 const currentStart = ref(1)
 const hasMore = ref(false)
-
-// TocInputForm ref for validation
 const tocFormRef = ref<InstanceType<typeof TocInputForm> | null>(null)
 
-// Helper function to get local date string (YYYY-MM-DD) without timezone conversion
 const getLocalDateString = (date: Date): string => {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -255,201 +232,93 @@ const getLocalDateString = (date: Date): string => {
   return `${year}-${month}-${day}`
 }
 
-// Step 3: Date selection - Initialize with default dates
 const getDefaultDates = () => {
   const today = new Date()
   const monthLater = new Date(today)
   monthLater.setMonth(monthLater.getMonth() + 1)
-  return {
-    start: getLocalDateString(today),
-    end: getLocalDateString(monthLater)
-  }
+  return { start: getLocalDateString(today), end: getLocalDateString(monthLater) }
 }
 
 const defaults = getDefaultDates()
 const startDate = ref(defaults.start)
 const endDate = ref(defaults.end)
 
-const close = () => {
-  emit('close')
-  reset()
-}
-
+const close = () => { emit('close'); reset() }
 const reset = () => {
-  step.value = 1
-  query.value = ''
-  searchResults.value = []
-  selectedBook.value = null
-  selectedGenre.value = ''
-  totalPages.value = null
-  chapters.value = []
-  currentStart.value = 1
-  hasMore.value = false
-
-  // Reset dates to defaults (today + 1 month)
+  step.value = 1; query.value = ''; searchResults.value = []; selectedBook.value = null;
+  selectedGenre.value = ''; totalPages.value = null; chapters.value = [];
+  currentStart.value = 1; hasMore.value = false;
   const newDefaults = getDefaultDates()
-  startDate.value = newDefaults.start
-  endDate.value = newDefaults.end
+  startDate.value = newDefaults.start; endDate.value = newDefaults.end
 }
 
 const { searchBooks: searchBooksAPI } = useBookSearch()
-
 const searchBooks = async () => {
-  if (!query.value || query.value.trim().length === 0) return
-
-  // Reset for new search
-  currentStart.value = 1
-  searchResults.value = []
-  loading.value = true
-
+  if (!query.value?.trim()) return
+  currentStart.value = 1; searchResults.value = []; loading.value = true
   try {
     const results = await searchBooksAPI(query.value, currentStart.value)
-    searchResults.value = results.books
-    hasMore.value = results.hasMore
+    searchResults.value = results.books; hasMore.value = results.hasMore
   } catch (error: any) {
-    console.error('Search error:', error)
     toast.error(error.message || '책 검색 중 오류가 발생했습니다.')
-    searchResults.value = []
-    hasMore.value = false
-  } finally {
-    loading.value = false
-  }
+  } finally { loading.value = false }
 }
 
 const loadMore = async () => {
   if (!query.value || loading.value) return
-
-  currentStart.value += 20
-  loading.value = true
-
+  currentStart.value += 20; loading.value = true
   try {
     const results = await searchBooksAPI(query.value, currentStart.value)
-    searchResults.value = [...searchResults.value, ...results.books]
-    hasMore.value = results.hasMore
+    searchResults.value = [...searchResults.value, ...results.books]; hasMore.value = results.hasMore
   } catch (error: any) {
-    console.error('Load more error:', error)
     toast.error(error.message || '더보기 중 오류가 발생했습니다.')
-  } finally {
-    loading.value = false
-  }
+  } finally { loading.value = false }
 }
 
 const selectBook = async (book: any) => {
   selectedBook.value = book
-
-  // DB에서 기존 책 정보 확인
   const client = useSupabaseClient()
-  const { data: existingBook } = await client
-    .from('books')
-    .select('official_toc, official_genre, total_pages')
-    .eq('isbn', book.isbn)
-    .maybeSingle()
-
+  const { data: existingBook } = await client.from('books').select('official_toc, official_genre, total_pages').eq('isbn', book.isbn).maybeSingle()
   if (existingBook?.official_toc) {
-    // ✅ official_toc 있음 → 자동으로 totalPages, chapters 채워짐
     const totalPagesFromDB = existingBook.total_pages || 100
-
     totalPages.value = totalPagesFromDB
-
-    // % → page 번호 변환
-    chapters.value = existingBook.official_toc.map((c: any) => ({
-      title: c.title,
-      startPage: Math.round((c.start / 100) * totalPagesFromDB)
-    }))
-
-    console.log('[BookSearchModal] Auto-loaded official_toc from DB')
-  } else {
-    // ❌ draft_toc만 있거나 없음 → 빈 입력 필드
-    totalPages.value = null
-    chapters.value = []
-    console.log('[BookSearchModal] No official_toc, showing empty fields')
-  }
-
-  // ✅ official_genre 있으면 자동으로 채움 (가이드)
-  if (existingBook?.official_genre) {
-    selectedGenre.value = existingBook.official_genre
-    console.log('[BookSearchModal] Auto-loaded official_genre from DB:', existingBook.official_genre)
-  } else {
-    selectedGenre.value = ''
-    console.log('[BookSearchModal] No official_genre, showing empty select')
-  }
-
+    chapters.value = existingBook.official_toc.map((c: any) => ({ title: c.title, startPage: Math.round((c.start / 100) * totalPagesFromDB) }))
+  } else { totalPages.value = null; chapters.value = [] }
+  selectedGenre.value = existingBook?.official_genre || ''
   step.value = 2
 }
 
 const goToStep3 = () => {
-  // Validate genre
-  if (!selectedGenre.value) {
-    toast.error('장르를 선택해주세요.')
-    return
-  }
-
-  // Validate TOC before moving to step 3
+  if (!selectedGenre.value) { toast.error('장르를 선택해주세요.'); return }
   if (!tocFormRef.value) return
-
   const validation = tocFormRef.value.validate()
-  if (!validation.valid) {
-    toast.error(validation.message || '목차 정보를 확인해주세요.')
-    return
-  }
-
+  if (!validation.valid) { toast.error(validation.message || '목차 정보를 확인해주세요.'); return }
   step.value = 3
 }
 
 const calculateDays = () => {
   if (!startDate.value || !endDate.value) return 0
-  const start = new Date(startDate.value)
-  const end = new Date(endDate.value)
-  const diffTime = Math.abs(end.getTime() - start.getTime())
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  return diffDays
+  const start = new Date(startDate.value); const end = new Date(endDate.value)
+  return Math.ceil(Math.abs(end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
 }
 
 const confirmBook = () => {
-  console.log('[BookSearchModal] confirmBook called')
-
-  // Validation already done in goToStep3, just check totalPages and genre
-  if (!totalPages.value) {
-    console.log('[BookSearchModal] No totalPages')
-    toast.error('전체 페이지를 입력해주세요.')
-    return
-  }
-
-  if (!selectedGenre.value) {
-    console.log('[BookSearchModal] No genre selected')
-    toast.error('장르를 선택해주세요.')
-    return
-  }
-
-  // Convert pages to % (목차가 없으면 빈 배열)
+  if (!totalPages.value) { toast.error('전체 페이지를 입력해주세요.'); return }
+  if (!selectedGenre.value) { toast.error('장르를 선택해주세요.'); return }
   const toc = chapters.value.map((c, i) => {
     const nextStart = chapters.value[i + 1]?.startPage || totalPages.value!
-    const startPct = (c.startPage / totalPages.value!) * 100
-    const endPct = (nextStart / totalPages.value!) * 100
-    return {
-      title: c.title,
-      start: startPct,
-      end: endPct
-    }
+    return { title: c.title, start: (c.startPage / totalPages.value!) * 100, end: (nextStart / totalPages.value!) * 100 }
   })
-
-  console.log('[BookSearchModal] Emitting confirm with:', {
-    book: selectedBook.value?.title,
-    genre: selectedGenre.value,
-    totalPages: totalPages.value,
-    toc,
-    startDate: startDate.value,
-    endDate: endDate.value
-  })
-
-  emit('confirm', {
-    book: selectedBook.value,
-    genre: selectedGenre.value,
-    totalPages: totalPages.value,
-    toc,
-    startDate: startDate.value,
-    endDate: endDate.value
-  })
+  emit('confirm', { book: selectedBook.value, genre: selectedGenre.value, totalPages: totalPages.value, toc, startDate: startDate.value, endDate: endDate.value })
   close()
 }
 </script>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
+.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
+@keyframes animate-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.animate-in { animation: animate-in 0.3s ease-out; }
+</style>

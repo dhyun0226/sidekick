@@ -1,148 +1,195 @@
 <template>
   <div>
     <!-- Edit Dates Modal -->
-    <div v-if="editDatesOpen" class="fixed inset-0 z-[100010] flex items-center justify-center">
+    <div v-if="editDatesOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditDates')"></div>
-      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">독서 기간 수정</h2>
-          <button @click="emit('closeEditDates')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
+          <button @click="emit('closeEditDates')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="24" />
           </button>
         </div>
 
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">시작일</label>
-            <div class="overflow-hidden rounded-xl">
-              <input
-                v-model="localStartDate"
-                type="date"
-                class="w-full min-w-0 box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white px-2 sm:px-4 py-2.5 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
-              />
+        <div class="space-y-6">
+          <!-- Book Preview (Unified Style) -->
+          <div v-if="currentBook" class="flex gap-4 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800 shadow-sm">
+            <img
+              :src="currentBook.book?.cover_url"
+              class="w-12 h-16 object-cover shadow-md bg-zinc-200 dark:bg-zinc-700"
+            />
+            <div class="flex-1 min-w-0 flex flex-col justify-center">
+              <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-sm mb-1.5 truncate">{{ currentBook.book?.title }}</h3>
+              <div class="flex flex-wrap items-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">
+                <span class="truncate max-w-[100px]">{{ currentBook.book?.author }}</span>
+                <template v-if="currentBook.book?.publisher || currentBook.book?.total_pages">
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span v-if="currentBook.book?.publisher" class="truncate max-w-[80px]">{{ currentBook.book?.publisher }}</span>
+                  <span v-if="currentBook.book?.publisher && currentBook.book?.total_pages">·</span>
+                  <span v-if="currentBook.book?.total_pages">{{ currentBook.book?.total_pages }}p</span>
+                </template>
+                <template v-if="currentBook.book?.official_genre || currentBook.book?.draft_genre">
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <GenreBadge :genre="currentBook.book?.official_genre || currentBook.book?.draft_genre" size="sm" />
+                </template>
+              </div>
             </div>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">종료일</label>
-            <div class="overflow-hidden rounded-xl">
-              <input
-                v-model="localEndDate"
-                type="date"
-                :min="localStartDate"
-                class="w-full min-w-0 box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white px-2 sm:px-4 py-2.5 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
-              />
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-zinc-500 dark:text-zinc-400 ml-1">시작일</label>
+                <input
+                  v-model="localStartDate"
+                  type="date"
+                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark]"
+                />
+              </div>
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-zinc-500 dark:text-zinc-400 ml-1">종료일</label>
+                <input
+                  v-model="localEndDate"
+                  type="date"
+                  :min="localStartDate"
+                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark]"
+                />
+              </div>
             </div>
-          </div>
 
-          <div v-if="localStartDate && localEndDate" class="p-3 bg-lime-400/10 border border-lime-400/30 rounded-lg">
-            <p class="text-sm text-lime-400 text-center">
-              💡 {{ calculateDays() }}일 독서 계획
-            </p>
+            <div v-if="localStartDate && localEndDate" class="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-700 rounded-lg flex items-center justify-center shadow-sm">
+                  <Calendar :size="16" class="text-lime-500" />
+                </div>
+                <span class="text-sm font-bold text-zinc-700 dark:text-zinc-300">총 독서 기간</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <span class="text-lg font-black text-lime-600 dark:text-lime-400">{{ calculateDays() }}</span>
+                <span class="text-sm font-bold text-zinc-400">일</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="flex gap-3 mt-6">
+        <div class="flex gap-3 mt-8">
           <button
             @click="emit('closeEditDates')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-3 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>
           <button
             @click="handleSaveDates"
-            class="flex-1 bg-lime-400 text-black font-bold py-3 rounded-xl hover:bg-lime-300 transition-colors"
+            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95"
             :disabled="!localStartDate || !localEndDate"
           >
-            저장
+            변경사항 저장
           </button>
         </div>
       </div>
     </div>
 
     <!-- Mark Completed Modal -->
-    <div v-if="markCompletedOpen" class="fixed inset-0 z-[100010] flex items-center justify-center">
+    <div v-if="markCompletedOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeMarkCompleted')"></div>
-      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">✅ 완주 처리</h2>
-          <button @click="emit('closeMarkCompleted')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
+          <button @click="emit('closeMarkCompleted')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="24" />
           </button>
         </div>
 
-        <div class="space-y-4">
-          <p class="text-zinc-700 dark:text-zinc-300">정말 이 책을 완주 처리하시겠습니까?</p>
-          <div v-if="currentBook" class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
-            <p class="font-bold text-zinc-800 dark:text-zinc-200">{{ currentBook.book?.title }}</p>
-            <div class="flex items-center gap-2 mt-1">
-              <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ currentBook.book?.author }}</p>
-              <GenreBadge v-if="currentBook.book?.official_genre || currentBook.book?.draft_genre" :genre="currentBook.book?.official_genre || currentBook.book?.draft_genre" size="sm" />
+        <div class="space-y-6">
+          <p class="text-zinc-700 dark:text-zinc-300 text-center">정말 이 책을 완주 처리하시겠습니까?</p>
+          
+          <div v-if="currentBook" class="flex gap-4 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800 shadow-sm">
+            <img
+              :src="currentBook.book?.cover_url"
+              class="w-12 h-16 object-cover shadow-md bg-zinc-200 dark:bg-zinc-700"
+            />
+            <div class="flex-1 min-w-0 flex flex-col justify-center">
+              <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-sm mb-1.5 truncate">{{ currentBook.book?.title }}</h3>
+              <div class="flex flex-wrap items-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">
+                <span class="truncate max-w-[100px]">{{ currentBook.book?.author }}</span>
+                <template v-if="currentBook.book?.publisher || currentBook.book?.total_pages">
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span v-if="currentBook.book?.publisher" class="truncate max-w-[80px]">{{ currentBook.book?.publisher }}</span>
+                  <span v-if="currentBook.book?.publisher && currentBook.book?.total_pages">·</span>
+                  <span v-if="currentBook.book?.total_pages">{{ currentBook.book?.total_pages }}p</span>
+                </template>
+              </div>
             </div>
           </div>
-          <p class="text-sm text-zinc-600 dark:text-zinc-500">완주 처리하면 히스토리로 이동하며, 새로운 책을 시작할 수 있습니다.</p>
+          
+          <p class="text-xs text-zinc-500 dark:text-zinc-500 text-center leading-relaxed">
+            완주 처리하면 히스토리로 이동하며,<br/>해당 그룹에서 새로운 책을 시작할 수 있습니다.
+          </p>
         </div>
 
-        <div class="flex gap-3 mt-6">
+        <div class="flex gap-3 mt-8">
           <button
             @click="emit('closeMarkCompleted')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-3 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>
           <button
             @click="emit('markAsCompleted')"
-            class="flex-1 bg-lime-400 text-black font-bold py-3 rounded-xl hover:bg-lime-300 transition-colors"
+            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95"
           >
-            완주 처리
+            완주 완료
           </button>
         </div>
       </div>
     </div>
 
     <!-- Delete Book Modal -->
-    <div v-if="deleteBookOpen" class="fixed inset-0 z-[100010] flex items-center justify-center">
+    <div v-if="deleteBookOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeDeleteBook')"></div>
-      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-red-400">⚠️ 책 삭제 확인</h2>
-          <button @click="emit('closeDeleteBook')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
+          <h2 class="text-xl font-bold text-red-500 dark:text-red-400">⚠️ 책 삭제</h2>
+          <button @click="emit('closeDeleteBook')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="24" />
           </button>
         </div>
 
-        <div class="space-y-4">
-          <p class="text-zinc-700 dark:text-zinc-300">정말 이 책을 삭제하시겠습니까?</p>
-          <div v-if="currentBook" class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
-            <p class="font-bold text-zinc-800 dark:text-zinc-200">{{ currentBook.book?.title }}</p>
-            <div class="flex items-center gap-2 mt-1">
-              <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ currentBook.book?.author }}</p>
-              <GenreBadge v-if="currentBook.book?.official_genre || currentBook.book?.draft_genre" :genre="currentBook.book?.official_genre || currentBook.book?.draft_genre" size="sm" />
+        <div class="space-y-6">
+          <div v-if="currentBook" class="flex gap-4 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800 shadow-sm">
+            <img
+              :src="currentBook.book?.cover_url"
+              class="w-12 h-16 object-cover shadow-md bg-zinc-200 dark:bg-zinc-700"
+            />
+            <div class="flex-1 min-w-0 flex flex-col justify-center">
+              <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-sm mb-1.5 truncate">{{ currentBook.book?.title }}</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">{{ currentBook.book?.author }}</p>
             </div>
           </div>
-          <div class="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
-            <p class="text-sm text-red-400 font-medium mb-2">다음 데이터가 함께 삭제됩니다:</p>
-            <ul class="text-sm text-red-400 space-y-1">
-              <li>• 모든 멤버의 독서 진행도</li>
-              <li>• 이 책의 모든 댓글 ({{ commentCount }}개)</li>
-              <li>• 이 책의 모든 반응</li>
+
+          <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-900/30">
+            <p class="text-sm text-red-600 dark:text-red-400 font-bold mb-2">정말 이 책을 삭제하시겠습니까?</p>
+            <ul class="text-xs text-red-500 dark:text-red-400/80 space-y-1 opacity-90">
+              <li>• 모든 멤버의 독서 진행도가 삭제됩니다.</li>
+              <li>• 책에 달린 모든 댓글({{ commentCount }}개)이 삭제됩니다.</li>
+              <li>• 이 작업은 절대로 되돌릴 수 없습니다.</li>
             </ul>
           </div>
-          <p class="text-sm text-zinc-600 dark:text-zinc-500 font-bold">⚠️ 이 작업은 되돌릴 수 없습니다</p>
         </div>
 
-        <div class="flex gap-3 mt-6">
+        <div class="flex gap-3 mt-8">
           <button
             @click="emit('closeDeleteBook')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-3 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>
           <button
             @click="emit('deleteBook')"
-            class="flex-1 bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 transition-colors"
+            class="flex-[2] bg-red-500 text-white font-bold py-4 rounded-xl hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 active:scale-95"
           >
-            삭제하기
+            영구 삭제
           </button>
         </div>
       </div>
@@ -151,48 +198,49 @@
     <!-- Edit Finished Date Modal -->
     <div v-if="editFinishedDateOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditFinishedDate')"></div>
-      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-4 sm:p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">완주 날짜 수정</h2>
-          <button @click="emit('closeEditFinishedDate')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
+          <button @click="emit('closeEditFinishedDate')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="24" />
           </button>
         </div>
 
-        <div class="space-y-4">
-          <div v-if="currentBook" class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl mb-4">
-            <p class="font-bold text-zinc-800 dark:text-zinc-200">{{ currentBook.book?.title }}</p>
-            <div class="flex items-center gap-2 mt-1">
-              <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ currentBook.book?.author }}</p>
-              <GenreBadge v-if="currentBook.book?.official_genre || currentBook.book?.draft_genre" :genre="currentBook.book?.official_genre || currentBook.book?.draft_genre" size="sm" />
+        <div class="space-y-6">
+          <div v-if="currentBook" class="flex gap-4 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800 shadow-sm">
+            <img
+              :src="currentBook.book?.cover_url"
+              class="w-12 h-16 object-cover shadow-md bg-zinc-200 dark:bg-zinc-700"
+            />
+            <div class="flex-1 min-w-0 flex flex-col justify-center">
+              <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-sm mb-1.5 truncate">{{ currentBook.book?.title }}</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">{{ currentBook.book?.author }}</p>
             </div>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">완주 날짜</label>
-            <div class="overflow-hidden rounded-xl">
-              <input
-                v-model="localFinishedDate"
-                type="date"
-                class="w-full min-w-0 box-border bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white px-2 sm:px-4 py-2.5 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 [color-scheme:light] dark:[color-scheme:dark]"
-              />
-            </div>
+          <div class="space-y-2">
+            <label class="block text-xs font-bold text-zinc-500 dark:text-zinc-400 ml-1">완주 날짜</label>
+            <input
+              v-model="localFinishedDate"
+              type="date"
+              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark]"
+            />
           </div>
         </div>
 
-        <div class="flex gap-3 mt-6">
+        <div class="flex gap-3 mt-8">
           <button
             @click="emit('closeEditFinishedDate')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-3 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>
           <button
             @click="handleSaveFinishedDate"
-            class="flex-1 bg-lime-400 text-black font-bold py-3 rounded-xl hover:bg-lime-300 transition-colors"
+            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95"
             :disabled="!localFinishedDate"
           >
-            저장
+            날짜 저장
           </button>
         </div>
       </div>
@@ -201,44 +249,60 @@
     <!-- Edit TOC Modal -->
     <div v-if="editTocOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditToc')"></div>
-      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-2xl border border-zinc-300 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
-        <div class="sticky top-0 bg-white dark:bg-zinc-900 z-10 flex justify-between items-center p-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">📑 목차 수정</h2>
-          <button @click="emit('closeEditToc')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white flex-shrink-0">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-2xl border border-zinc-300 dark:border-zinc-800 max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+        <div class="sticky top-0 bg-white dark:bg-zinc-900 z-10 flex justify-between items-center p-6 pb-4 border-b border-zinc-100 dark:border-zinc-800">
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">목차 수정</h2>
+          <button @click="emit('closeEditToc')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="24" />
           </button>
         </div>
 
-        <div class="p-6 pt-4 space-y-4">
-          <div v-if="currentBook" class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
-            <p class="font-bold text-zinc-800 dark:text-zinc-200 text-sm break-words">{{ currentBook.book?.title }}</p>
-            <div class="flex items-center gap-2 mt-1">
-              <p class="text-xs text-zinc-600 dark:text-zinc-400 break-words">{{ currentBook.book?.author }}</p>
-              <GenreBadge v-if="currentBook.book?.official_genre || currentBook.book?.draft_genre" :genre="currentBook.book?.official_genre || currentBook.book?.draft_genre" size="sm" />
+        <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+          <div v-if="currentBook" class="flex gap-4 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800 shadow-sm">
+            <img
+              :src="currentBook.book?.cover_url"
+              class="w-12 h-16 object-cover shadow-md bg-zinc-200 dark:bg-zinc-700"
+            />
+            <div class="flex-1 min-w-0 flex flex-col justify-center">
+              <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-sm mb-1.5 truncate">{{ currentBook.book?.title }}</h3>
+              <div class="flex flex-wrap items-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">
+                <span class="truncate max-w-[100px]">{{ currentBook.book?.author }}</span>
+                <template v-if="currentBook.book?.publisher || localTotalPages">
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span v-if="currentBook.book?.publisher" class="truncate max-w-[80px]">{{ currentBook.book?.publisher }}</span>
+                  <span v-if="currentBook.book?.publisher && localTotalPages">·</span>
+                  <span v-if="localTotalPages">{{ localTotalPages }}p</span>
+                </template>
+                <template v-if="currentBook.book?.official_genre || currentBook.book?.draft_genre">
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <GenreBadge :genre="currentBook.book?.official_genre || currentBook.book?.draft_genre" size="sm" />
+                </template>
+              </div>
             </div>
           </div>
 
-          <!-- TOC Input Form (공통 컴포넌트) -->
+          <!-- TOC Input Form -->
           <TocInputForm
             ref="tocFormRef"
             v-model:totalPages="localTotalPages"
             v-model:chapters="localChapters"
           />
-          <div class="flex gap-3 pt-2">
-            <button
-              @click="emit('closeEditToc')"
-              class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium py-3 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-            >
-              취소
-            </button>
-            <button
-              @click="handleSaveToc"
-              class="flex-1 bg-lime-400 text-black font-bold py-3 rounded-xl hover:bg-lime-300 transition-colors"
-              :disabled="!localTotalPages || localTotalPages <= 0"
-            >
-              저장
-            </button>
-          </div>
+        </div>
+
+        <div class="p-6 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 flex gap-3">
+          <button
+            @click="emit('closeEditToc')"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+          >
+            취소
+          </button>
+          <button
+            @click="handleSaveToc"
+            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95"
+            :disabled="!localTotalPages || localTotalPages <= 0"
+          >
+            수정 완료
+          </button>
         </div>
       </div>
     </div>
@@ -247,9 +311,10 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { X } from 'lucide-vue-next'
+import { X, Calendar } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 import TocInputForm from '~/components/TocInputForm.vue'
+import GenreBadge from '~/components/GenreBadge.vue'
 
 interface Props {
   editDatesOpen: boolean
@@ -320,7 +385,6 @@ watch(() => props.editFinishedDateOpen, (isOpen) => {
   if (isOpen && props.currentBook) {
     const finishedAt = props.currentBook.finished_at
     if (finishedAt) {
-      // Convert timestamp to YYYY-MM-DD format for date input
       const date = new Date(finishedAt)
       localFinishedDate.value = getLocalDateString(date)
     } else {
@@ -336,8 +400,6 @@ const handleSaveFinishedDate = () => {
 // Edit TOC
 const localTotalPages = ref<number | null>(null)
 const localChapters = ref<{ title: string; startPage: number }[]>([])
-
-// TocInputForm ref for validation
 const tocFormRef = ref<InstanceType<typeof TocInputForm> | null>(null)
 
 watch([() => props.editTocOpen, () => props.currentBook], ([isOpen, currentBook]) => {
@@ -357,19 +419,22 @@ watch([() => props.editTocOpen, () => props.currentBook], ([isOpen, currentBook]
 })
 
 const handleSaveToc = () => {
-  // Validate using TocInputForm
   if (!tocFormRef.value) return
-
   const validation = tocFormRef.value.validate()
   if (!validation.valid) {
     toast.error(validation.message || '목차 정보를 확인해주세요.')
     return
   }
-
-  // Validation passed, emit save event
   emit('saveEditedToc', {
     totalPages: localTotalPages.value!,
     chapters: localChapters.value
   })
 }
 </script>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
+.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
+</style>

@@ -118,10 +118,7 @@
                   </div>
                   <div class="flex items-center gap-2 text-xs text-zinc-500">
                     <span>{{ formatDate(book.finishedAt) }}</span>
-                    <span v-if="book.avgRating > 0" class="flex items-center gap-1">
-                      <Star :size="12" class="text-yellow-400 fill-yellow-400" />
-                      <span class="text-yellow-400 font-bold">{{ book.avgRating.toFixed(1) }}</span>
-                    </span>
+                    <RatingBadge :rating="book.avgRating" size="sm" />
                   </div>
                 </div>
               </div>
@@ -379,7 +376,10 @@ const fetchStats = async () => {
 const formatDate = (dateStr: string) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
-  return date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })
+  const year = String(date.getFullYear()).slice(-2)
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
+  return `${year}.${month}.${day}`
 }
 
 // Watch for modal open and prevent body scroll

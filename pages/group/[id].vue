@@ -154,6 +154,14 @@
       :initialRating="reviewInitialData.rating"
       :initialContent="reviewInitialData.content"
       :isEditing="isEditingReview"
+      :book="selectedBook ? {
+        title: selectedBook.book?.title,
+        author: selectedBook.book?.author,
+        coverUrl: selectedBook.book?.cover_url,
+        publisher: selectedBook.book?.publisher,
+        total_pages: selectedBook.book?.total_pages,
+        genre: selectedBook.book?.official_genre || selectedBook.book?.draft_genre
+      } : null"
       @close="closeReviewModal"
       @submit="handleReviewSubmit"
     />
@@ -628,7 +636,9 @@ const fetchUserReviews = async () => {
       .in('group_book_id', bookIds)
 
     if (userReviews) {
+      // 🎯 중요: 새로운 Set 객체를 생성하여 재할당해야 Vue가 변화를 감지함
       userReviewedBooks.value = new Set(userReviews.map(r => r.group_book_id))
+      console.log('[FetchUserReviews] Updated reviews count:', userReviewedBooks.value.size)
     }
   } catch (error) {
     console.error('[FetchUserReviews] Error:', error)
@@ -1026,7 +1036,7 @@ const handleReviewSubmit = async (data: any) => {
 
     // 리뷰 개수 업데이트를 위해 책 목록 새로고침
     await fetchBooks()
-    // Update user's review tracking
+    // 🎯 중요: 리뷰 작성 목록(userReviewedBooks) 즉시 최신화
     await fetchUserReviews()
 
     closeReviewModal()
