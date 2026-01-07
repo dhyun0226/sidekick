@@ -62,26 +62,39 @@
             <div v-if="activeBookMenu === book.id" class="fixed inset-0 z-[9998]" @click.stop="activeBookMenu = null"></div>
           </div>
 
-          <div class="flex gap-3 mb-2">
+          <div class="flex gap-3">
             <img :src="book.book?.cover_url" class="w-14 h-20 object-cover rounded shadow-sm bg-zinc-200 dark:bg-zinc-800 flex-shrink-0" />
-            <div class="flex-1 min-w-0">
-              <h3 class="font-bold text-zinc-900 dark:text-white line-clamp-2 text-sm mb-1 pr-8">{{ book.book?.title }}</h3>
-              <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-2">{{ book.book?.author }}</p>
-              <div class="text-[10px] text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded px-2 py-1 inline-block">
-                {{ formatBookDateRange(book) || '기간 미설정' }}
+            <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+              <div>
+                <h3 class="font-bold text-zinc-900 dark:text-white line-clamp-1 text-sm mb-1 pr-8">{{ book.book?.title }}</h3>
+                <div class="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+                  <span class="truncate max-w-[80px]">{{ book.book?.author }}</span>
+                  <template v-if="book.book?.publisher || book.book?.total_pages">
+                    <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                    <span v-if="book.book?.publisher" class="truncate max-w-[60px]">{{ book.book?.publisher }}</span>
+                    <span v-if="book.book?.publisher && book.book?.total_pages">·</span>
+                    <span v-if="book.book?.total_pages">{{ book.book?.total_pages }}p</span>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Badges Line -->
+              <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                <GenreBadge v-if="book.book?.official_genre || book.book?.draft_genre" :genre="book.book?.official_genre || book.book?.draft_genre" size="sm" />
+                
+                <div v-if="book.round && book.round > 1" class="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
+                  {{ book.round }}회차
+                </div>
+
+                <div v-if="book.target_start_date" class="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
+                  {{ formatBookDateRange(book) }}
+                </div>
+
+                <div v-if="getBookDaysRemaining(book) !== null" class="text-[10px] font-bold text-lime-700 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/20 px-1.5 py-0.5 rounded">
+                  {{ getBookDaysRemaining(book)! > 0 ? `D-${getBookDaysRemaining(book)}` : getBookDaysRemaining(book) === 0 ? 'D-Day' : `D+${Math.abs(getBookDaysRemaining(book)!)}` }}
+                </div>
               </div>
             </div>
-          </div>
-
-          <!-- D-Day (모든 책에 표시) -->
-          <div
-            v-if="getBookDaysRemaining(book) !== null"
-            class="bg-zinc-100 dark:bg-zinc-800 rounded-lg p-2 flex items-center justify-between"
-          >
-            <span class="text-xs text-zinc-500 dark:text-zinc-400">목표일까지</span>
-            <span class="text-xs font-bold text-lime-500 dark:text-lime-400">
-              {{ getBookDaysRemaining(book)! > 0 ? `${getBookDaysRemaining(book)}일 남음` : getBookDaysRemaining(book) === 0 ? '오늘까지!' : `+${Math.abs(getBookDaysRemaining(book)!)}일 지남` }}
-            </span>
           </div>
         </div>
       </div>
@@ -124,11 +137,17 @@ interface Book {
   book?: {
     title: string
     author: string
+    publisher?: string
+    total_pages?: number
     cover_url: string
+    official_genre?: string
+    draft_genre?: string
   }
   target_start_date?: string
   target_end_date?: string
   user_finished_at?: string
+  created_at: string
+  round?: number
 }
 
 interface TocChapter {

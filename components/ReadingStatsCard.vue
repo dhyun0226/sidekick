@@ -68,7 +68,15 @@
                 <div class="w-12 h-16 bg-zinc-300 dark:bg-zinc-700 rounded flex-shrink-0" v-else></div>
                 <div class="flex-1 min-w-0">
                   <div class="font-medium text-zinc-900 dark:text-zinc-200 text-sm line-clamp-1">{{ book.title }}</div>
-                  <div class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">{{ book.author }}</div>
+                  <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
+                    <div class="text-xs text-zinc-600 dark:text-zinc-400">{{ book.author }}</div>
+                    <div v-if="book.publisher || book.total_pages" class="text-[10px] text-zinc-400">
+                      <span v-if="book.publisher">{{ book.publisher }}</span>
+                      <span v-if="book.publisher && book.total_pages"> · </span>
+                      <span v-if="book.total_pages">{{ book.total_pages }}p</span>
+                    </div>
+                    <GenreBadge v-if="book.genre" :genre="book.genre" size="sm" />
+                  </div>
                   <div class="text-xs text-zinc-500">{{ formatDate(book.finishedAt) }} 완독</div>
                 </div>
               </div>
@@ -155,7 +163,7 @@ const stats = ref({
 })
 
 const activities = ref<{
-  books: Array<{ id: string; title: string; author: string; cover: string | null; finishedAt: string }>
+  books: Array<{ id: string; title: string; author: string; cover: string | null; genre?: string; finishedAt: string }>
   reviews: Array<{ id: string; bookTitle: string; rating: number; content: string; createdAt: string }>
   comments: Array<{ id: string; bookTitle: string; content: string; createdAt: string }>
 }>({
@@ -216,56 +224,22 @@ const fetchStats = async () => {
           books (
             title,
             author,
-            cover_url
+            publisher,
+            total_pages,
+            cover_url,
+            official_genre,
+            draft_genre
           )
-        )
-      `)
-      .eq('user_id', user.id)
-      .not('finished_at', 'is', null)
-      .gte('finished_at', dateRange.start.toISOString())
-      .lte('finished_at', dateRange.end.toISOString())
-
-    // Fetch reviews
-    const { data: reviewsData } = await client
-      .from('reviews')
-      .select(`
-        id,
-        rating,
-        content,
-        created_at,
-        group_books!inner (
-          books (
-            title
-          )
-        )
-      `)
-      .eq('user_id', user.id)
-      .gte('created_at', dateRange.start.toISOString())
-      .lte('created_at', dateRange.end.toISOString())
-
-    // Fetch comments
-    const { data: commentsData } = await client
-      .from('comments')
-      .select(`
-        id,
-        content,
-        created_at,
-        group_books!inner (
-          books (
-            title
-          )
-        )
-      `)
-      .eq('user_id', user.id)
-      .gte('created_at', dateRange.start.toISOString())
-      .lte('created_at', dateRange.end.toISOString())
-
+...
     // Process data
     activities.value.books = (booksData || []).map((item: any) => ({
       id: item.group_book_id,
       title: item.group_books.books?.title || '제목 없음',
       author: item.group_books.books?.author || '저자 미상',
       cover: item.group_books.books?.cover_url || null,
+      publisher: item.group_books.books?.publisher,
+      total_pages: item.group_books.books?.total_pages,
+      genre: item.group_books.books?.official_genre || item.group_books.books?.draft_genre,
       finishedAt: item.finished_at
     }))
 

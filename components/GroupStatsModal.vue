@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[10000] flex items-center justify-center px-4">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="$emit('close')"></div>
 
@@ -107,7 +107,15 @@
                     {{ book.title }}
                     <span v-if="book.round" class="text-lime-400 ml-1 text-xs">[{{ book.round }}회]</span>
                   </div>
-                  <div class="text-xs text-zinc-500 mb-1">{{ book.author }}</div>
+                  <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
+                    <div class="text-xs text-zinc-500">{{ book.author }}</div>
+                    <div v-if="book.publisher || book.total_pages" class="text-[10px] text-zinc-400">
+                      <span v-if="book.publisher">{{ book.publisher }}</span>
+                      <span v-if="book.publisher && book.total_pages"> · </span>
+                      <span v-if="book.total_pages">{{ book.total_pages }}p</span>
+                    </div>
+                    <GenreBadge v-if="book.genre" :genre="book.genre" size="sm" />
+                  </div>
                   <div class="flex items-center gap-2 text-xs text-zinc-500">
                     <span>{{ formatDate(book.finishedAt) }}</span>
                     <span v-if="book.avgRating > 0" class="flex items-center gap-1">
@@ -293,8 +301,20 @@ const fetchStats = async () => {
         books (
           title,
           author,
-          cover_url
+          publisher,
+          total_pages,
+          cover_url,
+          official_genre,
+          draft_genre
         )
+...
+            author: book.books?.author || '저자 미상',
+            cover: book.books?.cover_url,
+            publisher: book.books?.publisher,
+            total_pages: book.books?.total_pages,
+            genre: book.books?.official_genre || book.books?.draft_genre,
+            finishedAt: book.finished_at,
+
       `)
       .eq('group_id', props.groupId)
       .eq('status', 'done')
@@ -320,6 +340,7 @@ const fetchStats = async () => {
             title: book.books?.title || '제목 없음',
             author: book.books?.author || '저자 미상',
             cover: book.books?.cover_url,
+            genre: book.books?.official_genre || book.books?.draft_genre,
             finishedAt: book.finished_at,
             avgRating,
             round

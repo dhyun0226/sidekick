@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Edit Dates Modal -->
-    <div v-if="editDatesOpen" class="fixed inset-0 z-[100] flex items-center justify-center">
+    <div v-if="editDatesOpen" class="fixed inset-0 z-[100010] flex items-center justify-center">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditDates')"></div>
       <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800">
         <div class="flex justify-between items-center mb-6">
@@ -61,7 +61,7 @@
     </div>
 
     <!-- Mark Completed Modal -->
-    <div v-if="markCompletedOpen" class="fixed inset-0 z-[100] flex items-center justify-center">
+    <div v-if="markCompletedOpen" class="fixed inset-0 z-[100010] flex items-center justify-center">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeMarkCompleted')"></div>
       <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800">
         <div class="flex justify-between items-center mb-6">
@@ -75,7 +75,10 @@
           <p class="text-zinc-700 dark:text-zinc-300">정말 이 책을 완주 처리하시겠습니까?</p>
           <div v-if="currentBook" class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
             <p class="font-bold text-zinc-800 dark:text-zinc-200">{{ currentBook.book?.title }}</p>
-            <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ currentBook.book?.author }}</p>
+            <div class="flex items-center gap-2 mt-1">
+              <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ currentBook.book?.author }}</p>
+              <GenreBadge v-if="currentBook.book?.official_genre || currentBook.book?.draft_genre" :genre="currentBook.book?.official_genre || currentBook.book?.draft_genre" size="sm" />
+            </div>
           </div>
           <p class="text-sm text-zinc-600 dark:text-zinc-500">완주 처리하면 히스토리로 이동하며, 새로운 책을 시작할 수 있습니다.</p>
         </div>
@@ -98,7 +101,7 @@
     </div>
 
     <!-- Delete Book Modal -->
-    <div v-if="deleteBookOpen" class="fixed inset-0 z-[100] flex items-center justify-center">
+    <div v-if="deleteBookOpen" class="fixed inset-0 z-[100010] flex items-center justify-center">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeDeleteBook')"></div>
       <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 m-4 shadow-2xl border border-zinc-300 dark:border-zinc-800">
         <div class="flex justify-between items-center mb-6">
@@ -112,7 +115,10 @@
           <p class="text-zinc-700 dark:text-zinc-300">정말 이 책을 삭제하시겠습니까?</p>
           <div v-if="currentBook" class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
             <p class="font-bold text-zinc-800 dark:text-zinc-200">{{ currentBook.book?.title }}</p>
-            <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ currentBook.book?.author }}</p>
+            <div class="flex items-center gap-2 mt-1">
+              <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ currentBook.book?.author }}</p>
+              <GenreBadge v-if="currentBook.book?.official_genre || currentBook.book?.draft_genre" :genre="currentBook.book?.official_genre || currentBook.book?.draft_genre" size="sm" />
+            </div>
           </div>
           <div class="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
             <p class="text-sm text-red-400 font-medium mb-2">다음 데이터가 함께 삭제됩니다:</p>
@@ -143,7 +149,7 @@
     </div>
 
     <!-- Edit Finished Date Modal -->
-    <div v-if="editFinishedDateOpen" class="fixed inset-0 z-[100] flex items-center justify-center px-4">
+    <div v-if="editFinishedDateOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditFinishedDate')"></div>
       <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-4 sm:p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800">
         <div class="flex justify-between items-center mb-6">
@@ -156,7 +162,10 @@
         <div class="space-y-4">
           <div v-if="currentBook" class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl mb-4">
             <p class="font-bold text-zinc-800 dark:text-zinc-200">{{ currentBook.book?.title }}</p>
-            <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ currentBook.book?.author }}</p>
+            <div class="flex items-center gap-2 mt-1">
+              <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ currentBook.book?.author }}</p>
+              <GenreBadge v-if="currentBook.book?.official_genre || currentBook.book?.draft_genre" :genre="currentBook.book?.official_genre || currentBook.book?.draft_genre" size="sm" />
+            </div>
           </div>
 
           <div>
@@ -190,7 +199,7 @@
     </div>
 
     <!-- Edit TOC Modal -->
-    <div v-if="editTocOpen" class="fixed inset-0 z-[100] flex items-center justify-center px-4">
+    <div v-if="editTocOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditToc')"></div>
       <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-2xl border border-zinc-300 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
         <div class="sticky top-0 bg-white dark:bg-zinc-900 z-10 flex justify-between items-center p-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
@@ -203,7 +212,10 @@
         <div class="p-6 pt-4 space-y-4">
           <div v-if="currentBook" class="p-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl">
             <p class="font-bold text-zinc-800 dark:text-zinc-200 text-sm break-words">{{ currentBook.book?.title }}</p>
-            <p class="text-xs text-zinc-600 dark:text-zinc-400 break-words">{{ currentBook.book?.author }}</p>
+            <div class="flex items-center gap-2 mt-1">
+              <p class="text-xs text-zinc-600 dark:text-zinc-400 break-words">{{ currentBook.book?.author }}</p>
+              <GenreBadge v-if="currentBook.book?.official_genre || currentBook.book?.draft_genre" :genre="currentBook.book?.official_genre || currentBook.book?.draft_genre" size="sm" />
+            </div>
           </div>
 
           <!-- TOC Input Form (공통 컴포넌트) -->

@@ -75,7 +75,8 @@
             <tr>
               <th class="text-left px-6 py-4 text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">책</th>
               <th class="text-left px-6 py-4 text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">저자</th>
-              <th class="text-left px-6 py-4 text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">상태</th>
+              <th class="text-left px-6 py-4 text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">장르</th>
+              <th class="text-left px-6 py-4 text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">목차</th>
               <th class="text-center px-6 py-4 text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">챕터 수</th>
               <th class="text-center px-6 py-4 text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">등록일</th>
               <th class="text-right px-6 py-4 text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">작업</th>
@@ -108,7 +109,30 @@
                   <p class="text-sm text-zinc-700 dark:text-zinc-300">{{ book.author }}</p>
                 </td>
 
-                <!-- Status Badge -->
+                <!-- Genre Status Badge -->
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-1.5">
+                    <GenreBadge
+                      v-if="book.official_genre || book.draft_genre"
+                      :genre="book.official_genre || book.draft_genre"
+                      size="sm"
+                    />
+                    <span
+                      v-if="book.draft_genre && !book.official_genre"
+                      class="text-[10px] font-bold text-lime-600 dark:text-lime-400 bg-lime-100 dark:bg-lime-900/20 px-1.5 py-0.5 rounded"
+                    >
+                      대기
+                    </span>
+                    <span
+                      v-else-if="!book.official_genre && !book.draft_genre"
+                      class="text-xs text-zinc-400"
+                    >
+                      -
+                    </span>
+                  </div>
+                </td>
+
+                <!-- TOC Status Badge -->
                 <td class="px-6 py-4">
                   <span
                     v-if="book.official_toc"
@@ -169,14 +193,26 @@
                       <Edit :size="18" />
                     </button>
 
-                    <!-- Approve Button -->
+                    <!-- Approve Genre Button -->
+                    <button
+                      v-if="book.draft_genre && !book.official_genre"
+                      @click="approveGenre(book.isbn, book.title, book.draft_genre)"
+                      :disabled="approvingGenre === book.isbn"
+                      class="px-3 py-1.5 bg-purple-400 hover:bg-purple-500 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                      title="장르 승인"
+                    >
+                      {{ approvingGenre === book.isbn ? '승인 중...' : '장르 승인' }}
+                    </button>
+
+                    <!-- Approve TOC Button -->
                     <button
                       v-if="book.draft_toc && !book.official_toc"
                       @click="approveToc(book.isbn, book.title)"
-                      :disabled="approving === book.isbn"
-                      class="px-3 py-1.5 bg-lime-400 hover:bg-lime-500 text-black text-xs font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      :disabled="approvingToc === book.isbn"
+                      class="px-3 py-1.5 bg-lime-400 hover:bg-lime-500 text-black text-xs font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                      title="목차 승인"
                     >
-                      {{ approving === book.isbn ? '승인 중...' : '승인' }}
+                      {{ approvingToc === book.isbn ? '승인 중...' : '목차 승인' }}
                     </button>
                   </div>
                 </td>
@@ -237,7 +273,8 @@ const toast = useToastStore()
 
 const loading = ref(true)
 const allBooks = ref<any[]>([])
-const approving = ref<string | null>(null)
+const approvingToc = ref<string | null>(null)
+const approvingGenre = ref<string | null>(null)
 const showEditModal = ref(false)
 const editingBook = ref<any>(null)
 const editingTocType = ref<'draft' | 'official'>('draft')
@@ -312,12 +349,28 @@ const fetchAllBooks = async () => {
   }
 }
 
-const parseToc = (tocJson: string) => {
-  try {
-    return JSON.parse(tocJson)
-  } catch {
+const parseToc = (tocData: any) => {
+  // If already an object/array, return as is
+  if (Array.isArray(tocData)) {
+    return tocData
+  }
+
+  // If it's an object (but not array), might be invalid - return empty
+  if (typeof tocData === 'object' && tocData !== null) {
     return []
   }
+
+  // If it's a string, try to parse it
+  if (typeof tocData === 'string') {
+    try {
+      return JSON.parse(tocData)
+    } catch {
+      return []
+    }
+  }
+
+  // Fallback for null/undefined
+  return []
 }
 
 const approveToc = async (isbn: string, title: string) => {
@@ -325,10 +378,10 @@ const approveToc = async (isbn: string, title: string) => {
     return
   }
 
-  approving.value = isbn
+  approvingToc.value = isbn
 
   try {
-    const response = await $fetch('/api/admin/books/approve', {
+    const response = await $fetch('/api/admin/books/approve-toc', {
       method: 'POST',
       body: { isbn }
     })
@@ -341,10 +394,38 @@ const approveToc = async (isbn: string, title: string) => {
       allBooks.value[bookIndex].official_toc = allBooks.value[bookIndex].draft_toc
     }
   } catch (error: any) {
-    console.error('[Admin] Approve error:', error)
+    console.error('[Admin] Approve TOC error:', error)
     toast.error(error.data?.message || '목차 승인에 실패했습니다.')
   } finally {
-    approving.value = null
+    approvingToc.value = null
+  }
+}
+
+const approveGenre = async (isbn: string, title: string, genre: string) => {
+  if (!confirm(`"${title}"의 장르를 "${genre}"로 승인하시겠습니까?\n\n승인 후 다른 그룹에서 이 장르를 사용할 수 있습니다.`)) {
+    return
+  }
+
+  approvingGenre.value = isbn
+
+  try {
+    const response = await $fetch('/api/admin/books/approve-genre', {
+      method: 'POST',
+      body: { isbn }
+    })
+
+    toast.success(response.message)
+
+    // Update local data - copy draft_genre to official_genre
+    const bookIndex = allBooks.value.findIndex(b => b.isbn === isbn)
+    if (bookIndex >= 0) {
+      allBooks.value[bookIndex].official_genre = allBooks.value[bookIndex].draft_genre
+    }
+  } catch (error: any) {
+    console.error('[Admin] Approve genre error:', error)
+    toast.error(error.data?.message || '장르 승인에 실패했습니다.')
+  } finally {
+    approvingGenre.value = null
   }
 }
 

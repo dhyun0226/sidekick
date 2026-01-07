@@ -43,12 +43,13 @@
           v-for="group in readingGroups"
           :key="group.id"
           @click="router.push(`/group/${group.id}`)"
-          class="relative w-full rounded-3xl overflow-hidden shadow-xl cursor-pointer group transition-transform active:scale-[0.98] min-h-[140px]"
+          class="relative w-full rounded-2xl overflow-hidden shadow-lg cursor-pointer group transition-transform active:scale-[0.98] min-h-[140px]"
         >
-          <!-- Background Image (Blurred & Darkened) -->
+          <!-- Background Image (Maximum Vibrancy) -->
           <div class="absolute inset-0 z-0">
-            <img :src="group.currentBook.cover_url" class="w-full h-full object-cover blur-2xl opacity-60" />
-            <div class="absolute inset-0 bg-black/50"></div>
+            <img :src="group.currentBook.cover_url" class="w-full h-full object-cover blur-2xl opacity-85 scale-125" />
+            <!-- Theme-aware Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/10 dark:from-black/30 dark:via-transparent dark:to-black/40"></div>
           </div>
 
           <!-- Content Wrapper -->
@@ -56,7 +57,7 @@
 
             <!-- Left: Book Cover (Fixed Aspect Ratio) -->
             <div class="w-16 sm:w-20 aspect-[2/3] flex-shrink-0 self-center">
-              <div class="w-full h-full shadow-2xl border border-white/20 bg-zinc-800 rounded-sm overflow-hidden">
+              <div class="w-full h-full shadow-2xl bg-zinc-800 rounded-sm overflow-hidden">
                 <img
                   :src="group.currentBook.cover_url"
                   class="w-full h-full object-cover"
@@ -69,43 +70,52 @@
               
               <!-- Top: Group Name & Badges -->
               <div class="flex justify-between items-start mb-0.5">
-                <h4 class="text-sm font-bold text-zinc-200 drop-shadow-md truncate">
+                <h4 class="text-sm font-bold text-zinc-900 dark:text-white truncate pr-2">
                   {{ group.name }}
                 </h4>
                 <div class="flex items-center gap-1.5 flex-shrink-0">
-                  <!-- D-Day Badge -->
-                  <div class="flex items-center bg-lime-50/90 dark:bg-lime-900/40 text-lime-700 dark:text-lime-300 text-xs font-bold px-2 py-1 rounded backdrop-blur-sm">
+                  <!-- D-Day Badge (Drawer Style Match) -->
+                  <div class="text-[10px] font-bold text-lime-700 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/20 px-1.5 py-0.5 rounded shadow-sm">
                     {{ getDdayShort(group.currentBook.target_end_date) }}
                   </div>
-                  <!-- Members Badge -->
-                  <div class="flex items-center gap-1 bg-white/90 dark:bg-zinc-800/90 text-zinc-700 dark:text-zinc-300 px-2 py-1 rounded backdrop-blur-sm">
-                    <User :size="12" />
-                    <span class="text-xs font-bold">{{ group.members.length }}</span>
+                  <!-- Members Badge (Drawer Style Match) -->
+                  <div class="flex items-center gap-1 text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded shadow-sm">
+                    <User :size="10" />
+                    <span>{{ group.members.length }}</span>
                   </div>
                 </div>
               </div>
 
               <!-- Middle: Title & Author -->
               <div class="flex-1 flex flex-col justify-center">
-                <h3 class="text-base font-bold text-white leading-tight line-clamp-2 drop-shadow-lg mb-0.5">
+                <h3 class="text-base font-bold text-zinc-900 dark:text-white leading-tight line-clamp-2 mb-1">
                   {{ group.currentBook.title }}
                 </h3>
-                <p class="text-[10px] text-zinc-400 font-medium truncate">
-                  {{ group.currentBook.author }}
-                </p>
+                <div class="flex items-center h-4 gap-1 mt-1 whitespace-nowrap overflow-hidden leading-none text-[11px] text-zinc-700 dark:text-zinc-100">
+                  <p class="truncate max-w-[100px] font-bold">
+                    {{ group.currentBook.author }}
+                  </p>
+                  
+                  <template v-if="group.currentBook.publisher || group.currentBook.total_pages">
+                    <span class="text-[10px] text-zinc-400 dark:text-white/60 font-bold relative -translate-y-[0.5px]">·</span>
+                    <span v-if="group.currentBook.publisher" class="truncate max-w-[80px] font-bold">{{ group.currentBook.publisher }}</span>
+                    <span v-if="group.currentBook.publisher && group.currentBook.total_pages" class="text-[10px] opacity-60">·</span>
+                    <span v-if="group.currentBook.total_pages" class="font-bold">{{ group.currentBook.total_pages }}p</span>
+                  </template>
+                </div>
               </div>
 
               <!-- Bottom: Date & Progress -->
               <div class="w-full mt-auto">
                 <div class="flex justify-between items-center mb-1 px-0.5">
-                  <div class="text-[9px] text-zinc-400 flex gap-0.5 font-mono">
+                  <div class="text-[10px] text-zinc-800 dark:text-white flex gap-0.5 font-mono font-bold">
                     <span>{{ group.currentBook.target_start_date ? formatDateSimple(group.currentBook.target_start_date) : 'Start' }}</span>
                     <span>~</span>
                     <span>{{ group.currentBook.target_end_date ? formatDateSimple(group.currentBook.target_end_date) : 'End' }}</span>
                   </div>
-                  <span class="text-[10px] font-bold text-lime-500">{{ Math.round(group.currentBook.progress) }}%</span>
+                  <span class="text-[10px] font-bold text-lime-600 dark:text-lime-400">{{ Math.round(group.currentBook.progress) }}%</span>
                 </div>
-                <div class="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
+                <div class="h-1.5 w-full bg-black/10 dark:bg-white/20 rounded-full overflow-hidden">
                   <div class="h-full bg-lime-500 rounded-full transition-all duration-300" :style="{ width: `${group.currentBook.progress}%` }"></div>
                 </div>
               </div>
@@ -128,7 +138,7 @@
           v-for="group in idleGroups"
           :key="group.id"
           @click="router.push(`/group/${group.id}`)"
-          class="bg-white dark:bg-zinc-900 rounded-3xl p-4 border border-zinc-200 dark:border-zinc-800 flex items-center gap-4 shadow-sm active:scale-[0.99] transition-transform cursor-pointer"
+          class="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-200 dark:border-zinc-800 flex items-center gap-4 shadow-sm active:scale-[0.99] transition-transform cursor-pointer"
         >
           <!-- Left Icon Box (Mimics Book Cover) -->
           <div class="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 border border-zinc-200 dark:border-zinc-700 flex-shrink-0">
@@ -258,12 +268,8 @@ const fetchGroups = async () => {
     if (error) throw error
 
     if (memberData) {
-      // 🔥 성능 최적화: N+1 쿼리 제거 (그룹 10개 기준 20개 쿼리 → 2개 쿼리)
-
-      // 1. 모든 그룹 ID 수집
       const groupIds = memberData.map((item: any) => item.groups.id)
 
-      // 2. 모든 그룹의 책 정보를 한 번에 조회 (1개 쿼리)
       const { data: allBooks } = await client
         .from('group_books')
         .select(`
@@ -275,7 +281,11 @@ const fetchGroups = async () => {
           books (
             title,
             author,
-            cover_url
+            publisher,
+            total_pages,
+            cover_url,
+            official_genre,
+            draft_genre
           ),
           user_reading_progress!left (
             last_read_at,
@@ -286,13 +296,11 @@ const fetchGroups = async () => {
         .eq('status', 'reading')
         .eq('user_reading_progress.user_id', user.id)
 
-      // 3. 모든 그룹의 멤버 수를 한 번에 조회 (1개 쿼리)
       const { data: allMembers } = await client
         .from('group_members')
         .select('group_id')
         .in('group_id', groupIds)
 
-      // 4. JavaScript에서 그룹별로 분류 (DB 쿼리 없음)
       const booksByGroup = new Map<string, any[]>()
       allBooks?.forEach(book => {
         if (!booksByGroup.has(book.group_id)) {
@@ -307,25 +315,19 @@ const fetchGroups = async () => {
         memberCountByGroup.set(member.group_id, count + 1)
       })
 
-      // 5. 그룹 데이터 조합 (메모리에서만 처리)
       groups.value = memberData.map((item: any) => {
         const group = item.groups
         const bookDataList = booksByGroup.get(group.id) || []
 
-        // JavaScript에서 last_read_at 기준으로 정렬 (내가 가장 최근에 읽은 책)
         const sortedBooks = bookDataList.sort((a: any, b: any) => {
           const aLastRead = a.user_reading_progress?.[0]?.last_read_at
           const bLastRead = b.user_reading_progress?.[0]?.last_read_at
 
-          // 둘 다 진행도 없으면 created_at 기준
           if (!aLastRead && !bLastRead) {
             return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
           }
-          // 하나만 진행도 있으면 그게 우선
           if (!aLastRead) return 1
           if (!bLastRead) return -1
-
-          // 둘 다 있으면 last_read_at 기준
           return new Date(bLastRead).getTime() - new Date(aLastRead).getTime()
         })
 
@@ -340,6 +342,7 @@ const fetchGroups = async () => {
             created_at: bookData.created_at,
             target_start_date: bookData.target_start_date,
             target_end_date: bookData.target_end_date,
+            genre: bookData.books?.official_genre || bookData.books?.draft_genre,
             progress: bookData.user_reading_progress?.[0]?.progress_pct || 0
           } : null
         }
@@ -354,33 +357,16 @@ const fetchGroups = async () => {
 }
 
 onMounted(async () => {
-  // 🔥 성능 최적화: 순차 실행 → 병렬 실행 (2.5초 → 2초)
   await Promise.all([
     userStore.fetchProfile(),
     fetchGroups()
   ])
 })
 
-const getDaysSince = (dateStr: string) => {
-  const start = new Date(dateStr).getTime()
-  const now = new Date().getTime()
-  const diff = now - start
-  return Math.floor(diff / (1000 * 60 * 60 * 24))
-}
-
 const getDaysRemaining = (targetDateStr: string) => {
   const target = new Date(targetDateStr).getTime()
   const now = new Date().getTime()
-  const diff = target - now
-  return Math.ceil(diff / (1000 * 60 * 60 * 24))
-}
-
-const getDdayText = (targetDateStr: string) => {
-  if (!targetDateStr) return '함께 읽는 중'
-  const days = getDaysRemaining(targetDateStr)
-  if (days > 0) return `${days}일 남음`
-  if (days === 0) return '오늘까지!'
-  return `+${Math.abs(days)}일 지남`
+  return Math.ceil((target - now) / (1000 * 60 * 60 * 24))
 }
 
 const getDdayShort = (targetDateStr: string) => {

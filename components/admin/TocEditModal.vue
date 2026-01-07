@@ -178,12 +178,28 @@ watch(() => props.show, (show) => {
   }
 })
 
-const parseToc = (tocJson: string) => {
-  try {
-    return JSON.parse(tocJson)
-  } catch {
+const parseToc = (tocData: any) => {
+  // If already an object/array, return as is
+  if (Array.isArray(tocData)) {
+    return tocData
+  }
+
+  // If it's an object (but not array), might be invalid - return empty
+  if (typeof tocData === 'object' && tocData !== null) {
     return []
   }
+
+  // If it's a string, try to parse it
+  if (typeof tocData === 'string') {
+    try {
+      return JSON.parse(tocData)
+    } catch {
+      return []
+    }
+  }
+
+  // Fallback for null/undefined
+  return []
 }
 
 const getEndPage = (idx: number) => {

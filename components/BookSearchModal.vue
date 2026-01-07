@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center pointer-events-none">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-end sm:items-center justify-center pointer-events-none">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" @click="close"></div>
 
@@ -76,6 +76,33 @@
           </div>
         </div>
 
+        <!-- Genre Selection -->
+        <div>
+          <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">
+            장르 <span class="text-red-500">*</span>
+          </label>
+          <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            <button
+              v-for="genre in genres"
+              :key="genre"
+              @click="selectedGenre = genre"
+              type="button"
+              class="relative flex flex-col items-center justify-center py-3 px-2 rounded-xl border transition-all duration-200"
+              :class="selectedGenre === genre
+                ? 'bg-lime-50 dark:bg-lime-400/10 border-lime-400 ring-1 ring-lime-400'
+                : 'bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'"
+            >
+              <GenreBadge :genre="genre" size="sm" class="mb-1 pointer-events-none" />
+              <div
+                v-if="selectedGenre === genre"
+                class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-lime-400 rounded-full flex items-center justify-center shadow-sm"
+              >
+                <Check :size="12" class="text-black font-bold" />
+              </div>
+            </button>
+          </div>
+        </div>
+
         <!-- TOC Input Form (공통 컴포넌트) -->
         <TocInputForm
           ref="tocFormRef"
@@ -108,9 +135,17 @@
             class="w-12 h-16 object-cover rounded bg-zinc-200 dark:bg-zinc-700"
             @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
           />
-          <div>
-            <h3 class="font-bold text-zinc-800 dark:text-zinc-200 text-sm">{{ selectedBook.title }}</h3>
-            <p class="text-xs text-zinc-600 dark:text-zinc-400">{{ selectedBook.author }}</p>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-zinc-800 dark:text-zinc-200 text-sm mb-1">{{ selectedBook.title }}</h3>
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <p class="text-xs text-zinc-600 dark:text-zinc-400 truncate max-w-[150px]">{{ selectedBook.author }}</p>
+              <div v-if="selectedBook.publisher || totalPages" class="flex items-center gap-1 text-[10px] text-zinc-500">
+                <span v-if="selectedBook.publisher" class="truncate max-w-[100px]">{{ selectedBook.publisher }}</span>
+                <span v-if="selectedBook.publisher && totalPages">·</span>
+                <span v-if="totalPages">{{ totalPages }}p</span>
+              </div>
+              <GenreBadge v-if="selectedGenre" :genre="selectedGenre" size="sm" />
+            </div>
           </div>
         </div>
 
@@ -174,7 +209,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { X, Search } from 'lucide-vue-next'
+import { X, Search, Check } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import TocInputForm from '~/components/TocInputForm.vue'
@@ -185,6 +220,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'confirm'])
 const toast = useToastStore()
+const { genres } = useGenres()
 
 // Prevent body scroll when modal is open
 watch(() => props.isOpen, (isOpen) => {
@@ -202,6 +238,7 @@ const query = ref('')
 const loading = ref(false)
 const searchResults = ref<any[]>([])
 const selectedBook = ref<any>(null)
+const selectedGenre = ref('')
 const totalPages = ref<number | null>(null)
 const chapters = ref<{ title: string; startPage: number }[]>([])
 const currentStart = ref(1)
@@ -243,6 +280,7 @@ const reset = () => {
   query.value = ''
   searchResults.value = []
   selectedBook.value = null
+  selectedGenre.value = ''
   totalPages.value = null
   chapters.value = []
   currentStart.value = 1
@@ -303,7 +341,7 @@ const selectBook = async (book: any) => {
   const client = useSupabaseClient()
   const { data: existingBook } = await client
     .from('books')
-    .select('official_toc, total_pages')
+    .select('official_toc, official_genre, total_pages')
     .eq('isbn', book.isbn)
     .maybeSingle()
 
@@ -327,10 +365,25 @@ const selectBook = async (book: any) => {
     console.log('[BookSearchModal] No official_toc, showing empty fields')
   }
 
+  // ✅ official_genre 있으면 자동으로 채움 (가이드)
+  if (existingBook?.official_genre) {
+    selectedGenre.value = existingBook.official_genre
+    console.log('[BookSearchModal] Auto-loaded official_genre from DB:', existingBook.official_genre)
+  } else {
+    selectedGenre.value = ''
+    console.log('[BookSearchModal] No official_genre, showing empty select')
+  }
+
   step.value = 2
 }
 
 const goToStep3 = () => {
+  // Validate genre
+  if (!selectedGenre.value) {
+    toast.error('장르를 선택해주세요.')
+    return
+  }
+
   // Validate TOC before moving to step 3
   if (!tocFormRef.value) return
 
@@ -355,10 +408,16 @@ const calculateDays = () => {
 const confirmBook = () => {
   console.log('[BookSearchModal] confirmBook called')
 
-  // Validation already done in goToStep3, just check totalPages
+  // Validation already done in goToStep3, just check totalPages and genre
   if (!totalPages.value) {
     console.log('[BookSearchModal] No totalPages')
     toast.error('전체 페이지를 입력해주세요.')
+    return
+  }
+
+  if (!selectedGenre.value) {
+    console.log('[BookSearchModal] No genre selected')
+    toast.error('장르를 선택해주세요.')
     return
   }
 
@@ -376,6 +435,7 @@ const confirmBook = () => {
 
   console.log('[BookSearchModal] Emitting confirm with:', {
     book: selectedBook.value?.title,
+    genre: selectedGenre.value,
     totalPages: totalPages.value,
     toc,
     startDate: startDate.value,
@@ -384,6 +444,7 @@ const confirmBook = () => {
 
   emit('confirm', {
     book: selectedBook.value,
+    genre: selectedGenre.value,
     totalPages: totalPages.value,
     toc,
     startDate: startDate.value,

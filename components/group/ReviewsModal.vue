@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[50] flex items-center justify-center p-4">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center p-4">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/70 backdrop-blur-md" @click="emit('close')"></div>
 
@@ -19,23 +19,23 @@
 
         <!-- Average Rating -->
         <div v-if="reviews.length > 0" class="px-4 pb-4">
-          <div class="bg-gradient-to-br from-lime-50 to-lime-100/50 dark:from-lime-900/20 dark:to-lime-800/10 rounded-xl p-4 border border-lime-200/50 dark:border-lime-800/30">
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-900/20 dark:to-amber-800/10 rounded-xl p-4 border border-amber-200/50 dark:border-amber-800/30">
             <div class="flex items-center justify-center gap-4">
               <div class="text-center">
-                <div class="text-4xl font-bold text-lime-600 dark:text-lime-400 mb-2">{{ averageRating.toFixed(1) }}</div>
+                <div class="text-4xl font-bold text-amber-600 dark:text-amber-400 mb-2">{{ averageRating.toFixed(1) }}</div>
                 <div class="flex items-center justify-center gap-0.5 mb-2">
                   <template v-for="i in 5" :key="i">
                     <Star
                       v-if="getStarType(i, averageRating) === 'full'"
                       :size="18"
-                      fill="#84cc16"
-                      class="text-lime-500"
+                      fill="#f59e0b"
+                      class="text-amber-500"
                     />
                     <StarHalf
                       v-else-if="getStarType(i, averageRating) === 'half'"
                       :size="18"
-                      fill="#84cc16"
-                      class="text-lime-500"
+                      fill="#f59e0b"
+                      class="text-amber-500"
                     />
                     <Star
                       v-else
@@ -57,7 +57,7 @@
         <div
           v-for="review in sortedReviews"
           :key="review.id"
-          class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 hover:border-lime-300 dark:hover:border-lime-700 hover:shadow-md transition-all duration-200"
+          class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 hover:border-amber-300 dark:hover:border-amber-700 hover:shadow-md transition-all duration-200"
         >
           <!-- Review Header -->
           <div class="flex items-start gap-3 mb-3">
@@ -70,9 +70,9 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between mb-1">
                 <p class="font-bold text-sm text-zinc-900 dark:text-white truncate">{{ review.user?.display_name || '익명' }}</p>
-                <div class="flex items-center gap-1 bg-lime-50 dark:bg-lime-900/20 px-2 py-1 rounded">
-                  <Star :size="12" fill="#84cc16" class="text-lime-500" />
-                  <span class="text-xs font-bold text-lime-700 dark:text-lime-400">{{ review.rating.toFixed(1) }}</span>
+                <div class="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded">
+                  <Star :size="12" fill="#f59e0b" class="text-amber-500" />
+                  <span class="text-xs font-bold text-amber-700 dark:text-amber-400">{{ review.rating.toFixed(1) }}</span>
                 </div>
               </div>
               <div class="flex items-center gap-2">
@@ -81,14 +81,14 @@
                     <Star
                       v-if="getStarType(i, review.rating) === 'full'"
                       :size="12"
-                      fill="#84cc16"
-                      class="text-lime-500"
+                      fill="#f59e0b"
+                      class="text-amber-500"
                     />
                     <StarHalf
                       v-else-if="getStarType(i, review.rating) === 'half'"
                       :size="12"
-                      fill="#84cc16"
-                      class="text-lime-500"
+                      fill="#f59e0b"
+                      class="text-amber-500"
                     />
                     <Star
                       v-else

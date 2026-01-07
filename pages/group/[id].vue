@@ -23,9 +23,14 @@
           coverUrl: bookCover,
           title: bookTitle,
           author: bookAuthor,
+          publisher: selectedBook.book?.publisher,
+          total_pages: selectedBook.book?.total_pages,
+          genre: selectedBook.book?.official_genre || selectedBook.book?.draft_genre,
           status: selectedBook.status,
           round: currentBookRound,
-          finishedAt: selectedBook.finished_at
+          finishedAt: selectedBook.finished_at,
+          target_start_date: selectedBook.target_start_date,
+          target_end_date: selectedBook.target_end_date
         } : null"
         :days-remaining="daysRemaining"
         :member-count="members.length"

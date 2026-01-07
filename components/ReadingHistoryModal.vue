@@ -40,7 +40,13 @@
               </div>
               <div class="flex-1 min-w-0">
                 <h3 class="font-bold text-zinc-900 dark:text-white text-sm mb-1 line-clamp-2">{{ book.title }}</h3>
-                <p class="text-xs text-zinc-600 dark:text-zinc-400 mb-2">{{ book.author }}</p>
+                <div class="flex items-center gap-2 mb-2">
+                  <p class="text-xs text-zinc-600 dark:text-zinc-400 truncate">{{ book.author }}</p>
+                  <template v-if="book.genre">
+                    <span class="text-zinc-300 dark:text-zinc-700 text-[10px]">•</span>
+                    <GenreBadge :genre="book.genre" size="sm" />
+                  </template>
+                </div>
               </div>
             </div>
 
@@ -135,6 +141,7 @@ interface BookHistory {
   title: string
   author: string
   cover: string | null
+  genre?: string | null
   reviews: Array<{
     id: string
     rating: number
@@ -210,7 +217,9 @@ const fetchReadingHistory = async () => {
             isbn,
             title,
             author,
-            cover
+            cover,
+            official_genre,
+            draft_genre
           )
         )
       `)
@@ -240,6 +249,7 @@ const fetchReadingHistory = async () => {
           title: bookData?.title || '제목 없음',
           author: bookData?.author || '저자 미상',
           cover: bookData?.cover || null,
+          genre: bookData?.official_genre || bookData?.draft_genre || null,
           reviews: [],
           readingHistory: [],
           comments: []

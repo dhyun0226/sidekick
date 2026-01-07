@@ -22,12 +22,12 @@
         <img
           v-if="!hasError"
           :src="book.coverUrl"
-          class="w-full h-full object-cover rounded-lg border border-white/10"
+          class="w-full h-full object-cover rounded-lg"
           @error="handleError"
         />
         <div
           v-else
-          class="w-full h-full rounded-lg border border-white/10 bg-gradient-to-br from-lime-400 to-lime-500 flex items-center justify-center text-white font-bold text-4xl"
+          class="w-full h-full rounded-lg bg-gradient-to-br from-lime-400 to-lime-500 flex items-center justify-center text-white font-bold text-4xl"
         >
           {{ book.title.charAt(0).toUpperCase() }}
         </div>
@@ -40,30 +40,42 @@
       <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-1 drop-shadow-sm line-clamp-2 px-4 leading-tight">
         {{ book.title }}
       </h2>
-      <p class="text-xs text-zinc-600 dark:text-zinc-400 font-medium mb-4 opacity-80">
-        {{ book.author }}
-      </p>
+      <div class="flex flex-wrap items-center justify-center gap-1.5 mb-3 text-sm text-zinc-600 dark:text-zinc-400 font-medium leading-none">
+        <span>{{ book.author }}</span>
+        <template v-if="book.publisher || book.total_pages">
+          <span class="text-zinc-300 dark:text-zinc-700">·</span>
+          <span v-if="book.publisher">{{ book.publisher }}</span>
+          <span v-if="book.publisher && book.total_pages" class="text-zinc-300 dark:text-zinc-700">·</span>
+          <span v-if="book.total_pages">{{ book.total_pages }}p</span>
+        </template>
+      </div>
 
-      <!-- Stats / D-Day -->
-      <div class="flex items-center gap-3 flex-wrap justify-center">
-        <!-- 완주 뱃지 또는 D-Day 뱃지 -->
-        <div v-if="book.status === 'done'" class="flex items-center gap-1.5 px-3 py-1.5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-full border border-lime-400 shadow-sm">
-           <span class="text-xs font-bold text-lime-600 dark:text-lime-400">
-             완주<template v-if="book.finishedAt"> · {{ formatDate(book.finishedAt) }}</template>
-           </span>
-        </div>
-        <div v-else-if="book.status === 'reading' && daysRemaining !== null" class="flex items-center gap-1.5 px-3 py-1.5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
-           <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">
-             {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
-           </span>
+      <!-- Badges Line (Synchronized with Drawer Info Tab) -->
+      <div class="flex flex-wrap items-center justify-center gap-1.5 mb-6">
+        <GenreBadge v-if="book.genre" :genre="book.genre" size="sm" variant="glass" />
+        
+        <div v-if="book.round && book.round > 1" class="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-white/40 dark:bg-black/20 backdrop-blur-md px-1.5 py-0.5 rounded shadow-sm">
+          {{ book.round }}회차
         </div>
 
-        <!-- 멤버 수 -->
-        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
-           <User :size="12" class="text-zinc-700 dark:text-zinc-300" />
-           <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">
-             {{ book.status === 'reading' ? `${memberCount}명 함께 읽는 중` : `${memberCount}명이 함께 읽었어요` }}
-           </span>
+        <div v-if="book.target_start_date && book.target_end_date" class="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-white/40 dark:bg-black/20 backdrop-blur-md px-1.5 py-0.5 rounded shadow-sm">
+          {{ formatDateRange(book.target_start_date, book.target_end_date) }}
+        </div>
+
+        <!-- Members Badge -->
+        <div class="flex items-center gap-1 bg-white/40 dark:bg-black/20 backdrop-blur-md text-zinc-700 dark:text-zinc-300 text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm">
+           <User :size="10" />
+           <span>{{ memberCount }}</span>
+        </div>
+
+        <!-- D-Day Badge -->
+        <div v-if="book.status === 'reading' && daysRemaining !== null" class="text-[10px] font-bold text-lime-600 dark:text-lime-400 bg-white/40 dark:bg-black/20 backdrop-blur-md px-1.5 py-0.5 rounded shadow-sm">
+          {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
+        </div>
+
+        <!-- Finished Date Badge -->
+        <div v-if="book.status === 'done' && book.finishedAt" class="text-[10px] font-bold text-lime-700 dark:text-lime-400 bg-white/40 dark:bg-black/20 backdrop-blur-md px-1.5 py-0.5 rounded shadow-sm">
+          {{ formatDate(book.finishedAt) }} 완주
         </div>
       </div>
     </div>
@@ -78,9 +90,14 @@ interface Book {
   coverUrl: string
   title: string
   author: string
+  publisher?: string | null
+  total_pages?: number | null
+  genre?: string | null
   status: 'reading' | 'done'
   round?: number | null
   finishedAt?: string | null
+  target_start_date?: string | null
+  target_end_date?: string | null
 }
 
 interface Props {
@@ -99,5 +116,10 @@ const formatDate = (dateStr: string) => {
   const month = date.getMonth() + 1
   const day = date.getDate()
   return `${year}.${month}.${day}`
+}
+
+const formatDateRange = (start?: string | null, end?: string | null) => {
+  if (!start || !end) return ''
+  return `${formatDate(start)} - ${formatDate(end)}`
 }
 </script>

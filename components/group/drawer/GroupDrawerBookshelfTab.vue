@@ -106,17 +106,36 @@
             class="w-14 h-20 object-cover rounded shadow-sm bg-zinc-200 dark:bg-zinc-800 flex-shrink-0"
             @error="(e) => (e.target as HTMLImageElement).src = '/placeholder-book.png'"
           />
-          <div class="flex-1 min-w-0">
-            <h4 class="font-bold text-sm text-zinc-800 dark:text-zinc-200 line-clamp-2 mb-1 pr-6">{{ book.title }}</h4>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-1">{{ book.author }}</p>
-            <div class="flex items-center gap-1.5 text-[10px] text-zinc-400 mb-2">
-              <span v-if="book.publisher">{{ book.publisher }}</span>
-              <span v-if="book.publisher && book.total_pages">·</span>
-              <span v-if="book.total_pages">{{ book.total_pages }}p</span>
+          <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+            <div>
+              <h4 class="font-bold text-sm text-zinc-800 dark:text-zinc-200 line-clamp-1 mb-1 pr-6">{{ book.title }}</h4>
+              <div class="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+                <span class="truncate max-w-[80px]">{{ book.author }}</span>
+                <template v-if="book.publisher || book.total_pages">
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span v-if="book.publisher" class="truncate max-w-[60px]">{{ book.publisher }}</span>
+                  <span v-if="book.publisher && book.total_pages">·</span>
+                  <span v-if="book.total_pages">{{ book.total_pages }}p</span>
+                </template>
+              </div>
             </div>
-            <div class="flex items-center gap-2 text-[10px]">
-              <span class="text-lime-600 dark:text-lime-400 font-medium">{{ book.date }} 완주</span>
-              <span v-if="book.round && book.round > 1" class="text-zinc-400">· {{ book.round }}회차</span>
+
+            <!-- Badges Line -->
+            <div class="flex flex-wrap items-center gap-1.5 mt-2">
+              <GenreBadge v-if="book.official_genre || book.draft_genre" :genre="book.official_genre || book.draft_genre" size="sm" />
+              
+              <div v-if="book.averageRating" class="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                <Star :size="10" fill="currentColor" class="text-amber-500" />
+                <span>{{ book.averageRating }}</span>
+              </div>
+
+              <div class="text-[10px] font-bold text-lime-700 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/20 px-1.5 py-0.5 rounded">
+                {{ formatDateYY(book.date) }} 완주
+              </div>
+
+              <div v-if="book.round && book.round > 1" class="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
+                {{ book.round }}회차
+              </div>
             </div>
           </div>
         </div>
@@ -175,13 +194,26 @@
             </div>
           </div>
 
-          <div class="flex-1 min-w-0">
-            <h4 class="font-bold text-sm text-zinc-800 dark:text-zinc-200 line-clamp-2 mb-1">{{ book.title }}</h4>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-1">{{ book.author }}</p>
-            <div class="flex items-center gap-1.5 text-[10px] text-zinc-400 mb-2">
-              <span v-if="book.publisher">{{ book.publisher }}</span>
-              <span v-if="book.publisher && book.total_pages">·</span>
-              <span v-if="book.total_pages">{{ book.total_pages }}p</span>
+          <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+            <div>
+              <h4 class="font-bold text-sm text-zinc-800 dark:text-zinc-200 line-clamp-1 mb-1">{{ book.title }}</h4>
+              <div class="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+                <span class="truncate max-w-[80px]">{{ book.author }}</span>
+                <template v-if="book.publisher || book.total_pages">
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span v-if="book.publisher" class="truncate max-w-[60px]">{{ book.publisher }}</span>
+                  <span v-if="book.publisher && book.total_pages">·</span>
+                  <span v-if="book.total_pages">{{ book.total_pages }}p</span>
+                </template>
+              </div>
+            </div>
+
+            <!-- Badges Line -->
+            <div class="flex flex-wrap items-center gap-1.5 mt-2">
+              <GenreBadge v-if="book.official_genre || book.draft_genre" :genre="book.official_genre || book.draft_genre" size="sm" />
+              <div class="text-[10px] font-bold text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
+                잠금됨
+              </div>
             </div>
           </div>
         </div>
@@ -219,6 +251,7 @@ interface HistoryBook {
   date: string
   round?: number
   reviewCount?: number
+  averageRating?: string | null
   user_finished_at?: string | null
 }
 
@@ -294,6 +327,14 @@ const filteredAndSortedBooks = computed(() => {
 const selectSort = (value: typeof sortBy.value) => {
   sortBy.value = value
   showSortMenu.value = false
+}
+
+const formatDateYY = (dateStr: string) => {
+  const date = new Date(dateStr)
+  const year = String(date.getFullYear()).slice(-2)
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  return `${year}.${month}.${day}`
 }
 
 const toggleBookMenu = (bookId: string) => {

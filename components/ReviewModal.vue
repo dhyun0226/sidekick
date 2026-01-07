@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[10000] flex items-center justify-center px-4">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="$emit('close')"></div>
 
@@ -28,12 +28,12 @@
               class="absolute inset-0 overflow-hidden"
               :style="{ width: getStarFillWidth(star) }"
             >
-              <Star :size="32" class="text-lime-400 fill-lime-400" />
+              <Star :size="32" class="text-amber-400 fill-amber-400" />
             </div>
           </div>
         </div>
         <!-- Rating Display -->
-        <div v-if="rating > 0" class="text-center text-sm text-lime-400 font-medium">
+        <div v-if="rating > 0" class="text-center text-sm text-amber-500 font-bold">
           {{ rating.toFixed(1) }}점
         </div>
       </div>

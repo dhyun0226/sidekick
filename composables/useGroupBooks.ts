@@ -45,6 +45,7 @@ interface BookAddData {
     publisher: string
     cover: string
   }
+  genre: string
   totalPages: number
   toc: any[]
   startDate: string
@@ -74,12 +75,12 @@ export const useGroupBooks = (groupId: string) => {
   const fetchBooks = async () => {
     const userId = userStore.profile?.id
 
-    // Fetch all books with user's reading progress
+    // Fetch all books with user's reading progress and genre
     const { data: allBooksData } = await client
       .from('group_books')
       .select(`
         *,
-        book:books(*),
+        book:books(*, official_genre, draft_genre),
         user_reading_progress!left (
           last_read_at,
           progress_pct,
@@ -117,7 +118,15 @@ export const useGroupBooks = (groupId: string) => {
       allBooks.value = booksWithUserProgress
 
       // Find all reading books (여러 권 동시 읽기 가능, 이미 정렬됨)
-      readingBooks.value = booksWithUserProgress.filter((b: any) => b.status === 'reading')
+      const rawReadingBooks = booksWithUserProgress.filter((b: any) => b.status === 'reading')
+      
+      // 읽는 중인 책들도 회차 정보를 미리 계산
+      readingBooks.value = await Promise.all(
+        rawReadingBooks.map(async (b: any) => {
+          const round = await getBookRound(groupId, b.isbn, b.id)
+          return { ...b, round }
+        })
+      )
 
       // Current book = 내가 가장 최근에 읽은 reading 책
       currentBook.value = readingBooks.value[0] || null
@@ -142,20 +151,25 @@ export const useGroupBooks = (groupId: string) => {
       const bookIds = doneBooks.map((gb: any) => gb.id)
       const { data: allReviews } = await client
         .from('reviews')
-        .select('group_book_id')
+        .select('group_book_id, rating')
         .in('group_book_id', bookIds)
 
-      // 2. JavaScript에서 책별 리뷰 개수 계산 (쿼리 없음)
-      const reviewCountMap = new Map<string, number>()
+      // 2. JavaScript에서 책별 리뷰 개수 및 평균 별점 계산
+      const reviewStatsMap = new Map<string, { count: number, totalRating: number }>()
       allReviews?.forEach(review => {
-        const count = reviewCountMap.get(review.group_book_id) || 0
-        reviewCountMap.set(review.group_book_id, count + 1)
+        const stats = reviewStatsMap.get(review.group_book_id) || { count: 0, totalRating: 0 }
+        reviewStatsMap.set(review.group_book_id, {
+          count: stats.count + 1,
+          totalRating: stats.totalRating + Number(review.rating || 0)
+        })
       })
 
       // 3. Calculate round numbers and combine data
       const historyBooksWithRounds = await Promise.all(
         doneBooks.map(async (gb: any) => {
           const round = await getBookRound(groupId, gb.isbn, gb.id)
+          const stats = reviewStatsMap.get(gb.id) || { count: 0, totalRating: 0 }
+          const avgRating = stats.count > 0 ? (stats.totalRating / stats.count).toFixed(1) : null
 
           return {
             id: gb.id,
@@ -167,7 +181,8 @@ export const useGroupBooks = (groupId: string) => {
             total_pages: gb.book.total_pages,
             date: new Date(gb.finished_at || gb.created_at).toLocaleDateString(),
             round,
-            reviewCount: reviewCountMap.get(gb.id) || 0,
+            reviewCount: stats.count,
+            averageRating: avgRating,
             user_finished_at: gb.user_finished_at
           }
         })
@@ -193,6 +208,8 @@ export const useGroupBooks = (groupId: string) => {
    */
   const addBook = async (data: BookAddData) => {
     console.log('[Group] Adding book:', data)
+    console.log('[Group] 🔍 DEBUG - data.toc:', JSON.stringify(data.toc, null, 2))
+    console.log('[Group] 🔍 DEBUG - data.genre:', data.genre)
 
     // 1. Check if book exists in books table
     const { data: existingBook, error: bookCheckError } = await client
@@ -205,13 +222,19 @@ export const useGroupBooks = (groupId: string) => {
       console.error('Book check error:', bookCheckError)
     }
 
-    // ✅ official_toc는 화면에 미리 채워주는 가이드 역할
-    // ✅ 저장은 항상 사용자가 최종 확인/수정한 data.toc 사용
+    console.log('[Group] 🔍 DEBUG - existingBook:', existingBook)
+    console.log('[Group] 🔍 DEBUG - existingBook.official_toc:', existingBook?.official_toc)
+    console.log('[Group] 🔍 DEBUG - existingBook.official_genre:', existingBook?.official_genre)
+
+    // ✅ official_toc/official_genre는 화면에 미리 채워주는 가이드 역할
+    // ✅ 저장은 항상 사용자가 최종 확인/수정한 값 사용
     const tocToUse = data.toc
 
     if (!existingBook) {
-      // ✅ 새 책: draft_toc에 임시 저장 (관리자 승인 전)
-      const { error: bookInsertError } = await client
+      // ✅ 새 책: draft_toc, draft_genre에 임시 저장 (관리자 승인 전)
+      console.log('[Group] 🔍 DEBUG - Inserting new book with draft data')
+
+      const { data: insertedBook, error: bookInsertError } = await client
         .from('books')
         .insert({
           isbn: data.book.isbn,
@@ -221,35 +244,92 @@ export const useGroupBooks = (groupId: string) => {
           cover_url: data.book.cover,
           total_pages: data.totalPages,
           draft_toc: data.toc,
-          official_toc: null  // 승인 전이므로 null
+          official_toc: null,  // 승인 전이므로 null
+          draft_genre: data.genre,
+          official_genre: null  // 승인 전이므로 null
         })
+        .select()
 
       if (bookInsertError) {
-        console.error('Book insert error:', bookInsertError)
+        console.error('[Group] ❌ Book insert error:', bookInsertError)
         throw new Error('책 정보 저장에 실패했습니다.')
       }
 
-      console.log('[Group] New book created with draft_toc')
-    } else if (!existingBook.official_toc) {
-      // ✅ 기존 책 + official_toc 없음 → draft_toc 업데이트 (관리자 승인 대기)
-      const { error: bookUpdateError } = await client
+      console.log('[Group] ✅ New book created, returned data:', insertedBook)
+
+      // 🔍 Verify what was actually saved to the database
+      const { data: verifyBook, error: verifyError } = await client
         .from('books')
-        .update({
-          total_pages: data.totalPages,
-          draft_toc: data.toc,
-          updated_at: new Date().toISOString()
-        })
+        .select('isbn, title, draft_toc, official_toc, draft_genre, official_genre, total_pages')
         .eq('isbn', data.book.isbn)
+        .single()
+
+      if (verifyError) {
+        console.error('[Group] ❌ Verify error:', verifyError)
+      } else {
+        console.log('[Group] 🔍 VERIFY - What\'s actually in DB after insert:')
+        console.log('  - ISBN:', verifyBook.isbn)
+        console.log('  - Title:', verifyBook.title)
+        console.log('  - Total Pages:', verifyBook.total_pages)
+        console.log('  - draft_toc:', JSON.stringify(verifyBook.draft_toc, null, 2))
+        console.log('  - official_toc:', JSON.stringify(verifyBook.official_toc, null, 2))
+        console.log('  - draft_genre:', verifyBook.draft_genre)
+        console.log('  - official_genre:', verifyBook.official_genre)
+      }
+    } else if (!existingBook.official_toc || !existingBook.official_genre) {
+      // ✅ 기존 책 + official_toc/official_genre 없음 → draft 업데이트 (관리자 승인 대기)
+      console.log('[Group] 🔍 DEBUG - Updating existing book draft data')
+
+      const updateData: any = {
+        total_pages: data.totalPages,
+        updated_at: new Date().toISOString()
+      }
+
+      // Only update draft_toc if official_toc doesn't exist
+      if (!existingBook.official_toc) {
+        updateData.draft_toc = data.toc
+      }
+
+      // Only update draft_genre if official_genre doesn't exist
+      if (!existingBook.official_genre) {
+        updateData.draft_genre = data.genre
+      }
+
+      const { data: updatedBook, error: bookUpdateError } = await client
+        .from('books')
+        .update(updateData)
+        .eq('isbn', data.book.isbn)
+        .select()
 
       if (bookUpdateError) {
-        console.error('Book update error:', bookUpdateError)
+        console.error('[Group] ❌ Book update error:', bookUpdateError)
         throw new Error('책 정보 업데이트에 실패했습니다.')
       }
 
-      console.log('[Group] Updated draft_toc for existing book (awaiting approval)')
+      console.log('[Group] ✅ Updated draft data for existing book, returned data:', updatedBook)
+
+      // 🔍 Verify what was actually saved
+      const { data: verifyBook, error: verifyError } = await client
+        .from('books')
+        .select('isbn, title, draft_toc, official_toc, draft_genre, official_genre, total_pages')
+        .eq('isbn', data.book.isbn)
+        .single()
+
+      if (verifyError) {
+        console.error('[Group] ❌ Verify error:', verifyError)
+      } else {
+        console.log('[Group] 🔍 VERIFY - What\'s actually in DB after update:')
+        console.log('  - ISBN:', verifyBook.isbn)
+        console.log('  - Title:', verifyBook.title)
+        console.log('  - Total Pages:', verifyBook.total_pages)
+        console.log('  - draft_toc:', JSON.stringify(verifyBook.draft_toc, null, 2))
+        console.log('  - official_toc:', JSON.stringify(verifyBook.official_toc, null, 2))
+        console.log('  - draft_genre:', verifyBook.draft_genre)
+        console.log('  - official_genre:', verifyBook.official_genre)
+      }
     } else {
-      // ❌ 기존 책 + official_toc 있음 → books 테이블 건드리지 않음 (승인된 공식 버전 유지)
-      console.log('[Group] Using official_toc as guide, saving user-confirmed TOC to group_books only')
+      // ❌ 기존 책 + official_toc & official_genre 있음 → books 테이블 건드리지 않음 (승인된 공식 버전 유지)
+      console.log('[Group] Using official_toc and official_genre as guide, saving user-confirmed data to group_books only')
     }
 
     // 2. Add new book to group_books (항상 사용자 입력 사용)

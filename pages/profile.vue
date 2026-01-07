@@ -66,72 +66,55 @@
       </div>
     </div>
 
-    <!-- Subscription Info Card -->
-    <div class="px-4 pt-3 pb-4 border-b border-zinc-200 dark:border-zinc-800/50">
-      <!-- Premium User -->
+    <!-- Subscription Info Bar (Compact & Simple) -->
+    <div class="px-4 pt-2 pb-4 border-b border-zinc-200 dark:border-zinc-800/50">
+      <!-- Premium User (Compact Bar) -->
       <div
         v-if="isPremium"
-        class="bg-gradient-to-br from-lime-400 via-lime-500 to-emerald-500 rounded-2xl p-4 relative overflow-hidden"
+        class="bg-zinc-900 rounded-xl p-3.5 relative overflow-hidden flex items-center justify-between border border-white/5 shadow-md shadow-zinc-200/50 dark:shadow-none"
       >
-        <div class="absolute top-3 right-3 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
-          <span class="text-xs font-bold text-white">PREMIUM</span>
-        </div>
-
-        <div class="flex items-center gap-3 mb-3">
-          <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-            <Crown :size="24" class="text-white" />
+        <!-- Minimal Glow -->
+        <div class="absolute -right-10 -top-10 w-24 h-24 bg-lime-500/10 blur-3xl rounded-full"></div>
+        
+        <div class="flex items-center gap-3 relative z-10">
+          <div class="w-8 h-8 bg-gradient-to-tr from-lime-400 to-lime-500 rounded flex items-center justify-center shadow-lg shadow-lime-500/30">
+            <Crown :size="16" class="text-black" />
           </div>
           <div>
-            <h3 class="text-base font-bold text-white">프리미엄 회원</h3>
-            <p class="text-xs text-white/80">무제한 독서의 즐거움</p>
-          </div>
-        </div>
-
-        <div v-if="subscriptionDetails" class="space-y-2">
-          <div class="flex justify-between items-center text-xs">
-            <span class="text-white/80">구독 기간</span>
-            <span class="font-bold text-white">{{ formatDate(subscriptionDetails.end_date) }}까지</span>
-          </div>
-          <div class="flex justify-between items-center text-xs">
-            <span class="text-white/80">자동 갱신</span>
-            <span class="font-bold text-white">{{ subscriptionDetails.auto_renew ? '활성화' : '비활성화' }}</span>
+            <h3 class="text-sm font-bold text-white leading-none mb-1.5">프리미엄 회원</h3>
+            <p v-if="subscriptionDetails" class="text-[10px] text-zinc-400 leading-none">
+              {{ formatDate(subscriptionDetails.end_date) }}까지 이용 가능
+            </p>
           </div>
         </div>
 
         <button
           @click="router.push('/subscription')"
-          class="mt-3 w-full py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-lg text-sm font-medium hover:bg-white/20 transition-colors"
+          class="relative z-10 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-bold transition-all border border-white/10"
         >
-          구독 관리
+          관리
         </button>
       </div>
 
-      <!-- Free User -->
+      <!-- Free User (Compact Banner) -->
       <div
         v-else
         @click="router.push('/subscription')"
-        class="bg-white dark:bg-zinc-900 rounded-2xl p-4 border-2 border-dashed border-zinc-300 dark:border-zinc-700 cursor-pointer hover:border-lime-400 transition-all group"
+        class="bg-white dark:bg-zinc-900 rounded-xl p-3.5 border border-zinc-200 dark:border-zinc-800 cursor-pointer hover:border-lime-400 dark:hover:border-lime-500 transition-all flex items-center justify-between shadow-sm group"
       >
-        <div class="flex items-center gap-3 mb-2">
-          <div class="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
-            <Lock :size="24" class="text-zinc-400 group-hover:text-lime-500 transition-colors" />
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-zinc-50 dark:bg-zinc-800 rounded flex items-center justify-center border border-zinc-100 dark:border-zinc-700">
+            <Lock :size="16" class="text-zinc-400 group-hover:text-lime-500 transition-colors" />
           </div>
-          <div class="flex-1">
-            <h3 class="text-sm font-bold text-zinc-900 dark:text-white">무료 플랜</h3>
-            <p class="text-xs text-zinc-500">기본 기능만 이용 가능</p>
+          <div>
+            <h3 class="text-sm font-bold text-zinc-900 dark:text-white leading-none mb-1.5">프리미엄 혜택 보기</h3>
+            <p class="text-[10px] text-zinc-500 dark:text-zinc-400 leading-none">더 많은 그룹과 상세 분석을 시작하세요</p>
           </div>
-          <ChevronRight :size="20" class="text-zinc-400 group-hover:text-lime-500 transition-colors" />
         </div>
-
-        <div class="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400 mb-3">
-          <span>그룹 생성 제한 (최대 2개)</span>
-          <span>•</span>
-          <span>분석 기능 제한</span>
-        </div>
-
-        <div class="flex items-center justify-between bg-lime-400/10 dark:bg-lime-900/20 rounded-lg px-3 py-2">
-          <span class="text-xs font-bold text-lime-700 dark:text-lime-400">프리미엄으로 업그레이드</span>
-          <ArrowRight :size="16" class="text-lime-600" />
+        
+        <div class="flex items-center gap-1 text-lime-600 dark:text-lime-400">
+          <span class="text-xs font-bold">이동</span>
+          <ChevronRight :size="14" />
         </div>
       </div>
     </div>
@@ -209,7 +192,7 @@
                 @click="openBookDetail(book)"
                 class="cursor-pointer active:opacity-70 transition-opacity opacity-60"
               >
-                <div class="aspect-[1/1.5] overflow-hidden rounded-lg shadow-sm">
+                <div class="aspect-[1/1.5] overflow-hidden shadow-sm">
                   <img
                     :src="book.cover_url"
                     class="w-full h-full object-cover"
@@ -242,7 +225,7 @@
                 @click="openBookDetail(book)"
                 class="cursor-pointer active:opacity-70 transition-opacity"
               >
-                <div class="aspect-[1/1.5] overflow-hidden rounded-lg shadow-sm">
+                <div class="aspect-[1/1.5] overflow-hidden shadow-sm">
                   <img
                     :src="book.cover_url"
                     class="w-full h-full object-cover"
@@ -708,19 +691,24 @@
             </div>
 
             <!-- Book Info -->
-            <div class="px-4 pb-4 flex gap-4">
-              <div class="w-20 h-28 rounded-lg overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-700 flex-shrink-0">
+            <div class="px-4 pb-6 flex gap-4">
+              <div class="w-20 h-28 overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-700 flex-shrink-0">
                 <img :src="selectedBook.cover_url" class="w-full h-full object-cover" />
               </div>
-              <div class="flex-1 min-w-0">
-                <h2 class="text-base font-bold text-zinc-900 dark:text-white mb-1 line-clamp-2 leading-tight">{{ selectedBook.title }}</h2>
-                <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-2">{{ selectedBook.author }}</p>
-                <div class="flex items-center gap-1.5 text-[10px] text-zinc-400 mb-2">
-                  <span v-if="selectedBook.publisher">{{ selectedBook.publisher }}</span>
-                  <span v-if="selectedBook.publisher && selectedBook.total_pages">·</span>
-                  <span v-if="selectedBook.total_pages">{{ selectedBook.total_pages }}p</span>
+              <div class="flex-1 min-w-0 flex flex-col pt-0.5">
+                <h2 class="text-lg font-bold text-zinc-900 dark:text-white line-clamp-2 leading-tight mb-1.5">{{ selectedBook.title }}</h2>
+                <div class="flex flex-wrap items-center gap-1.5 mb-3 text-sm text-zinc-500 dark:text-zinc-400">
+                  <span class="font-medium">{{ selectedBook.author }}</span>
+                  <template v-if="selectedBook.publisher || selectedBook.total_pages">
+                    <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                    <span v-if="selectedBook.publisher" class="truncate max-w-[120px]">{{ selectedBook.publisher }}</span>
+                    <span v-if="selectedBook.publisher && selectedBook.total_pages" class="text-zinc-300 dark:text-zinc-700">·</span>
+                    <span v-if="selectedBook.total_pages">{{ selectedBook.total_pages }}p</span>
+                  </template>
                 </div>
-                <div class="flex items-center gap-2 mb-2 flex-wrap">
+
+                <div class="flex items-center gap-2 flex-wrap">
+                  <GenreBadge v-if="selectedBook.genre" :genre="selectedBook.genre" />
                   <div v-if="selectedBook.myRating" class="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded">
                     <Star :size="12" fill="#EAB308" class="text-yellow-500" />
                     <span class="text-xs font-bold text-yellow-700 dark:text-yellow-400">{{ selectedBook.myRating }}</span>
@@ -1483,7 +1471,7 @@ const fetchData = async () => {
           last_read_at,
           group_book:group_books (
             id,
-            book:books (title, author, publisher, total_pages, cover_url, isbn)
+            book:books (title, author, publisher, total_pages, cover_url, isbn, official_genre, draft_genre)
           )
         `)
         .eq('user_id', userId)
@@ -1596,6 +1584,7 @@ const fetchData = async () => {
           publisher: p.group_book?.book?.publisher,
           total_pages: p.group_book?.book?.total_pages,
           cover_url: p.group_book?.book?.cover_url,
+          genre: p.group_book?.book?.official_genre || p.group_book?.book?.draft_genre,
           finished_at: p.finished_at,
           progress_pct: p.progress_pct, // 진행도 추가
           last_read_at: p.last_read_at, // 마지막 읽은 날짜
