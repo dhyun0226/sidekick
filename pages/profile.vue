@@ -487,154 +487,104 @@
 
     </div>
 
-    <!-- Settings Modal -->
-    <div v-if="settingsModalOpen" class="fixed inset-0 z-[10000] flex items-center justify-center px-4">
+    <!-- Settings Modal (Redesigned) -->
+    <div v-if="settingsModalOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="settingsModalOpen = false"></div>
-      <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-2xl animate-scale-up border border-zinc-200 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between items-center mb-6">
-          <h3 class="text-lg font-bold text-zinc-900 dark:text-white">설정</h3>
-          <button @click="settingsModalOpen = false" class="text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
-            <X :size="24" />
+      <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 border border-zinc-200 dark:border-zinc-800 max-h-[90vh] overflow-hidden flex flex-col">
+        
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
+          <h3 class="text-lg font-black text-zinc-900 dark:text-white">설정</h3>
+          <button @click="settingsModalOpen = false" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+            <X :size="20" />
           </button>
         </div>
         
-        <div class="space-y-8">
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
           <!-- 1. Profile Edit -->
           <section>
-            <h4 class="text-xs font-bold text-zinc-500 uppercase mb-3 px-1">프로필 편집</h4>
-            <div class="flex flex-col items-center gap-3 mb-4">
-              <div class="w-20 h-20 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border-2 border-zinc-200 dark:border-zinc-700 relative group cursor-pointer" @click="triggerFileInput">
-                 <img v-if="previewAvatar" :src="previewAvatar" class="w-full h-full object-cover" />
-                 <div v-else class="w-full h-full flex items-center justify-center text-zinc-400"><User :size="32"/></div>
-                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                   <Camera :size="20" class="text-white" />
-                 </div>
-              </div>
-              <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleFileChange" />
-              <button @click="triggerFileInput" class="text-xs text-lime-500 font-medium hover:underline">사진 변경</button>
+            <div class="flex items-center justify-between mb-4 px-1">
+              <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">프로필 편집</h4>
             </div>
+            
+            <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-5 border border-zinc-100 dark:border-zinc-800/50">
+              <div class="flex flex-col items-center gap-4 mb-6">
+                <div class="relative group cursor-pointer" @click="triggerFileInput">
+                  <div class="w-24 h-24 rounded-full bg-white dark:bg-zinc-800 overflow-hidden border-4 border-white dark:border-zinc-700 shadow-xl relative">
+                    <img v-if="previewAvatar" :src="previewAvatar" class="w-full h-full object-cover" />
+                    <div v-else class="w-full h-full flex items-center justify-center text-zinc-300 dark:text-zinc-600"><User :size="40"/></div>
+                    <!-- Camera Overlay -->
+                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Camera :size="24" class="text-white" />
+                    </div>
+                  </div>
+                  <!-- Camera Float Button -->
+                  <div class="absolute bottom-0 right-0 w-8 h-8 bg-lime-400 rounded-full flex items-center justify-center shadow-lg border-2 border-white dark:border-zinc-900">
+                    <Camera :size="14" class="text-black" />
+                  </div>
+                </div>
+                <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleFileChange" />
+              </div>
 
-            <div>
-              <label class="block text-xs font-bold text-zinc-500 mb-1 px-1">닉네임</label>
-              <div class="flex gap-2">
-                <input
-                  v-model="editNickname"
-                  type="text"
-                  class="flex-1 min-w-0 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 text-zinc-900 dark:text-white"
-                />
-                <button
-                  @click="saveProfile"
-                  class="flex-shrink-0 px-4 py-2 bg-lime-400 text-black rounded-xl text-sm font-bold flex items-center justify-center gap-2"
-                  :disabled="isSaving"
-                >
-                  <div v-if="isSaving" class="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                  <span v-else>저장</span>
-                </button>
+              <div class="space-y-2">
+                <label class="block text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">닉네임</label>
+                <div class="flex gap-2">
+                  <input
+                    v-model="editNickname"
+                    type="text"
+                    placeholder="닉네임을 입력하세요"
+                    class="flex-1 min-w-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-lime-400 text-zinc-900 dark:text-white transition-all"
+                  />
+                  <button
+                    @click="saveProfile"
+                    class="flex-shrink-0 p-3 bg-zinc-900 dark:bg-zinc-700 text-white rounded-xl hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-all active:scale-95 disabled:opacity-50"
+                    :disabled="isSaving"
+                    title="닉네임 저장"
+                  >
+                    <div v-if="isSaving" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <Save v-else :size="20" />
+                  </button>
+                </div>
               </div>
             </div>
           </section>
 
           <!-- 2. App Settings -->
-          <section class="space-y-3">
-            <h4 class="text-xs font-bold text-zinc-500 uppercase mb-2 px-1">앱 설정</h4>
-            
-            <!-- Dark Mode -->
-            <div class="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl cursor-pointer" @click="toggleTheme">
-              <div class="flex items-center gap-3">
-                <div class="p-2 bg-white dark:bg-zinc-700 rounded-full shadow-sm text-zinc-600 dark:text-zinc-300">
-                  <Moon v-if="isDark" :size="18" />
-                  <Sun v-else :size="18" />
-                </div>
-                <span class="text-sm font-medium text-zinc-900 dark:text-white">다크 모드</span>
-              </div>
-              <div 
-                class="w-11 h-6 rounded-full transition-colors duration-200 relative"
-                :class="isDark ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
-              >
-                <div 
-                  class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
-                  :class="isDark ? 'translate-x-5' : 'translate-x-0'"
-                ></div>
-              </div>
+          <section>
+            <div class="flex items-center justify-between mb-4 px-1">
+              <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">앱 설정</h4>
             </div>
-
-            <!-- Notifications -->
-            <div class="space-y-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl">
-              <div class="flex items-center gap-3 mb-2">
-                <div class="p-2 bg-white dark:bg-zinc-700 rounded-full shadow-sm text-zinc-600 dark:text-zinc-300">
-                  <Bell :size="18" />
+            
+            <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50 divide-y divide-zinc-100 dark:divide-zinc-800">
+              <!-- Dark Mode -->
+              <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-white/50 dark:hover:bg-zinc-800/50 transition-colors" @click="toggleTheme">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                    <Moon v-if="isDark" :size="16" />
+                    <Sun v-else :size="16" />
+                  </div>
+                  <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">다크 모드</span>
                 </div>
-                <span class="text-sm font-medium text-zinc-900 dark:text-white">알림 설정</span>
+                <div class="w-10 h-5 rounded-full transition-colors duration-300 relative" :class="isDark ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'">
+                  <div class="w-4 h-4 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-300 shadow-sm" :class="isDark ? 'translate-x-5' : 'translate-x-0'"></div>
+                </div>
               </div>
-              
-              <div class="space-y-3 pl-2 pr-1">
-                <!-- 1. Comment Replies -->
-                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.comment_reply = !notificationSettings.comment_reply">
-                  <span class="text-xs text-zinc-600 dark:text-zinc-400">내 글에 달린 답글</span>
-                  <div
-                    class="w-11 h-6 rounded-full transition-colors duration-200 relative"
-                    :class="notificationSettings.comment_reply ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
-                  >
-                    <div
-                      class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
-                      :class="notificationSettings.comment_reply ? 'translate-x-5' : 'translate-x-0'"
-                    ></div>
-                  </div>
-                </div>
 
-                <!-- 2. Reactions -->
-                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.reaction = !notificationSettings.reaction">
-                  <span class="text-xs text-zinc-600 dark:text-zinc-400">반응/좋아요</span>
-                  <div
-                    class="w-11 h-6 rounded-full transition-colors duration-200 relative"
-                    :class="notificationSettings.reaction ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
-                  >
-                    <div
-                      class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
-                      :class="notificationSettings.reaction ? 'translate-x-5' : 'translate-x-0'"
-                    ></div>
+              <!-- Notifications -->
+              <div class="p-4 space-y-4">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                    <Bell :size="16" />
                   </div>
+                  <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">알림 설정</span>
                 </div>
-
-                <!-- 3. Member Join -->
-                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.member_join = !notificationSettings.member_join">
-                  <span class="text-xs text-zinc-600 dark:text-zinc-400">새 멤버 가입</span>
-                  <div
-                    class="w-11 h-6 rounded-full transition-colors duration-200 relative"
-                    :class="notificationSettings.member_join ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
-                  >
-                    <div
-                      class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
-                      :class="notificationSettings.member_join ? 'translate-x-5' : 'translate-x-0'"
-                    ></div>
-                  </div>
-                </div>
-
-                <!-- 4. Completion -->
-                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.completion = !notificationSettings.completion">
-                  <span class="text-xs text-zinc-600 dark:text-zinc-400">책 완독 알림</span>
-                  <div
-                    class="w-11 h-6 rounded-full transition-colors duration-200 relative"
-                    :class="notificationSettings.completion ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
-                  >
-                    <div
-                      class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
-                      :class="notificationSettings.completion ? 'translate-x-5' : 'translate-x-0'"
-                    ></div>
-                  </div>
-                </div>
-
-                <!-- 5. Book Added -->
-                <div class="flex items-center justify-between cursor-pointer" @click="notificationSettings.book_added = !notificationSettings.book_added">
-                  <span class="text-xs text-zinc-600 dark:text-zinc-400">새 책 추가 알림</span>
-                  <div
-                    class="w-11 h-6 rounded-full transition-colors duration-200 relative"
-                    :class="notificationSettings.book_added ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'"
-                  >
-                    <div
-                      class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"
-                      :class="notificationSettings.book_added ? 'translate-x-5' : 'translate-x-0'"
-                    ></div>
+                
+                <div class="space-y-3.5 pl-11">
+                  <div v-for="(enabled, type) in notificationSettings" :key="type" class="flex items-center justify-between cursor-pointer" @click="notificationSettings[type] = !notificationSettings[type]">
+                    <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">{{ getNotificationLabel(type) }}</span>
+                    <div class="w-8 h-4 rounded-full transition-colors duration-300 relative" :class="notificationSettings[type] ? 'bg-lime-400' : 'bg-zinc-200 dark:bg-zinc-700'">
+                      <div class="w-3 h-3 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-300 shadow-sm" :class="notificationSettings[type] ? 'translate-x-4' : 'translate-x-0'"></div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -642,21 +592,23 @@
           </section>
 
           <!-- 3. Account -->
-          <section>
-            <h4 class="text-xs font-bold text-zinc-500 uppercase mb-2 px-1">계정</h4>
-            <div class="space-y-2">
+          <section class="pb-4">
+            <div class="flex items-center justify-between mb-4 px-1">
+              <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">계정</h4>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
               <button
                 @click="handleSignOut"
-                class="w-full py-3 bg-red-50 dark:bg-red-900/10 text-red-500 rounded-xl font-medium hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors flex items-center justify-center gap-2"
+                class="py-3.5 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 rounded-xl text-xs font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all flex items-center justify-center gap-2 border border-zinc-100 dark:border-zinc-800"
               >
-                <LogOut :size="18" />
+                <LogOut :size="14" />
                 로그아웃
               </button>
               <button
                 @click="handleDeleteAccount"
-                class="w-full py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl font-medium hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/10 dark:hover:text-red-400 transition-colors flex items-center justify-center gap-2"
+                class="py-3.5 bg-red-50/50 dark:bg-red-900/10 text-red-500/80 rounded-xl text-xs font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-all flex items-center justify-center gap-2 border border-red-100/50 dark:border-red-900/20"
               >
-                <Trash2 :size="18" />
+                <Trash2 :size="14" />
                 계정 삭제
               </button>
             </div>
@@ -1015,7 +967,7 @@ import { ref, computed, onMounted, onActivated, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { ChevronLeft, LogOut, User, Camera, Edit2, Star, StarHalf, Heart, Settings, Moon, Sun, Bell, X, Crown, Lock, ChevronRight, ArrowRight, Trash2 } from 'lucide-vue-next'
+import { ChevronLeft, LogOut, User, Camera, Edit2, Star, StarHalf, Heart, Settings, Moon, Sun, Bell, X, Crown, Lock, ChevronRight, ArrowRight, Trash2, Save } from 'lucide-vue-next'
 import ReadingHeatmap from '~/components/ReadingHeatmap.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
@@ -1055,6 +1007,18 @@ const notificationSettings = ref({
   completion: true,
   book_added: true
 })
+
+// 알림 타입별 한글 라벨 변환 함수 (추가)
+const getNotificationLabel = (type: string) => {
+  const labels: Record<string, string> = {
+    comment_reply: '내 글에 달린 답글',
+    reaction: '내 기록에 달린 반응',
+    member_join: '새로운 멤버 가입',
+    completion: '멤버의 완독 소식',
+    book_added: '새로운 책 추가'
+  }
+  return labels[type] || type
+}
 
 // Book Detail Modal State
 const showBookDetailModal = ref(false)
@@ -1785,101 +1749,88 @@ const triggerFileInput = () => {
   fileInput.value?.click()
 }
 
-const handleFileChange = (event: Event) => {
+const handleFileChange = async (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  if (file) {
-    avatarFile.value = file
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      previewAvatar.value = e.target?.result as string
-    }
-    reader.readAsDataURL(file)
+  if (!file) return
+
+  // 즉시 업로드 시작
+  isSaving.value = true
+  try {
+    const { data: { user: authUser } } = await client.auth.getUser()
+    if (!authUser) throw new Error('로그인이 필요합니다.')
+
+    const userId = authUser.id
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${userId}/${Date.now()}.${fileExt}`
+
+    // 1. Storage 업로드
+    const { error: uploadError } = await client.storage
+      .from('avatars')
+      .upload(fileName, file, { 
+        upsert: true,
+        contentType: file.type 
+      })
+
+    if (uploadError) throw uploadError
+
+    // 2. Public URL 가져오기
+    const { data: { publicUrl } } = client.storage
+      .from('avatars')
+      .getPublicUrl(fileName)
+
+    // 3. DB 즉시 업데이트
+    const { error: updateError } = await client
+      .from('users')
+      .update({ avatar_url: publicUrl })
+      .eq('id', userId)
+
+    if (updateError) throw updateError
+
+    // 4. UI 및 상태 갱신
+    previewAvatar.value = publicUrl
+    await userStore.fetchProfile(true)
+    toast.success('프로필 사진이 변경되었습니다! ✨')
+  } catch (err: any) {
+    console.error('Avatar auto-upload error:', err)
+    toast.error('사진 업로드에 실패했습니다.')
+  } finally {
+    isSaving.value = false
+    // 입력창 초기화 (같은 파일 다시 선택 가능하게)
+    target.value = ''
   }
 }
 
 const saveProfile = async () => {
-  console.log('[Profile] Save profile called')
-  console.log('[Profile] editNickname:', editNickname.value)
-  console.log('[Profile] userStore.user:', userStore.user)
-  console.log('[Profile] userStore.profile:', userStore.profile)
-  console.log('[Profile] currentUserId:', currentUserId.value)
-
   if (!editNickname.value.trim()) {
     toast.error('닉네임을 입력해주세요.')
     return
   }
 
-  // 🔥 성능 최적화: useSupabaseUser() 사용
-  const userId = user.value?.id
-  if (!userId) {
-    console.error('[Profile] No authenticated user found')
-    toast.error('로그인 정보를 찾을 수 없습니다. 다시 로그인해주세요.')
-    return
-  }
-
-  console.log('[Profile] Authenticated user ID:', userId)
-
   isSaving.value = true
 
   try {
-    let avatarUrl = userStore.profile?.avatar_url
+    const { data: { user: authUser } } = await client.auth.getUser()
+    if (!authUser) throw new Error('로그인이 필요합니다.')
 
-    // Upload new avatar if selected
-    if (avatarFile.value) {
-      console.log('[Profile] Uploading avatar...')
-      const fileExt = avatarFile.value.name.split('.').pop()
-      const fileName = `${userId}/${Date.now()}.${fileExt}`
+    const userId = authUser.id
 
-      console.log('[Profile] Avatar file path:', fileName)
-
-      const { error: uploadError } = await client.storage
-        .from('avatars')
-        .upload(fileName, avatarFile.value, { upsert: true })
-
-      if (uploadError) {
-        console.error('[Profile] Avatar upload error:', uploadError)
-        throw uploadError
-      }
-
-      const { data: { publicUrl } } = client.storage
-        .from('avatars')
-        .getPublicUrl(fileName)
-
-      avatarUrl = publicUrl
-      console.log('[Profile] Avatar uploaded successfully:', avatarUrl)
-    }
-
-    // Update DB
-    console.log('[Profile] Updating database...')
-    console.log('[Profile] User ID for update:', user.id)
-    console.log('[Profile] New nickname:', editNickname.value)
-    console.log('[Profile] New avatar URL:', avatarUrl)
-
+    // DB 정보 업데이트 (닉네임만 업데이트)
     const { error: updateError } = await client
       .from('users')
       .update({
-        nickname: editNickname.value,
-        avatar_url: avatarUrl
+        nickname: editNickname.value.trim()
       })
-      .eq('id', user.id)
+      .eq('id', userId)
 
-    if (updateError) {
-      console.error('[Profile] Database update error:', updateError)
-      throw updateError
-    }
+    if (updateError) throw updateError
 
-    console.log('[Profile] Profile updated successfully')
-
-    await userStore.fetchProfile(true) // Force refresh after profile update
-    toast.success('프로필이 업데이트되었습니다.')
-    // settingsModalOpen.value = false // Keep open or close? Usually close is fine, or let user close.
-    // Let's keep it open to show success, or close it? The user clicked save button next to nickname.
-    // Let's not close the whole settings modal, just show toast.
+    await userStore.fetchProfile(true)
+    toast.success('닉네임이 변경되었습니다! ✨')
     
   } catch (err: any) {
     console.error('Save profile error:', err)
-    toast.error('프로필 저장 실패: ' + err.message)
+    toast.error('변경 사항 저장에 실패했습니다.')
   } finally {
     isSaving.value = false
   }

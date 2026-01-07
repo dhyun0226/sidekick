@@ -1,5 +1,9 @@
 <template>
-  <div class="relative h-[100dvh] bg-gray-50 dark:bg-background overflow-y-auto overflow-x-hidden" style="overscroll-behavior: none;">
+  <div 
+    class="relative h-[100dvh] bg-gray-50 dark:bg-background overflow-y-auto overflow-x-hidden" 
+    style="overscroll-behavior: none;"
+    @scroll="handleContainerScroll"
+  >
     <!-- 1. Fixed Navigation Bar (Always visible) -->
     <NavigationBar
       :title="bookTitle || groupName"
@@ -744,8 +748,9 @@ const fetchData = async () => {
   }
 }
 
-const handleScroll = () => {
-  isScrolled.value = window.scrollY > 20
+const handleContainerScroll = (e: Event) => {
+  const target = e.target as HTMLElement
+  isScrolled.value = target.scrollTop > 20
 }
 
 // ===== Lifecycle =====
@@ -757,8 +762,6 @@ onMounted(async () => {
     document.body.style.overflow = 'hidden'
     document.body.style.height = '100vh'
   }
-
-  window.addEventListener('scroll', handleScroll)
 
   // 🔥 성능 최적화: 독립적인 초기화 작업 병렬 실행
   await Promise.all([
@@ -833,9 +836,6 @@ onUnmounted(() => {
     document.body.style.overflow = ''
     document.body.style.height = ''
   }
-
-  // Clean up event listeners
-  window.removeEventListener('scroll', handleScroll)
 
   // Clean up subscriptions
   cleanupSubscriptions()
