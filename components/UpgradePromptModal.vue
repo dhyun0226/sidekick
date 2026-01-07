@@ -107,7 +107,7 @@ const featureConfig = {
     icon: Lock,
     title: '프리미엄 기능입니다',
     message: '이 기능은 프리미엄 회원 전용입니다.',
-    benefits: ['모든 프리미엄 기능 이용', '광고 없는 경험', '우선 지원']
+    benefits: ['모든 프리미엄 기능 이용', '신규 기능 우선 체험', '우선 지원']
   }
 }
 
