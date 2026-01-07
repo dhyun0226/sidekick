@@ -37,22 +37,22 @@
           </div>
 
           <div class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <label class="block text-xs font-bold text-zinc-500 dark:text-zinc-400 ml-1">시작일</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 uppercase tracking-wider">시작일</label>
                 <input
                   v-model="localStartDate"
                   type="date"
-                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark]"
+                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark] transition-all"
                 />
               </div>
-              <div class="space-y-2">
-                <label class="block text-xs font-bold text-zinc-500 dark:text-zinc-400 ml-1">종료일</label>
+              <div class="space-y-1.5">
+                <label class="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 uppercase tracking-wider">종료일</label>
                 <input
                   v-model="localEndDate"
                   type="date"
                   :min="localStartDate"
-                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark]"
+                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark] transition-all"
                 />
               </div>
             </div>
@@ -222,11 +222,11 @@
           </div>
 
           <div class="space-y-2">
-            <label class="block text-xs font-bold text-zinc-500 dark:text-zinc-400 ml-1">완주 날짜</label>
+            <label class="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 uppercase tracking-wider">완주 날짜</label>
             <input
               v-model="localFinishedDate"
               type="date"
-              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark]"
+              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark] transition-all"
             />
           </div>
         </div>
@@ -410,10 +410,10 @@ watch([() => props.editTocOpen, () => props.currentBook], ([isOpen, currentBook]
     localTotalPages.value = currentBook.book?.total_pages || null
 
     if (currentBook.toc_snapshot && currentBook.toc_snapshot.length > 0) {
-      const totalPages = localTotalPages.value || 100
+      // 이제 snapshot에 실제 페이지(page)가 저장되어 있으므로 그대로 사용
       localChapters.value = currentBook.toc_snapshot.map((c: any) => ({
         title: c.title,
-        startPage: Math.round((c.start / 100) * totalPages)
+        startPage: c.page || 0
       }))
     } else {
       localChapters.value = []

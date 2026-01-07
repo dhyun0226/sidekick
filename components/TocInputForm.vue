@@ -50,38 +50,38 @@
         <!-- 챕터가 있을 때 -->
         <template v-else>
           <div class="max-h-[340px] overflow-y-auto pr-1 space-y-3 custom-scrollbar">
-            <div v-for="(chapter, idx) in localChapters" :key="chapter.id" class="flex items-center gap-2 group animate-in slide-in-from-left-2 duration-200 px-0.5">
+            <div v-for="(chapter, idx) in localChapters" :key="chapter.id" class="flex items-center gap-1.5 group animate-in slide-in-from-left-2 duration-200 px-0.5">
               
-              <!-- Left: Index + Title Box (Fixed Height) -->
-              <div class="flex-1 flex items-center h-11 bg-zinc-100 dark:bg-zinc-800 rounded-xl px-1 transition-all focus-within:ring-2 focus-within:ring-inset focus-within:ring-lime-400">
-                <div class="w-8 h-8 flex items-center justify-center text-[10px] font-black text-zinc-400 bg-white dark:bg-zinc-700 rounded-lg shadow-sm flex-shrink-0 ml-1">
+              <!-- Left: Index + Title Box (Flexible) -->
+              <div class="flex-1 min-w-0 flex items-center h-11 bg-zinc-100 dark:bg-zinc-800 rounded-xl px-1 transition-all focus-within:ring-2 focus-within:ring-inset focus-within:ring-lime-400">
+                <div class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px] font-black text-zinc-400 bg-white dark:bg-zinc-700 rounded-lg shadow-sm flex-shrink-0 ml-1">
                   {{ (idx + 1).toString().padStart(2, '0') }}
                 </div>
                 <input
                   v-model="chapter.title"
                   type="text"
                   placeholder="챕터 제목"
-                  class="flex-1 bg-transparent border-none focus:ring-0 text-sm px-2.5 py-2 text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none"
+                  class="min-w-0 flex-1 bg-transparent border-none focus:ring-0 text-sm px-2 py-2 text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none"
                 />
               </div>
 
-              <!-- Right: Page Input Box (Fixed Height & "쪽부터") -->
-              <div class="flex items-center gap-1.5 px-3 h-11 bg-zinc-100 dark:bg-zinc-800 rounded-xl transition-all focus-within:ring-2 focus-within:ring-inset focus-within:ring-lime-400 min-w-[110px] justify-center">
+              <!-- Right: Page Input Box (Compact on Mobile) -->
+              <div class="flex items-center gap-1 px-2 sm:px-3 h-11 bg-zinc-100 dark:bg-zinc-800 rounded-xl transition-all focus-within:ring-2 focus-within:ring-inset focus-within:ring-lime-400 min-w-[85px] sm:min-w-[110px] justify-center flex-shrink-0">
                 <input
                   v-model.number="chapter.startPage"
                   type="number"
                   placeholder="0"
                   @blur="validateChapterPage(idx)"
-                  class="w-12 bg-transparent border-none focus:ring-0 text-sm font-black text-center p-0 text-lime-600 dark:text-lime-400 no-spinner outline-none"
+                  class="w-10 sm:w-12 bg-transparent border-none focus:ring-0 text-sm font-black text-center p-0 text-lime-600 dark:text-lime-400 no-spinner outline-none"
                 />
-                <span class="text-[12px] text-zinc-400 font-bold pointer-events-none whitespace-nowrap">쪽부터</span>
+                <span class="text-[11px] sm:text-[12px] text-zinc-400 font-bold pointer-events-none whitespace-nowrap">쪽부터</span>
               </div>
               
               <!-- Delete Button -->
               <button
                 @click="removeChapter(idx)"
                 type="button"
-                class="w-11 h-11 flex items-center justify-center text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all flex-shrink-0"
+                class="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all flex-shrink-0"
               >
                 <Trash2 :size="18" />
               </button>

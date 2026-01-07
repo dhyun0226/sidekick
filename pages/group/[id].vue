@@ -477,7 +477,26 @@ const bookRoundLabel = computed(() => {
 })
 const bookAuthor = computed(() => selectedBook.value?.book?.author || '')
 const bookCover = computed(() => selectedBook.value?.book?.cover_url || '')
-const toc = computed(() => selectedBook.value?.toc_snapshot || []) // Use snapshot or default
+const toc = computed(() => {
+  const snapshot = selectedBook.value?.toc_snapshot
+  const totalPages = selectedBook.value?.book?.total_pages
+
+  if (!snapshot || !Array.isArray(snapshot) || !totalPages) return []
+
+  // DB의 페이지 번호 기반 목차를 UI용 퍼센트 기반으로 변환
+  return snapshot.map((c: any, i: number) => {
+    const startPage = c.page || 0
+    const nextChapter = snapshot[i + 1]
+    const endPage = nextChapter ? nextChapter.page : totalPages
+
+    return {
+      title: c.title,
+      start: (startPage / totalPages) * 100,
+      end: (endPage / totalPages) * 100,
+      page: startPage // 원본 페이지 번호 유지
+    }
+  })
+})
 const currentChapterName = computed(() => {
   const pct = viewProgress.value
   const chapters = toc.value

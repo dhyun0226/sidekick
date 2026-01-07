@@ -142,12 +142,19 @@
               </div>
 
               <div class="flex items-center gap-2 flex-shrink-0">
-                <span 
-                  class="text-[10px] font-mono font-bold transition-colors"
-                  :class="isCurrentChapter(chapter) ? 'text-lime-600' : 'text-zinc-400'"
-                >
-                  {{ Math.round(chapter.start) }}%
-                </span>
+                <div class="flex flex-col items-end gap-0.5">
+                  <span 
+                    v-if="chapter.page != null"
+                    class="text-[10px] font-black text-lime-600 dark:text-lime-400"
+                  >
+                    {{ chapter.page }}쪽
+                  </span>
+                  <span 
+                    class="text-[9px] font-mono font-bold text-zinc-400"
+                  >
+                    {{ Math.round(chapter.start) }}%
+                  </span>
+                </div>
                 <ChevronRight 
                   :size="14" 
                   class="text-zinc-300 dark:text-zinc-600 transform transition-transform group-hover:translate-x-0.5 group-hover:text-lime-500" 
@@ -189,6 +196,7 @@ interface TocChapter {
   title: string
   start: number
   end: number
+  page?: number
 }
 
 interface Props {

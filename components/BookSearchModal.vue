@@ -157,14 +157,23 @@
             <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-3">
               독서 기간 설정 <span class="text-red-500">*</span>
             </label>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <label class="block text-xs font-bold text-zinc-500 dark:text-zinc-400 ml-1">시작일</label>
-                <input v-model="startDate" type="date" class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark]" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 uppercase tracking-wider">시작일</label>
+                <input 
+                  v-model="startDate" 
+                  type="date" 
+                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark] transition-all" 
+                />
               </div>
-              <div class="space-y-2">
-                <label class="block text-xs font-bold text-zinc-500 dark:text-zinc-400 ml-1">종료일 (목표)</label>
-                <input v-model="endDate" type="date" :min="startDate" class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark]" />
+              <div class="space-y-1.5">
+                <label class="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 uppercase tracking-wider">종료일 (목표)</label>
+                <input 
+                  v-model="endDate" 
+                  type="date" 
+                  :min="startDate" 
+                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark] transition-all" 
+                />
               </div>
             </div>
           </div>
@@ -305,11 +314,15 @@ const calculateDays = () => {
 const confirmBook = () => {
   if (!totalPages.value) { toast.error('전체 페이지를 입력해주세요.'); return }
   if (!selectedGenre.value) { toast.error('장르를 선택해주세요.'); return }
-  const toc = chapters.value.map((c, i) => {
-    const nextStart = chapters.value[i + 1]?.startPage || totalPages.value!
-    return { title: c.title, start: (c.startPage / totalPages.value!) * 100, end: (nextStart / totalPages.value!) * 100 }
+  
+  emit('confirm', { 
+    book: selectedBook.value, 
+    genre: selectedGenre.value, 
+    totalPages: totalPages.value, 
+    toc: chapters.value, // { title, startPage } 구조 그대로 전달
+    startDate: startDate.value, 
+    endDate: endDate.value 
   })
-  emit('confirm', { book: selectedBook.value, genre: selectedGenre.value, totalPages: totalPages.value, toc, startDate: startDate.value, endDate: endDate.value })
   close()
 }
 </script>

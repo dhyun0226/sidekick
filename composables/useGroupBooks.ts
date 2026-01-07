@@ -338,7 +338,7 @@ export const useGroupBooks = (groupId: string) => {
       .insert({
         group_id: groupId,
         isbn: data.book.isbn,
-        toc_snapshot: tocToUse,  // 항상 사용자가 확인/수정한 내용 사용
+        toc_snapshot: data.toc.map(c => ({ title: c.title, page: c.startPage })), // 페이지 번호 직접 저장
         status: 'reading',
         target_start_date: data.startDate,
         target_end_date: data.endDate
@@ -428,33 +428,28 @@ export const useGroupBooks = (groupId: string) => {
     totalPages: number,
     chapters: { title: string; startPage: number }[]
   ) => {
-    // Calculate new TOC based on new total pages (목차가 없으면 빈 배열)
-    const toc = chapters.map((c, i) => {
-      const nextStart = chapters[i + 1]?.startPage || totalPages
-      const startPct = (c.startPage / totalPages) * 100
-      const endPct = (nextStart / totalPages) * 100
-      return {
-        title: c.title,
-        start: startPct,
-        end: endPct
-      }
-    })
+    // DB에는 실제 페이지 번호를 저장 (UI에서만 퍼센트로 변환하여 사용)
+    const tocSnapshot = chapters.map(c => ({
+      title: c.title,
+      page: c.startPage
+    }))
 
     // Update group_books with new TOC
     const { error: groupBookError } = await client
       .from('group_books')
       .update({
-        toc_snapshot: toc
+        toc_snapshot: tocSnapshot
       })
       .eq('id', bookId)
 
     if (groupBookError) throw groupBookError
 
-    // Update books table with new total_pages
+    // Update books table with new total_pages and draft_toc
     const { error: bookError } = await client
       .from('books')
       .update({
-        total_pages: totalPages
+        total_pages: totalPages,
+        draft_toc: tocSnapshot
       })
       .eq('isbn', isbn)
 
@@ -462,7 +457,7 @@ export const useGroupBooks = (groupId: string) => {
 
     // Update local data
     if (currentBook.value?.id === bookId) {
-      currentBook.value.toc_snapshot = toc
+      currentBook.value.toc_snapshot = tocSnapshot
       if (currentBook.value.book) {
         currentBook.value.book.total_pages = totalPages
       }

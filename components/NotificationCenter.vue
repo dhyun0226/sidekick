@@ -6,7 +6,6 @@
       class="relative w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-lime-500 dark:hover:text-lime-400 hover:border-lime-200 transition-all shadow-sm active:scale-95"
     >
       <Bell :size="20" />
-      <!-- Unread Indicator Pulse -->
       <span v-if="unreadCount > 0" class="absolute top-2.5 right-2.5 flex h-2 w-2">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
         <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 border border-white dark:border-zinc-800"></span>
@@ -30,13 +29,11 @@
 
       <!-- Content Area -->
       <div class="max-h-[420px] overflow-y-auto custom-scrollbar">
-        <!-- Loading State -->
         <div v-if="loading" class="p-12 text-center">
           <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
           <p class="text-xs text-zinc-500 font-medium">알림을 불러오고 있어요</p>
         </div>
 
-        <!-- Empty State -->
         <div v-else-if="notifications.length === 0" class="p-12 text-center flex flex-col items-center">
           <div class="w-16 h-16 bg-zinc-50 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mb-4 text-3xl">
             🔔
@@ -52,33 +49,28 @@
           <div
             v-for="noti in notifications"
             :key="noti.id"
-            class="group relative flex gap-4 p-5 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all cursor-pointer"
+            class="group relative flex flex-col p-5 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all cursor-pointer"
             :class="{ 'bg-lime-50/30 dark:bg-lime-900/5': !noti.is_read }"
             @click="handleNotificationClick(noti)"
           >
-            <!-- Unread Indicator Dot -->
-            <div v-if="!noti.is_read" class="absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-8 bg-lime-400 rounded-full"></div>
-
-            <!-- Icon Column -->
-            <div class="flex-shrink-0 pt-0.5">
-              <div 
-                class="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm"
-                :class="getIconBgClass(noti.type)"
-              >
-                <component :is="getIconComponent(noti.type)" :size="18" :class="getIconColorClass(noti.type)" />
-              </div>
-            </div>
-
-            <!-- Text Column -->
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-start mb-1">
-                <span class="text-xs font-black text-zinc-900 dark:text-white truncate pr-2">
-                  {{ noti.title }}
-                </span>
-                <span class="text-[10px] font-bold text-zinc-400 whitespace-nowrap pt-0.5">
+            <!-- Content Wrapper -->
+            <div class="min-w-0">
+              <!-- Top Row: Group Badge & Time -->
+              <div class="flex items-center justify-between mb-2">
+                <div v-if="noti.groupName" class="text-[10px] font-black text-lime-600 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/30 px-1.5 py-0.5 rounded uppercase tracking-tighter truncate max-w-[180px]">
+                  {{ noti.groupName }}
+                </div>
+                <span class="text-[10px] font-bold text-zinc-400 whitespace-nowrap ml-auto">
                   {{ formatTimeAgo(noti.created_at) }}
                 </span>
               </div>
+
+              <!-- Middle Row: Title -->
+              <h4 class="text-[13px] font-black text-zinc-900 dark:text-white truncate mb-1">
+                {{ noti.title }}
+              </h4>
+
+              <!-- Bottom Row: Message -->
               <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2">
                 {{ noti.message }}
               </p>
@@ -87,7 +79,7 @@
             <!-- Action: Individual Delete -->
             <button
               @click.stop="deleteNotification(noti.id)"
-              class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1.5 text-zinc-300 hover:text-red-400 transition-all rounded-lg hover:bg-white dark:hover:bg-zinc-700 shadow-sm"
+              class="absolute top-4 right-2 opacity-0 group-hover:opacity-100 p-1.5 text-zinc-300 hover:text-red-400 transition-all rounded-lg hover:bg-white dark:hover:bg-zinc-700 shadow-sm"
             >
               <X :size="14" />
             </button>
@@ -96,8 +88,10 @@
       </div>
     </div>
 
-    <!-- Backdrop -->
-    <div v-if="isOpen" class="fixed inset-0 z-40" @click="isOpen = false"></div>
+    <!-- Global Backdrop -->
+    <Teleport to="body">
+      <div v-if="isOpen" class="fixed inset-0 z-[100005]" @click="isOpen = false"></div>
+    </Teleport>
 
     <!-- Delete All Modal -->
     <ConfirmModal
@@ -130,9 +124,7 @@ const loading = ref(false)
 const notifications = ref<any[]>([])
 const showDeleteAllModal = ref(false)
 
-const unreadCount = computed(() =>
-  notifications.value.filter(n => !n.is_read).length
-)
+const unreadCount = computed(() => notifications.value.filter(n => !n.is_read).length)
 
 const toggleOpen = async () => {
   isOpen.value = !isOpen.value
@@ -152,8 +144,25 @@ const fetchNotifications = async () => {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(30)
+    
     if (error) throw error
-    notifications.value = data || []
+
+    if (data && data.length > 0) {
+      // Fetch group names for source_ids
+      const groupIds = [...new Set(data.map(n => n.source_id).filter(id => id))]
+      if (groupIds.length > 0) {
+        const { data: groupsData } = await client.from('groups').select('id, name').in('id', groupIds)
+        const groupsMap = new Map(groupsData?.map(g => [g.id, g.name]) || [])
+        notifications.value = data.map(n => ({
+          ...n,
+          groupName: groupsMap.get(n.source_id)
+        }))
+      } else {
+        notifications.value = data
+      }
+    } else {
+      notifications.value = []
+    }
   } catch (error) {
     console.error('Notifications error:', error)
   } finally {
@@ -162,34 +171,48 @@ const fetchNotifications = async () => {
 }
 
 const markAllRead = async () => {
+
   const { data: { user } } = await client.auth.getUser()
+
   if (!user) return
+
+
+
   const { error } = await client
+
     .from('notifications')
+
     .update({ is_read: true })
+
     .eq('user_id', user.id)
+
     .eq('is_read', false)
+
+
+
   if (!error) {
+
     notifications.value.forEach(n => n.is_read = true)
+
   }
+
 }
+
+
+
+
 
 const handleNotificationClick = async (noti: any) => {
   if (!noti.is_read) {
     await client.from('notifications').update({ is_read: true }).eq('id', noti.id)
     noti.is_read = true
   }
-  if (noti.link) {
-    isOpen.value = false
-    router.push(noti.link)
-  }
+  if (noti.link) { isOpen.value = false; router.push(noti.link) }
 }
 
 const deleteNotification = async (notiId: string) => {
   const { error } = await client.from('notifications').delete().eq('id', notiId)
-  if (!error) {
-    notifications.value = notifications.value.filter(n => n.id !== notiId)
-  }
+  if (!error) { notifications.value = notifications.value.filter(n => n.id !== notiId) }
 }
 
 const deleteAll = () => { showDeleteAllModal.value = true }
@@ -201,13 +224,11 @@ const executeDeleteAll = async () => {
     if (error) throw error
     notifications.value = []
     toast.success('모든 알림이 삭제되었습니다.')
-  } catch (error) {
-    toast.error('알림 삭제에 실패했습니다.')
-  } finally { showDeleteAllModal.value = false }
+  } catch (error) { toast.error('알림 삭제에 실패했습니다.') }
+  finally { showDeleteAllModal.value = false }
 }
 const cancelDeleteAll = () => { showDeleteAllModal.value = false }
 
-// Helper for icons based on type
 const getIconComponent = (type: string) => {
   switch (type) {
     case 'reply': return MessageCircle
@@ -221,22 +242,22 @@ const getIconComponent = (type: string) => {
 
 const getIconBgClass = (type: string) => {
   switch (type) {
-    case 'reply': return 'bg-blue-50 dark:bg-blue-900/20'
-    case 'reaction': return 'bg-red-50 dark:bg-red-900/20'
-    case 'book_added': return 'bg-lime-50 dark:bg-lime-900/20'
-    case 'member_join': return 'bg-purple-50 dark:bg-purple-900/20'
-    case 'completion': return 'bg-emerald-50 dark:bg-emerald-900/20'
+    case 'reply': return 'bg-blue-50 dark:bg-blue-900/20';
+    case 'reaction': return 'bg-red-50 dark:bg-red-900/20';
+    case 'book_added': return 'bg-lime-50 dark:bg-lime-900/20';
+    case 'member_join': return 'bg-purple-50 dark:bg-purple-900/20';
+    case 'completion': return 'bg-emerald-50 dark:bg-emerald-900/20';
     default: return 'bg-zinc-50 dark:bg-zinc-800'
   }
 }
 
 const getIconColorClass = (type: string) => {
   switch (type) {
-    case 'reply': return 'text-blue-500'
-    case 'reaction': return 'text-red-500'
-    case 'book_added': return 'text-lime-500'
-    case 'member_join': return 'text-purple-500'
-    case 'completion': return 'text-emerald-500'
+    case 'reply': return 'text-blue-500';
+    case 'reaction': return 'text-red-500';
+    case 'book_added': return 'text-lime-500';
+    case 'member_join': return 'text-purple-500';
+    case 'completion': return 'text-emerald-500';
     default: return 'text-zinc-400'
   }
 }
@@ -260,8 +281,10 @@ onMounted(async () => {
   const { data: { user } } = await client.auth.getUser()
   if (!user) return
   await fetchNotifications()
-  const channel = client.channel('notifications').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, (payload) => {
-    notifications.value.unshift(payload.new as any)
+  const channel = client.channel('notifications').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, async (payload) => {
+    const newNoti = payload.new as any
+    const { data: groupData } = await client.from('groups').select('name').eq('id', newNoti.source_id).maybeSingle()
+    notifications.value.unshift({ ...newNoti, groupName: groupData?.name })
   }).subscribe()
   onUnmounted(() => { client.removeChannel(channel) })
 })
