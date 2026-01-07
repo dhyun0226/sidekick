@@ -1,115 +1,136 @@
 <template>
   <div class="space-y-4">
     <!-- Header -->
-    <div class="flex items-center justify-between px-1">
-      <h3 class="text-xs font-bold text-zinc-500 uppercase">독서 레이스</h3>
-      <span class="text-[10px] text-zinc-400">{{ sortedMembersWithProgress.length }}명 참여 중</span>
+    <div class="flex items-center justify-between px-1 h-4" :class="showSearch ? 'mb-2' : 'mb-3'">
+      <div class="flex items-center gap-2">
+        <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">독서 레이스</h3>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] text-zinc-400 leading-none">총 {{ filteredMembers.length }}명</span>
+        <!-- Search Toggle -->
+        <button
+          @click="showSearch = !showSearch"
+          class="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors text-zinc-400 leading-none"
+          :class="{ 'text-lime-500': showSearch || searchQuery }"
+          title="멤버 검색"
+        >
+          <Search :size="12" class="block" />
+        </button>
+      </div>
     </div>
 
-    <!-- Card -->
-    <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-visible">
-      <div class="divide-y divide-zinc-100 dark:divide-zinc-800/50">
-        <div v-for="member in sortedMembersWithProgress" :key="member.id" class="p-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden flex-shrink-0 border border-zinc-100 dark:border-zinc-600">
-              <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
-              <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
-                <User :size="14" />
-              </div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-center mb-0.5">
-                <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate pr-2">
-                  {{ member.nickname }}
-                  <span v-if="member.role === 'admin'" class="text-lime-600 bg-lime-100 dark:bg-lime-900 dark:text-lime-400 px-2 py-1 text-xs rounded ml-1 inline-flex items-center justify-center">
-                    <Crown :size="10" />
-                  </span>
-                </span>
-                <div class="flex items-center gap-2">
-                  <!-- 완독한 경우: 완독 날짜 표시 / 진행 중: 퍼센트 표시 -->
-                  <span class="text-xs font-bold" :class="member.isCompleted ? 'text-lime-500' : 'text-zinc-500 font-mono'">
-                    <template v-if="member.isCompleted">
-                      {{ member.finishedDate }} 완독
-                    </template>
-                    <template v-else>
-                      {{ member.progress }}%
-                    </template>
-                  </span>
+    <!-- Search Input (Expandable) -->
+    <div v-if="showSearch" class="px-1 mb-3 animate-fade-in">
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="닉네임으로 검색..."
+        class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-xs rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400 border-none"
+        autofocus
+      />
+    </div>
 
-                  <!-- Admin Menu (관리자만 보임, 자기 자신 제외) -->
-                  <div v-if="isAdmin && member.id !== currentUserId" class="relative">
-                    <button
-                      @click.stop="toggleMemberMenu(member.id)"
-                      class="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors"
-                    >
-                      <MoreVertical :size="14" class="text-zinc-400" />
-                    </button>
-
-                    <!-- Backdrop (z-index를 먼저 렌더링) -->
-                    <div
-                      v-if="activeMemberMenu === member.id"
-                      class="fixed inset-0 z-[100]"
-                      @click="activeMemberMenu = null"
-                    ></div>
-
-                    <!-- Dropdown Menu -->
-                    <div
-                      v-if="activeMemberMenu === member.id"
-                      class="absolute right-0 top-6 min-w-[160px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[101] overflow-visible"
-                    >
-                      <button
-                        @click="handleChangeRole(member)"
-                        class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap"
-                      >
-                        <Shield :size="12" />
-                        {{ member.role === 'admin' ? '멤버로 변경' : '관리자로 변경' }}
-                      </button>
-                      <button
-                        @click="handleKickMember(member)"
-                        class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap"
-                      >
-                        <UserX :size="12" />
-                        강퇴하기
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 활동 시간 -->
-              <div class="text-[10px] text-zinc-500 dark:text-zinc-400 mb-1.5">
-                <!-- 마지막 활동 시간 표시 -->
-                <template v-if="member.timeAgo">
-                  <span :class="member.inactive ? 'text-zinc-400' : ''">
-                    {{ member.timeAgo }}
-                    <span v-if="member.inactive">😴</span>
-                  </span>
-                </template>
-
-                <!-- 활동 기록 없음 -->
-                <template v-else>
-                  <span class="text-zinc-400">활동 없음</span>
-                </template>
-              </div>
+    <!-- Members List (Slim Style) -->
+    <div v-if="filteredMembers.length > 0" class="space-y-1.5">
+      <div 
+        v-for="member in filteredMembers" 
+        :key="member.id" 
+        class="relative bg-white dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800 p-2.5 shadow-sm transition-all group hover:border-lime-200 dark:hover:border-lime-900/50 active:scale-[0.99] flex items-center gap-3"
+      >
+        <!-- Avatar Section -->
+        <div class="relative flex-shrink-0">
+          <div class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-200 dark:border-zinc-700 shadow-inner">
+            <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
+            <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
+              <User :size="16" />
             </div>
           </div>
-
-          <!-- Progress Bar -->
-          <div class="h-1.5 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-            <div
-              class="h-full bg-lime-500 dark:bg-lime-400 rounded-full transition-all duration-500 ease-out"
-              :style="{ width: `${member.progress}%` }"
-            ></div>
+          <!-- Status Dot -->
+          <div 
+            class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-zinc-900 flex items-center justify-center"
+            :class="member.inactive ? 'bg-zinc-300 dark:bg-zinc-600' : 'bg-lime-500'"
+          >
+            <span v-if="member.inactive" class="text-[5px]">😴</span>
           </div>
         </div>
+
+        <!-- Info Section (Main) -->
+        <div class="flex-1 min-w-0 flex flex-col justify-center">
+          <div class="flex items-center gap-1.5 mb-1.5 whitespace-nowrap overflow-hidden leading-none h-4">
+            <span class="text-[13px] font-bold text-zinc-900 dark:text-zinc-100 truncate max-w-[100px] leading-none">
+              {{ member.nickname }}
+            </span>
+            
+            <template v-if="member.timeAgo">
+              <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
+              <span class="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium leading-none">{{ member.timeAgo }}</span>
+            </template>
+
+            <template v-if="member.id === currentUserId">
+              <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
+              <Badge variant="lime" size="sm" class="!px-1 !py-0 !text-[9px] !h-3.5 relative -translate-y-[0.5px]">나</Badge>
+            </template>
+
+            <template v-if="member.role === 'admin'">
+              <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
+              <Badge variant="purple" size="sm" class="!px-1 !py-0 !text-[9px] !h-3.5 relative -translate-y-[0.5px]">방장</Badge>
+            </template>
+          </div>
+          
+          <!-- Slim Progress Bar -->
+          <div class="flex items-center gap-2 pr-10">
+            <div class="h-1.5 flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+              <div
+                class="h-full bg-lime-500 dark:bg-lime-400 rounded-full transition-all duration-700 ease-out"
+                :style="{ width: `${member.progress}%` }"
+              ></div>
+            </div>
+            <span class="text-[10px] font-black w-8 text-right" :class="member.isCompleted ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-500 dark:text-zinc-400'">
+              {{ member.isCompleted ? '완독' : `${member.progress}%` }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Right Section: Menu (Common Component) -->
+        <div v-if="isAdmin && member.id !== currentUserId" class="absolute right-2 top-1/2 -translate-y-1/2">
+          <DropdownMenu
+            :is-open="activeMemberMenu === member.id"
+            @toggle="toggleMemberMenu(member.id)"
+            @close="activeMemberMenu = null"
+          >
+            <button
+              @click="handleChangeRole(member)"
+              class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold"
+            >
+              <Shield :size="12" />
+              관리자로 변경
+            </button>
+            <button
+              @click="handleKickMember(member)"
+              class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap font-bold"
+            >
+              <UserX :size="12" />
+              내보내기
+            </button>
+          </DropdownMenu>
+        </div>
       </div>
+    </div>
+
+    <!-- Empty Search State -->
+    <div v-else class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
+      <div class="text-4xl mb-3">🔍</div>
+      <p>검색 결과와 일치하는 멤버가 없습니다</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { User, MoreVertical, Shield, UserX, Crown } from 'lucide-vue-next'
+import { ref, computed } from 'vue'
+import { User, Shield, UserX, Crown, Users, Clock, MoreVertical, Search } from 'lucide-vue-next'
+import Badge from '~/components/Badge.vue'
+import DropdownMenu from '~/components/DropdownMenu.vue'
 
 interface MemberWithProgress {
   id: string
@@ -135,10 +156,20 @@ interface Emits {
   (e: 'kickMember', member: MemberWithProgress): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const activeMemberMenu = ref<string | null>(null)
+const showSearch = ref(false)
+const searchQuery = ref('')
+
+const filteredMembers = computed(() => {
+  if (!searchQuery.value.trim()) return props.sortedMembersWithProgress
+  const query = searchQuery.value.toLowerCase().trim()
+  return props.sortedMembersWithProgress.filter(member => 
+    member.nickname.toLowerCase().includes(query)
+  )
+})
 
 const toggleMemberMenu = (memberId: string) => {
   activeMemberMenu.value = activeMemberMenu.value === memberId ? null : memberId
@@ -154,3 +185,12 @@ const handleKickMember = (member: MemberWithProgress) => {
   emit('kickMember', member)
 }
 </script>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
+.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in { animation: fade-in 0.2s ease-out; }
+</style>

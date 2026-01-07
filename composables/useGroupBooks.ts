@@ -179,7 +179,7 @@ export const useGroupBooks = (groupId: string) => {
             cover_url: gb.book.cover_url,
             publisher: gb.book.publisher,
             total_pages: gb.book.total_pages,
-            date: new Date(gb.finished_at || gb.created_at).toLocaleDateString(),
+            date: gb.finished_at || gb.created_at,
             round,
             reviewCount: stats.count,
             averageRating: avgRating,

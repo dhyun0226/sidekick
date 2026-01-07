@@ -93,51 +93,54 @@
     <!-- Mark Completed Modal -->
     <div v-if="markCompletedOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeMarkCompleted')"></div>
-      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">✅ 완주 처리</h2>
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+        
+        <!-- Close Button -->
+        <div class="absolute top-4 right-4 z-20">
           <button @click="emit('closeMarkCompleted')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
-            <X :size="24" />
+            <X :size="20" />
           </button>
         </div>
 
+        <div class="text-center mb-8 pt-4">
+          <h2 class="text-xl font-black text-zinc-900 dark:text-white mb-1.5">완주 처리하시겠습니까?</h2>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">
+            목표를 달성한 이 책을 서재로 옮깁니다.
+          </p>
+        </div>
+        
         <div class="space-y-6">
-          <p class="text-zinc-700 dark:text-zinc-300 text-center">정말 이 책을 완주 처리하시겠습니까?</p>
-          
+          <!-- Book Preview (Unified Style) -->
           <div v-if="currentBook" class="flex gap-4 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800 shadow-sm">
             <img
               :src="currentBook.book?.cover_url"
               class="w-12 h-16 object-cover shadow-md bg-zinc-200 dark:bg-zinc-700"
             />
-            <div class="flex-1 min-w-0 flex flex-col justify-center">
+            <div class="flex-1 min-w-0 flex flex-col justify-center text-left">
               <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-sm mb-1.5 truncate">{{ currentBook.book?.title }}</h3>
-              <div class="flex flex-wrap items-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">
-                <span class="truncate max-w-[100px]">{{ currentBook.book?.author }}</span>
+              <div class="flex flex-wrap items-center gap-1.5 text-[12px] text-zinc-500 dark:text-zinc-400 font-medium leading-none">
+                <span class="truncate max-w-[80px]">{{ currentBook.book?.author }}</span>
                 <template v-if="currentBook.book?.publisher || currentBook.book?.total_pages">
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  <span v-if="currentBook.book?.publisher" class="truncate max-w-[80px]">{{ currentBook.book?.publisher }}</span>
+                  <span v-if="currentBook.book?.publisher" class="truncate max-w-[60px]">{{ currentBook.book?.publisher }}</span>
                   <span v-if="currentBook.book?.publisher && currentBook.book?.total_pages">·</span>
                   <span v-if="currentBook.book?.total_pages">{{ currentBook.book?.total_pages }}p</span>
                 </template>
               </div>
             </div>
           </div>
-          
-          <p class="text-xs text-zinc-500 dark:text-zinc-500 text-center leading-relaxed">
-            완주 처리하면 히스토리로 이동하며,<br/>해당 그룹에서 새로운 책을 시작할 수 있습니다.
-          </p>
         </div>
 
         <div class="flex gap-3 mt-8">
           <button
             @click="emit('closeMarkCompleted')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+            class="flex-1 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>
           <button
             @click="emit('markAsCompleted')"
-            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95"
+            class="flex-[2] py-4 bg-lime-400 text-black font-black rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95"
           >
             완주 완료
           </button>
@@ -311,7 +314,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { X, Calendar } from 'lucide-vue-next'
+import { X, Calendar, CheckCircle2 } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 import TocInputForm from '~/components/TocInputForm.vue'
 import GenreBadge from '~/components/GenreBadge.vue'

@@ -4,7 +4,7 @@
     <div v-if="readingBooks.length > 0">
       <!-- Header -->
       <div class="flex items-center justify-between px-1 mb-3">
-        <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+        <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">
           읽는 중
         </h3>
         <span class="text-[10px] text-zinc-400">{{ sortedReadingBooks.length }}권</span>
@@ -27,39 +27,39 @@
           ]"
           @click="emit('selectBook', book.id)"
         >
-          <!-- Settings Menu (모든 사용자에게 표시) -->
-          <div class="absolute top-3 right-3 z-[9999]">
-            <button @click.stop="toggleBookMenu(book.id)" class="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors">
-              <MoreVertical :size="14" class="text-zinc-400" />
-            </button>
-            <div v-if="activeBookMenu === book.id" class="absolute right-0 top-6 min-w-[160px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[10000] overflow-visible" @click.stop>
+          <!-- Settings Menu (Common Component) -->
+          <div class="absolute top-3 right-3">
+            <DropdownMenu
+              :is-open="activeBookMenu === book.id"
+              @toggle="toggleBookMenu(book.id)"
+              @close="activeBookMenu = null"
+            >
               <!-- All Users -->
-              <button @click.stop="handleReview(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+              <button @click.stop="handleReview(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
                 <Edit3 :size="12" /> {{ props.userReviewedBooks.has(book.id) ? '리뷰 수정' : '리뷰 작성' }}
               </button>
-              <button v-if="!book.user_finished_at" @click.stop="handleMarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+              <button v-if="!book.user_finished_at" @click.stop="handleMarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
                 <Check :size="12" /> 완독 처리
               </button>
-              <button v-else @click.stop="handleUnmarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+              <button v-else @click.stop="handleUnmarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
                 <X :size="12" /> 완독 취소
               </button>
               <!-- Admin Only -->
               <template v-if="isAdmin">
-                <button @click.stop="handleEditDates(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap border-t border-zinc-100 dark:border-zinc-700/50">
+                <button @click.stop="handleEditDates(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap border-t border-zinc-100 dark:border-zinc-700/50 font-bold">
                   <Edit2 :size="12" /> 기간 수정
                 </button>
-                <button @click.stop="handleEditToc(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                <button @click.stop="handleEditToc(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
                   <Settings :size="12" /> 목차 수정
                 </button>
-                <button @click.stop="handleMarkCompleted(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                <button @click.stop="handleMarkCompleted(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
                   <UserCheck :size="12" /> 완주 처리
                 </button>
-                <button @click.stop="handleDeleteBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap">
+                <button @click.stop="handleDeleteBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap font-bold">
                   <UserX :size="12" /> 책 삭제
                 </button>
               </template>
-            </div>
-            <div v-if="activeBookMenu === book.id" class="fixed inset-0 z-[9998]" @click.stop="activeBookMenu = null"></div>
+            </DropdownMenu>
           </div>
 
           <div class="flex gap-3">
@@ -103,7 +103,7 @@
       <!-- Chapter Navigation (선택된 책의 목차) -->
       <div v-if="selectedBook && toc.length > 0 && isSelectedBookReading" class="mt-6">
         <div class="flex items-center justify-between px-1 mb-3">
-          <h3 class="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">목차 이동</h3>
+          <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">목차 이동</h3>
           <span class="text-[10px] font-bold text-zinc-400 opacity-60">{{ toc.length }}개</span>
         </div>
         
@@ -163,7 +163,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { MoreVertical, Edit2, Settings, UserCheck, UserX, Edit3, Check, X } from 'lucide-vue-next'
+import { Edit2, Settings, UserCheck, UserX, Edit3, Check, X } from 'lucide-vue-next'
+import DropdownMenu from '~/components/DropdownMenu.vue'
 
 interface Book {
   id: string

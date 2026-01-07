@@ -3,7 +3,7 @@
     <!-- Invite Code -->
     <div>
       <div class="flex items-center justify-between px-1 mb-3">
-        <h3 class="text-xs font-bold text-zinc-500 uppercase">초대 코드</h3>
+        <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">초대 코드</h3>
       </div>
       <div class="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800">
       <div class="flex items-center gap-2 mb-3">
@@ -35,7 +35,7 @@
     <!-- Group Management (Admin Only) -->
     <div v-if="isAdmin">
       <div class="flex items-center justify-between px-1 mb-3">
-        <h3 class="text-xs font-bold text-zinc-500 uppercase">그룹 관리</h3>
+        <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">그룹 관리</h3>
       </div>
       <div class="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800">
 

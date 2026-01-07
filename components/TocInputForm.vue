@@ -55,7 +55,7 @@
               <!-- Left: Index + Title Box (Fixed Height) -->
               <div class="flex-1 flex items-center h-11 bg-zinc-100 dark:bg-zinc-800 rounded-xl px-1 transition-all focus-within:ring-2 focus-within:ring-inset focus-within:ring-lime-400">
                 <div class="w-8 h-8 flex items-center justify-center text-[10px] font-black text-zinc-400 bg-white dark:bg-zinc-700 rounded-lg shadow-sm flex-shrink-0 ml-1">
-                  {{ idx + 1 }}
+                  {{ (idx + 1).toString().padStart(2, '0') }}
                 </div>
                 <input
                   v-model="chapter.title"
