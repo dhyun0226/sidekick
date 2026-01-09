@@ -49,6 +49,9 @@
                 <button @click.stop="handleEditDates(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap border-t border-zinc-100 dark:border-zinc-700/50 font-bold">
                   <Edit2 :size="12" /> 기간 수정
                 </button>
+                <button @click.stop="handleEditGenre(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
+                  <Tag :size="12" /> 장르 수정
+                </button>
                 <button @click.stop="handleEditToc(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
                   <Settings :size="12" /> 목차 수정
                 </button>
@@ -82,6 +85,8 @@
               <div class="flex flex-wrap items-center gap-1.5 mt-2">
                 <GenreBadge v-if="book.book?.official_genre || book.book?.draft_genre" :genre="book.book?.official_genre || book.book?.draft_genre" size="sm" />
                 
+                <RatingBadge v-if="props.userReviewedBooks.has(book.id)" :rating="props.userReviewedBooks.get(book.id)" size="sm" />
+
                 <Badge v-if="book.round && book.round > 1" size="sm">
                   {{ book.round }}회차
                 </Badge>
@@ -170,8 +175,9 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { Edit2, Settings, UserCheck, UserX, Edit3, Check, X } from 'lucide-vue-next'
+import { Edit2, Settings, UserCheck, UserX, Edit3, Check, X, Tag } from 'lucide-vue-next'
 import DropdownMenu from '~/components/DropdownMenu.vue'
+import RatingBadge from '~/components/RatingBadge.vue'
 
 interface Book {
   id: string
@@ -206,7 +212,7 @@ interface Props {
   readingBooks: Book[]
   viewProgress: number
   isAdmin: boolean
-  userReviewedBooks: Set<string>
+  userReviewedBooks: Map<string, number>
 }
 
 interface Emits {
@@ -214,6 +220,7 @@ interface Emits {
   (e: 'jumpToChapter', startPct: number): void
   (e: 'editDates', bookId: string): void
   (e: 'editToc', bookId: string): void
+  (e: 'editGenre', bookId: string): void
   (e: 'markCompleted', bookId: string): void
   (e: 'markFinished', bookId: string): void
   (e: 'unmarkFinished', bookId: string): void
@@ -293,6 +300,11 @@ const handleEditDates = (bookId: string) => {
   emit('editDates', bookId)
 }
 
+const handleEditGenre = (bookId: string) => {
+  activeBookMenu.value = null
+  emit('editGenre', bookId)
+}
+
 const handleEditToc = (bookId: string) => {
   activeBookMenu.value = null
   emit('editToc', bookId)
@@ -323,6 +335,10 @@ watch(() => props.readingBooks, (newBooks) => {
     user_finished_at: b.user_finished_at
   })))
 }, { deep: true })
+
+watch(() => props.userReviewedBooks, (newMap) => {
+  console.log('[InfoTab] userReviewedBooks map updated:', newMap)
+}, { deep: true, immediate: true })
 
 const handleDeleteBook = (bookId: string) => {
   activeBookMenu.value = null

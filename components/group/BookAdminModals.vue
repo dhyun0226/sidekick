@@ -309,6 +309,14 @@
         </div>
       </div>
     </div>
+
+    <!-- Edit Genre Modal -->
+    <EditGenreModal
+      :isOpen="editGenreOpen"
+      :currentGenre="currentBook?.genre || currentBook?.book?.official_genre || currentBook?.book?.draft_genre"
+      @close="emit('closeEditGenre')"
+      @save="(genre) => emit('saveEditedGenre', genre)"
+    />
   </div>
 </template>
 
@@ -318,10 +326,12 @@ import { X, Calendar, CheckCircle2 } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 import TocInputForm from '~/components/TocInputForm.vue'
 import GenreBadge from '~/components/GenreBadge.vue'
+import EditGenreModal from '~/components/admin/EditGenreModal.vue'
 
 interface Props {
   editDatesOpen: boolean
   editTocOpen: boolean
+  editGenreOpen: boolean
   markCompletedOpen: boolean
   deleteBookOpen: boolean
   editFinishedDateOpen: boolean
@@ -332,11 +342,13 @@ interface Props {
 interface Emits {
   (e: 'closeEditDates'): void
   (e: 'closeEditToc'): void
+  (e: 'closeEditGenre'): void
   (e: 'closeMarkCompleted'): void
   (e: 'closeDeleteBook'): void
   (e: 'closeEditFinishedDate'): void
   (e: 'saveEditedDates', payload: { startDate: string, endDate: string }): void
   (e: 'saveEditedToc', payload: { totalPages: number, chapters: any[] }): void
+  (e: 'saveEditedGenre', genre: string): void
   (e: 'saveEditedFinishedDate', finishedDate: string): void
   (e: 'markAsCompleted'): void
   (e: 'deleteBook'): void

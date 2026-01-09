@@ -100,7 +100,7 @@
           class="flex-[2] py-4 bg-lime-400 text-black rounded-2xl font-bold hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50"
           :disabled="rating === 0"
         >
-          {{ isEditing ? '리뷰 수정 완료' : '리뷰 등록하기' }}
+          {{ isEditing ? '리뷰 수정하기' : '리뷰 등록하기' }}
         </button>
       </div>
     </div>

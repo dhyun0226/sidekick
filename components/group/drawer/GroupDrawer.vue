@@ -65,6 +65,7 @@
           @jump-to-chapter="(start) => emit('jumpToChapter', start)"
           @edit-dates="(bookId) => emit('editDates', bookId)"
           @edit-toc="(bookId) => emit('editToc', bookId)"
+          @edit-genre="(bookId) => emit('editGenre', bookId)"
           @mark-completed="(bookId) => emit('markCompleted', bookId)"
           @mark-finished="(bookId) => emit('markFinished', bookId)"
           @unmark-finished="(bookId) => emit('unmarkFinished', bookId)"
@@ -91,6 +92,7 @@
           @open-reviews="(bookId) => emit('openReviews', bookId)"
           @restart-reading="(bookId) => emit('restartReading', bookId)"
           @edit-finished-date="(bookId) => emit('editFinishedDate', bookId)"
+          @edit-genre="(bookId) => emit('editGenre', bookId)"
           @delete-history-book="(bookId) => emit('deleteHistoryBook', bookId)"
           @open-review="(bookId) => emit('openReview', bookId)"
           @mark-finished="(bookId) => emit('markFinished', bookId)"
@@ -138,7 +140,7 @@ interface Props {
   inviteCode: string
   toc: any[]
   viewProgress: number
-  userReviewedBooks: Set<string>
+  userReviewedBooks: Map<string, number>
 }
 
 interface Emits {
@@ -147,6 +149,7 @@ interface Emits {
   (e: 'jumpToChapter', startPct: number): void
   (e: 'editDates', bookId: string): void
   (e: 'editToc', bookId: string): void
+  (e: 'editGenre', bookId: string): void
   (e: 'markCompleted', bookId: string): void
   (e: 'markFinished', bookId: string): void
   (e: 'deleteBook', bookId: string): void

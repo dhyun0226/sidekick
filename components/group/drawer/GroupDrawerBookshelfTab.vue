@@ -84,13 +84,13 @@
               </button>
               <!-- Admin Only -->
               <template v-if="isAdmin">
-                <button @click="handleRestartReading(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap border-t border-zinc-100 dark:border-zinc-700/50 font-bold">
+                <button @click.stop="handleRestartReading(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap border-t border-zinc-100 dark:border-zinc-700/50 font-bold">
                   <RotateCcw :size="12" /> 완주 취소
                 </button>
-                <button @click="handleEditFinishedDate(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
+                <button @click.stop="handleEditFinishedDate(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
                   <Calendar :size="12" /> 완주 날짜 수정
                 </button>
-                <button @click="handleDeleteHistoryBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap font-bold">
+                <button @click.stop="handleDeleteHistoryBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap font-bold">
                   <Trash2 :size="12" /> 책 삭제
                 </button>
               </template>
@@ -243,6 +243,8 @@ interface HistoryBook {
   cover_url: string
   publisher?: string
   total_pages?: number
+  official_genre?: string
+  draft_genre?: string
   date: string
   round?: number
   reviewCount?: number
@@ -254,7 +256,7 @@ interface Props {
   historyBooks: HistoryBook[]
   lockedHistoryBooks: HistoryBook[]
   isAdmin: boolean
-  userReviewedBooks: Set<string>
+  userReviewedBooks: Map<string, number>
 }
 
 interface Emits {

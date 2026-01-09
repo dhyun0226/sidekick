@@ -124,6 +124,7 @@
       @jump-to-chapter="jumpToChapter"
       @edit-dates="openEditDatesModal"
       @edit-toc="openEditTocModal"
+      @edit-genre="openEditGenreModal"
       @mark-completed="openMarkCompletedModal"
       @mark-finished="handleMarkFinished"
       @unmark-finished="handleUnmarkFinished"
@@ -158,13 +159,13 @@
       :initialRating="reviewInitialData.rating"
       :initialContent="reviewInitialData.content"
       :isEditing="isEditingReview"
-      :book="selectedBook ? {
-        title: selectedBook.book?.title,
-        author: selectedBook.book?.author,
-        coverUrl: selectedBook.book?.cover_url,
-        publisher: selectedBook.book?.publisher,
-        total_pages: selectedBook.book?.total_pages,
-        genre: selectedBook.book?.official_genre || selectedBook.book?.draft_genre
+      :book="reviewingBook ? {
+        title: reviewingBook.book?.title,
+        author: reviewingBook.book?.author,
+        coverUrl: reviewingBook.book?.cover_url,
+        publisher: reviewingBook.book?.publisher,
+        total_pages: reviewingBook.book?.total_pages,
+        genre: reviewingBook.book?.official_genre || reviewingBook.book?.draft_genre
       } : null"
       @close="closeReviewModal"
       @submit="handleReviewSubmit"
@@ -190,6 +191,7 @@
     <BookAdminModals
       :edit-dates-open="modals.editDates"
       :edit-toc-open="modals.editToc"
+      :edit-genre-open="modals.editGenre"
       :mark-completed-open="modals.markCompleted"
       :delete-book-open="modals.deleteBook"
       :edit-finished-date-open="modals.editFinishedDate"
@@ -197,11 +199,13 @@
       :comment-count="commentCount"
       @close-edit-dates="modals.editDates = false; modals.editingBook = null"
       @close-edit-toc="modals.editToc = false; modals.editingBook = null"
+      @close-edit-genre="modals.editGenre = false; modals.editingBook = null"
       @close-mark-completed="modals.markCompleted = false; modals.editingBook = null"
       @close-delete-book="modals.deleteBook = false; modals.editingBook = null"
       @close-edit-finished-date="modals.editFinishedDate = false; modals.editingBook = null"
       @save-edited-dates="saveEditedDates"
       @save-edited-toc="saveEditedToc"
+      @save-edited-genre="saveEditedGenre"
       @save-edited-finished-date="saveEditedFinishedDate"
       @mark-as-completed="markAsCompleted"
       @delete-book="deleteBook"
@@ -373,6 +377,7 @@ const {
   addBook,
   updateDates,
   updateToc,
+  updateGenre,
   markCompleted: markBookCompleted,
   deleteBook: deleteBookFromGroup
 } = useGroupBooks(groupId)
@@ -408,6 +413,7 @@ const modals = reactive({
   commentInput: false,
   editDates: false,
   editToc: false,
+  editGenre: false,
   markCompleted: false,
   deleteBook: false,
   editFinishedDate: false,
@@ -464,13 +470,22 @@ const reviewsBookTitle = ref('')
 const newAnchorText = ref('')
 const anchorTextLocked = ref(false)
 const activeMemberMenu = ref<string | null>(null)
+
+// Computed for review modal
+const reviewingBook = computed(() => {
+  if (reviewingBookId.value) {
+    return allBooks.value.find(b => b.id === reviewingBookId.value) || selectedBook.value
+  }
+  return selectedBook.value
+})
+
 const showMemberProgress = ref(false)
 const group = ref<any>(null)
 const currentBookRound = ref<number | null>(null)
 const members = ref<any[]>([])
 const editingGroupName = ref('')
 const isScrolled = ref(false)
-const userReviewedBooks = ref<Set<string>>(new Set()) // Track which books current user has reviewed
+const userReviewedBooks = ref<Map<string, number>>(new Map()) // Track which books current user has reviewed and their ratings
 
 // Computed
 const groupName = computed(() => group.value?.name || 'Loading...')
@@ -654,14 +669,21 @@ const fetchUserReviews = async () => {
     // Fetch reviews for current user in this group
     const { data: userReviews } = await client
       .from('reviews')
-      .select('group_book_id')
+      .select('group_book_id, rating')
       .eq('user_id', currentUserId.value)
       .in('group_book_id', bookIds)
 
     if (userReviews) {
-      // 🎯 중요: 새로운 Set 객체를 생성하여 재할당해야 Vue가 변화를 감지함
-      userReviewedBooks.value = new Set(userReviews.map(r => r.group_book_id))
-      console.log('[FetchUserReviews] Updated reviews count:', userReviewedBooks.value.size)
+      // 🎯 중요: 새로운 Map 객체를 생성하여 재할당해야 Vue가 변화를 감지함
+      const newMap = new Map()
+      userReviews.forEach(r => {
+        newMap.set(r.group_book_id, Number(r.rating))
+      })
+      userReviewedBooks.value = newMap
+      console.log('[FetchUserReviews] Updated reviews map:', userReviewedBooks.value)
+      console.log('[FetchUserReviews] Size:', userReviewedBooks.value.size)
+    } else {
+      console.log('[FetchUserReviews] No reviews found for current user.')
     }
   } catch (error) {
     console.error('[FetchUserReviews] Error:', error)
@@ -715,11 +737,11 @@ const fetchData = async () => {
     }
 
     // 🔥 성능 최적화: 독립적인 작업 병렬 실행
-    // 1. 책 정보와 사용자 리뷰를 병렬로 조회
-    await Promise.all([
-      fetchBooks(),
-      fetchUserReviews()
-    ])
+    // 1. 책 정보 먼저 조회 (리뷰 조회를 위해 필수)
+    await fetchBooks()
+    
+    // 2. 책 정보를 바탕으로 리뷰 조회
+    await fetchUserReviews()
 
     // Handle bookId from query parameter (e.g., from profile navigation)
     if (route.query.bookId) {
@@ -1094,6 +1116,11 @@ const openEditTocModal = (bookId: string) => {
   modals.editToc = true
 }
 
+const openEditGenreModal = (bookId: string) => {
+  modals.editingBook = allBooks.value.find(b => b.id === bookId) || null
+  modals.editGenre = true
+}
+
 const openMarkCompletedModal = (bookId: string) => {
   modals.editingBook = allBooks.value.find(b => b.id === bookId) || null
   modals.markCompleted = true
@@ -1360,6 +1387,8 @@ const handleOpenReview = async (bookId: string) => {
     ? { rating: existingReview.rating, content: existingReview.content || '' }
     : { rating: 0, content: '' }
 
+  isEditingReview.value = !!existingReview
+
   modals.review = true
   modals.drawer = false
 }
@@ -1538,6 +1567,32 @@ const saveEditedToc = async (tocData: { totalPages: number, chapters: { title: s
   } catch (error: any) {
     console.error('Save TOC error:', error)
     toast.error('수정 실패: ' + error.message)
+  }
+}
+
+const saveEditedGenre = async (genre: string) => {
+  if (!modals.editingBook || !genre) return
+
+  // Admin permission check
+  if (!isAdmin.value) {
+    toast.error('관리자만 장르를 수정할 수 있습니다.')
+    modals.editGenre = false
+    modals.editingBook = null
+    return
+  }
+
+  try {
+    await updateGenre(modals.editingBook.id, modals.editingBook.isbn, genre)
+    
+    // 로컬 상태 업데이트 (새로고침 없이 반영)
+    await fetchBooks()
+
+    modals.editGenre = false
+    modals.editingBook = null
+    toast.success('장르가 수정되었습니다! 🏷️')
+  } catch (error: any) {
+    console.error('Save Genre error:', error)
+    toast.error('장르 수정 실패: ' + error.message)
   }
 }
 
@@ -1881,6 +1936,8 @@ const openReviewModalForEdit = async (book: any) => {
     ? { rating: existingReview.rating, content: existingReview.content || '' }
     : { rating: 0, content: '' }
 
+  isEditingReview.value = !!existingReview
+
   modals.review = true
   modals.drawer = false
 }
@@ -2034,8 +2091,10 @@ const selectBook = async (bookId: string) => {
     }
 
     // 책을 선택했다는 것을 기록 (last_read_at 업데이트)
-    // 이렇게 해야 메인 화면에서 "내가 마지막으로 본 책"으로 인식됨
-    await saveProgress(viewProgress.value)
+    // 단, 이미 완독한 책(책장 탭)은 기록하지 않음 (순서 변경 방지)
+    if (!progressData?.finished_at) {
+      await saveProgress(viewProgress.value)
+    }
   }
 
   // Scroll to top
