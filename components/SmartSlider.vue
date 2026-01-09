@@ -1,119 +1,113 @@
 <template>
   <div class="fixed bottom-0 left-0 right-0 z-[9998] overflow-visible">
-    <!-- Glassmorphism Container -->
-    <div class="max-w-[480px] mx-auto bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-zinc-300 dark:border-zinc-800 pb-safe overflow-visible">
+    <!-- Glassmorphism Container (Minimal) -->
+    <div class="max-w-[480px] mx-auto pb-safe overflow-visible">
+      <!-- Gradient Fade from Content -->
+      <div class="h-12 bg-gradient-to-t from-white dark:from-black to-transparent pointer-events-none"></div>
 
-      <!-- Slider Area Wrapper with Padding -->
-      <div class="px-4 py-4">
-        <!-- Native Range Input (hidden, controls logic) -->
-        <input
-          type="range"
-          min="0"
-          max="100"
-          step="1"
-          v-model.number="localPct"
-          @input="handleInput"
-          @change="handleChange"
-          @touchstart="handleTouchStart"
-          @mousedown="handleMouseDown"
-          ref="rangeInput"
-          class="absolute opacity-0 w-full h-16 cursor-pointer z-20"
-          style="touch-action: none;"
-        />
+      <div class="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl border-t border-zinc-200/50 dark:border-white/5 px-6 pt-2 pb-8 sm:pb-6 relative">
+        
+        <!-- Chapter Name & Write Button Row -->
+        <div class="flex justify-between items-end mb-6 px-1">
+          <div class="flex flex-col min-w-0 pr-4">
+            <span class="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-0.5">지금 읽는 곳</span>
+            <span class="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate leading-tight">
+              {{ currentChapterName || '읽기 시작' }}
+            </span>
+          </div>
+          
+          <button
+            @click="$emit('write')"
+            class="flex items-center gap-2 pl-3 pr-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg shadow-zinc-500/20"
+          >
+            <PenLine :size="14" />
+            <span class="text-xs font-bold">기록</span>
+          </button>
+        </div>
 
-        <!-- Visual Slider (styled) -->
-        <div class="relative h-16 w-full pointer-events-none">
-          <!-- Chapter Backgrounds -->
-          <div class="absolute inset-0 h-full opacity-30">
+        <!-- Interactive Slider Area -->
+        <div class="relative h-12 w-full flex items-center">
+          <!-- Native Input (Hidden Logic) -->
+          <input
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            v-model.number="localPct"
+            @input="handleInput"
+            @change="handleChange"
+            @touchstart="handleTouchStart"
+            @mousedown="handleMouseDown"
+            class="absolute -top-4 left-0 right-0 w-full h-20 opacity-0 cursor-pointer z-30"
+            style="touch-action: none;"
+          />
+
+          <!-- Track Background -->
+          <div class="absolute w-full h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+            <!-- Chapter Segments (Subtle) -->
             <div
               v-for="(chapter, index) in chapters"
               :key="index"
-              :style="{
-                left: `${chapter.start}%`,
-                width: `${chapter.width}%`
-              }"
-              class="absolute h-full border-r border-zinc-300 dark:border-zinc-700 transition-colors duration-300"
-              :class="[
-                currentPct >= chapter.start && currentPct < chapter.end ? 'bg-lime-400/20' : 'bg-transparent'
-              ]"
+              :style="{ left: `${chapter.start}%`, width: `${chapter.width}%` }"
+              class="absolute h-full border-r border-white dark:border-zinc-900/50 opacity-100"
             ></div>
           </div>
 
-          <!-- Ruler Ticks (5% intervals) -->
-          <div class="absolute inset-0 pb-2 pointer-events-none">
-            <div
-              v-for="i in 21"
-              :key="i"
-              class="absolute bottom-0 w-px bg-zinc-300 dark:bg-zinc-700"
-              :class="(i - 1) % 2 === 0 ? 'h-5' : 'h-2.5'"
-              :style="{ left: `${(i - 1) * 5}%` }"
-            ></div>
-          </div>
-
-          <!-- Pacemaker Avatars (Members) -->
-          <div class="absolute inset-0 pointer-events-none overflow-visible z-10">
-            <div
-              v-for="member in members"
-              :key="member.id"
-              class="absolute top-0 -translate-x-1/2 translate-y-2 flex flex-col items-center transition-all duration-500"
-              :style="{ left: `${member.progress}%` }"
-            >
-              <!-- Avatar Bubble -->
-              <Avatar
-                :src="member.avatar_url"
-                :fallback="member.nickname || 'U'"
-                size="xs"
-                :alt="member.nickname"
-                className="border border-white dark:border-zinc-800 shadow-md relative z-10"
-              />
-              <!-- Small Triangle pointing down -->
-              <div class="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-b-[4px] border-b-white dark:border-b-zinc-800 -mt-0.5 drop-shadow-sm rotate-180"></div>
-            </div>
-          </div>
-
-          <!-- Progress Bar (Active) -->
+          <!-- Progress Bar -->
           <div
-            class="absolute bottom-0 left-0 h-1 bg-lime-400 transition-all duration-75 ease-out"
+            class="absolute left-0 h-2 bg-zinc-900 dark:bg-white rounded-full pointer-events-none transition-all duration-75 ease-out"
             :style="{ width: `${currentPct}%` }"
           ></div>
 
-          <!-- Thumb / Handle -->
+          <!-- Member Avatars (Floating above) -->
+          <div class="absolute inset-0 pointer-events-none z-10">
+            <div
+              v-for="member in members"
+              :key="member.id"
+              class="absolute top-1/2 -translate-y-1/2 -ml-3 transition-all duration-500"
+              :style="{ left: `${member.progress}%` }"
+            >
+              <div class="relative -top-8 flex flex-col items-center">
+                <Avatar
+                  :src="member.avatar_url"
+                  :fallback="member.nickname || 'U'"
+                  size="xs"
+                  :alt="member.nickname"
+                  className="w-6 h-6 border-2 border-white dark:border-zinc-900 shadow-sm"
+                />
+                <!-- Indicator Line -->
+                <div class="h-2 w-px bg-zinc-300 dark:bg-zinc-700 mt-1"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Handle (Minimal Circle) -->
           <div
-            class="absolute top-1/2 -translate-y-1/4 -translate-x-1/2 w-11 h-11 flex items-center justify-center"
+            class="absolute top-1/2 -translate-y-1/2 -ml-3 z-20 pointer-events-none transition-all duration-75 ease-out"
             :style="{ left: `${currentPct}%` }"
           >
-            <div class="w-5 h-5 rounded-full bg-lime-400 shadow-[0_0_15px_rgba(163,230,53,0.5)] ring-2 ring-white/20"></div>
+            <div 
+              class="w-6 h-6 bg-white dark:bg-zinc-900 border-[1.5px] border-zinc-200 dark:border-zinc-700 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.12)] flex items-center justify-center transform transition-transform"
+              :class="{ 'scale-125 border-zinc-900 dark:border-white': isDragging }"
+            >
+              <div class="w-1.5 h-1.5 bg-zinc-900 dark:bg-white rounded-full"></div>
+            </div>
           </div>
 
-          <!-- Tooltip (Visible on Drag) -->
+          <!-- Floating Tooltip (Only when dragging) -->
           <div
             v-if="isDragging"
-            class="absolute -top-8 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-3 py-1.5 rounded-lg text-xs font-medium shadow-xl border border-zinc-300 dark:border-zinc-700 whitespace-nowrap pointer-events-none animate-fade-in-up"
-            :style="tooltipPositionStyle"
+            class="absolute -top-16 left-0 -ml-8 bg-zinc-900 dark:bg-white text-white dark:text-black px-4 py-2 rounded-2xl shadow-xl flex flex-col items-center min-w-[64px] animate-in fade-in slide-in-from-bottom-2 duration-200"
+            :style="{ left: `${currentPct}%` }"
           >
-            <span class="text-lime-600 dark:text-lime-400 font-bold mr-1">
-              {{ Math.round(currentPct) }}%
-            </span>
-            <span v-if="currentPage" class="text-zinc-500 dark:text-zinc-400 mr-1">· {{ currentPage }}p</span>
-            <span v-if="currentChapterName" class="text-zinc-600 dark:text-zinc-400">{{ currentChapterName }}</span>
+            <span class="text-sm font-black font-mono leading-none">{{ Math.round(currentPct) }}%</span>
+            <span v-if="currentPage" class="text-[10px] font-medium opacity-80 leading-none mt-1">p.{{ currentPage }}</span>
+            <!-- Arrow -->
+            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-900 dark:bg-white rotate-45"></div>
           </div>
         </div>
-      </div>
 
-      <!-- Action Bar (Optional, e.g. Write Button) -->
-      <div class="flex justify-between items-center px-4 py-5 gap-4">
-        <div class="text-xs text-zinc-600 dark:text-zinc-500 font-mono flex-1 min-w-0">
-          <span v-if="currentChapterName">{{ currentChapterName }}</span>
-          <span v-else class="text-zinc-400 dark:text-zinc-600">·</span>
-        </div>
-        <button
-          @click="$emit('write')"
-          class="w-12 h-12 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-lime-400 hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors flex-shrink-0"
-        >
-          <PenLine :size="22" />
-        </button>
       </div>
-
     </div>
   </div>
 </template>
