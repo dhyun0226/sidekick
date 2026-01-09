@@ -37,6 +37,7 @@
         v-for="member in filteredMembers" 
         :key="member.id" 
         class="relative bg-white dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800 p-2.5 shadow-sm transition-all group hover:border-lime-200 dark:hover:border-lime-900/50 active:scale-[0.99] flex items-center gap-3"
+        :class="{ 'z-20 border-lime-300 dark:border-lime-700': activeMemberMenu === member.id }"
       >
         <!-- Avatar Section -->
         <div class="relative flex-shrink-0">
@@ -74,7 +75,7 @@
 
             <template v-if="member.role === 'admin'">
               <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
-              <Badge variant="purple" size="sm" class="!px-1 !py-0 !text-[9px] !h-3.5 relative -translate-y-[0.5px]">방장</Badge>
+              <Badge variant="purple" size="sm" class="!px-1 !py-0 !text-[9px] !h-3.5 relative -translate-y-[0.5px]">그룹장</Badge>
             </template>
           </div>
           
@@ -104,7 +105,7 @@
               class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold"
             >
               <Shield :size="12" />
-              관리자로 변경
+              {{ member.role === 'admin' ? '멤버로 변경' : '그룹장으로 변경' }}
             </button>
             <button
               @click="handleKickMember(member)"
