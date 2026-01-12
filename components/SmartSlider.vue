@@ -12,7 +12,7 @@
           <div class="flex flex-col min-w-0 pr-4">
             <span class="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-0.5">지금 읽는 곳</span>
             <span class="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate leading-tight">
-              {{ currentChapterName || '읽기 시작' }}
+              {{ currentChapterName || bookTitle || '읽기 시작' }}
             </span>
           </div>
           
@@ -127,6 +127,7 @@ const props = defineProps<{
   toc?: Chapter[]
   modelValue: number
   totalPages?: number
+  bookTitle?: string
   members?: Array<{ id: string; nickname: string; avatar_url?: string; progress: number }>
 }>()
 

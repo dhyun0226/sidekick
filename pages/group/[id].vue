@@ -80,10 +80,11 @@
 
       <!-- Smart Slider (읽는 중이거나 완독한 책) -->
       <SmartSlider
-        v-if="selectedBook && !modals.comment"
+        v-if="selectedBook"
         v-model="viewProgress"
         :toc="toc"
         :totalPages="selectedBook.book?.total_pages"
+        :bookTitle="bookTitle"
         :members="selectedBook.status === 'reading' ? sliderMembers : []"
         @update:modelValue="handleSliderInput"
         @change="handleSliderChange"
