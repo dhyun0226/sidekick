@@ -75,6 +75,7 @@
           @modalClose="modals.comment = false"
           @writeComment="handleWriteFromModal"
           @loadMore="handleLoadMore"
+          @replySubmitted="fetchComments(selectedBookId)"
         />
       </div>
 
@@ -984,6 +985,7 @@ const handleWrite = () => {
 }
 
 const handleWriteFromModal = (data: { anchorText: string, position: number }) => {
+  console.log('[Group] handleWriteFromModal called with:', data)
   // Pre-fill anchor text and position from modal
   newAnchorText.value = data.anchorText
   viewProgress.value = data.position

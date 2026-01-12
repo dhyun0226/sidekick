@@ -298,6 +298,16 @@
               <Badge v-else variant="lime" size="sm">
                 {{ Math.round(item.position_pct) }}%
               </Badge>
+              <Badge v-if="item.isReply" variant="secondary" size="sm" class="bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border-none">
+                답글
+              </Badge>
+            </div>
+
+            <!-- Reply Context (Threaded but using original style) -->
+            <div v-if="item.isReply && item.parentData" class="mb-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border-l-4 border-zinc-200 dark:border-zinc-700">
+              <p class="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 mb-1">{{ item.parentData.nickname }}님의 기록에 대한 답글</p>
+              <p v-if="item.parentData.anchor_text" class="text-[11px] text-zinc-400 italic mb-1 line-clamp-1">{{ item.parentData.anchor_text }}</p>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-1">{{ item.parentData.content }}</p>
             </div>
 
             <!-- Quote -->
@@ -618,226 +628,13 @@
     </div>
 
     <!-- Book Detail Modal -->
-    <div v-if="showBookDetailModal && selectedBook" class="fixed inset-0 z-50 overflow-y-auto">
-      <div class="absolute inset-0 bg-black/70 backdrop-blur-md" @click="closeBookDetail"></div>
-      <div class="relative min-h-screen flex items-start justify-center p-4">
-        <div class="relative w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 my-8 overflow-hidden">
-
-          <!-- Header with Book Cover -->
-          <div class="bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-800 dark:to-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-            <!-- Close Button Row -->
-            <div class="flex items-center justify-between px-4 pt-4 pb-3">
-              <h3 class="text-xs font-bold text-zinc-500 uppercase">책 상세</h3>
-              <button @click="closeBookDetail" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
-                <X :size="20" class="text-zinc-600 dark:text-zinc-400" />
-              </button>
-            </div>
-
-            <!-- Book Info -->
-            <div class="px-4 pb-6 flex gap-4">
-              <div class="w-20 h-28 overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-700 flex-shrink-0">
-                <img :src="selectedBook.cover_url" class="w-full h-full object-cover" />
-              </div>
-              <div class="flex-1 min-w-0 flex flex-col pt-0.5">
-                <h2 class="text-lg font-bold text-zinc-900 dark:text-white line-clamp-2 leading-tight mb-3">{{ selectedBook.title }}</h2>
-                <div class="flex flex-wrap items-center gap-1.5 mb-3 text-sm text-zinc-500 dark:text-zinc-400">
-                  <span class="font-medium">{{ selectedBook.author }}</span>
-                  <template v-if="selectedBook.publisher || selectedBook.total_pages">
-                    <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                    <span v-if="selectedBook.publisher" class="truncate max-w-[120px]">{{ selectedBook.publisher }}</span>
-                    <span v-if="selectedBook.publisher && selectedBook.total_pages" class="text-zinc-300 dark:text-zinc-700">·</span>
-                    <span v-if="selectedBook.total_pages">{{ selectedBook.total_pages }}p</span>
-                  </template>
-                </div>
-
-                <div class="flex items-center gap-2 mb-2 flex-wrap">
-                  <GenreBadge v-if="selectedBook.genre" :genre="selectedBook.genre" />
-                  <RatingBadge :rating="selectedBook.myRating" />
-                  <Badge>
-                    {{ bookTimeline.length }}개 기록
-                  </Badge>
-                  <Badge v-if="selectedBook.finished_at" variant="lime">
-                    {{ formatCompletionDate(selectedBook.finished_at) }} 완독
-                  </Badge>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tabs -->
-          <div class="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-            <div class="flex px-4">
-              <button
-                @click="bookDetailTab = 'all'"
-                class="flex-1 py-3 text-sm font-bold transition-colors relative"
-                :class="bookDetailTab === 'all' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
-              >
-                전체
-                <div v-if="bookDetailTab === 'all'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
-              </button>
-              <button
-                @click="bookDetailTab = 'review'"
-                class="flex-1 py-3 text-sm font-bold transition-colors relative"
-                :class="bookDetailTab === 'review' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
-              >
-                리뷰
-                <div v-if="bookDetailTab === 'review'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
-              </button>
-              <button
-                @click="bookDetailTab = 'comments'"
-                class="flex-1 py-3 text-sm font-bold transition-colors relative"
-                :class="bookDetailTab === 'comments' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
-              >
-                코멘트
-                <div v-if="bookDetailTab === 'comments'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
-              </button>
-            </div>
-          </div>
-
-          <!-- Content -->
-          <div class="p-4 space-y-3 max-h-[60vh] overflow-y-auto">
-
-            <!-- All Tab -->
-            <div v-if="bookDetailTab === 'all'" class="space-y-3">
-              <div
-                v-for="item in bookTimeline"
-                :key="item.id"
-                @click="selectedBook?.finished_at ? navigateToItem(item) : null"
-                :class="[
-                  'bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all',
-                  selectedBook?.finished_at
-                    ? 'cursor-pointer hover:border-lime-400 dark:hover:border-lime-500'
-                    : 'cursor-default opacity-60'
-                ]"
-              >
-                <!-- Meta Info -->
-                <div class="flex items-center gap-2 mb-3 text-[13px]">
-                  <span class="text-zinc-500 dark:text-zinc-400 font-medium">{{ item.groupName }}</span>
-                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  <span class="text-zinc-500 dark:text-zinc-400">{{ formatDateTime(item.created_at) }}</span>
-                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
-
-                  <!-- Review: Show unified rating badge -->
-                  <template v-if="item.type === 'review'">
-                    <RatingBadge :rating="item.rating" size="sm" />
-                  </template>
-
-                  <!-- Comment: Show position percentage as badge -->
-                  <Badge v-else variant="lime" size="sm">
-                    {{ Math.round(item.position_pct) }}%
-                  </Badge>
-                </div>
-
-                <!-- Quote -->
-                <div v-if="item.anchor_text" class="mb-3 pl-3 border-l-2 border-zinc-200 dark:border-zinc-700">
-                  <p class="text-xs text-zinc-500 dark:text-zinc-400 italic leading-relaxed">
-                    {{ item.anchor_text }}
-                  </p>
-                </div>
-
-                <!-- Content -->
-                <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
-                  {{ item.content }}
-                </p>
-              </div>
-
-              <!-- Empty State -->
-              <div v-if="bookTimeline.length === 0" class="py-12 text-center">
-                <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
-                  📝
-                </div>
-                <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">기록이 없습니다</h3>
-                <p class="text-xs text-zinc-500">이 책에 대한 생각을 남겨보세요</p>
-              </div>
-            </div>
-
-            <!-- Review Tab -->
-            <div v-if="bookDetailTab === 'review'">
-              <div
-                v-if="bookReview"
-                @click="selectedBook?.finished_at ? navigateToItem(bookReview) : null"
-                :class="[
-                  'bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all',
-                  selectedBook?.finished_at
-                    ? 'cursor-pointer hover:border-lime-400 dark:hover:border-lime-500'
-                    : 'cursor-default opacity-60'
-                ]"
-              >
-                <!-- Meta Info -->
-                <div class="flex items-center gap-2 mb-3 text-[13px]">
-                  <span class="text-zinc-500 dark:text-zinc-400 font-medium">{{ bookReview.groupName }}</span>
-                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  <span class="text-zinc-500 dark:text-zinc-400">{{ formatDateTime(bookReview.created_at) }}</span>
-                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  
-                  <!-- Review: Show unified rating badge -->
-                  <RatingBadge :rating="bookReview.rating" size="sm" />
-                </div>
-
-                <!-- Content -->
-                <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
-                  {{ bookReview.content }}
-                </p>
-              </div>
-              <div v-else class="py-12 text-center">
-                <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
-                  ⭐
-                </div>
-                <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">리뷰가 없습니다</h3>
-                <p class="text-xs text-zinc-500">이 책에 대한 리뷰를 남겨보세요</p>
-              </div>
-            </div>
-
-            <!-- Comments Tab -->
-            <div v-if="bookDetailTab === 'comments'" class="space-y-3">
-              <div
-                v-for="comment in bookComments"
-                :key="comment.id"
-                @click="selectedBook?.finished_at ? navigateToItem(comment) : null"
-                :class="[
-                  'bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all',
-                  selectedBook?.finished_at
-                    ? 'cursor-pointer hover:border-lime-400 dark:hover:border-lime-500'
-                    : 'cursor-default opacity-60'
-                ]"
-              >
-                <!-- Meta Info -->
-                <div class="flex items-center gap-2 mb-3 text-[13px]">
-                  <span class="text-zinc-500 dark:text-zinc-400 font-medium">{{ comment.groupName }}</span>
-                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  <span class="text-zinc-500 dark:text-zinc-400">{{ formatDateTime(comment.created_at) }}</span>
-                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  <Badge variant="lime" size="sm">
-                    {{ Math.round(comment.position_pct) }}%
-                  </Badge>
-                </div>
-
-                <!-- Quote -->
-                <div v-if="comment.anchor_text" class="mb-3 pl-3 border-l-2 border-zinc-200 dark:border-zinc-700">
-                  <p class="text-xs text-zinc-500 dark:text-zinc-400 italic leading-relaxed">
-                    {{ comment.anchor_text }}
-                  </p>
-                </div>
-
-                <!-- Content -->
-                <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
-                  {{ comment.content }}
-                </p>
-              </div>
-
-              <div v-if="bookComments.length === 0" class="py-12 text-center">
-                <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
-                  💬
-                </div>
-                <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">코멘트가 없습니다</h3>
-                <p class="text-xs text-zinc-500">책을 읽으며 생각을 남겨보세요</p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
+    <ProfileBookDetailModal
+      :isOpen="showBookDetailModal"
+      :book="selectedBook"
+      :timeline="timeline"
+      @close="closeBookDetail"
+      @navigate="navigateToItem"
+    />
 
     <!-- Day Activity Detail Modal -->
     <div v-if="showDayActivityModal && selectedDay" class="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -899,6 +696,31 @@
               <span v-else class="text-lime-600 dark:text-lime-400 font-bold">
                 {{ Math.round(item.position_pct) }}%
               </span>
+              <Badge v-if="item.isReply" variant="secondary" size="sm" class="bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border-none">
+                답글
+              </Badge>
+            </div>
+
+            <!-- Reply Context (Parent Comment) -->
+            <div v-if="item.isReply" class="mb-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border-l-4 border-zinc-200 dark:border-zinc-700">
+              <div class="flex items-center gap-1.5 mb-1.5">
+                <span class="text-[11px] font-bold text-zinc-500 dark:text-zinc-400">
+                  {{ item.parentData?.nickname || '알 수 없는 사용자' }}님의 기록에 대한 답글
+                </span>
+              </div>
+              <template v-if="item.parentData">
+                <div v-if="item.parentData.anchor_text" class="mb-1.5 pl-2 border-l border-zinc-300 dark:border-zinc-600">
+                  <p class="text-[11px] text-zinc-400 italic line-clamp-1">
+                    {{ item.parentData.anchor_text }}
+                  </p>
+                </div>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                  {{ item.parentData.content || '기록 내용이 없습니다.' }}
+                </p>
+              </template>
+              <p v-else class="text-xs text-zinc-400 italic">
+                원본 기록을 불러올 수 없습니다.
+              </p>
             </div>
 
             <!-- Quote -->
@@ -972,6 +794,7 @@ import ReadingHeatmap from '~/components/ReadingHeatmap.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import UpgradePromptModal from '~/components/UpgradePromptModal.vue'
+import ProfileBookDetailModal from '~/components/ProfileBookDetailModal.vue'
 
 // 인증 미들웨어 적용
 definePageMeta({
@@ -1023,7 +846,6 @@ const getNotificationLabel = (type: string) => {
 // Book Detail Modal State
 const showBookDetailModal = ref(false)
 const selectedBook = ref<any>(null)
-const bookDetailTab = ref<'all' | 'review' | 'comments'>('all')
 
 // Day Activity Modal State
 const showDayActivityModal = ref(false)
@@ -1268,28 +1090,6 @@ const daysLeftInMonth = computed(() => {
   return lastDay.getDate() - now.getDate()
 })
 
-// Book Detail Modal Computed
-const bookTimeline = computed(() => {
-  if (!selectedBook.value) return []
-  // Filter by the specific group_book_id to show only records from this reading
-  return timeline.value.filter(item => {
-    // For reviews, check group_book_id directly
-    if (item.type === 'review') {
-      return item.group_book_id === selectedBook.value.groupBookId
-    }
-    // For comments, check groupBookId from the normalized data
-    return item.groupBookId === selectedBook.value.groupBookId
-  })
-})
-
-const bookReview = computed(() => {
-  return bookTimeline.value.find(item => item.type === 'review')
-})
-
-const bookComments = computed(() => {
-  return bookTimeline.value.filter(item => item.type === 'comment')
-})
-
 // Helper: Check if book is finished (for timeline navigation)
 const isBookFinished = (groupBookId: string) => {
   const book = library.value.find(b => b.groupBookId === groupBookId)
@@ -1372,7 +1172,17 @@ const fetchData = async () => {
       client
         .from('comments')
         .select(`
-          id, content, anchor_text, position_pct, created_at,
+          id, 
+          content, 
+          anchor_text, 
+          position_pct, 
+          created_at, 
+          parent_id,
+          parent:parent_id (
+            content,
+            anchor_text,
+            user:users (nickname)
+          ),
           group_book:group_books (
             id,
             group:groups (name, id),
@@ -1452,27 +1262,50 @@ const fetchData = async () => {
     console.log('[Profile] Group count:', groupCount)
 
     // Merge and Normalize
-    const normalizedComments = (commentsData || []).map((c: any) => ({
-      type: 'comment',
-      id: c.id,
-      created_at: c.created_at,
-      content: c.content,
-      anchor_text: c.anchor_text,
-      position_pct: c.position_pct,
+    const normalizedComments = (commentsData || []).map((c: any) => {
+      // Supabase self-join handling
+      const parent = Array.isArray(c.parent) ? c.parent[0] : c.parent;
+      
+      let parentData = null;
+      if (parent) {
+        const parentUser = Array.isArray(parent.user) ? parent.user[0] : parent.user;
+        parentData = {
+          nickname: parentUser?.nickname || '알 수 없는 사용자',
+          content: parent.content || '내용 없음',
+          anchor_text: parent.anchor_text
+        };
+      }
 
-      // Metadata
-      groupId: c.group_book?.group?.id,
-      groupName: c.group_book?.group?.name || 'Unknown Group',
-      bookTitle: c.group_book?.book?.title || 'Unknown Book',
-      bookCover: c.group_book?.book?.cover_url,
-      bookIsbn: c.group_book?.book?.isbn,
+      if (c.parent_id) {
+        console.log('[Profile Debug] Reply ID:', c.id);
+        console.log('[Profile Debug] Raw Parent:', c.parent);
+        console.log('[Profile Debug] Processed parentData:', parentData);
+      }
 
-      // Navigation Data
-      groupBookId: c.group_book?.id,
+      return {
+        type: 'comment',
+        id: c.id,
+        created_at: c.created_at,
+        content: c.content,
+        anchor_text: c.anchor_text,
+        position_pct: c.position_pct,
+        isReply: !!c.parent_id,
+        parentData: parentData,
 
-      // Chapter Name Calculation (Frontend side)
-      chapter: calculateChapter(c.position_pct, c.group_book?.book)
-    }))
+        // Metadata
+        groupId: c.group_book?.group?.id,
+        groupName: c.group_book?.group?.name || 'Unknown Group',
+        bookTitle: c.group_book?.book?.title || 'Unknown Book',
+        bookCover: c.group_book?.book?.cover_url,
+        bookIsbn: c.group_book?.book?.isbn,
+
+        // Navigation Data
+        groupBookId: c.group_book?.id,
+
+        // Chapter Name Calculation (Frontend side)
+        chapter: calculateChapter(c.position_pct, c.group_book?.book)
+      };
+    })
 
     const normalizedReviews = (reviewsData || []).map((r: any) => ({
       type: 'review',
@@ -1730,14 +1563,12 @@ const navigateToItem = (item: any) => {
 
 const openBookDetail = (book: any) => {
   selectedBook.value = book
-  bookDetailTab.value = 'all'
   showBookDetailModal.value = true
 }
 
 const closeBookDetail = () => {
   showBookDetailModal.value = false
   selectedBook.value = null
-  bookDetailTab.value = 'all'
 }
 
 // Settings / Edit Profile Logic

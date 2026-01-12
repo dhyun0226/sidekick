@@ -23,7 +23,7 @@
         <!-- Anchor Text (Quote Style) -->
         <div v-if="anchorText" class="pl-4 border-l-[3px] border-lime-400">
           <p class="font-serif text-[15px] text-zinc-600 dark:text-zinc-400 italic leading-relaxed line-clamp-2">
-            "{{ anchorText }}"
+            {{ anchorText }}
           </p>
         </div>
       </div>
@@ -116,23 +116,62 @@
             </div>
           </div>
 
-          <!-- Nested Replies -->
-          <div v-if="comment.replies && comment.replies.length > 0" class="mt-4 pl-4 border-l border-zinc-100 dark:border-zinc-800 space-y-4">
+          <!-- Nested Replies (Ensured visibility) -->
+          <div v-if="comment.replies && comment.replies.length > 0" class="mt-6 pl-4 border-l-2 border-zinc-100 dark:border-zinc-800 space-y-6">
             <div v-for="reply in comment.replies" :key="reply.id" class="relative group/reply">
-              <div class="flex items-center justify-between mb-1">
+              <!-- Reply User & Date -->
+              <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
                   <Avatar
                     :src="reply.user?.avatar_url"
                     :fallback="reply.user?.nickname || 'U'"
                     size="xs"
-                    :alt="reply.user?.nickname"
-                    className="w-5 h-5 shadow-xs"
+                    className="w-5 h-5"
                   />
-                  <span class="text-xs font-bold text-zinc-600 dark:text-zinc-400">{{ reply.user.nickname }}</span>
+                  <div class="flex flex-col">
+                    <span class="text-xs font-bold text-zinc-600 dark:text-zinc-400">{{ reply.user?.nickname || '알 수 없는 사용자' }}</span>
+                    <span class="text-[10px] text-zinc-400">{{ formatDate(reply.created_at) }}</span>
+                  </div>
                 </div>
-                <button v-if="isOwnReply(reply)" @click="confirmDeleteReply(reply.id)" class="text-[10px] font-bold text-zinc-300 hover:text-red-400 transition-colors">삭제</button>
+                
+                <!-- Reply Actions (Edit/Delete) - Always visible for mobile -->
+                <div v-if="(reply.user_id === currentUserId) && editingReplyId !== reply.id" class="flex items-center gap-2.5">
+                  <button @click="startReplyEdit(reply)" class="text-[10px] font-bold text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">수정</button>
+                  <button @click="confirmDeleteReply(reply.id)" class="text-[10px] font-bold text-zinc-300 hover:text-red-500 transition-colors">삭제</button>
+                </div>
               </div>
-              <p class="text-[14px] text-zinc-500 dark:text-zinc-400 leading-relaxed pl-7">{{ reply.content }}</p>
+
+              <!-- Reply Content / Edit Mode -->
+              <div class="pl-7">
+                <div v-if="editingReplyId !== reply.id">
+                  <p class="text-[14px] text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{{ reply.content }}</p>
+                  
+                  <!-- Reply Like Button (Ensured visibility) -->
+                  <div class="flex items-center gap-3 mt-2">
+                    <button
+                      @click.stop="toggleLike(reply.id)"
+                      class="flex items-center gap-1.5 text-[10px] font-bold transition-colors"
+                      :class="reply.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-600 hover:text-red-400'"
+                    >
+                      <Heart :size="12" :fill="reply.isLiked ? 'currentColor' : 'none'" />
+                      <span>{{ reply.likes || '좋아요' }}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Reply Edit Mode -->
+                <div v-else class="mt-2">
+                  <textarea
+                    v-model="editReplyContent"
+                    class="w-full bg-zinc-50 dark:bg-zinc-800 text-sm rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400 resize-none border border-zinc-200 dark:border-zinc-700"
+                    rows="2"
+                  ></textarea>
+                  <div class="flex gap-2 mt-2 justify-end">
+                    <button @click="cancelReplyEdit" class="px-2 py-1 text-zinc-400 text-[10px] font-bold">취소</button>
+                    <button @click="saveReplyEdit(reply.id)" class="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-[10px] font-bold rounded-full">저장</button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -195,6 +234,8 @@ interface Reply {
   user_id: string
   content: string
   created_at: string
+  likes?: number
+  isLiked?: boolean
 }
 
 interface Comment {
@@ -266,8 +307,20 @@ const toggleLike = async (commentId: string) => {
   if (!user) return
 
   try {
-    const comment = props.comments.find(c => c.id === commentId)
-    if (!comment) return
+    // 1. Find the target (could be a comment or a reply)
+    let target: Comment | Reply | undefined = props.comments.find(c => c.id === commentId)
+    
+    // 2. If not found in comments, search in replies
+    if (!target) {
+      for (const comment of props.comments) {
+        if (comment.replies) {
+          target = comment.replies.find(r => r.id === commentId)
+          if (target) break
+        }
+      }
+    }
+
+    if (!target) return
 
     const { data: existingReaction } = await client
       .from('reactions')
@@ -283,8 +336,8 @@ const toggleLike = async (commentId: string) => {
         .delete()
         .eq('id', existingReaction.id)
 
-      comment.isLiked = false
-      comment.likes = (comment.likes || 1) - 1
+      target.isLiked = false
+      target.likes = (target.likes || 1) - 1
     } else {
       await client
         .from('reactions')
@@ -294,8 +347,8 @@ const toggleLike = async (commentId: string) => {
           type: 'like'
         })
 
-      comment.isLiked = true
-      comment.likes = (comment.likes || 0) + 1
+      target.isLiked = true
+      target.likes = (target.likes || 0) + 1
     }
   } catch (error) {
     console.error('Like toggle error:', error)
@@ -345,11 +398,17 @@ const submitReply = async (parentId: string) => {
       user: newReply.user,
       user_id: user.id,
       content: newReply.content,
-      created_at: newReply.created_at
+      created_at: newReply.created_at,
+      likes: 0,
+      isLiked: false
     })
 
     activeReplyId.value = null
     replyContent.value = ''
+
+    // 🎯 Notify parent that a reply was submitted to refresh data
+    emit('replySubmitted')
+    toast.success('답글이 등록되었습니다! 🎉')
 
   } catch (error) {
     console.error('Reply error:', error)
@@ -363,7 +422,6 @@ const handleWriteComment = () => {
     anchorText: props.anchorText,
     position: props.position
   })
-  // Keep modal open - user stays in context
 }
 
 const formatDate = (dateStr: string) => {

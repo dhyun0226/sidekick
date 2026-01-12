@@ -26,7 +26,7 @@
         :class="{ 'blur-sm opacity-40 select-none': isSpoiler(group.position) }"
       >
         <p class="font-serif text-[15px] text-zinc-700 dark:text-zinc-300 italic leading-relaxed">
-          "{{ group.anchorText }}"
+          {{ group.anchorText }}
         </p>
       </div>
 
@@ -124,10 +124,11 @@
             </div>
           </div>
 
-          <!-- Nested Replies (Clean) -->
-          <div v-if="comment.replies && comment.replies.length > 0" class="mt-3 pl-3 border-l border-zinc-100 dark:border-zinc-800/50 space-y-3">
-            <div v-for="reply in comment.replies" :key="reply.id" class="relative group/reply">
-              <div class="flex items-center justify-between mb-1">
+          <!-- Nested Replies (Limited Preview) -->
+          <div v-if="comment.replies && comment.replies.length > 0" class="mt-3 pl-3 border-l border-zinc-100 dark:border-zinc-800/50 space-y-4">
+            <div v-for="reply in comment.replies.slice(0, 2)" :key="reply.id" class="relative group/reply">
+              <!-- Reply User & Actions -->
+              <div class="flex items-center justify-between mb-1.5">
                 <div class="flex items-center gap-1.5">
                   <Avatar
                     :src="reply.user?.avatar_url"
@@ -137,11 +138,59 @@
                     className="w-4 h-4 shadow-xs"
                   />
                   <span class="text-[11px] font-bold text-zinc-500 dark:text-zinc-400">{{ reply.user.nickname }}</span>
+                  <span class="text-[10px] text-zinc-300 dark:text-zinc-600">{{ formatDate(reply.created_at) }}</span>
                 </div>
-                <button v-if="isOwnReply(reply)" @click="confirmDeleteReply(reply.id)" class="text-[10px] text-zinc-300 hover:text-red-400 transition-colors font-bold">삭제</button>
+                
+                <!-- Reply Actions (Edit/Delete) - Always visible for mobile -->
+                <div v-if="isOwnReply(reply) && editingReplyId !== reply.id" class="flex items-center gap-2.5">
+                  <button @click="startReplyEdit(reply)" class="text-[10px] font-bold text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">수정</button>
+                  <button v-if="isOwnReply(reply)" @click="confirmDeleteReply(reply.id)" class="text-[10px] font-bold text-zinc-300 hover:text-red-400 transition-colors">삭제</button>
+                </div>
               </div>
-              <p class="text-[13px] text-zinc-500 dark:text-zinc-400 leading-snug pl-5">{{ reply.content }}</p>
+
+              <!-- Reply Content / Edit Mode -->
+              <div class="pl-5">
+                <div v-if="editingReplyId !== reply.id">
+                  <p class="text-[13px] text-zinc-500 dark:text-zinc-400 leading-snug break-words whitespace-pre-wrap">{{ reply.content }}</p>
+                  
+                  <!-- Reply Like Button (Added) -->
+                  <div class="flex items-center gap-3 mt-2">
+                    <button
+                      @click.stop="toggleLike(reply.id)"
+                      class="flex items-center gap-1.5 text-[10px] font-bold transition-colors"
+                      :class="reply.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-600 hover:text-red-400'"
+                    >
+                      <Heart :size="12" :fill="reply.isLiked ? 'currentColor' : 'none'" />
+                      <span v-if="reply.likes">{{ reply.likes }}</span>
+                      <span v-else>좋아요</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Reply Edit Mode (Added) -->
+                <div v-else class="mt-2">
+                  <textarea
+                    v-model="editReplyContent"
+                    class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-[13px] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-lime-400 resize-none border border-zinc-200 dark:border-zinc-700"
+                    rows="2"
+                    @keydown.esc="cancelReplyEdit"
+                  ></textarea>
+                  <div class="flex gap-2 mt-2">
+                    <button @click="saveReplyEdit(reply.id)" class="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded hover:opacity-90">저장</button>
+                    <button @click="cancelReplyEdit" class="px-3 py-1 text-zinc-400 text-xs hover:text-zinc-600 dark:hover:text-zinc-200">취소</button>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- Show More Replies Button -->
+            <button
+              v-if="comment.replies.length > 2"
+              @click="openDetailModal(group)"
+              class="text-[11px] font-bold text-lime-600 dark:text-lime-500 hover:underline pl-5 mt-1"
+            >
+              답글 {{ comment.replies.length - 2 }}개 더보기...
+            </button>
           </div>
         </div>
       </div>
@@ -188,6 +237,7 @@
       :currentUserId="currentUserId"
       @close="closeDetailModal"
       @writeComment="(data) => emit('writeComment', data)"
+      @replySubmitted="emit('replySubmitted')"
     />
 
     <!-- Delete Comment Modal -->
@@ -237,6 +287,8 @@ interface Reply {
   user_id: string
   content: string
   created_at: string
+  likes?: number
+  isLiked?: boolean
 }
 
 interface Comment {
@@ -266,8 +318,13 @@ const props = defineProps<{
 
 const activeReplyId = ref<string | null>(null)
 const replyContent = ref('')
-const detailModalOpen = ref(false)
-const selectedGroup = ref<any>(null)
+const selectedGroupKey = ref<string | null>(null)
+const detailModalOpen = computed(() => !!selectedGroupKey.value)
+
+const selectedGroup = computed(() => {
+  if (!selectedGroupKey.value) return null
+  return groupedComments.value.find(g => g.key === selectedGroupKey.value) || null
+})
 
 // Edit state
 const editingCommentId = ref<string | null>(null)
@@ -441,14 +498,12 @@ const submitReply = async (parentId: string) => {
 }
 
 const openDetailModal = (group: any) => {
-  selectedGroup.value = group
-  detailModalOpen.value = true
+  selectedGroupKey.value = group.key
   emit('modalOpen')
 }
 
 const closeDetailModal = () => {
-  detailModalOpen.value = false
-  selectedGroup.value = null
+  selectedGroupKey.value = null
   emit('modalClose')
 }
 
