@@ -7,7 +7,7 @@
         <!-- Header -->
         <div class="bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-800 dark:to-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
           <div class="flex items-center justify-between px-4 pt-4 pb-3">
-            <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest">책 상세</h3>
+            <h3 class="text-xs font-bold text-zinc-500 uppercase">책 상세</h3>
             <button @click="$emit('close')" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
               <X :size="20" class="text-zinc-600 dark:text-zinc-400" />
             </button>

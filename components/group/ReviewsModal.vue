@@ -10,7 +10,7 @@
       <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 sticky top-0 z-20">
         <div class="min-w-0">
           <h2 class="text-lg font-black text-zinc-900 dark:text-white truncate mb-0.5">{{ bookTitle }}</h2>
-          <p class="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">리뷰 {{ reviews.length }}개</p>
+          <p class="text-[10px] text-zinc-400 font-bold uppercase">리뷰 {{ reviews.length }}개</p>
         </div>
         <button @click="emit('close')" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors">
           <X :size="20" class="text-zinc-400" />

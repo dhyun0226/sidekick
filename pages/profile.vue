@@ -269,10 +269,11 @@
 
         <div v-else class="space-y-8">
           <div v-for="monthGroup in timelineByMonth" :key="monthGroup.month" class="space-y-4">
-            <!-- Monthly Divider -->
-            <div class="flex items-center gap-3 sticky top-[49px] z-20 bg-gray-50/95 dark:bg-[#09090b]/95 py-2 backdrop-blur-sm">
-              <span class="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">{{ monthGroup.month }}</span>
-              <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800/50"></div>
+            <!-- Monthly Divider (Standardized with accurate count) -->
+            <div class="flex items-center gap-3 mb-4">
+              <h3 class="text-sm font-bold text-zinc-900 dark:text-white">{{ monthGroup.month.replace('.', '년 ') }}월</h3>
+              <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ monthlyTotals[monthGroup.month] || 0 }}개</span>
             </div>
 
             <div class="space-y-3">
@@ -548,7 +549,7 @@
           <!-- 1. Profile Edit -->
           <section>
             <div class="flex items-center justify-between mb-4 px-1">
-              <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">프로필 편집</h4>
+              <h4 class="text-xs font-bold text-zinc-500 uppercase">프로필 편집</h4>
             </div>
             
             <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-5 border border-zinc-100 dark:border-zinc-800/50">
@@ -571,7 +572,7 @@
               </div>
 
               <div class="space-y-2">
-                <label class="block text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">닉네임</label>
+                <label class="block text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase ml-1">닉네임</label>
                 <div class="flex gap-2">
                   <input
                     v-model="editNickname"
@@ -596,7 +597,7 @@
           <!-- 2. App Settings -->
           <section>
             <div class="flex items-center justify-between mb-4 px-1">
-              <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">앱 설정</h4>
+              <h4 class="text-xs font-bold text-zinc-500 uppercase">앱 설정</h4>
             </div>
             
             <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50 divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -638,7 +639,7 @@
           <!-- 3. Account -->
           <section class="pb-4">
             <div class="flex items-center justify-between mb-4 px-1">
-              <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">계정</h4>
+              <h4 class="text-xs font-bold text-zinc-500 uppercase">계정</h4>
             </div>
             <div class="grid grid-cols-2 gap-3">
               <button
@@ -857,6 +858,7 @@ const timelineOffset = ref(0)
 const hasMoreTimeline = ref(true)
 const isLoadingMoreTimeline = ref(false)
 const TIMELINE_PAGE_SIZE = 20
+const monthlyTotals = ref<Record<string, number>>({})
 const timelineSentinel = ref<HTMLElement | null>(null)
 let timelineObserver: IntersectionObserver | null = null
 
@@ -1166,11 +1168,25 @@ const fetchData = async () => {
 
     await loadMoreTimeline()
 
-    const [ { count: tc }, { count: tr } ] = await Promise.all([
-      client.from('comments').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-      client.from('reviews').select('*', { count: 'exact', head: true }).eq('user_id', userId)
+    // 🎯 Fetch ALL activity dates to calculate accurate monthly totals
+    const [ { data: allCDates }, { data: allRDates } ] = await Promise.all([
+      client.from('comments').select('created_at').eq('user_id', userId),
+      client.from('reviews').select('created_at').eq('user_id', userId)
     ])
-    stats.value.comments = (tc || 0) + (tr || 0)
+
+    const totals: Record<string, number> = {}
+    const processDateString = (d: string) => {
+      const date = new Date(d)
+      const key = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}`
+      totals[key] = (totals[key] || 0) + 1
+    }
+    allCDates?.forEach(c => processDateString(c.created_at))
+    allRDates?.forEach(r => processDateString(r.created_at))
+    monthlyTotals.value = totals
+
+    stats.value.comments = (allCDates?.length || 0) + (allRDates?.length || 0)
+    
+    yearlyGoal.value = userData?.yearly_reading_goal || 50
 
   } catch (err) { console.error(err) } finally { loading.value = false }
 }

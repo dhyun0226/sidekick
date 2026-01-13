@@ -159,7 +159,7 @@
             </label>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div class="space-y-1.5">
-                <label class="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 uppercase tracking-wider">시작일</label>
+                <label class="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 uppercase">시작일</label>
                 <input 
                   v-model="startDate" 
                   type="date" 
@@ -167,7 +167,7 @@
                 />
               </div>
               <div class="space-y-1.5">
-                <label class="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 uppercase tracking-wider">종료일 (목표)</label>
+                <label class="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 uppercase">종료일 (목표)</label>
                 <input 
                   v-model="endDate" 
                   type="date" 

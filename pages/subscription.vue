@@ -3,7 +3,7 @@
     <div class="max-w-5xl mx-auto">
       <!-- Header -->
       <div class="text-center mb-16 animate-in fade-in slide-in-from-top-4 duration-700">
-        <div class="inline-block px-3 py-1 bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 text-xs font-black rounded-full mb-4 uppercase tracking-widest">Premium Membership</div>
+        <div class="inline-block px-3 py-1 bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 text-xs font-black rounded-full mb-4 uppercase">Premium Membership</div>
         <h1 class="text-4xl font-black text-zinc-900 dark:text-white mb-4 tracking-tighter">독서의 가치를 더 깊게</h1>
         <p class="text-zinc-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
           Sidekick 프리미엄과 함께 제한 없는 독서 여행을 시작하고<br/>나만의 독서 인사이트를 정교하게 쌓아보세요.
@@ -31,7 +31,7 @@
 
             <div class="flex flex-wrap items-center gap-4">
               <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl px-5 py-3 border border-zinc-100 dark:border-zinc-800">
-                <p class="text-[10px] text-zinc-400 font-black uppercase tracking-wider mb-1">다음 결제일</p>
+                <p class="text-[10px] text-zinc-400 font-black uppercase mb-1">다음 결제일</p>
                 <p class="text-sm font-bold text-zinc-900 dark:text-white">{{ formatDate(currentSubscription.end_date) }}</p>
               </div>
               <button

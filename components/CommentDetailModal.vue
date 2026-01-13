@@ -15,7 +15,7 @@
             </button>
             <div class="flex items-baseline gap-2">
               <span class="text-lg font-black text-lime-600 dark:text-lime-500">{{ Math.round(position) }}%</span>
-              <span class="text-xs text-zinc-400 font-bold uppercase tracking-wider">{{ comments.length }}개의 기록</span>
+              <span class="text-xs text-zinc-400 font-bold uppercase">{{ comments.length }}개의 기록</span>
             </div>
           </div>
         </div>

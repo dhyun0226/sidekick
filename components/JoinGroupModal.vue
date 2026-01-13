@@ -25,7 +25,7 @@
       <div class="space-y-6">
         <!-- Code Input -->
         <div class="space-y-3">
-          <label class="block text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">초대 코드</label>
+          <label class="block text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase ml-1">초대 코드</label>
           <div class="relative group">
             <input
               v-model="inviteCode"

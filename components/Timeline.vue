@@ -14,7 +14,7 @@
         <span class="text-sm font-black text-lime-600 dark:text-lime-500">
           {{ Math.round(group.position) }}%
         </span>
-        <span class="text-[10px] text-zinc-400 dark:text-zinc-600 font-bold tracking-wider">
+        <span class="text-[10px] text-zinc-400 dark:text-zinc-600 font-bold">
           {{ group.totalCount }}개의 기록
         </span>
       </div>
