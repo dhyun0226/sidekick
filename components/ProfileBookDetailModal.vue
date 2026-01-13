@@ -157,15 +157,23 @@
                 @click="$emit('navigate', item)"
                 class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all cursor-pointer hover:border-lime-400 shadow-sm"
               >
-                <div class="flex items-center justify-between mb-3 text-[13px]">
-                  <div class="flex items-center gap-2">
-                    <span class="text-zinc-500 dark:text-zinc-400 font-medium">{{ item.groupName }}</span>
-                    <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                    <span class="text-zinc-500 dark:text-zinc-400">{{ formatDateTime(item.created_at) }}</span>
+                <!-- Card Header: Same as All Tab -->
+                <div class="flex items-start justify-between mb-3 text-left">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 text-zinc-900 dark:text-zinc-100 mb-0.5">
+                      <span class="text-xs font-bold truncate">{{ item.groupName }}</span>
+                      <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                      <span class="text-[10px] text-zinc-400 font-medium whitespace-nowrap">{{ formatDateTime(item.created_at) }}</span>
+                    </div>
                   </div>
-                  <RatingBadge :rating="item.rating" size="sm" />
+                  
+                  <div class="flex items-center gap-2">
+                    <RatingBadge :rating="item.rating" size="sm" />
+                  </div>
                 </div>
-                <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
+
+                <!-- Main Content -->
+                <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed text-left">
                   {{ item.content }}
                 </p>
               </div>
