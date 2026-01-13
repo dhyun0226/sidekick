@@ -249,11 +249,11 @@
       
       <!-- Tab 2: Timeline Feed -->
       <div v-if="activeTab === 'timeline'">
-        <div v-if="loading" class="flex items-center justify-center py-12">
+        <div v-if="loading && timeline.length === 0" class="flex items-center justify-center py-12">
           <LoadingSpinner size="md" message="타임라인 불러오는 중..." />
         </div>
 
-        <div v-else-if="timeline.length === 0" class="py-12 flex flex-col items-center text-center">
+        <div v-else-if="timeline.length === 0 && !loading" class="py-12 flex flex-col items-center text-center">
           <div class="text-4xl mb-2">✍️</div>
           <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">아직 남긴 기록이 없어요</h3>
           <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-4">
@@ -267,60 +267,97 @@
           </button>
         </div>
 
-        <div v-else class="space-y-3">
-          <div
-            v-for="item in timeline"
-            :key="item.id"
-            @click="isBookFinished(item.groupBookId) ? navigateToItem(item) : null"
-            :class="[
-              'bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all',
-              isBookFinished(item.groupBookId)
-                ? 'cursor-pointer hover:border-lime-400 dark:hover:border-lime-500'
-                : 'cursor-default opacity-60'
-            ]"
-          >
-            <!-- Title -->
-            <h4 class="font-bold text-sm text-zinc-900 dark:text-white mb-2 line-clamp-1">
-              {{ item.bookTitle }}
-            </h4>
-
-            <!-- Meta Info -->
-            <div class="flex items-center gap-2 mb-3 text-[13px]">
-              <span class="text-zinc-500 dark:text-zinc-400 font-medium">{{ item.groupName }}</span>
-              <span class="text-zinc-300 dark:text-zinc-700">·</span>
-              <span class="text-zinc-500 dark:text-zinc-400">{{ formatTimeAgo(item.created_at) }}</span>
-              <span class="text-zinc-300 dark:text-zinc-700">·</span>
-              <!-- Review: Show unified rating badge -->
-              <template v-if="item.type === 'review'">
-                <RatingBadge :rating="item.rating" size="sm" />
-              </template>
-              <!-- Comment: Show position percentage as badge -->
-              <Badge v-else variant="lime" size="sm">
-                {{ Math.round(item.position_pct) }}%
-              </Badge>
-              <Badge v-if="item.isReply" variant="secondary" size="sm" class="bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border-none">
-                답글
-              </Badge>
+        <div v-else class="space-y-8">
+          <div v-for="monthGroup in timelineByMonth" :key="monthGroup.month" class="space-y-4">
+            <!-- Monthly Divider -->
+            <div class="flex items-center gap-3 sticky top-[49px] z-20 bg-gray-50/95 dark:bg-[#09090b]/95 py-2 backdrop-blur-sm">
+              <span class="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">{{ monthGroup.month }}</span>
+              <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800/50"></div>
             </div>
 
-            <!-- Reply Context (Threaded but using original style) -->
-            <div v-if="item.isReply && item.parentData" class="mb-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border-l-4 border-zinc-200 dark:border-zinc-700">
-              <p class="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 mb-1">{{ item.parentData.nickname }}님의 기록에 대한 답글</p>
-              <p v-if="item.parentData.anchor_text" class="text-[11px] text-zinc-400 italic mb-1 line-clamp-1">{{ item.parentData.anchor_text }}</p>
-              <p class="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-1">{{ item.parentData.content }}</p>
-            </div>
+            <div class="space-y-3">
+              <div
+                v-for="item in monthGroup.items"
+                :key="item.id"
+                @click="isBookFinished(item.groupBookId) ? navigateToItem(item) : null"
+                :class="[
+                  'bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all shadow-sm',
+                  isBookFinished(item.groupBookId)
+                    ? 'cursor-pointer hover:border-lime-400 dark:hover:border-lime-500'
+                    : 'cursor-default opacity-60'
+                ]"
+              >
+                <!-- Header: Mini Cover & Info -->
+                <div class="flex gap-3 mb-3">
+                  <div class="w-10 h-14 bg-zinc-100 dark:bg-zinc-800 rounded shadow-sm overflow-hidden flex-shrink-0 border border-zinc-100 dark:border-zinc-800">
+                    <img v-if="item.bookCover" :src="item.bookCover" class="w-full h-full object-cover" />
+                    <div v-else class="w-full h-full flex items-center justify-center text-[10px] text-zinc-400">No Cover</div>
+                  </div>
+                  
+                  <div class="flex-1 min-w-0 flex flex-col justify-center">
+                    <h4 class="font-bold text-sm text-zinc-900 dark:text-white mb-1 line-clamp-1">
+                      {{ item.bookTitle }}
+                    </h4>
+                    <div class="flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+                      <span>{{ item.groupName }}</span>
+                      <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                      <span>{{ formatTimeAgo(item.created_at) }}</span>
+                    </div>
+                  </div>
 
-            <!-- Quote -->
-            <div v-if="item.anchor_text" class="mb-3 pl-3 border-l-2 border-zinc-200 dark:border-zinc-700">
-              <p class="text-xs text-zinc-500 dark:text-zinc-400 italic leading-relaxed">
-                {{ item.anchor_text }}
-              </p>
-            </div>
+                  <div class="flex-shrink-0">
+                    <template v-if="item.type === 'review'">
+                      <RatingBadge :rating="item.rating" size="sm" />
+                    </template>
+                    <Badge v-else variant="lime" size="sm">
+                      {{ Math.round(item.position_pct) }}%
+                    </Badge>
+                  </div>
+                </div>
 
-            <!-- Content -->
-            <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
-              {{ item.content }}
-            </p>
+                <!-- Reply Context (Clean Inset Box Style) -->
+                <div v-if="item.isReply && item.parentData" class="mb-4 mt-1 overflow-hidden rounded-xl border border-zinc-100 dark:border-zinc-800">
+                  <div class="bg-zinc-50/80 dark:bg-zinc-800/50 px-4 py-3">
+                    <div class="flex items-center gap-2 mb-2.5">
+                      <div class="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600"></div>
+                      <span class="text-[11px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                        {{ item.parentData.nickname }}님의 기록
+                      </span>
+                    </div>
+                    
+                    <div class="space-y-2">
+                      <!-- Parent Quote -->
+                      <div v-if="item.parentData.anchor_text" class="pl-3 border-l-2 border-zinc-200 dark:border-zinc-700">
+                        <p class="text-[13px] text-zinc-500 dark:text-zinc-400 font-serif leading-relaxed italic">
+                          {{ item.parentData.anchor_text }}
+                        </p>
+                      </div>
+                      <!-- Parent Content -->
+                      <p class="text-[14px] text-zinc-600 dark:text-zinc-300 leading-relaxed font-medium">
+                        {{ item.parentData.content }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quote -->
+                <div v-if="item.anchor_text" class="mb-3 pl-3 border-l-2 border-zinc-200 dark:border-zinc-700">
+                  <p class="text-[13px] text-zinc-500 dark:text-zinc-400 italic leading-relaxed font-serif">
+                    {{ item.anchor_text }}
+                  </p>
+                </div>
+
+                <!-- Content -->
+                <p class="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed break-words">
+                  {{ item.content }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading More Sentinel -->
+          <div ref="timelineSentinel" class="h-10 flex items-center justify-center">
+            <LoadingSpinner v-if="isLoadingMoreTimeline" size="sm" />
           </div>
         </div>
       </div>
@@ -785,11 +822,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onActivated, watch } from 'vue'
+import { ref, computed, onMounted, onActivated, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { ChevronLeft, LogOut, User, Camera, Edit2, Star, StarHalf, Heart, Settings, Moon, Sun, Bell, X, Crown, Lock, ChevronRight, ArrowRight, Trash2, Save } from 'lucide-vue-next'
+import { ChevronLeft, LogOut, User, Camera, Edit2, Star, StarHalf, Heart, Settings, Moon, Sun, Bell, X, Crown, Lock, ChevronRight, ArrowRight, Trash2, Save, CornerDownRight } from 'lucide-vue-next'
 import ReadingHeatmap from '~/components/ReadingHeatmap.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
@@ -821,6 +858,14 @@ const stats = ref({
   groups: 0
 })
 
+// Pagination State
+const timelineOffset = ref(0)
+const hasMoreTimeline = ref(true)
+const isLoadingMoreTimeline = ref(false)
+const TIMELINE_PAGE_SIZE = 20
+const timelineSentinel = ref<HTMLElement | null>(null)
+let timelineObserver: IntersectionObserver | null = null
+
 // Settings Modal State
 const settingsModalOpen = ref(false)
 const notificationSettings = ref({
@@ -831,7 +876,7 @@ const notificationSettings = ref({
   book_added: true
 })
 
-// 알림 타입별 한글 라벨 변환 함수 (추가)
+// 알림 타입별 한글 라벨 변환 함수
 const getNotificationLabel = (type: string) => {
   const labels: Record<string, string> = {
     comment_reply: '내 글에 달린 답글',
@@ -852,7 +897,7 @@ const showDayActivityModal = ref(false)
 const selectedDay = ref<any>(null)
 
 // Yearly Goal State
-const yearlyGoal = ref(50) // Default goal: 50 books per year
+const yearlyGoal = ref(50) 
 const editingGoal = ref(false)
 const tempGoal = ref(50)
 
@@ -866,7 +911,7 @@ const avatarFile = ref<File | null>(null)
 const isSaving = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
 
-// Helper function to get local date string (YYYY-MM-DD) without timezone conversion
+// Helper function to get local date string (YYYY-MM-DD)
 const getLocalDateString = (date: Date): string => {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -880,6 +925,7 @@ const currentUserId = computed(() => userStore.user?.id)
 const thisMonthBooks = computed(() => {
   const now = new Date()
   return library.value.filter(book => {
+    if (!book.finished_at) return false
     const d = new Date(book.finished_at)
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
   }).length
@@ -893,32 +939,42 @@ const thisMonthComments = computed(() => {
   }).length
 })
 
+// Timeline grouped by month
+const timelineByMonth = computed(() => {
+  const grouped: Record<string, any[]> = {}
+
+  timeline.value.forEach(item => {
+    const date = new Date(item.created_at)
+    const key = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}`
+    if (!grouped[key]) {
+      grouped[key] = []
+    }
+    grouped[key].push(item)
+  })
+
+  return Object.entries(grouped)
+    .map(([month, items]) => ({ month, items }))
+    .sort((a, b) => b.month.localeCompare(a.month))
+})
+
 // Reading books (not finished yet)
 const readingBooks = computed(() => {
   return library.value.filter(book => !book.finished_at)
 })
 
-// Library grouped by year (for display with year dividers)
+// Library grouped by year
 const libraryByYear = computed(() => {
   const grouped: Record<number, any[]> = {}
-
-  // Only include finished books
   library.value
     .filter(book => book.finished_at)
     .forEach(book => {
-      const year = new Date(book.finished_at).getFullYear()
-      if (!grouped[year]) {
-        grouped[year] = []
-      }
+      const year = new Date(book.finished_at!).getFullYear()
+      if (!grouped[year]) grouped[year] = []
       grouped[year].push(book)
     })
 
-  // Convert to array and sort by year (newest first)
   return Object.entries(grouped)
-    .map(([year, books]) => ({
-      year: Number(year),
-      books: books
-    }))
+    .map(([year, books]) => ({ year: Number(year), books }))
     .sort((a, b) => b.year - a.year)
 })
 
@@ -926,6 +982,7 @@ const libraryByYear = computed(() => {
 const thisYearBooks = computed(() => {
   const now = new Date()
   return library.value.filter(book => {
+    if (!book.finished_at) return false
     const d = new Date(book.finished_at)
     return d.getFullYear() === now.getFullYear()
   }).length
@@ -937,10 +994,7 @@ const daysLeftInYear = computed(() => {
   return Math.ceil((endOfYear.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
 })
 
-const monthsLeftInYear = computed(() => {
-  const now = new Date()
-  return 12 - now.getMonth()
-})
+const monthsLeftInYear = computed(() => 12 - new Date().getMonth())
 
 const booksNeededPerMonth = computed(() => {
   const remaining = yearlyGoal.value - thisYearBooks.value
@@ -959,142 +1013,72 @@ const onTrack = computed(() => {
 const monthlyProgress = computed(() => {
   const now = new Date()
   const currentYear = now.getFullYear()
-
   const months = []
-  // Always show all 12 months (Jan-Dec), with 0 count for future/empty months
   for (let month = 0; month < 12; month++) {
     const count = library.value.filter(book => {
+      if (!book.finished_at) return false
       const d = new Date(book.finished_at)
       return d.getFullYear() === currentYear && d.getMonth() === month
     }).length
-
-    months.push({
-      month: month + 1, // 1-12
-      count,
-      name: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'][month]
-    })
+    months.push({ month: month + 1, count, name: `${month + 1}월` })
   }
-
   return months
 })
 
-const maxMonthlyCount = computed(() => {
-  return Math.max(...monthlyProgress.value.map(m => m.count), 1)
-})
+const maxMonthlyCount = computed(() => Math.max(...monthlyProgress.value.map(m => m.count), 1))
 
 // Year-over-year growth
 const lastYearBooks = computed(() => {
   const now = new Date()
   const currentYear = now.getFullYear()
   const lastYear = currentYear - 1
-  const currentDayOfYear = Math.floor((now.getTime() - new Date(currentYear, 0, 0).getTime()) / (1000 * 60 * 60 * 24))
+  const currentDayOfYear = Math.floor((now.getTime() - new Date(currentYear, 0, 0).getTime()) / 86400000)
 
   return library.value.filter(book => {
+    if (!book.finished_at) return false
     const d = new Date(book.finished_at)
     if (d.getFullYear() !== lastYear) return false
-
-    const dayOfYear = Math.floor((d.getTime() - new Date(lastYear, 0, 0).getTime()) / (1000 * 60 * 60 * 24))
+    const dayOfYear = Math.floor((d.getTime() - new Date(lastYear, 0, 0).getTime()) / 86400000)
     return dayOfYear <= currentDayOfYear
   }).length
 })
 
 const yearOverYearGrowth = computed(() => {
-  if (lastYearBooks.value === 0) {
-    return thisYearBooks.value > 0 ? 100 : 0
-  }
+  if (lastYearBooks.value === 0) return thisYearBooks.value > 0 ? 100 : 0
   return Math.round(((thisYearBooks.value - lastYearBooks.value) / lastYearBooks.value) * 100)
 })
 
-// Goal achievement
-const isGoalAchieved = computed(() => {
-  return thisYearBooks.value >= yearlyGoal.value
-})
+const isGoalAchieved = computed(() => thisYearBooks.value >= yearlyGoal.value)
 
 // Streak calculations
 const currentStreak = computed(() => {
   if (timeline.value.length === 0) return 0
-
-  // Get unique dates with activity (using local timezone)
-  const dates = [...new Set(timeline.value.map(item =>
-    getLocalDateString(new Date(item.created_at))
-  ))].sort().reverse()
-
+  const dates = [...new Set(timeline.value.map(item => getLocalDateString(new Date(item.created_at))))].sort().reverse()
   if (dates.length === 0) return 0
-
-  const today = new Date()
-  const yesterday = new Date()
-  yesterday.setDate(yesterday.getDate() - 1)
-
-  const todayStr = getLocalDateString(today)
+  const today = getLocalDateString(new Date())
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1)
   const yesterdayStr = getLocalDateString(yesterday)
-
-  // Streak must start from today or yesterday
-  if (dates[0] !== todayStr && dates[0] !== yesterdayStr) return 0
-
+  if (dates[0] !== today && dates[0] !== yesterdayStr) return 0
   let streak = 1
   for (let i = 1; i < dates.length; i++) {
-    const currentDate = new Date(dates[i - 1])
-    const nextDate = new Date(dates[i])
-    const diffDays = Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24))
-
-    if (diffDays === 1) {
-      streak++
-    } else {
-      break
-    }
+    const diffDays = Math.floor((new Date(dates[i - 1]).getTime() - new Date(dates[i]).getTime()) / 86400000)
+    if (diffDays === 1) streak++ 
+    else break
   }
-
   return streak
 })
 
 const longestStreak = computed(() => {
   if (timeline.value.length === 0) return 0
-
-  const dates = [...new Set(timeline.value.map(item =>
-    getLocalDateString(new Date(item.created_at))
-  ))].sort()
-
-  if (dates.length === 0) return 0
-
-  let maxStreak = 1
-  let currentStreakCount = 1
-
+  const dates = [...new Set(timeline.value.map(item => getLocalDateString(new Date(item.created_at))))].sort()
+  let maxStreak = 1, currentStreakCount = 1
   for (let i = 1; i < dates.length; i++) {
-    const prevDate = new Date(dates[i - 1])
-    const currDate = new Date(dates[i])
-    const diffDays = Math.floor((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24))
-
-    if (diffDays === 1) {
-      currentStreakCount++
-      maxStreak = Math.max(maxStreak, currentStreakCount)
-    } else {
-      currentStreakCount = 1
-    }
+    const diffDays = Math.floor((new Date(dates[i]).getTime() - new Date(dates[i - 1]).getTime()) / 86400000)
+    if (diffDays === 1) { currentStreakCount++; maxStreak = Math.max(maxStreak, currentStreakCount) }
+    else currentStreakCount = 1
   }
-
   return maxStreak
 })
-
-const nextMilestone = computed(() => {
-  const milestones = [7, 14, 30, 50, 100, 200, 365]
-  return milestones.find(m => m > currentStreak.value) || currentStreak.value + 100
-})
-
-const daysUntilNextMilestone = computed(() => {
-  return nextMilestone.value - currentStreak.value
-})
-
-const daysLeftInMonth = computed(() => {
-  const now = new Date()
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-  return lastDay.getDate() - now.getDate()
-})
-
-// Helper: Check if book is finished (for timeline navigation)
-const isBookFinished = (groupBookId: string) => {
-  const book = library.value.find(b => b.groupBookId === groupBookId)
-  return book?.finished_at != null
-}
 
 // Initialization
 onMounted(async () => {
@@ -1103,726 +1087,291 @@ onMounted(async () => {
   if (userStore.profile) {
     editNickname.value = userStore.profile.nickname
     previewAvatar.value = userStore.profile.avatar_url || ''
-
-    // Load notification settings from DB
-    if (userStore.profile.notification_settings) {
-      notificationSettings.value = userStore.profile.notification_settings
-    }
+    if (userStore.profile.notification_settings) notificationSettings.value = userStore.profile.notification_settings
   }
   await fetchData()
+  setupTimelineObserver()
 })
 
-// Refresh data when page is activated (for cached pages)
 onActivated(async () => {
-  // Ensure profile is loaded before fetching data
-  if (!userStore.profile) {
-    await userStore.fetchProfile()
-  }
+  if (!userStore.profile) await userStore.fetchProfile()
   await fetchData()
 })
 
-// Auto-save notification settings on change
-watch(notificationSettings, async (newSettings) => {
-  if (!currentUserId.value) return
+onUnmounted(() => {
+  if (timelineObserver) timelineObserver.disconnect()
+})
 
-  try {
-    const { error } = await client
-      .from('users')
-      .update({ notification_settings: newSettings })
-      .eq('id', currentUserId.value)
+// Timeline pagination observer
+const setupTimelineObserver = () => {
+  if (timelineObserver) timelineObserver.disconnect()
+  timelineObserver = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && hasMoreTimeline.value && !isLoadingMoreTimeline.value && activeTab.value === 'timeline') {
+      loadMoreTimeline()
+    }
+  }, { threshold: 0.1 })
+  if (timelineSentinel.value) timelineObserver.observe(timelineSentinel.value)
+}
 
-    if (error) throw error
+// Helper: Check if book is finished
+const isBookFinished = (groupBookId: string) => {
+  const book = library.value.find(b => b.groupBookId === groupBookId)
+  return book?.finished_at != null
+}
 
-    // Silently update store without showing toast
-    await userStore.fetchProfile(true) // Force refresh after settings update
-  } catch (err: any) {
-    console.error('Save notification settings error:', err)
-    toast.error('알림 설정 저장 실패')
+watch(activeTab, (newTab) => {
+  if (newTab === 'timeline') {
+    nextTick(() => setupTimelineObserver())
   }
-}, { deep: true })
+})
 
 const fetchData = async () => {
-  // Use direct reference instead of computed (fixes reactivity issue)
   const userId = userStore.profile?.id || userStore.user?.id
-
-  console.log('[Profile fetchData] Called!')
-  console.log('[Profile fetchData] userId:', userId)
-
-  if (!userId) {
-    console.error('[Profile fetchData] ❌ No user ID available!')
-    loading.value = false
-    toast.error('사용자 정보를 불러올 수 없습니다. 다시 로그인해주세요.')
-    return
-  }
+  if (!userId) { loading.value = false; return }
 
   loading.value = true
+  timeline.value = []
+  timelineOffset.value = 0
+  hasMoreTimeline.value = true
 
   try {
-    console.log('[Profile] Starting fetchData for user:', userId)
-
-    // 🔥 성능 최적화: 독립적인 쿼리 병렬 실행 (6개 쿼리 → 1.6초 → 0.5초)
-    const [
-      { data: commentsData, error: commentsError },
-      { data: reviewsData, error: reviewsError },
-      { data: progressData, error: progressError },
-      { count: groupCount, error: groupCountError },
-      { data: userData }
-    ] = await Promise.all([
-      // 1. Fetch Comments
-      client
-        .from('comments')
-        .select(`
-          id, 
-          content, 
-          anchor_text, 
-          position_pct, 
-          created_at, 
-          parent_id,
-          parent:parent_id (
-            content,
-            anchor_text,
-            user:users (nickname)
-          ),
-          group_book:group_books (
-            id,
-            group:groups (name, id),
-            book:books (title, cover_url, official_toc, draft_toc, total_pages, isbn)
-          )
-        `)
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(100),
-
-      // 2. Fetch Reviews
-      client
-        .from('reviews')
-        .select(`
-          id, content, rating, created_at, group_book_id,
-          group_book:group_books (
-            id,
-            group:groups (name, id),
-            book:books (title, cover_url, isbn)
-          )
-        `)
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(50),
-
-      // 3. Fetch Library (Reading Progress)
-      client
-        .from('user_reading_progress')
-        .select(`
-          finished_at,
-          progress_pct,
-          last_read_at,
-          group_book:group_books (
-            id,
-            book:books (title, author, publisher, total_pages, cover_url, isbn, official_genre, draft_genre)
-          )
-        `)
-        .eq('user_id', userId)
-        .order('last_read_at', { ascending: false }),
-
-      // 4. Fetch Group Count
-      client
-        .from('group_members')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId),
-
-      // 5. Fetch Yearly Goal
-      client
-        .from('users')
-        .select('yearly_reading_goal')
-        .eq('id', userId)
-        .single()
+    const [ { data: progressData }, { count: groupCount }, { data: userData } ] = await Promise.all([
+      client.from('user_reading_progress').select('finished_at, progress_pct, last_read_at, group_book:group_books (id, book:books (*))').eq('user_id', userId).order('last_read_at', { ascending: false }),
+      client.from('group_members').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      client.from('users').select('yearly_reading_goal').eq('id', userId).single()
     ])
 
-    if (commentsError) {
-      console.error('[Profile] Comments fetch error:', commentsError)
-      throw commentsError
-    }
-    console.log('[Profile] Comments fetched:', commentsData?.length || 0, 'items')
-
-    if (reviewsError) {
-      console.error('[Profile] Reviews fetch error:', reviewsError)
-      throw reviewsError
-    }
-    console.log('[Profile] Reviews fetched:', reviewsData?.length || 0, 'items')
-
-    if (progressError) {
-      console.error('[Profile] Progress fetch error:', progressError)
-      throw progressError
-    }
-    console.log('[Profile] Library fetched:', progressData?.length || 0, 'books')
-
-    if (groupCountError) {
-      console.error('[Profile] Group count error:', groupCountError)
-      throw groupCountError
-    }
-    console.log('[Profile] Group count:', groupCount)
-
-    // Merge and Normalize
-    const normalizedComments = (commentsData || []).map((c: any) => {
-      // Supabase self-join handling
-      const parent = Array.isArray(c.parent) ? c.parent[0] : c.parent;
-      
-      let parentData = null;
-      if (parent) {
-        const parentUser = Array.isArray(parent.user) ? parent.user[0] : parent.user;
-        parentData = {
-          nickname: parentUser?.nickname || '알 수 없는 사용자',
-          content: parent.content || '내용 없음',
-          anchor_text: parent.anchor_text
-        };
-      }
-
-      if (c.parent_id) {
-        console.log('[Profile Debug] Reply ID:', c.id);
-        console.log('[Profile Debug] Raw Parent:', c.parent);
-        console.log('[Profile Debug] Processed parentData:', parentData);
-      }
-
-      return {
-        type: 'comment',
-        id: c.id,
-        created_at: c.created_at,
-        content: c.content,
-        anchor_text: c.anchor_text,
-        position_pct: c.position_pct,
-        isReply: !!c.parent_id,
-        parentData: parentData,
-
-        // Metadata
-        groupId: c.group_book?.group?.id,
-        groupName: c.group_book?.group?.name || 'Unknown Group',
-        bookTitle: c.group_book?.book?.title || 'Unknown Book',
-        bookCover: c.group_book?.book?.cover_url,
-        bookIsbn: c.group_book?.book?.isbn,
-
-        // Navigation Data
-        groupBookId: c.group_book?.id,
-
-        // Chapter Name Calculation (Frontend side)
-        chapter: calculateChapter(c.position_pct, c.group_book?.book)
-      };
-    })
-
-    const normalizedReviews = (reviewsData || []).map((r: any) => ({
-      type: 'review',
-      id: r.id,
-      created_at: r.created_at,
-      content: r.content,
-      rating: r.rating,
-      group_book_id: r.group_book_id,
-
-      // Metadata
-      groupId: r.group_book?.group?.id,
-      groupName: r.group_book?.group?.name || 'Unknown Group',
-      bookTitle: r.group_book?.book?.title,
-      bookCover: r.group_book?.book?.cover_url,
-
-      // Navigation Data
-      groupBookId: r.group_book_id,  // 일관된 필드명 사용
-      bookIsbn: r.group_book?.book?.isbn
+    library.value = (progressData || []).map((p: any) => ({
+      id: p.group_book?.book?.isbn,
+      groupBookId: p.group_book?.id,
+      title: p.group_book?.book?.title,
+      author: p.group_book?.book?.author,
+      publisher: p.group_book?.book?.publisher,
+      total_pages: p.group_book?.book?.total_pages,
+      cover_url: p.group_book?.book?.cover_url,
+      genre: p.group_book?.book?.official_genre || p.group_book?.book?.draft_genre,
+      finished_at: p.finished_at,
+      progress_pct: p.progress_pct,
+      last_read_at: p.last_read_at
     }))
 
-    const merged = [...normalizedComments, ...normalizedReviews].sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    )
-
-    timeline.value = merged
-
-    // 2. Process Library (All Books - Reading + Finished)
-    library.value = (progressData || [])
-      .filter((p: any) => {
-        // 유효하지 않은 날짜만 제외 (1970년 같은 이상한 값)
-        // 완독 안한 책(finished_at이 null)은 포함
-        if (!p.finished_at) return true // 완독 안한 책도 포함
-        const year = new Date(p.finished_at).getFullYear()
-        return year >= 2000 && year <= new Date().getFullYear()
-      })
-      .map((p: any) => {
-        const groupBookId = p.group_book?.id
-        const myReview = reviewsData?.find((r: any) => r.group_book_id === groupBookId)
-
-        return {
-          id: p.group_book?.book?.isbn, // Use ISBN as ID
-          groupBookId: groupBookId, // Store the specific group_book_id
-          title: p.group_book?.book?.title,
-          author: p.group_book?.book?.author,
-          publisher: p.group_book?.book?.publisher,
-          total_pages: p.group_book?.book?.total_pages,
-          cover_url: p.group_book?.book?.cover_url,
-          genre: p.group_book?.book?.official_genre || p.group_book?.book?.draft_genre,
-          finished_at: p.finished_at,
-          progress_pct: p.progress_pct, // 진행도 추가
-          last_read_at: p.last_read_at, // 마지막 읽은 날짜
-          // Find my rating for this specific group_book
-          myRating: myReview?.rating || null
-        }
-      })
-
-    // 3. Stats (중복 쿼리 없이 이미 조회한 데이터 사용)
-    stats.value = {
-      books: library.value.length,
-      comments: (commentsData?.length || 0) + (reviewsData?.length || 0),
-      streak: calculateStreakFromData(commentsData || [], reviewsData || []),
-      groups: groupCount || 0
-    }
-
-    console.log('[Profile] Final stats:', stats.value)
-    console.log('[Profile] Timeline items:', timeline.value.length)
-    console.log('[Profile] Library items:', library.value.length)
-
-    // 4. Yearly goal (이미 병렬로 조회됨)
+    stats.value.books = library.value.filter(b => b.finished_at).length
+    stats.value.groups = groupCount || 0
     yearlyGoal.value = userData?.yearly_reading_goal || 50
-    console.log('[Profile] Yearly goal:', yearlyGoal.value)
 
-  } catch (err: any) {
-    console.error('[Profile] Fetch profile data error:', err)
-    toast.error('데이터를 불러오는데 실패했습니다: ' + err.message)
-  } finally {
-    loading.value = false
-  }
+    await loadMoreTimeline()
+
+    const [ { count: tc }, { count: tr } ] = await Promise.all([
+      client.from('comments').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      client.from('reviews').select('*', { count: 'exact', head: true }).eq('user_id', userId)
+    ])
+    stats.value.comments = (tc || 0) + (tr || 0)
+
+  } catch (err) { console.error(err) } finally { loading.value = false }
 }
 
-const calculateChapter = (pct: number, book: any) => {
-  if (!book) return null
-  const toc = book.official_toc || book.draft_toc
-  if (!toc || !Array.isArray(toc)) return null
-  
-  // Need to normalize TOC if stored as pages vs pct. 
-  // Assuming TOC in DB is standardized or we just use raw if it looks like PCT.
-  // Implementation specific. Let's return null to fallback to PCT display for now.
-  return null 
-}
+const loadMoreTimeline = async () => {
+  if (isLoadingMoreTimeline.value || !hasMoreTimeline.value) return
+  const userId = userStore.profile?.id || userStore.user?.id
+  if (!userId) return
 
-// 🔥 성능 최적화: 중복 쿼리 제거 (이미 조회한 데이터를 재사용)
-const calculateStreakFromData = (commentsData: any[], reviewsData: any[]) => {
+  isLoadingMoreTimeline.value = true
+  const from = timelineOffset.value, to = from + TIMELINE_PAGE_SIZE - 1
+
   try {
-    // 1. Extract dates (YYYY-MM-DD format) using local timezone
-    const allDates = [
-      ...(commentsData || []).map(c => getLocalDateString(new Date(c.created_at))),
-      ...(reviewsData || []).map(r => getLocalDateString(new Date(r.created_at)))
-    ]
+    const [ { data: cd }, { data: rd } ] = await Promise.all([
+      client.from('comments').select('id, content, anchor_text, position_pct, created_at, parent_id, parent:parent_id (content, anchor_text, user:users (nickname)), group_book:group_books (id, group:groups (name, id), book:books (title, cover_url, isbn))').eq('user_id', userId).order('created_at', { ascending: false }).range(from, to),
+      client.from('reviews').select('id, content, rating, created_at, group_book_id, group_book:group_books (id, group:groups (name, id), book:books (title, cover_url, isbn))').eq('user_id', userId).order('created_at', { ascending: false }).range(from, to)
+    ])
 
-    // 3. Remove duplicates and sort descending
-    const uniqueDates = [...new Set(allDates)].sort().reverse()
+    const nc = (cd || []).map((c: any) => {
+      const p = Array.isArray(c.parent) ? c.parent[0] : c.parent
+      let pd = null
+      if (p) pd = { nickname: (Array.isArray(p.user) ? p.user[0] : p.user)?.nickname || '알 수 없는 사용자', content: p.content, anchor_text: p.anchor_text }
+      return { type: 'comment', id: c.id, created_at: c.created_at, content: c.content, anchor_text: c.anchor_text, position_pct: c.position_pct, isReply: !!c.parent_id, parentData: pd, groupId: c.group_book?.group?.id, groupName: c.group_book?.group?.name, bookTitle: c.group_book?.book?.title, bookCover: c.group_book?.book?.cover_url, groupBookId: c.group_book?.id }
+    })
 
-    if (uniqueDates.length === 0) return 0
+    const nr = (rd || []).map((r: any) => ({ type: 'review', id: r.id, created_at: r.created_at, content: r.content, rating: r.rating, groupId: r.group_book?.group?.id, groupName: r.group_book?.group?.name, bookTitle: r.group_book?.book?.title, bookCover: r.group_book?.book?.cover_url, groupBookId: r.group_book?.id }))
 
-    // 4. Check if streak is still active (today or yesterday)
-    const today = getLocalDateString(new Date())
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    const yesterdayStr = getLocalDateString(yesterday)
+    const combined = [...nc, ...nr].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
-    if (uniqueDates[0] !== today && uniqueDates[0] !== yesterdayStr) {
-      return 0 // Streak broken
+    if (combined.length === 0) hasMoreTimeline.value = false
+    else {
+      timeline.value = [...timeline.value, ...combined]
+      timelineOffset.value += TIMELINE_PAGE_SIZE
+      stats.value.streak = calculateStreakFromData(timeline.value.filter(i => i.type === 'comment'), timeline.value.filter(i => i.type === 'review'))
     }
-
-    // 5. Count consecutive days
-    let streak = 1
-    for (let i = 1; i < uniqueDates.length; i++) {
-      const currentDate = new Date(uniqueDates[i - 1])
-      const prevDate = new Date(uniqueDates[i])
-      const diffDays = Math.floor(
-        (currentDate.getTime() - prevDate.getTime()) / 86400000
-      )
-
-      if (diffDays === 1) {
-        streak++
-      } else {
-        break // Streak broken
-      }
-    }
-
-    return streak
-  } catch (err) {
-    console.error('Calculate streak error:', err)
-    return 0
-  }
+  } catch (err) { console.error(err) } finally { isLoadingMoreTimeline.value = false }
 }
 
 const formatDate = (dateStr: string) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
-  const month = (date.getMonth() + 1).toString().padStart(2, '0')
-  const day = date.getDate().toString().padStart(2, '0')
-  return `${date.getFullYear()}.${month}.${day}`
+  return `${date.getFullYear()}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getDate().toString().padStart(2, '0')}`
 }
 
-const formatDateSimple = (dateStr: string) => {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  return `${date.getFullYear()}.${date.getMonth() + 1}`
-}
-
-// 하이브리드 포맷 (기록 탭용): "3시간 전" / "3일 전 (25.12.20 14:30)" / "25.12.20 14:30"
 const formatTimeAgo = (dateStr: string) => {
-  const now = new Date()
-  const date = new Date(dateStr)
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  const diffHours = Math.floor(diffMs / 3600000)
-  const diffDays = Math.floor(diffMs / 86400000)
-
-  // 24시간 이내: 상대 시간만
+  const now = new Date(), date = new Date(dateStr), diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000), diffHours = Math.floor(diffMs / 3600000), diffDays = Math.floor(diffMs / 86400000)
   if (diffMins < 1) return '방금 전'
   if (diffMins < 60) return `${diffMins}분 전`
   if (diffHours < 24) return `${diffHours}시간 전`
-
-  // 날짜 + 시간 포맷 헬퍼
-  const year = String(date.getFullYear()).slice(-2)
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  const hours = String(date.getHours()).padStart(2, '0')
-  const minutes = String(date.getMinutes()).padStart(2, '0')
-  const dateTimeFormat = `${year}.${month}.${day} ${hours}:${minutes}`
-
-  // 1주일 이내: "n일 전 (날짜+시간)"
-  if (diffDays < 7) {
-    return `${diffDays}일 전 (${dateTimeFormat})`
-  }
-
-  // 그 이상: 날짜+시간만
-  return dateTimeFormat
+  const y = String(date.getFullYear()).slice(-2), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0')
+  return diffDays < 7 ? `${diffDays}일 전 (${y}.${m}.${d})` : `${y}.${m}.${d}`
 }
 
-// 날짜 + 시간 포맷 (책 모달용): "25.12.20 14:30"
 const formatDateTime = (dateStr: string) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
-  const year = String(date.getFullYear()).slice(-2)
-  const month = (date.getMonth() + 1).toString().padStart(2, '0')
-  const day = date.getDate().toString().padStart(2, '0')
-  const hours = String(date.getHours()).padStart(2, '0')
-  const minutes = String(date.getMinutes()).padStart(2, '0')
-  return `${year}.${month}.${day} ${hours}:${minutes}`
+  const y = String(date.getFullYear()).slice(-2), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0'), hh = String(date.getHours()).padStart(2, '0'), mm = String(date.getMinutes()).padStart(2, '0')
+  return `${y}.${m}.${d} ${hh}:${mm}`
 }
 
-// 시간만 포맷 (Day Activity Modal용): "14:30"
 const formatTimeOnly = (dateStr: string) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
-  const hours = String(date.getHours()).padStart(2, '0')
-  const minutes = String(date.getMinutes()).padStart(2, '0')
-  return `${hours}:${minutes}`
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
 const formatMonthOnly = (dateStr: string) => {
   if (!dateStr) return ''
-  const date = new Date(dateStr)
-  const month = (date.getMonth() + 1).toString().padStart(2, '0')
-  const day = date.getDate().toString().padStart(2, '0')
-  return `${month}.${day}`
+  const d = new Date(dateStr)
+  return `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
 }
 
 const formatCompletionDate = (dateStr: string) => {
   if (!dateStr) return ''
-  const date = new Date(dateStr)
-  const year = String(date.getFullYear()).slice(-2)
-  const month = (date.getMonth() + 1).toString().padStart(2, '0')
-  const day = date.getDate().toString().padStart(2, '0')
-  return `${year}.${month}.${day}`
+  const d = new Date(dateStr)
+  return `${String(d.getFullYear()).slice(-2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
+}
+
+const navigateToItem = (item: any) => {
+  if (item.groupId) {
+    const query: any = {}
+    if (item.groupBookId) query.bookId = item.groupBookId
+    if (item.type === 'comment') { query.jumpTo = item.position_pct; query.highlightComment = item.id }
+    router.push({ path: `/group/${item.groupId}`, query })
+  } else toast.warning('해당 그룹을 찾을 수 없습니다.')
+}
+
+const openBookDetail = (book: any) => { selectedBook.value = book; showBookDetailModal.value = true }
+const closeBookDetail = () => { showBookDetailModal.value = false; selectedBook.value = null }
+const openSettings = () => settingsModalOpen.value = true
+const triggerFileInput = () => fileInput.value?.click()
+
+const handleFileChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement, file = target.files?.[0]
+  if (!file) return
+  isSaving.value = true
+  try {
+    const { data: { user: authUser } } = await client.auth.getUser()
+    if (!authUser) throw new Error('로그인이 필요합니다.')
+    const userId = authUser.id, fileExt = file.name.split('.').pop(), fileName = `${userId}/${Date.now()}.${fileExt}`
+    const { error: uploadError } = await client.storage.from('avatars').upload(fileName, file, { upsert: true, contentType: file.type })
+    if (uploadError) throw uploadError
+    const { data: { publicUrl } } = client.storage.from('avatars').getPublicUrl(fileName)
+    const { error: updateError } = await client.from('users').update({ avatar_url: publicUrl }).eq('id', userId)
+    if (updateError) throw updateError
+    previewAvatar.value = publicUrl
+    await userStore.fetchProfile(true)
+    toast.success('프로필 사진이 변경되었습니다! ✨')
+  } catch (err: any) { toast.error('사진 업로드 실패') } finally { isSaving.value = false; target.value = '' }
+}
+
+const saveProfile = async () => {
+  if (!editNickname.value.trim()) { toast.error('닉네임을 입력해주세요.'); return }
+  isSaving.value = true
+  try {
+    const { data: { user: authUser } } = await client.auth.getUser()
+    if (!authUser) throw new Error('로그인이 필요합니다.')
+    const { error } = await client.from('users').update({ nickname: editNickname.value.trim() }).eq('id', authUser.id)
+    if (error) throw error
+    await userStore.fetchProfile(true)
+    toast.success('닉네임이 변경되었습니다! ✨')
+  } catch (err) { toast.error('저장 실패') } finally { isSaving.value = false }
+}
+
+const handleDayClick = (day: any) => { selectedDay.value = day; showDayActivityModal.value = true }
+const closeDayActivity = () => { showDayActivityModal.value = false; selectedDay.value = null }
+const startEditGoal = () => { tempGoal.value = yearlyGoal.value; editingGoal.value = true }
+
+const saveGoal = async () => {
+  if (tempGoal.value <= 0) { toast.error('목표는 1권 이상이어야 합니다'); return }
+  const userId = userStore.profile?.id || userStore.user?.id
+  if (!userId) return
+  try {
+    const { error } = await client.from('users').update({ yearly_reading_goal: tempGoal.value }).eq('id', userId)
+    if (error) throw error
+    yearlyGoal.value = tempGoal.value; editingGoal.value = false
+    toast.success('목표가 저장되었습니다')
+  } catch (err: any) { toast.error('목표 저장 실패') }
+}
+
+const cancelEditGoal = () => editingGoal.value = false
+const handleSignOut = () => showLogoutConfirm.value = true
+const handleDeleteAccount = () => showDeleteAccountConfirm.value = true
+const confirmLogout = async () => { showLogoutConfirm.value = false; await userStore.signOut(); router.push('/login') }
+const cancelLogout = () => showLogoutConfirm.value = false
+
+const confirmDeleteAccount = async () => {
+  showDeleteAccountConfirm.value = false
+  try {
+    const userId = userStore.profile?.id || userStore.user?.id
+    if (!userId) return
+    const { error } = await client.from('users').delete().eq('id', userId)
+    if (error) throw error
+    await userStore.signOut()
+    toast.success('계정이 삭제되었습니다.'); router.push('/login')
+  } catch (err: any) { toast.error('계정 삭제 실패') }
+}
+
+const cancelDeleteAccount = () => showDeleteAccountConfirm.value = false
+const handleInsightTabClick = () => { if (!isPremium.value) { upgradeInsightOpen.value = true; return } activeTab.value = 'insight' }
+
+const calculateStreakFromData = (commentsData: any[], reviewsData: any[]) => {
+  try {
+    const allDates = [...(commentsData || []).map(c => getLocalDateString(new Date(c.created_at))), ...(reviewsData || []).map(r => getLocalDateString(new Date(r.created_at)))]
+    const uniqueDates = [...new Set(allDates)].sort().reverse()
+    if (uniqueDates.length === 0) return 0
+    const today = getLocalDateString(new Date()), yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1)
+    const yesterdayStr = getLocalDateString(yesterday)
+    if (uniqueDates[0] !== today && uniqueDates[0] !== yesterdayStr) return 0
+    let streak = 1
+    for (let i = 1; i < uniqueDates.length; i++) {
+      const diffDays = Math.floor((new Date(dates[i - 1]).getTime() - new Date(dates[i]).getTime()) / 86400000)
+      if (diffDays === 1) streak++ 
+      else break
+    }
+    return streak
+  } catch (err) { return 0 }
 }
 
 const getStarType = (index: number, rating: number) => {
-  const fullStars = Math.floor(rating)
-  const hasHalfStar = (rating % 1) >= 0.3 // 0.3 이상이면 반별
-
+  const fullStars = Math.floor(rating), hasHalfStar = (rating % 1) >= 0.3
   if (index <= fullStars) return 'full'
   if (index === fullStars + 1 && hasHalfStar) return 'half'
   return 'empty'
 }
 
-const navigateToItem = (item: any) => {
-  if (item.groupId) {
-    // Navigate to group page with specific book context
-    const query: any = {}
+const calculateChapter = (pct: number, book: any) => null
 
-    // Always pass the book ID to show the correct book
-    if (item.groupBookId) {
-      query.bookId = item.groupBookId
-    }
-
-    // For comments, also pass position and highlight
-    if (item.type === 'comment') {
-      query.jumpTo = item.position_pct
-      query.highlightComment = item.id
-    }
-
-    router.push({
-      path: `/group/${item.groupId}`,
-      query
-    })
-  } else {
-    toast.warning('해당 그룹을 찾을 수 없습니다.')
-  }
-}
-
-const openBookDetail = (book: any) => {
-  selectedBook.value = book
-  showBookDetailModal.value = true
-}
-
-const closeBookDetail = () => {
-  showBookDetailModal.value = false
-  selectedBook.value = null
-}
-
-// Settings / Edit Profile Logic
-const openSettings = () => {
-  settingsModalOpen.value = true
-}
-
-const triggerFileInput = () => {
-  fileInput.value?.click()
-}
-
-const handleFileChange = async (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (!file) return
-
-  // 즉시 업로드 시작
-  isSaving.value = true
-  try {
-    const { data: { user: authUser } } = await client.auth.getUser()
-    if (!authUser) throw new Error('로그인이 필요합니다.')
-
-    const userId = authUser.id
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${userId}/${Date.now()}.${fileExt}`
-
-    // 1. Storage 업로드
-    const { error: uploadError } = await client.storage
-      .from('avatars')
-      .upload(fileName, file, { 
-        upsert: true,
-        contentType: file.type 
-      })
-
-    if (uploadError) throw uploadError
-
-    // 2. Public URL 가져오기
-    const { data: { publicUrl } } = client.storage
-      .from('avatars')
-      .getPublicUrl(fileName)
-
-    // 3. DB 즉시 업데이트
-    const { error: updateError } = await client
-      .from('users')
-      .update({ avatar_url: publicUrl })
-      .eq('id', userId)
-
-    if (updateError) throw updateError
-
-    // 4. UI 및 상태 갱신
-    previewAvatar.value = publicUrl
-    await userStore.fetchProfile(true)
-    toast.success('프로필 사진이 변경되었습니다! ✨')
-  } catch (err: any) {
-    console.error('Avatar auto-upload error:', err)
-    toast.error('사진 업로드에 실패했습니다.')
-  } finally {
-    isSaving.value = false
-    // 입력창 초기화 (같은 파일 다시 선택 가능하게)
-    target.value = ''
-  }
-}
-
-const saveProfile = async () => {
-  if (!editNickname.value.trim()) {
-    toast.error('닉네임을 입력해주세요.')
-    return
-  }
-
-  isSaving.value = true
-
-  try {
-    const { data: { user: authUser } } = await client.auth.getUser()
-    if (!authUser) throw new Error('로그인이 필요합니다.')
-
-    const userId = authUser.id
-
-    // DB 정보 업데이트 (닉네임만 업데이트)
-    const { error: updateError } = await client
-      .from('users')
-      .update({
-        nickname: editNickname.value.trim()
-      })
-      .eq('id', userId)
-
-    if (updateError) throw updateError
-
-    await userStore.fetchProfile(true)
-    toast.success('닉네임이 변경되었습니다! ✨')
-    
-  } catch (err: any) {
-    console.error('Save profile error:', err)
-    toast.error('변경 사항 저장에 실패했습니다.')
-  } finally {
-    isSaving.value = false
-  }
-}
-
-// Day Activity Modal Handlers
-const handleDayClick = (day: any) => {
-  selectedDay.value = day
-  showDayActivityModal.value = true
-}
-
-const closeDayActivity = () => {
-  showDayActivityModal.value = false
-  selectedDay.value = null
-}
-
-// Yearly Goal Handlers
-const startEditGoal = () => {
-  tempGoal.value = yearlyGoal.value
-  editingGoal.value = true
-}
-
-const saveGoal = async () => {
-  if (tempGoal.value <= 0) {
-    toast.error('목표는 1권 이상이어야 합니다')
-    return
-  }
-
-  // Get user ID more reliably
+// Auto-save notification settings
+watch(notificationSettings, async (newSettings) => {
   const userId = userStore.profile?.id || userStore.user?.id
-
-  if (!userId) {
-    console.error('[Profile] saveGoal: No user ID available')
-    console.log('[Profile] userStore.profile:', userStore.profile)
-    console.log('[Profile] userStore.user:', userStore.user)
-    toast.error('사용자 정보를 찾을 수 없습니다')
-    return
-  }
-
+  if (!userId) return
   try {
-    console.log('[Profile] Saving yearly goal:', tempGoal.value, 'for user:', userId)
-
-    // DB에 저장
-    const { error } = await client
-      .from('users')
-      .update({ yearly_reading_goal: tempGoal.value })
-      .eq('id', userId)
-
-    if (error) {
-      console.error('[Profile] Update goal error:', error)
-      throw error
-    }
-
-    yearlyGoal.value = tempGoal.value
-    editingGoal.value = false
-    toast.success('목표가 저장되었습니다')
-
-    console.log('[Profile] Goal saved successfully')
-  } catch (err: any) {
-    console.error('Save goal error:', err)
-    toast.error('목표 저장에 실패했습니다: ' + err.message)
-  }
-}
-
-const cancelEditGoal = () => {
-  editingGoal.value = false
-}
+    await client.from('users').update({ notification_settings: newSettings }).eq('id', userId)
+    await userStore.fetchProfile(true)
+  } catch (err) { console.error(err) }
+}, { deep: true })
 
 const showLogoutConfirm = ref(false)
 const showDeleteAccountConfirm = ref(false)
-
-const handleSignOut = () => {
-  showLogoutConfirm.value = true
-}
-
-const handleDeleteAccount = () => {
-  showDeleteAccountConfirm.value = true
-}
-
-const confirmLogout = async () => {
-  showLogoutConfirm.value = false
-  await userStore.signOut()
-  router.push('/login')
-}
-
-const cancelLogout = () => {
-  showLogoutConfirm.value = false
-}
-
-const confirmDeleteAccount = async () => {
-  showDeleteAccountConfirm.value = false
-
-  try {
-    const userId = userStore.profile?.id || userStore.user?.id
-
-    if (!userId) {
-      toast.error('사용자 정보를 찾을 수 없습니다.')
-      return
-    }
-
-    // 1. 사용자 데이터 삭제 (Supabase는 CASCADE로 처리)
-    const { error: deleteError } = await client
-      .from('users')
-      .delete()
-      .eq('id', userId)
-
-    if (deleteError) {
-      console.error('[Profile] Delete user error:', deleteError)
-      throw deleteError
-    }
-
-    // 2. Auth 계정 삭제 (admin API 필요하므로 서버에서 처리하거나 RPC 함수 사용)
-    // Supabase Auth는 클라이언트에서 직접 삭제 불가능하므로 로그아웃만 처리
-    await userStore.signOut()
-
-    toast.success('계정이 삭제되었습니다.')
-    router.push('/login')
-  } catch (err: any) {
-    console.error('[Profile] Delete account error:', err)
-    toast.error('계정 삭제 실패: ' + err.message)
-  }
-}
-
-const cancelDeleteAccount = () => {
-  showDeleteAccountConfirm.value = false
-}
-
-// Insight Tab Handler
-const handleInsightTabClick = () => {
-  if (!isPremium.value) {
-    upgradeInsightOpen.value = true
-    return
-  }
-  activeTab.value = 'insight'
-}
 </script>
 
 <style scoped>
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-@keyframes scale-up {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-.animate-scale-up {
-  animation: scale-up 0.2s ease-out;
-}
-
-/* Goal Achievement - Subtle glow effect */
-@keyframes glow-pulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgba(163, 230, 53, 0);
-  }
-}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+@keyframes scale-up { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.animate-scale-up { animation: scale-up 0.2s ease-out; }
 </style>

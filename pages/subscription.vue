@@ -170,6 +170,19 @@
       </div>
     </div>
 
+    <!-- PWA Standalone Notice Modal -->
+    <ConfirmModal
+      :isOpen="showPwaNotice"
+      title="브라우저에서 결제 진행"
+      message="현재 '홈 화면' 앱 모드에서는 결제 보안상 제약이 발생할 수 있습니다."
+      description="아래 버튼을 눌러 브라우저로 이동하거나, 주소를 복사하여 사파리/크롬에 붙여넣어 주세요."
+      confirmText="브라우저 열기 시도"
+      cancelText="주소만 복사"
+      variant="warning"
+      @confirm="handleOpenBrowser"
+      @cancel="handleCopyLinkOnly"
+    />
+
     <!-- Cancel Subscription Confirmation Modal -->
     <ConfirmModal
       :isOpen="showCancelConfirm"
@@ -206,58 +219,47 @@ const paying = ref(false)
 const payingMonthly = ref(false)
 const payingYearly = ref(false)
 const showCancelConfirm = ref(false)
+const showPwaNotice = ref(false) // PWA 안내 상태
 const canceling = ref(false)
 
-onMounted(async () => {
-  await userStore.fetchProfile()
-  await fetchCurrentSubscription()
+const isStandalone = computed(() => {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone
 })
 
-const fetchCurrentSubscription = async () => {
-  if (!userStore.profile?.id) return
-  try {
-    const { data, error } = await client
-      .from('subscriptions')
-      .select('*, plan:subscription_plans(*)')
-      .eq('user_id', userStore.profile.id)
-      .eq('status', 'active')
-      .maybeSingle()
-    if (error) throw error
-    currentSubscription.value = data
-  } catch (error) {
-    console.error('[Subscription] Error:', error)
-  }
-}
-
+onMounted(async () => {
+...
 const startPayment = async (planName: string) => {
   if (!userStore.profile) { toast.error('로그인이 필요합니다.'); return }
+
+  // 🎯 PWA 환경 체크 및 안내
+  if (isStandalone.value) {
+    showPwaNotice.value = true
+    return
+  }
+
   const isMonthly = planName === 'premium_monthly'
-  if (isMonthly) payingMonthly.value = true; else payingYearly.value = true
-  paying.value = true
+...
+const handleCancelClick = () => { showCancelConfirm.value = true }
+
+const handleOpenBrowser = () => {
+  const url = window.location.origin + '/subscription'
+  // 🎯 _blank로 열면 일부 OS에서는 시스템 브라우저를 호출합니다.
+  window.open(url, '_blank')
+  showPwaNotice.value = false
+  toast.info('브라우저가 열리지 않는다면 주소를 복사해 주세요.')
+}
+
+const handleCopyLinkOnly = async () => {
   try {
-    const { data: plan } = await client.from('subscription_plans').select('*').eq('name', planName).eq('is_active', true).single()
-    if (!plan) throw new Error('플랜을 찾을 수 없습니다.')
-    const orderResponse = await $fetch('/api/payments/create-order', { method: 'POST', body: { planId: plan.id, amount: plan.price } })
-    const clientKey = useRuntimeConfig().public.tossClientKey
-    const tossPayments = await loadTossPayments(clientKey)
-    const orderName = plan.billing_period === 'yearly' ? 'Sidekick 프리미엄 (연간)' : 'Sidekick 프리미엄 (월간)'
-    await tossPayments.requestPayment('카드', {
-      amount: plan.price,
-      orderId: orderResponse.orderId,
-      orderName,
-      customerName: userStore.profile.nickname || userStore.profile.username,
-      customerEmail: userStore.profile.email,
-      successUrl: `${window.location.origin}/payment/success`,
-      failUrl: `${window.location.origin}/payment/fail`
-    })
-  } catch (error: any) {
-    toast.error(error.data?.message || '결제 요청 중 오류가 발생했습니다.')
-  } finally {
-    paying.value = false; payingMonthly.value = false; payingYearly.value = false
+    await navigator.clipboard.writeText(window.location.origin + '/subscription')
+    toast.success('주소가 복사되었습니다! 사파리나 크롬에 붙여넣어 주세요. 📋')
+    showPwaNotice.value = false
+  } catch (err) {
+    toast.error('주소 복사에 실패했습니다.')
   }
 }
 
-const handleCancelClick = () => { showCancelConfirm.value = true }
 const confirmCancelSubscription = async () => {
   showCancelConfirm.value = false; canceling.value = true
   try {
