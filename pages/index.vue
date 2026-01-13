@@ -98,7 +98,7 @@
             <!-- Bottom: Date & Progress -->
             <div class="w-full mt-auto pt-2">
               <div class="flex justify-between items-center mb-0.5 px-0.5">
-                <div class="text-[10px] text-zinc-500 dark:text-zinc-400 flex gap-0.5 font-mono">
+                <div class="text-[10px] text-zinc-500 dark:text-zinc-400 flex gap-0.5 font-bold">
                   <span>{{ group.currentBook.target_start_date ? formatDateSimple(group.currentBook.target_start_date) : 'Start' }}</span>
                   <span>~</span>
                   <span>{{ group.currentBook.target_end_date ? formatDateSimple(group.currentBook.target_end_date) : 'End' }}</span>
