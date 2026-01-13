@@ -326,7 +326,7 @@
                     </div>
                     <!-- Larger & Bordered Anchor -->
                     <div v-if="item.parentData.anchor_text" class="mb-2 pl-2 border-l-2 border-zinc-300 dark:border-zinc-600">
-                      <p class="text-[13px] text-zinc-500 dark:text-zinc-400 italic line-clamp-1 font-serif">
+                      <p class="text-[13px] text-zinc-500 dark:text-zinc-400 italic font-serif">
                         {{ item.parentData.anchor_text }}
                       </p>
                     </div>
