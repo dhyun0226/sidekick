@@ -192,7 +192,7 @@
                 @click="openBookDetail(book)"
                 class="cursor-pointer active:opacity-70 transition-opacity opacity-60"
               >
-                <div class="aspect-[1/1.5] overflow-hidden shadow-sm">
+                <div class="aspect-[1/1.5] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800">
                   <img
                     :src="book.cover_url"
                     class="w-full h-full object-cover"
@@ -225,7 +225,7 @@
                 @click="openBookDetail(book)"
                 class="cursor-pointer active:opacity-70 transition-opacity"
               >
-                <div class="aspect-[1/1.5] overflow-hidden shadow-sm">
+                <div class="aspect-[1/1.5] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800">
                   <img
                     :src="book.cover_url"
                     class="w-full h-full object-cover"
@@ -280,32 +280,29 @@
                 v-for="item in monthGroup.items"
                 :key="item.id"
                 @click="isBookFinished(item.groupBookId) ? navigateToItem(item) : null"
-                :class="[
-                  'bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all shadow-sm',
-                  isBookFinished(item.groupBookId)
-                    ? 'cursor-pointer hover:border-lime-400 dark:hover:border-lime-500'
-                    : 'cursor-default opacity-60'
-                ]"
+                class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all shadow-sm"
+                :class="[isBookFinished(item.groupBookId) ? 'cursor-pointer hover:border-lime-400' : 'cursor-default opacity-60']"
               >
-                <!-- Header: Mini Cover & Info -->
-                <div class="flex gap-3 mb-3">
-                  <div class="w-10 h-14 bg-zinc-100 dark:bg-zinc-800 rounded shadow-sm overflow-hidden flex-shrink-0 border border-zinc-100 dark:border-zinc-800">
+                <!-- Card Header: Mini Cover & Meta -->
+                <div class="flex items-start gap-3 mb-3">
+                  <!-- Mini Cover -->
+                  <div class="w-8 h-11 bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0 shadow-sm border border-zinc-100 dark:border-zinc-800">
                     <img v-if="item.bookCover" :src="item.bookCover" class="w-full h-full object-cover" />
-                    <div v-else class="w-full h-full flex items-center justify-center text-[10px] text-zinc-400">No Cover</div>
+                    <div v-else class="w-full h-full flex items-center justify-center text-[8px] text-zinc-400">No Cover</div>
                   </div>
-                  
-                  <div class="flex-1 min-w-0 flex flex-col justify-center">
-                    <h4 class="font-bold text-sm text-zinc-900 dark:text-white mb-1 line-clamp-1">
+
+                  <div class="min-w-0 flex-1">
+                    <h4 class="text-sm font-bold text-zinc-900 dark:text-white truncate mb-0.5 tracking-tight">
                       {{ item.bookTitle }}
                     </h4>
-                    <div class="flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+                    <div class="flex items-center gap-2 text-[11px] text-zinc-400 font-medium">
                       <span>{{ item.groupName }}</span>
                       <span class="text-zinc-300 dark:text-zinc-700">·</span>
                       <span>{{ formatTimeAgo(item.created_at) }}</span>
                     </div>
                   </div>
-
-                  <div class="flex-shrink-0">
+                  
+                  <div class="flex-shrink-0 ml-1">
                     <template v-if="item.type === 'review'">
                       <RatingBadge :rating="item.rating" size="sm" />
                     </template>
@@ -315,34 +312,34 @@
                   </div>
                 </div>
 
-                <!-- Reply Context (Clean Inset Box Style) -->
-                <div v-if="item.isReply && item.parentData" class="mb-4 mt-1 overflow-hidden rounded-xl border border-zinc-100 dark:border-zinc-800">
-                  <div class="bg-zinc-50/80 dark:bg-zinc-800/50 px-4 py-3">
-                    <div class="flex items-center gap-2 mb-2.5">
-                      <div class="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600"></div>
-                      <span class="text-[11px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-                        {{ item.parentData.nickname }}님의 기록
-                      </span>
+                <!-- Reply Context -->
+                <div v-if="item.isReply && item.parentData" class="mb-3 overflow-hidden rounded-lg border border-zinc-100 dark:border-zinc-800">
+                  <div class="bg-zinc-50 dark:bg-zinc-800/50 px-3.5 py-3 text-left">
+                    <div class="flex items-center gap-2 mb-2">
+                      <Avatar
+                        :src="item.parentData.avatar_url"
+                        :fallback="item.parentData.nickname?.charAt(0) || 'U'"
+                        size="xs"
+                        className="w-4 h-4 shadow-xs"
+                      />
+                      <p class="text-[11px] font-bold text-zinc-400">{{ item.parentData.nickname }}님의 기록</p>
                     </div>
-                    
-                    <div class="space-y-2">
-                      <!-- Parent Quote -->
-                      <div v-if="item.parentData.anchor_text" class="pl-3 border-l-2 border-zinc-200 dark:border-zinc-700">
-                        <p class="text-[13px] text-zinc-500 dark:text-zinc-400 font-serif leading-relaxed italic">
-                          {{ item.parentData.anchor_text }}
-                        </p>
-                      </div>
-                      <!-- Parent Content -->
-                      <p class="text-[14px] text-zinc-600 dark:text-zinc-300 leading-relaxed font-medium">
-                        {{ item.parentData.content }}
+                    <!-- Larger & Bordered Anchor -->
+                    <div v-if="item.parentData.anchor_text" class="mb-2 pl-2 border-l-2 border-zinc-300 dark:border-zinc-600">
+                      <p class="text-[13px] text-zinc-500 dark:text-zinc-400 italic line-clamp-1 font-serif">
+                        {{ item.parentData.anchor_text }}
                       </p>
                     </div>
+                    <p class="text-[13px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                      {{ item.parentData.content }}
+                    </p>
                   </div>
                 </div>
 
+
                 <!-- Quote -->
                 <div v-if="item.anchor_text" class="mb-3 pl-3 border-l-2 border-zinc-200 dark:border-zinc-700">
-                  <p class="text-[13px] text-zinc-500 dark:text-zinc-400 italic leading-relaxed font-serif">
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 italic leading-relaxed font-serif">
                     {{ item.anchor_text }}
                   </p>
                 </div>
@@ -534,7 +531,7 @@
 
     </div>
 
-    <!-- Settings Modal (Redesigned) -->
+    <!-- Settings Modal -->
     <div v-if="settingsModalOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="settingsModalOpen = false"></div>
       <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 border border-zinc-200 dark:border-zinc-800 max-h-[90vh] overflow-hidden flex flex-col">
@@ -668,7 +665,6 @@
     <ProfileBookDetailModal
       :isOpen="showBookDetailModal"
       :book="selectedBook"
-      :timeline="timeline"
       @close="closeBookDetail"
       @navigate="navigateToItem"
     />
@@ -832,6 +828,7 @@ import ConfirmModal from '~/components/ConfirmModal.vue'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import UpgradePromptModal from '~/components/UpgradePromptModal.vue'
 import ProfileBookDetailModal from '~/components/ProfileBookDetailModal.vue'
+import Avatar from '~/components/Avatar.vue'
 
 // 인증 미들웨어 적용
 definePageMeta({
@@ -1135,26 +1132,37 @@ const fetchData = async () => {
   hasMoreTimeline.value = true
 
   try {
-    const [ { data: progressData }, { count: groupCount }, { data: userData } ] = await Promise.all([
-      client.from('user_reading_progress').select('finished_at, progress_pct, last_read_at, group_book:group_books (id, book:books (*))').eq('user_id', userId).order('last_read_at', { ascending: false }),
-      client.from('group_members').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-      client.from('users').select('yearly_reading_goal').eq('id', userId).single()
-    ])
-
-    library.value = (progressData || []).map((p: any) => ({
-      id: p.group_book?.book?.isbn,
-      groupBookId: p.group_book?.id,
-      title: p.group_book?.book?.title,
-      author: p.group_book?.book?.author,
-      publisher: p.group_book?.book?.publisher,
-      total_pages: p.group_book?.book?.total_pages,
-      cover_url: p.group_book?.book?.cover_url,
-      genre: p.group_book?.book?.official_genre || p.group_book?.book?.draft_genre,
-      finished_at: p.finished_at,
-      progress_pct: p.progress_pct,
-      last_read_at: p.last_read_at
-    }))
-
+        // 🔥 Parallel fetch for stats, library, and reviews
+        const [
+          { data: progressData },
+          { data: userReviewsData },
+          { count: groupCount },
+          { data: userData }
+        ] = await Promise.all([
+          client.from('user_reading_progress').select('finished_at, progress_pct, last_read_at, group_book:group_books (id, book:books (*))').eq('user_id', userId).order('last_read_at', { ascending: false }),
+          client.from('reviews').select('group_book_id, rating').eq('user_id', userId),
+          client.from('group_members').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+          client.from('users').select('yearly_reading_goal').eq('id', userId).single()
+        ])
+    
+        // Create a map for quick rating lookup
+        const ratingsMap = new Map(userReviewsData?.map(r => [r.group_book_id, r.rating]) || [])
+    
+        // Process Library
+        library.value = (progressData || []).map((p: any) => ({
+          id: p.group_book?.book?.isbn,
+          groupBookId: p.group_book?.id,
+          title: p.group_book?.book?.title,
+          author: p.group_book?.book?.author,
+          publisher: p.group_book?.book?.publisher,
+          total_pages: p.group_book?.book?.total_pages,
+          cover_url: p.group_book?.book?.cover_url,
+          genre: p.group_book?.book?.official_genre || p.group_book?.book?.draft_genre,
+          finished_at: p.finished_at,
+          progress_pct: p.progress_pct,
+          last_read_at: p.last_read_at,
+          myRating: ratingsMap.get(p.group_book?.id) || null // 🎯 Restore rating mapping
+        }))
     stats.value.books = library.value.filter(b => b.finished_at).length
     stats.value.groups = groupCount || 0
     yearlyGoal.value = userData?.yearly_reading_goal || 50
@@ -1180,15 +1188,58 @@ const loadMoreTimeline = async () => {
 
   try {
     const [ { data: cd }, { data: rd } ] = await Promise.all([
-      client.from('comments').select('id, content, anchor_text, position_pct, created_at, parent_id, parent:parent_id (content, anchor_text, user:users (nickname)), group_book:group_books (id, group:groups (name, id), book:books (title, cover_url, isbn))').eq('user_id', userId).order('created_at', { ascending: false }).range(from, to),
-      client.from('reviews').select('id, content, rating, created_at, group_book_id, group_book:group_books (id, group:groups (name, id), book:books (title, cover_url, isbn))').eq('user_id', userId).order('created_at', { ascending: false }).range(from, to)
+      client
+        .from('comments')
+        .select(`
+          id, content, anchor_text, position_pct, created_at, parent_id,
+          parent:parent_id (
+            content,
+            anchor_text,
+            user:users (nickname, avatar_url)
+          ),
+          group_book:group_books (id, group:groups (name, id), book:books (title, cover_url, isbn))
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .range(from, to),
+      client
+        .from('reviews')
+        .select(`
+          id, content, rating, created_at, group_book_id,
+          group_book:group_books (id, group:groups (name, id), book:books (title, cover_url, isbn))
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .range(from, to)
     ])
 
     const nc = (cd || []).map((c: any) => {
-      const p = Array.isArray(c.parent) ? c.parent[0] : c.parent
+      const parent = Array.isArray(c.parent) ? c.parent[0] : c.parent
       let pd = null
-      if (p) pd = { nickname: (Array.isArray(p.user) ? p.user[0] : p.user)?.nickname || '알 수 없는 사용자', content: p.content, anchor_text: p.anchor_text }
-      return { type: 'comment', id: c.id, created_at: c.created_at, content: c.content, anchor_text: c.anchor_text, position_pct: c.position_pct, isReply: !!c.parent_id, parentData: pd, groupId: c.group_book?.group?.id, groupName: c.group_book?.group?.name, bookTitle: c.group_book?.book?.title, bookCover: c.group_book?.book?.cover_url, groupBookId: c.group_book?.id }
+      if (parent) {
+        const pu = Array.isArray(parent.user) ? parent.user[0] : parent.user
+        pd = {
+          nickname: pu?.nickname || '알 수 없는 사용자',
+          avatar_url: pu?.avatar_url,
+          content: parent.content || '내용 없음',
+          anchor_text: parent.anchor_text
+        }
+      }
+      return { 
+        type: 'comment', 
+        id: c.id, 
+        created_at: c.created_at, 
+        content: c.content, 
+        anchor_text: c.anchor_text, 
+        position_pct: c.position_pct, 
+        isReply: !!c.parent_id, 
+        parentData: pd, 
+        groupId: c.group_book?.group?.id, 
+        groupName: c.group_book?.group?.name, 
+        bookTitle: c.group_book?.book?.title, 
+        bookCover: c.group_book?.book?.cover_url, 
+        groupBookId: c.group_book?.id 
+      }
     })
 
     const nr = (rd || []).map((r: any) => ({ type: 'review', id: r.id, created_at: r.created_at, content: r.content, rating: r.rating, groupId: r.group_book?.group?.id, groupName: r.group_book?.group?.name, bookTitle: r.group_book?.book?.title, bookCover: r.group_book?.book?.cover_url, groupBookId: r.group_book?.id }))
@@ -1300,7 +1351,7 @@ const saveGoal = async () => {
   const userId = userStore.profile?.id || userStore.user?.id
   if (!userId) return
   try {
-    const { error } = await client.from('users').update({ yearly_reading_goal: tempGoal.value }).eq('id', userId)
+    const { error = null } = await client.from('users').update({ yearly_reading_goal: tempGoal.value }).eq('id', userId)
     if (error) throw error
     yearlyGoal.value = tempGoal.value; editingGoal.value = false
     toast.success('목표가 저장되었습니다')
@@ -1337,7 +1388,7 @@ const calculateStreakFromData = (commentsData: any[], reviewsData: any[]) => {
     const yesterdayStr = getLocalDateString(yesterday)
     if (uniqueDates[0] !== today && uniqueDates[0] !== yesterdayStr) return 0
     let streak = 1
-    for (let i = 1; i < uniqueDates.length; i++) {
+    for (let i = 1; i < dates.length; i++) {
       const diffDays = Math.floor((new Date(dates[i - 1]).getTime() - new Date(dates[i]).getTime()) / 86400000)
       if (diffDays === 1) streak++ 
       else break

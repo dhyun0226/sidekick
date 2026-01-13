@@ -155,7 +155,7 @@
                     {{ chapter.page }}쪽
                   </span>
                   <span 
-                    class="text-[9px] font-mono font-bold text-zinc-400"
+                    class="text-[9px] font-bold text-zinc-400"
                   >
                     {{ Math.round(chapter.start) }}%
                   </span>

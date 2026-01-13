@@ -156,7 +156,7 @@
 
                 <!-- Chapter Count -->
                 <td class="px-6 py-4 text-center">
-                  <span class="text-sm font-mono text-zinc-700 dark:text-zinc-300">
+                  <span class="text-sm text-zinc-700 dark:text-zinc-300">
                     {{ getChapterCount(book) }}
                   </span>
                 </td>
@@ -236,7 +236,7 @@
                       <span class="text-zinc-700 dark:text-zinc-300 flex-1 truncate">
                         <span class="text-zinc-400 mr-2">{{ idx + 1 }}.</span>{{ chapter.title }}
                       </span>
-                      <span class="text-zinc-500 text-xs ml-4 font-mono">{{ chapter.start.toFixed(0) }}% ~ {{ chapter.end.toFixed(0) }}%</span>
+                      <span class="text-zinc-500 text-xs ml-4">{{ chapter.start.toFixed(0) }}% ~ {{ chapter.end.toFixed(0) }}%</span>
                     </div>
                   </div>
                 </td>

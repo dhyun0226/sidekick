@@ -7,7 +7,7 @@
       </div>
       <div class="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800">
       <div class="flex items-center gap-2 mb-3">
-        <div class="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg py-2 px-3 text-center font-mono font-bold text-lg text-zinc-800 dark:text-zinc-200 tracking-widest border border-zinc-200 dark:border-zinc-700">
+        <div class="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg py-2 px-3 text-center font-bold text-lg text-zinc-800 dark:text-zinc-200 tracking-widest border border-zinc-200 dark:border-zinc-700">
           {{ inviteCode }}
         </div>
         <button @click="emit('copyInviteCode')" class="p-2.5 bg-zinc-900 dark:bg-zinc-700 text-white rounded-lg hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-colors">

@@ -125,7 +125,7 @@
 
               <!-- Group Count -->
               <td class="px-6 py-4 text-center">
-                <span class="text-sm font-mono text-zinc-700 dark:text-zinc-300">
+                <span class="text-sm text-zinc-700 dark:text-zinc-300">
                   {{ user.group_count || 0 }}개
                 </span>
               </td>

@@ -202,7 +202,7 @@
               >
                 <!-- Order ID -->
                 <td class="px-6 py-4">
-                  <span class="text-xs font-mono text-zinc-600 dark:text-zinc-400">{{ payment.order_id.substring(0, 20) }}...</span>
+                  <span class="text-xs text-zinc-600 dark:text-zinc-400">{{ payment.order_id.substring(0, 20) }}...</span>
                 </td>
 
                 <!-- User -->

@@ -11,7 +11,7 @@
 
       <!-- Minimal Header -->
       <div class="flex items-baseline gap-2 mb-3 -mt-1.5">
-        <span class="text-sm font-black text-lime-600 dark:text-lime-500 font-mono">
+        <span class="text-sm font-black text-lime-600 dark:text-lime-500">
           {{ Math.round(group.position) }}%
         </span>
         <span class="text-[10px] text-zinc-400 dark:text-zinc-600 font-bold tracking-wider">

@@ -100,7 +100,7 @@
             class="absolute -top-16 left-0 -ml-8 bg-zinc-900 dark:bg-white text-white dark:text-black px-4 py-2 rounded-2xl shadow-xl flex flex-col items-center min-w-[64px] animate-in fade-in slide-in-from-bottom-2 duration-200"
             :style="{ left: `${currentPct}%` }"
           >
-            <span class="text-sm font-black font-mono leading-none">{{ Math.round(currentPct) }}%</span>
+            <span class="text-sm font-black leading-none">{{ Math.round(currentPct) }}%</span>
             <span v-if="currentPage" class="text-[10px] font-medium opacity-80 leading-none mt-1">p.{{ currentPage }}</span>
             <!-- Arrow -->
             <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-900 dark:bg-white rotate-45"></div>
