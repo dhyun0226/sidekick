@@ -199,7 +199,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Check, X, Users, TrendingUp, BookOpen, AlertCircle, Crown, Sparkles } from 'lucide-vue-next'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
@@ -219,7 +219,7 @@ const paying = ref(false)
 const payingMonthly = ref(false)
 const payingYearly = ref(false)
 const showCancelConfirm = ref(false)
-const showPwaNotice = ref(false) // PWA 안내 상태
+const showPwaNotice = ref(false)
 const canceling = ref(false)
 
 const isStandalone = computed(() => {
@@ -228,7 +228,26 @@ const isStandalone = computed(() => {
 })
 
 onMounted(async () => {
-...
+  await userStore.fetchProfile()
+  await fetchCurrentSubscription()
+})
+
+const fetchCurrentSubscription = async () => {
+  if (!userStore.profile?.id) return
+  try {
+    const { data, error } = await client
+      .from('subscriptions')
+      .select('*, plan:subscription_plans(*)')
+      .eq('user_id', userStore.profile.id)
+      .eq('status', 'active')
+      .maybeSingle()
+    if (error) throw error
+    currentSubscription.value = data
+  } catch (error) {
+    console.error('[Subscription] Error:', error)
+  }
+}
+
 const startPayment = async (planName: string) => {
   if (!userStore.profile) { toast.error('로그인이 필요합니다.'); return }
 
@@ -239,12 +258,35 @@ const startPayment = async (planName: string) => {
   }
 
   const isMonthly = planName === 'premium_monthly'
-...
+  if (isMonthly) payingMonthly.value = true; else payingYearly.value = true
+  paying.value = true
+  try {
+    const { data: plan } = await client.from('subscription_plans').select('*').eq('name', planName).eq('is_active', true).single()
+    if (!plan) throw new Error('플랜을 찾을 수 없습니다.')
+    const orderResponse = await $fetch('/api/payments/create-order', { method: 'POST', body: { planId: plan.id, amount: plan.price } })
+    const clientKey = useRuntimeConfig().public.tossClientKey
+    const tossPayments = await loadTossPayments(clientKey)
+    const orderName = plan.billing_period === 'yearly' ? 'Sidekick 프리미엄 (연간)' : 'Sidekick 프리미엄 (월간)'
+    await tossPayments.requestPayment('카드', {
+      amount: plan.price,
+      orderId: orderResponse.orderId,
+      orderName,
+      customerName: userStore.profile.nickname || userStore.profile.username,
+      customerEmail: userStore.profile.email,
+      successUrl: `${window.location.origin}/payment/success`,
+      failUrl: `${window.location.origin}/payment/fail`
+    })
+  } catch (error: any) {
+    toast.error(error.data?.message || '결제 요청 중 오류가 발생했습니다.')
+  } finally {
+    paying.value = false; payingMonthly.value = false; payingYearly.value = false
+  }
+}
+
 const handleCancelClick = () => { showCancelConfirm.value = true }
 
 const handleOpenBrowser = () => {
   const url = window.location.origin + '/subscription'
-  // 🎯 _blank로 열면 일부 OS에서는 시스템 브라우저를 호출합니다.
   window.open(url, '_blank')
   showPwaNotice.value = false
   toast.info('브라우저가 열리지 않는다면 주소를 복사해 주세요.')
