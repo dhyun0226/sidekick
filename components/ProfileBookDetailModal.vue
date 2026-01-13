@@ -19,15 +19,20 @@
             </div>
             <div class="flex-1 min-w-0 flex flex-col pt-0.5">
               <h2 class="text-lg font-bold text-zinc-900 dark:text-white line-clamp-2 leading-tight mb-2 tracking-tight">{{ book.title }}</h2>
-              <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-3">{{ book.author }}</p>
+              <div class="flex flex-wrap items-center gap-1.5 mb-3 text-sm text-zinc-500 dark:text-zinc-400">
+                <span class="font-medium">{{ book.author }}</span>
+                <template v-if="book.publisher || book.total_pages">
+                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span v-if="book.publisher" class="truncate max-w-[120px]">{{ book.publisher }}</span>
+                  <span v-if="book.publisher && book.total_pages" class="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span v-if="book.total_pages">{{ book.total_pages }}p</span>
+                </template>
+              </div>
 
-              <div class="flex flex-wrap items-center gap-2">
+              <div class="flex items-center gap-2 mb-2 flex-wrap">
                 <GenreBadge v-if="book.genre" :genre="book.genre" />
-                <div v-if="book.myRating" class="flex items-center gap-1 px-2 py-0.5 bg-yellow-50 dark:bg-yellow-500/10 rounded-full border border-yellow-100 dark:border-yellow-500/20">
-                  <Star :size="10" fill="currentColor" class="text-yellow-500" />
-                  <span class="text-[10px] font-black text-yellow-700 dark:text-yellow-500">{{ book.myRating }}</span>
-                </div>
-                <Badge v-if="book.finished_at" variant="lime" size="sm">
+                <RatingBadge v-if="book.myRating" :rating="book.myRating" />
+                <Badge v-if="book.finished_at" variant="lime">
                   {{ formatCompletionDate(book.finished_at) }} 완독
                 </Badge>
               </div>
@@ -97,9 +102,6 @@
                     </template>
                     <Badge v-else variant="lime" size="sm">
                       {{ Math.round(item.position_pct) }}%
-                    </Badge>
-                    <Badge v-if="item.isReply" variant="secondary" size="sm" class="bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border-none">
-                      답글
                     </Badge>
                   </div>
                 </div>

@@ -729,9 +729,6 @@
               <span v-else class="text-lime-600 dark:text-lime-400 font-bold">
                 {{ Math.round(item.position_pct) }}%
               </span>
-              <Badge v-if="item.isReply" variant="secondary" size="sm" class="bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border-none">
-                답글
-              </Badge>
             </div>
 
             <!-- Reply Context (Parent Comment) -->
