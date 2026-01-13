@@ -3,7 +3,7 @@
     <!-- Bell Icon -->
     <button 
       @click="toggleOpen" 
-      class="relative w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-lime-500 dark:hover:text-lime-400 hover:border-lime-200 transition-all shadow-sm active:scale-95"
+      class="relative w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-lime-500 dark:hover:text-lime-400 hover:border-lime-200 transition-all shadow-sm active:scale-95 z-[100015]"
     >
       <Bell :size="20" />
       <span v-if="unreadCount > 0" class="absolute top-2.5 right-2.5 flex h-2 w-2">
@@ -12,8 +12,14 @@
       </span>
     </button>
 
+    <!-- Global Backdrop -->
+    <div v-if="isOpen" class="fixed inset-0 z-[100005]" @click="isOpen = false"></div>
+
     <!-- Dropdown Modal -->
-    <div v-if="isOpen" class="absolute right-0 top-12 w-[340px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+    <div 
+      v-if="isOpen" 
+      class="absolute right-0 top-12 w-[340px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl z-[100010] overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right"
+    >
       <!-- Header -->
       <div class="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
         <div>
@@ -28,7 +34,7 @@
       </div>
 
       <!-- Content Area -->
-      <div class="max-h-[420px] overflow-y-auto custom-scrollbar">
+      <div class="max-h-[420px] overflow-y-auto custom-scrollbar overscroll-contain">
         <div v-if="loading" class="p-12 text-center">
           <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
           <p class="text-xs text-zinc-500 font-medium">알림을 불러오고 있어요</p>
@@ -88,12 +94,7 @@
       </div>
     </div>
 
-    <!-- Global Backdrop -->
-    <Teleport to="body">
-      <div v-if="isOpen" class="fixed inset-0 z-[100005]" @click="isOpen = false"></div>
-    </Teleport>
-
-    <!-- Delete All Modal -->
+    <!-- Delete All Confirmation Modal -->
     <ConfirmModal
       :isOpen="showDeleteAllModal"
       title="모든 알림 삭제"
@@ -103,13 +104,13 @@
       cancelText="취소"
       variant="danger"
       @confirm="executeDeleteAll"
-      @cancel="cancelDeleteAll"
+      @cancel="showDeleteAllModal = false"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Bell, MessageCircle, Heart, Info, X, Trash2, BookOpen, UserPlus, CheckCircle2 } from 'lucide-vue-next'
 import ConfirmModal from './ConfirmModal.vue'
@@ -123,6 +124,17 @@ const isOpen = ref(false)
 const loading = ref(false)
 const notifications = ref<any[]>([])
 const showDeleteAllModal = ref(false)
+
+// Prevent background scroll when modal is open
+watch(isOpen, (val) => {
+  if (typeof document !== 'undefined') {
+    if (val) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  }
+})
 
 const unreadCount = computed(() => notifications.value.filter(n => !n.is_read).length)
 
@@ -148,7 +160,6 @@ const fetchNotifications = async () => {
     if (error) throw error
 
     if (data && data.length > 0) {
-      // Fetch group names for source_ids
       const groupIds = [...new Set(data.map(n => n.source_id).filter(id => id))]
       if (groupIds.length > 0) {
         const { data: groupsData } = await client.from('groups').select('id, name').in('id', groupIds)
@@ -171,51 +182,53 @@ const fetchNotifications = async () => {
 }
 
 const markAllRead = async () => {
-
   const { data: { user } } = await client.auth.getUser()
-
   if (!user) return
 
+  try {
+    const { error } = await client
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', user.id)
+      .eq('is_read', false)
 
-
-  const { error } = await client
-
-    .from('notifications')
-
-    .update({ is_read: true })
-
-    .eq('user_id', user.id)
-
-    .eq('is_read', false)
-
-
-
-  if (!error) {
-
+    if (error) throw error
+    
     notifications.value.forEach(n => n.is_read = true)
-
+    toast.success('모든 알림을 읽음 처리했습니다.')
+    isOpen.value = false // Close modal after action
+  } catch (err) {
+    console.error('Mark all read error:', err)
+    toast.error('알림 읽음 처리에 실패했습니다.')
   }
-
 }
-
-
-
-
 
 const handleNotificationClick = async (noti: any) => {
   if (!noti.is_read) {
     await client.from('notifications').update({ is_read: true }).eq('id', noti.id)
     noti.is_read = true
   }
-  if (noti.link) { isOpen.value = false; router.push(noti.link) }
+  if (noti.link) {
+    isOpen.value = false
+    router.push(noti.link)
+  }
 }
 
 const deleteNotification = async (notiId: string) => {
-  const { error } = await client.from('notifications').delete().eq('id', notiId)
-  if (!error) { notifications.value = notifications.value.filter(n => n.id !== notiId) }
+  try {
+    const { error } = await client.from('notifications').delete().eq('id', notiId)
+    if (error) throw error
+    notifications.value = notifications.value.filter(n => n.id !== notiId)
+  } catch (err) {
+    toast.error('알림 삭제 실패')
+  }
 }
 
-const deleteAll = () => { showDeleteAllModal.value = true }
+const deleteAll = () => {
+  if (notifications.value.length === 0) return
+  showDeleteAllModal.value = true
+}
+
 const executeDeleteAll = async () => {
   const { data: { user } } = await client.auth.getUser()
   if (!user) return
@@ -224,41 +237,12 @@ const executeDeleteAll = async () => {
     if (error) throw error
     notifications.value = []
     toast.success('모든 알림이 삭제되었습니다.')
-  } catch (error) { toast.error('알림 삭제에 실패했습니다.') }
-  finally { showDeleteAllModal.value = false }
-}
-const cancelDeleteAll = () => { showDeleteAllModal.value = false }
-
-const getIconComponent = (type: string) => {
-  switch (type) {
-    case 'reply': return MessageCircle
-    case 'reaction': return Heart
-    case 'book_added': return BookOpen
-    case 'member_join': return UserPlus
-    case 'completion': return CheckCircle2
-    default: return Info
-  }
-}
-
-const getIconBgClass = (type: string) => {
-  switch (type) {
-    case 'reply': return 'bg-blue-50 dark:bg-blue-900/20';
-    case 'reaction': return 'bg-red-50 dark:bg-red-900/20';
-    case 'book_added': return 'bg-lime-50 dark:bg-lime-900/20';
-    case 'member_join': return 'bg-purple-50 dark:bg-purple-900/20';
-    case 'completion': return 'bg-emerald-50 dark:bg-emerald-900/20';
-    default: return 'bg-zinc-50 dark:bg-zinc-800'
-  }
-}
-
-const getIconColorClass = (type: string) => {
-  switch (type) {
-    case 'reply': return 'text-blue-500';
-    case 'reaction': return 'text-red-500';
-    case 'book_added': return 'text-lime-500';
-    case 'member_join': return 'text-purple-500';
-    case 'completion': return 'text-emerald-500';
-    default: return 'text-zinc-400'
+    isOpen.value = false // Close modal after action
+  } catch (error) {
+    console.error('Delete all notifications error:', error)
+    toast.error('알림 삭제에 실패했습니다.')
+  } finally {
+    showDeleteAllModal.value = false
   }
 }
 
@@ -274,7 +258,10 @@ const formatTimeAgo = (dateStr: string) => {
   if (hours < 24) return `${hours}시간 전`
   if (days < 7) return `${days}일 전`
   const date = new Date(dateStr)
-  return `${String(date.getFullYear()).slice(-2)}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
+  const y = String(date.getFullYear()).slice(-2)
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}.${m}.${d}`
 }
 
 onMounted(async () => {
