@@ -170,19 +170,6 @@
       </div>
     </div>
 
-    <!-- PWA Standalone Notice Modal -->
-    <ConfirmModal
-      :isOpen="showPwaNotice"
-      title="브라우저에서 결제 진행"
-      message="현재 '홈 화면' 앱 모드에서는 결제 보안상 제약이 발생할 수 있습니다."
-      description="아래 버튼을 눌러 브라우저로 이동하거나, 주소를 복사하여 사파리/크롬에 붙여넣어 주세요."
-      confirmText="브라우저 열기 시도"
-      cancelText="주소만 복사"
-      variant="warning"
-      @confirm="handleOpenBrowser"
-      @cancel="handleCopyLinkOnly"
-    />
-
     <!-- Cancel Subscription Confirmation Modal -->
     <ConfirmModal
       :isOpen="showCancelConfirm"
@@ -199,7 +186,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Check, X, Users, TrendingUp, BookOpen, AlertCircle, Crown, Sparkles } from 'lucide-vue-next'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
@@ -219,13 +206,7 @@ const paying = ref(false)
 const payingMonthly = ref(false)
 const payingYearly = ref(false)
 const showCancelConfirm = ref(false)
-const showPwaNotice = ref(false)
 const canceling = ref(false)
-
-const isStandalone = computed(() => {
-  if (typeof window === 'undefined') return false
-  return window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone
-})
 
 onMounted(async () => {
   await userStore.fetchProfile()
@@ -250,13 +231,7 @@ const fetchCurrentSubscription = async () => {
 
 const startPayment = async (planName: string) => {
   if (!userStore.profile) { toast.error('로그인이 필요합니다.'); return }
-
-  // 🎯 PWA 환경 체크 및 안내
-  if (isStandalone.value) {
-    showPwaNotice.value = true
-    return
-  }
-
+  
   const isMonthly = planName === 'premium_monthly'
   if (isMonthly) payingMonthly.value = true; else payingYearly.value = true
   paying.value = true
@@ -284,24 +259,6 @@ const startPayment = async (planName: string) => {
 }
 
 const handleCancelClick = () => { showCancelConfirm.value = true }
-
-const handleOpenBrowser = () => {
-  const url = window.location.origin + '/subscription'
-  window.open(url, '_blank')
-  showPwaNotice.value = false
-  toast.info('브라우저가 열리지 않는다면 주소를 복사해 주세요.')
-}
-
-const handleCopyLinkOnly = async () => {
-  try {
-    await navigator.clipboard.writeText(window.location.origin + '/subscription')
-    toast.success('주소가 복사되었습니다! 사파리나 크롬에 붙여넣어 주세요. 📋')
-    showPwaNotice.value = false
-  } catch (err) {
-    toast.error('주소 복사에 실패했습니다.')
-  }
-}
-
 const confirmCancelSubscription = async () => {
   showCancelConfirm.value = false; canceling.value = true
   try {
