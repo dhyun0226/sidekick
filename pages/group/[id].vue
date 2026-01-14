@@ -42,21 +42,34 @@
 
       <!-- Timeline Content (Flows naturally) -->
       <div class="px-safe max-w-[480px] mx-auto min-h-[50vh] pb-[200px]">
-        <!-- 책이 없을 때 Empty State (기존 유지) -->
+        <!-- 책이 없을 때 Empty State (개선된 온보딩) -->
         <div v-if="!selectedBook" class="flex flex-col items-center justify-center pt-32 px-4">
-          <div class="w-24 h-24 bg-gradient-to-br from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner">
-            <span class="text-5xl">📚</span>
+          <div class="w-24 h-24 bg-gradient-to-br from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner text-5xl">
+            📚
           </div>
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">함께 읽을 책을 정해주세요</h2>
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+            {{ isAdmin ? '함께 읽을 책을 정해주세요' : '읽을 책을 기다리고 있어요' }}
+          </h2>
           <p class="text-sm text-zinc-500 dark:text-zinc-400 text-center mb-8 max-w-xs leading-relaxed">
-            오른쪽 상단 메뉴에서<br />"새 책 시작하기"를 눌러보세요!
+            {{ isAdmin ? '어떤 책으로 시작해볼까요?\n새로운 책을 검색해서 등록해보세요!' : '관리자가 책을 등록하면\n함께 독서를 시작할 수 있습니다.' }}
           </p>
+          
           <button
-            @click="modals.drawer = true"
-            class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center gap-2"
+            v-if="isAdmin"
+            @click="openSearchModal"
+            class="px-8 py-4 bg-lime-400 text-black font-extrabold rounded-2xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center gap-2 active:scale-95"
           >
-            <Menu :size="20" />
-            메뉴 열기
+            <Plus :size="20" stroke-width="3" />
+            새 책 시작하기
+          </button>
+          
+          <button
+            v-else
+            @click="modals.drawer = true"
+            class="px-6 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-xl hover:bg-zinc-200 transition-all flex items-center gap-2"
+          >
+            <Menu :size="18" />
+            그룹 메뉴 보기
           </button>
         </div>
 

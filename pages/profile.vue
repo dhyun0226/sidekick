@@ -519,22 +519,28 @@ const saveGoal = async () => {
 }
 
 const handleFileChange = async (file: File) => {
+  const userId = userStore.profile?.id || userStore.user?.id
+  if (!userId) { toast.error('사용자 정보를 찾을 수 없습니다'); return }
+
   isSaving.value = true
   try {
-    const uid = userStore.user!.id, ext = file.name.split('.').pop(), path = `${uid}/${Date.now()}.${ext}`
+    const ext = file.name.split('.').pop(), path = `${userId}/${Date.now()}.${ext}`
     const { error: ue } = await client.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type })
     if (ue) throw ue
     const { data: { publicUrl: url } } = client.storage.from('avatars').getPublicUrl(path)
-    const { error: de } = await client.from('users').update({ avatar_url: url }).eq('id', uid)
+    const { error: de } = await client.from('users').update({ avatar_url: url }).eq('id', userId)
     if (de) throw de
     await userStore.fetchProfile(true); toast.success('프로필 사진 변경 완료!')
   } catch (err) { toast.error('사진 업로드 실패') } finally { isSaving.value = false }
 }
 
 const saveProfile = async (nickname: string) => {
+  const userId = userStore.profile?.id || userStore.user?.id
+  if (!userId) { toast.error('사용자 정보를 찾을 수 없습니다'); return }
+
   isSaving.value = true
   try {
-    const { error } = await client.from('users').update({ nickname: nickname.trim() }).eq('id', userStore.user!.id)
+    const { error } = await client.from('users').update({ nickname: nickname.trim() }).eq('id', userId)
     if (error) throw error
     await userStore.fetchProfile(true); toast.success('닉네임 변경 완료!'); settingsModalOpen.value = false
   } catch (err) { toast.error('저장 실패') } finally { isSaving.value = false }

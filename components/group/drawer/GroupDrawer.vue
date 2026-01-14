@@ -180,14 +180,8 @@ const activeTab = ref<'info' | 'members' | 'bookshelf' | 'settings'>('info')
 watch(() => props.isOpen, (isOpen) => {
   if (isOpen) {
     document.body.style.overflow = 'hidden'
-
-    // If no book, open settings tab (has "add book" button)
-    // Otherwise, open info tab
-    if (!props.currentBook) {
-      activeTab.value = 'settings'
-    } else {
-      activeTab.value = 'info'
-    }
+    // Always default to 'info' tab when opened
+    activeTab.value = 'info'
   } else {
     document.body.style.overflow = ''
   }
