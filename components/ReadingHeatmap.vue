@@ -127,7 +127,11 @@
       >
         <div v-if="day.activities?.length > 0" class="absolute inset-0 z-0 text-left">
           <img v-if="getLatestCover(day.activities)" :src="getLatestCover(day.activities)" class="w-full h-full object-cover opacity-100 transition-opacity" />
-          <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+          <div v-else class="w-full h-full bg-lime-50/30 dark:bg-lime-900/10">
+            <!-- Dot positioned at bottom center -->
+            <div class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-lime-500 dark:bg-lime-400"></div>
+          </div>
+          <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" v-if="getLatestCover(day.activities)"></div>
           <div v-if="getUniqueBookCount(day.activities) > 1" class="absolute bottom-1 right-1 z-20 px-1 py-0.5 bg-black/40 backdrop-blur-sm rounded text-[8px] font-black text-white leading-none border border-white/10">+{{ getUniqueBookCount(day.activities) - 1 }}</div>
         </div>
         <span v-if="day.date" class="text-[10px] z-10" :class="{'text-zinc-400 dark:text-zinc-600': !day.isCurrentMonth, 'text-zinc-700 dark:text-zinc-300': day.isCurrentMonth && day.count === 0, 'text-white dark:text-white font-black drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]': day.count > 0}">{{ day.dayNumber }}</span>
@@ -166,7 +170,7 @@
       </div>
       <div class="text-left border-l border-zinc-100 dark:border-zinc-800/50 pl-4">
         <p class="text-[10px] font-black text-zinc-400 uppercase tracking-tighter mb-1">최장 연속</p>
-        <p class="text-lg font-black text-lime-600 dark:text-lime-400 leading-none">{{ longestStreak || 0 }}일</p>
+        <p class="text-lg font-black text-lime-600 dark:text-lime-400 leading-none">{{ currentStats.longestStreak }}일</p>
       </div>
     </div>
   </div>
@@ -181,6 +185,7 @@ const props = defineProps<{
   currentStreak?: number
   longestStreak?: number
   finishedBooks?: any[] // Array of books with finished_at date
+  includeComments?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -237,9 +242,32 @@ const currentStats = computed(() => {
     }
   })
 
+  // Calculate Longest Streak within filtered activities
+  let longest = 0
+  if (filteredActivities.length > 0) {
+    const dates = [...new Set(filteredActivities.map(a => getLocalDateString(new Date(a.created_at))))].sort()
+    let currentStreak = 1
+    longest = 1
+    
+    for (let i = 1; i < dates.length; i++) {
+      const prev = new Date(dates[i-1])
+      const curr = new Date(dates[i])
+      const diff = Math.floor((curr.getTime() - prev.getTime()) / 86400000)
+      
+      if (diff === 1) {
+        currentStreak++
+      } else {
+        longest = Math.max(longest, currentStreak)
+        currentStreak = 1
+      }
+    }
+    longest = Math.max(longest, currentStreak)
+  }
+
   return {
     activities: filteredActivities.length,
-    books: filteredBooks.length
+    books: filteredBooks.length,
+    longestStreak: longest
   }
 })
 
@@ -294,18 +322,37 @@ const getMonthClass = (monthData: any) => {
 
 const getLatestCover = (activities: any[]) => {
   if (!activities || activities.length === 0) return null
-  const reviews = activities.filter(a => a.type === 'review' && a.bookCover)
+  
+  // Filter activities based on settings
+  let candidates = activities
+  if (props.includeComments === false) {
+    candidates = activities.filter(a => a.type === 'review')
+  }
+
+  if (candidates.length === 0) return null
+
+  // Prioritize Reviews even if comments are included
+  const reviews = candidates.filter(a => a.type === 'review' && a.bookCover)
   if (reviews.length > 0) return reviews[0].bookCover
+
+  // Otherwise, find most frequent cover
   const counts: Record<string, number> = {}
-  activities.forEach(a => { if (a.bookCover) counts[a.bookCover] = (counts[a.bookCover] || 0) + 1 })
+  candidates.forEach(a => { if (a.bookCover) counts[a.bookCover] = (counts[a.bookCover] || 0) + 1 })
   let mf = '', max = 0
   for (const [c, cnt] of Object.entries(counts)) { if (cnt > max) { max = cnt; mf = c } }
-  return mf || activities.find(a => a.bookCover)?.bookCover || null
+  return mf || candidates.find(a => a.bookCover)?.bookCover || null
 }
 
 const getUniqueBookCount = (activities: any[]) => {
   if (!activities || activities.length === 0) return 0
-  const covers = activities.filter(a => a.bookCover).map(a => a.bookCover)
+  
+  // Filter activities based on settings
+  let candidates = activities
+  if (props.includeComments === false) {
+    candidates = activities.filter(a => a.type === 'review')
+  }
+  
+  const covers = candidates.filter(a => a.bookCover).map(a => a.bookCover)
   return new Set(covers).size
 }
 

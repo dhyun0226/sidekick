@@ -47,7 +47,65 @@
           </div>
         </section>
 
-        <!-- App Settings -->
+        <!-- Display Settings -->
+        <section>
+          <div class="flex items-center justify-between mb-4 px-1">
+            <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">화면 설정</h4>
+          </div>
+          <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50 divide-y divide-zinc-100 dark:divide-zinc-800">
+            <!-- Library View Mode -->
+            <div class="p-4 space-y-3">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                  <LayoutGrid :size="16" />
+                </div>
+                <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">서재 보기</span>
+              </div>
+              <div class="flex p-1 bg-zinc-200 dark:bg-zinc-700/50 rounded-xl">
+                <button 
+                  v-for="mode in (['year', 'month'] as const)" 
+                  :key="mode"
+                  @click="appSettings.library_view_mode = mode"
+                  class="flex-1 py-2 text-xs font-bold rounded-lg transition-all"
+                  :class="appSettings.library_view_mode === mode ? 'bg-white dark:bg-zinc-600 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'"
+                >
+                  {{ mode === 'year' ? '연도별' : '월별' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Calendar Cover Settings -->
+            <div class="p-4 space-y-3">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                  <Calendar :size="16" />
+                </div>
+                <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">캘린더 표지</span>
+              </div>
+              <div class="flex p-1 bg-zinc-200 dark:bg-zinc-700/50 rounded-xl">
+                <button 
+                  @click="appSettings.calendar_include_comments = true"
+                  class="flex-1 py-2 text-xs font-bold rounded-lg transition-all"
+                  :class="appSettings.calendar_include_comments ? 'bg-white dark:bg-zinc-600 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'"
+                >
+                  모두
+                </button>
+                <button 
+                  @click="appSettings.calendar_include_comments = false"
+                  class="flex-1 py-2 text-xs font-bold rounded-lg transition-all"
+                  :class="!appSettings.calendar_include_comments ? 'bg-white dark:bg-zinc-600 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'"
+                >
+                  리뷰만
+                </button>
+              </div>
+              <p class="text-[10px] text-zinc-400 px-1">
+                {{ appSettings.calendar_include_comments ? '코멘트와 리뷰를 남긴 날에 표지가 표시됩니다.' : '리뷰를 남긴 날에만 표지가 표시됩니다.' }}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- App Settings (Theme & Notification) -->
         <section>
           <div class="flex items-center justify-between mb-4 px-1">
             <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">앱 설정</h4>
@@ -102,10 +160,10 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { X, User as UserIcon, Camera, Save, LogOut, Trash2, Moon, Sun, Bell } from 'lucide-vue-next'
+import { X, User as UserIcon, Camera, Save, LogOut, Trash2, Moon, Sun, Bell, LayoutGrid, Calendar } from 'lucide-vue-next'
 
 const props = defineProps<{
-  isOpen: boolean, profile: any, notificationSettings: any, isSaving: boolean
+  isOpen: boolean, profile: any, notificationSettings: any, appSettings: any, isSaving: boolean
 }>()
 
 const emit = defineEmits(['close', 'save-profile', 'handle-file', 'sign-out', 'delete-account', 'toggle-theme'])

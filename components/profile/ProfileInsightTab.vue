@@ -75,6 +75,7 @@
       :currentStreak="currentStreak"
       :longestStreak="longestStreak"
       :finishedBooks="finishedBooks"
+      :include-comments="includeComments"
       @day-click="(day) => $emit('day-click', day)"
       @year-change="(year) => $emit('year-change', year)"
     />
@@ -89,7 +90,8 @@ defineProps<{
   timeline: any[], isGoalAchieved: boolean, lastYearBooks: number, yearOverYearGrowth: number, editingGoal: boolean, tempGoal: number,
   thisYearBooks: number, yearlyGoal: number, daysLeftInYear: number, booksNeededPerMonth: number | string, onTrack: boolean,
   monthlyProgress: any[], maxMonthlyCount: number, currentStreak: number, longestStreak: number, thisMonthBooks: number, thisMonthComments: number,
-  finishedBooks: any[]
+  finishedBooks: any[],
+  includeComments: boolean
 }>()
 
 defineEmits(['start-edit-goal', 'update:tempGoal', 'save-goal', 'cancel-edit-goal', 'day-click', 'year-change'])

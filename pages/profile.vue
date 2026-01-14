@@ -20,13 +20,12 @@
         <button
           v-for="t in (['library', 'timeline', 'insight'] as const)"
           :key="t"
-          @click="t === 'insight' ? handleInsightTabClick() : activeTab = t"
+          @click="activeTab = t; t === 'insight' ? handleInsightTabClick() : null"
           class="flex-1 py-3 text-sm font-bold transition-colors relative text-center"
           :class="activeTab === t ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
         >
           <span class="flex items-center justify-center gap-1">
             {{ t === 'library' ? '서재' : t === 'timeline' ? '기록' : '분석' }}
-            <Lock v-if="t === 'insight' && !isPremium" :size="12" class="text-zinc-400" />
           </span>
           <div v-if="activeTab === t" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
         </button>
@@ -39,7 +38,7 @@
         v-if="activeTab === 'library'"
         :library="library"
         :reading-books="readingBooks"
-        :library-by-year="libraryByYear"
+        :library-groups="libraryByYear"
         :loading="loading"
         @open-book="openBookDetail"
       />
@@ -76,6 +75,7 @@
         :this-month-books="thisMonthBooks"
         :this-month-comments="thisMonthComments"
         :finishedBooks="finishedLibrary"
+        :include-comments="appSettings.calendar_include_comments"
         @start-edit-goal="startEditGoal"
         @save-goal="saveGoal"
         @cancel-edit-goal="cancelEditGoal"
@@ -90,6 +90,7 @@
       :is-open="settingsModalOpen"
       :profile="userStore.profile"
       :notification-settings="notificationSettings"
+      :app-settings="appSettings"
       :is-saving="isSaving"
       @close="settingsModalOpen = false"
       @handle-file="handleFileChange"
@@ -182,6 +183,7 @@ const loading = ref(true)
 const timeline = ref<any[]>([])
 const library = ref<any[]>([])
 const stats = ref({ books: 0, comments: 0, streak: 0, groups: 0 })
+const longestStreak = ref(0)
 
 // Pagination & Totals
 const timelineOffset = ref(0)
@@ -203,6 +205,7 @@ const upgradeInsightOpen = ref(false)
 
 // Data State
 const notificationSettings = ref({ comment_reply: true, reaction: true, member_join: true, completion: true, book_added: true })
+const appSettings = ref({ library_view_mode: 'year', calendar_include_comments: true })
 const yearlyGoal = ref(50), editingGoal = ref(false), tempGoal = ref(50)
 const isSaving = ref(false)
 
@@ -210,13 +213,19 @@ const isSaving = ref(false)
 const readingBooks = computed(() => library.value.filter(book => !book.finished_at))
 const finishedLibrary = computed(() => library.value.filter(book => book.finished_at))
 const libraryByYear = computed(() => {
-  const grouped: Record<number, any[]> = {}
-  library.value.filter(book => book.finished_at).forEach(book => {
-    const year = new Date(book.finished_at!).getFullYear()
-    if (!grouped[year]) grouped[year] = []
-    grouped[year].push(book)
+  const grouped: Record<string, any[]> = {}
+  finishedLibrary.value.forEach(book => {
+    const d = new Date(book.finished_at!)
+    // Group by Year or Month based on settings
+    const key = appSettings.value.library_view_mode === 'year' 
+      ? `${d.getFullYear()}` 
+      : `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}`
+    
+    if (!grouped[key]) grouped[key] = []
+    grouped[key].push(book)
   })
-  return Object.entries(grouped).map(([year, books]) => ({ year: Number(year), books })).sort((a, b) => b.year - a.year)
+  // Sort keys descending
+  return Object.entries(grouped).map(([label, books]) => ({ label, books })).sort((a, b) => b.label.localeCompare(a.label))
 })
 
 const thisMonthBooks = computed(() => {
@@ -272,16 +281,45 @@ const yearOverYearGrowth = computed(() => lastYearBooks.value === 0 ? (thisYearB
 // Helpers
 const getLocalDateString = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 const calculateStreakFromData = (cd: any[], rd: any[]) => {
-  const ds = [...new Set([...cd, ...rd].map(i => getLocalDateString(new Date(i.created_at))))].sort().reverse()
-  if (ds.length === 0) return 0
-  const t = getLocalDateString(new Date()), y = getLocalDateString(new Date(new Date().setDate(new Date().getDate() - 1)))
-  if (ds[0] !== t && ds[0] !== y) return 0
-  let s = 1
-  for (let i = 1; i < ds.length; i++) {
-    if (Math.floor((new Date(ds[i-1]).getTime() - new Date(ds[i]).getTime()) / 86400000) === 1) s++
-    else break
+  const ds = [...new Set([...cd, ...rd].map(i => getLocalDateString(new Date(i.created_at))))].sort().reverse() // 내림차순 (최신 -> 과거)
+  if (ds.length === 0) return { current: 0, longest: 0 }
+
+  // 1. 현재 연속 (Current Streak)
+  let current = 0
+  const t = getLocalDateString(new Date())
+  const y = getLocalDateString(new Date(new Date().setDate(new Date().getDate() - 1)))
+  
+  if (ds[0] === t || ds[0] === y) {
+    current = 1
+    for (let i = 1; i < ds.length; i++) {
+      const prev = new Date(ds[i-1])
+      const curr = new Date(ds[i])
+      const diff = Math.floor((prev.getTime() - curr.getTime()) / 86400000)
+      if (diff === 1) current++
+      else break
+    }
   }
-  return s
+
+  // 2. 최장 연속 (Longest Streak)
+  let longest = 0
+  let temp = 1
+  if (ds.length > 0) longest = 1
+  
+  for (let i = 1; i < ds.length; i++) {
+    const prev = new Date(ds[i-1])
+    const curr = new Date(ds[i])
+    const diff = Math.floor((prev.getTime() - curr.getTime()) / 86400000)
+    
+    if (diff === 1) {
+      temp++
+    } else {
+      longest = Math.max(longest, temp)
+      temp = 1
+    }
+  }
+  longest = Math.max(longest, temp)
+
+  return { current, longest }
 }
 
 // Data Fetching
@@ -336,7 +374,9 @@ const fetchData = async () => {
     stats.value.comments = allDates.length
     
     // 🎯 Calculate Streak using ALL dates (Not paginated)
-    stats.value.streak = calculateStreakFromData(allDatesC || [], allDatesR || [])
+    const streakData = calculateStreakFromData(allDatesC || [], allDatesR || [])
+    stats.value.streak = streakData.current
+    longestStreak.value = streakData.longest
 
     await loadMoreTimeline()
   } catch (err) { console.error(err) } finally { loading.value = false }
@@ -451,7 +491,6 @@ const closeDayActivity = () => { showDayActivityModal.value = false; selectedDay
 const startEditGoal = () => { tempGoal.value = yearlyGoal.value; editingGoal.value = true }
 const cancelEditGoal = () => editingGoal.value = false
 const handleInsightTabClick = () => { 
-  if (!isPremium.value) { upgradeInsightOpen.value = true; return } 
   activeTab.value = 'insight'
   fetchInsightData(new Date().getFullYear())
 }
@@ -520,6 +559,7 @@ const formatDate = (d: string) => {
 onMounted(async () => {
   await Promise.all([userStore.fetchProfile(), fetchSubscription()])
   if (userStore.profile?.notification_settings) notificationSettings.value = userStore.profile.notification_settings
+  if (userStore.profile?.app_settings) appSettings.value = { ...appSettings.value, ...userStore.profile.app_settings }
   await fetchData()
 })
 
@@ -529,8 +569,22 @@ onActivated(async () => {
 })
 
 watch(notificationSettings, async (s) => {
-  try { await client.from('users').update({ notification_settings: s }).eq('id', userStore.user!.id); await userStore.fetchProfile(true) }
+  const userId = userStore.profile?.id || userStore.user?.id
+  if (!userId) return
+  try { await client.from('users').update({ notification_settings: s }).eq('id', userId); await userStore.fetchProfile(true) }
   catch (err) { console.error(err) }
+}, { deep: true })
+
+watch(appSettings, async (s) => {
+  const userId = userStore.profile?.id || userStore.user?.id
+  if (!userId) return
+  try { 
+    const { error } = await client.from('users').update({ app_settings: s }).eq('id', userId)
+    if (error) {
+      console.error('Failed to save app settings:', error)
+      toast.error('설정 저장 실패')
+    }
+  } catch (err) { console.error(err) }
 }, { deep: true })
 </script>
 

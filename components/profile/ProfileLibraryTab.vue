@@ -33,14 +33,14 @@
       </div>
 
       <!-- Finished -->
-      <div v-for="yearGroup in libraryByYear" :key="yearGroup.year">
+      <div v-for="group in libraryGroups" :key="group.label">
         <div class="flex items-center gap-3 mb-4">
-          <h3 class="text-sm font-bold text-zinc-900 dark:text-white">{{ yearGroup.year }}년</h3>
+          <h3 class="text-sm font-bold text-zinc-900 dark:text-white">{{ formatGroupLabel(group.label) }}</h3>
           <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
-          <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ yearGroup.books.length }}권</span>
+          <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ group.books.length }}권</span>
         </div>
         <div class="grid grid-cols-4 gap-2">
-          <div v-for="book in yearGroup.books" :key="book.id" @click="$emit('open-book', book)" class="cursor-pointer active:opacity-70 transition-opacity">
+          <div v-for="book in group.books" :key="book.id" @click="$emit('open-book', book)" class="cursor-pointer active:opacity-70 transition-opacity">
             <div class="aspect-[1/1.5] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800">
               <img :src="book.cover_url" class="w-full h-full object-cover" />
             </div>
@@ -64,13 +64,21 @@ import LoadingSpinner from '~/components/LoadingSpinner.vue'
 defineProps<{
   library: any[]
   readingBooks: any[]
-  libraryByYear: any[]
+  libraryGroups: any[]
   loading: boolean
 }>()
 
 defineEmits(['open-book'])
 
 const router = useRouter()
+
+const formatGroupLabel = (label: string) => {
+  if (label.includes('.')) {
+    const [y, m] = label.split('.')
+    return `${y}년 ${parseInt(m)}월`
+  }
+  return `${label}년`
+}
 
 const formatMonthOnly = (dateStr: string) => {
   if (!dateStr) return ''
