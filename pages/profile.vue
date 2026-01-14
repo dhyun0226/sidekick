@@ -238,8 +238,13 @@ const thisYearBooks = computed(() => {
 const daysLeftInYear = computed(() => Math.ceil((new Date(new Date().getFullYear(), 11, 31, 23, 59, 59).getTime() - new Date().getTime()) / 86400000))
 const monthsLeftInYear = computed(() => 12 - new Date().getMonth())
 const booksNeededPerMonth = computed(() => {
-  const remaining = yearlyGoal.value - thisYearBooks.value
-  return remaining <= 0 ? 0 : (remaining / monthsLeftInYear.value).toFixed(1)
+  const remainingBooks = yearlyGoal.value - thisYearBooks.value
+  if (remainingBooks <= 0) return 0
+  if (daysLeftInYear.value <= 0) return remainingBooks // 남은 기간이 없으면 남은 권수 그대로 표시
+  
+  // 남은 일수를 평균 월일수(30.44)로 나누어 '남은 개월 수(소수점 포함)'를 구함
+  const monthsRemainingExact = daysLeftInYear.value / 30.44
+  return (remainingBooks / monthsRemainingExact).toFixed(1)
 })
 const onTrack = computed(() => thisYearBooks.value >= (yearlyGoal.value / 12) * (new Date().getMonth() + 1))
 const isGoalAchieved = computed(() => thisYearBooks.value >= yearlyGoal.value)

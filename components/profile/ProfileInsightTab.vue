@@ -1,77 +1,72 @@
 <template>
-  <div class="space-y-3 pb-10">
-    <!-- Yearly Goal Card -->
-    <div class="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800 relative"
-         :class="isGoalAchieved ? 'ring-2 ring-lime-400/50' : ''">
-
-      <div class="flex items-center justify-between mb-3 text-left">
-        <div class="flex items-center gap-2">
-          <h4 class="text-sm font-bold text-zinc-900 dark:text-white">
-            {{ new Date().getFullYear() }}년 독서 목표
-          </h4>
-          <div v-if="lastYearBooks > 0" class="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold"
-               :class="yearOverYearGrowth >= 0
-                 ? 'bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400'
-                 : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400'">
-            <span>{{ yearOverYearGrowth >= 0 ? '+' : '' }}{{ yearOverYearGrowth }}%</span>
-          </div>
-        </div>
-        <button v-if="!editingGoal" @click="$emit('start-edit-goal')" class="text-xs text-lime-600 hover:text-lime-500 font-bold">수정</button>
+  <div class="space-y-4 pb-10">
+    <!-- Compact but Readable Goal Widget -->
+    <div class="bg-zinc-50 dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200/50 dark:border-zinc-800 select-none">
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-3">
+        <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          2026 독서 목표
+        </h4>
+        <button 
+          v-if="!editingGoal" 
+          @click="$emit('start-edit-goal')" 
+          class="text-xs font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white px-2 py-1 -mr-2 active:scale-95 transition-all"
+        >
+          수정
+        </button>
       </div>
 
-      <!-- Goal Display/Edit -->
-      <div v-if="editingGoal" class="space-y-3">
-        <div class="flex items-center gap-2">
-          <input :value="tempGoal" @input="$emit('update:tempGoal', Number(($event.target as HTMLInputElement).value))" type="number" min="1" class="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 text-zinc-900 dark:text-white" />
-          <span class="text-sm text-zinc-600 dark:text-zinc-400">권</span>
-        </div>
-        <div class="flex gap-2">
-          <button @click="$emit('save-goal')" class="flex-1 px-3 py-1.5 bg-lime-400 text-black rounded-lg text-xs font-bold hover:bg-lime-300">저장</button>
-          <button @click="$emit('cancel-edit-goal')" class="flex-1 px-3 py-1.5 bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white rounded-lg text-xs font-bold hover:bg-zinc-300 dark:hover:bg-zinc-600">취소</button>
-        </div>
+      <!-- Editing Mode -->
+      <div v-if="editingGoal" class="flex gap-2 mb-1">
+        <input 
+          :value="tempGoal" 
+          @input="$emit('update:tempGoal', Number(($event.target as HTMLInputElement).value))" 
+          type="number" 
+          pattern="\d*"
+          inputmode="numeric"
+          class="flex-1 min-w-0 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white text-zinc-900 dark:text-white" 
+        />
+        <button @click="$emit('save-goal')" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-xl text-xs font-bold active:scale-95 transition-transform">저장</button>
+        <button @click="$emit('cancel-edit-goal')" class="px-4 py-2 bg-zinc-200 dark:bg-zinc-800 text-zinc-500 rounded-xl text-xs font-bold active:scale-95 transition-transform">취소</button>
       </div>
 
-      <div v-else class="text-left">
-        <div class="mb-2">
-          <div class="flex justify-between items-end mb-1">
-            <span class="text-2xl font-bold text-zinc-900 dark:text-white">
-              {{ thisYearBooks }}<span class="text-base text-zinc-500">/ {{ yearlyGoal }}</span>
-            </span>
-            <span class="text-sm text-zinc-500">{{ Math.round((thisYearBooks/yearlyGoal)*100) }}%</span>
+      <!-- Display Mode -->
+      <template v-else>
+        <div class="flex items-center gap-4 mb-3">
+          <!-- Left: Count -->
+          <div class="flex items-baseline gap-1 shrink-0">
+            <span class="text-3xl font-black text-zinc-900 dark:text-white leading-none tracking-tight">{{ thisYearBooks }}</span>
+            <span class="text-sm font-bold text-zinc-500 dark:text-zinc-400">/ {{ yearlyGoal }}</span>
           </div>
-          <div class="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-2">
-            <div class="bg-lime-400 h-2 rounded-full transition-all duration-500" :style="{ width: `${Math.min((thisYearBooks/yearlyGoal)*100, 100)}%` }"></div>
+          
+          <!-- Middle: Progress Bar -->
+          <div class="flex-1 h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden shadow-inner border border-zinc-100 dark:border-zinc-800">
+            <div class="bg-zinc-900 dark:bg-white h-full rounded-full transition-all duration-1000 ease-out" :style="{ width: `${Math.min((thisYearBooks/yearlyGoal)*100, 100)}%` }"></div>
+          </div>
+
+          <!-- Right: Percent -->
+          <div class="shrink-0">
+            <span class="text-sm font-black text-zinc-900 dark:text-white leading-none">{{ Math.round((thisYearBooks/yearlyGoal)*100) }}%</span>
           </div>
         </div>
 
-        <div class="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 mb-3">
-          <span>{{ daysLeftInYear }}일 남음</span>
-          <span>·</span>
-          <span>월 {{ booksNeededPerMonth }}권 필요</span>
-          <span>·</span>
-          <span v-if="isGoalAchieved" class="text-lime-600 dark:text-lime-400 font-bold">🎉 달성!</span>
-          <span v-else-if="onTrack" class="text-green-600 dark:text-green-400 font-bold">✅ 달성 중</span>
-          <span v-else class="text-orange-600 dark:text-orange-400 font-bold">💪 파이팅</span>
-        </div>
-
-        <!-- Chart -->
-        <div v-if="monthlyProgress.length > 0" class="pt-3 border-t border-zinc-200 dark:border-zinc-800">
-          <h5 class="text-xs font-bold text-zinc-600 dark:text-zinc-400 mb-2">월별 진행</h5>
-          <div class="w-full px-3">
-            <div class="h-16 w-full mb-2 relative">
-              <svg class="absolute inset-0 w-full h-full" :viewBox="`-10 0 ${Math.max(monthlyProgress.length - 1, 1) * 100 + 20} 100`" preserveAspectRatio="none">
-                <polyline v-if="monthlyProgress.length > 1" :points="monthlyProgress.map((m, i) => `${i * 100},${100 - (m.count / maxMonthlyCount) * 90}`).join(' ')" fill="none" stroke="#a3e635" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                <g v-for="(month, i) in monthlyProgress" :key="'point-' + month.month">
-                  <circle :cx="i * 100" :cy="100 - (month.count / maxMonthlyCount) * 90" r="4" fill="#84cc16" />
-                </g>
-              </svg>
+        <!-- Footer: More Readable Meta Info -->
+        <div class="flex items-center justify-between text-[11px] font-bold text-zinc-600 dark:text-zinc-300 border-t border-zinc-200/50 dark:border-zinc-800/50 pt-3">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1">
+              <span class="text-zinc-400 dark:text-zinc-500 font-bold">D-</span>
+              <span>{{ daysLeftInYear }}</span>
             </div>
-            <div class="relative w-full h-4">
-              <span v-for="(month, i) in monthlyProgress" :key="'label-' + month.month" class="absolute text-[9px] text-zinc-400 transform -translate-x-1/2 whitespace-nowrap" :style="{ left: monthlyProgress.length === 1 ? '50%' : `${((i * 100 + 10) / (Math.max(monthlyProgress.length - 1, 1) * 100 + 20)) * 100}%` }">{{ month.month }}월</span>
+            <span class="w-px h-2.5 bg-zinc-300 dark:bg-zinc-600"></span>
+            <div class="flex items-center gap-1">
+              <span class="text-zinc-400 dark:text-zinc-500 font-bold">월</span>
+              <span>{{ booksNeededPerMonth }}권</span>
             </div>
           </div>
+          <span :class="onTrack ? 'text-zinc-900 dark:text-zinc-100' : 'text-orange-600 dark:text-orange-400'">{{ isGoalAchieved ? '🎉 달성 완료' : onTrack ? '✓ 순항 중' : '⚡️ 힘내요' }}</span>
         </div>
-      </div>
+      </template>
     </div>
 
     <!-- Heatmap -->
@@ -88,6 +83,7 @@
 
 <script setup lang="ts">
 import ReadingHeatmap from '~/components/ReadingHeatmap.vue'
+const { isDark } = useTheme()
 
 defineProps<{
   timeline: any[], isGoalAchieved: boolean, lastYearBooks: number, yearOverYearGrowth: number, editingGoal: boolean, tempGoal: number,
