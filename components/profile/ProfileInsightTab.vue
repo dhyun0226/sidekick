@@ -79,18 +79,10 @@
       :activities="timeline"
       :currentStreak="currentStreak"
       :longestStreak="longestStreak"
+      :finishedBooks="finishedBooks"
       @day-click="(day) => $emit('day-click', day)"
+      @year-change="(year) => $emit('year-change', year)"
     />
-
-    <!-- Summary -->
-    <div class="pt-3 border-t border-zinc-200 dark:border-zinc-800">
-      <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-3 text-left">이번 달</h3>
-      <div class="grid grid-cols-3 gap-3 text-center">
-        <div><div class="text-lg font-bold text-zinc-900 dark:text-white">{{ thisMonthBooks }}</div><div class="text-[10px] text-zinc-500">완독</div></div>
-        <div><div class="text-lg font-bold text-zinc-900 dark:text-white">{{ thisMonthComments }}</div><div class="text-[10px] text-zinc-500">기록</div></div>
-        <div><div class="text-lg font-bold text-lime-600 dark:text-lime-400">{{ currentStreak }}</div><div class="text-[10px] text-zinc-500">연속</div></div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -100,8 +92,9 @@ import ReadingHeatmap from '~/components/ReadingHeatmap.vue'
 defineProps<{
   timeline: any[], isGoalAchieved: boolean, lastYearBooks: number, yearOverYearGrowth: number, editingGoal: boolean, tempGoal: number,
   thisYearBooks: number, yearlyGoal: number, daysLeftInYear: number, booksNeededPerMonth: number | string, onTrack: boolean,
-  monthlyProgress: any[], maxMonthlyCount: number, currentStreak: number, longestStreak: number, thisMonthBooks: number, thisMonthComments: number
+  monthlyProgress: any[], maxMonthlyCount: number, currentStreak: number, longestStreak: number, thisMonthBooks: number, thisMonthComments: number,
+  finishedBooks: any[]
 }>()
 
-defineEmits(['start-edit-goal', 'update:tempGoal', 'save-goal', 'cancel-edit-goal', 'day-click'])
+defineEmits(['start-edit-goal', 'update:tempGoal', 'save-goal', 'cancel-edit-goal', 'day-click', 'year-change'])
 </script>

@@ -58,7 +58,7 @@
 
       <ProfileInsightTab
         v-if="activeTab === 'insight'"
-        :timeline="timeline"
+        :timeline="fullActivities"
         :is-goal-achieved="isGoalAchieved"
         :last-year-books="lastYearBooks"
         :year-over-year-growth="yearOverYearGrowth"
@@ -75,10 +75,12 @@
         :longest-streak="longestStreak"
         :this-month-books="thisMonthBooks"
         :this-month-comments="thisMonthComments"
+        :finishedBooks="finishedLibrary"
         @start-edit-goal="startEditGoal"
         @save-goal="saveGoal"
         @cancel-edit-goal="cancelEditGoal"
         @day-click="handleDayClick"
+        @year-change="handleYearChange"
       />
     </div>
 
@@ -187,6 +189,7 @@ const hasMoreTimeline = ref(true)
 const isLoadingMoreTimeline = ref(false)
 const TIMELINE_PAGE_SIZE = 20
 const monthlyTotals = ref<Record<string, number>>({})
+const fullActivities = ref<any[]>([]) // 🎯 히트맵용 전체 데이터
 
 // Modals UI State
 const settingsModalOpen = ref(false)
@@ -205,6 +208,7 @@ const isSaving = ref(false)
 
 // Computed Properties
 const readingBooks = computed(() => library.value.filter(book => !book.finished_at))
+const finishedLibrary = computed(() => library.value.filter(book => book.finished_at))
 const libraryByYear = computed(() => {
   const grouped: Record<number, any[]> = {}
   library.value.filter(book => book.finished_at).forEach(book => {
@@ -222,7 +226,8 @@ const thisMonthBooks = computed(() => {
 
 const thisMonthComments = computed(() => {
   const now = new Date()
-  return timeline.value.filter(i => new Date(i.created_at).getMonth() === now.getMonth() && new Date(i.created_at).getFullYear() === now.getFullYear()).length
+  const key = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}`
+  return monthlyTotals.value[key] || 0
 })
 
 const thisYearBooks = computed(() => {
@@ -275,18 +280,26 @@ const calculateStreakFromData = (cd: any[], rd: any[]) => {
 }
 
 // Data Fetching
+const loadedYears = ref(new Set<number>())
+const isFetchingInsight = ref(false)
+
 const fetchData = async () => {
   const userId = userStore.profile?.id || userStore.user?.id
   if (!userId) { loading.value = false; return }
   loading.value = true
   timeline.value = []; timelineOffset.value = 0; hasMoreTimeline.value = true
+  
   try {
-    const [ { data: pd }, { data: rd }, { count: gc }, { data: ud } ] = await Promise.all([
+    // 1. Fetch lightweight data for initial load & stats
+    const [ { data: pd }, { data: rd }, { count: gc }, { data: ud }, { data: allDatesC }, { data: allDatesR } ] = await Promise.all([
       client.from('user_reading_progress').select('finished_at, progress_pct, last_read_at, group_book:group_books (id, book:books (*))').eq('user_id', userId).order('last_read_at', { ascending: false }),
       client.from('reviews').select('group_book_id, rating').eq('user_id', userId),
       client.from('group_members').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-      client.from('users').select('yearly_reading_goal').eq('id', userId).single()
+      client.from('users').select('yearly_reading_goal').eq('id', userId).single(),
+      client.from('comments').select('created_at').eq('user_id', userId),
+      client.from('reviews').select('created_at').eq('user_id', userId)
     ])
+    
     const rm = new Map(rd?.map(r => [r.group_book_id, r.rating]) || [])
     library.value = (pd || []).map((p: any) => ({
       id: p.group_book?.book?.isbn, groupBookId: p.group_book?.id, title: p.group_book?.book?.title,
@@ -297,20 +310,105 @@ const fetchData = async () => {
     stats.value.books = library.value.filter(b => b.finished_at).length
     stats.value.groups = gc || 0
     yearlyGoal.value = ud?.yearly_reading_goal || 50
-    await loadMoreTimeline()
-    const [ { data: allCDates }, { data: allRDates } ] = await Promise.all([
-      client.from('comments').select('created_at').eq('user_id', userId),
-      client.from('reviews').select('created_at').eq('user_id', userId)
-    ])
+    
+    // Calculate Monthly Totals & Stats (using lightweight data)
     const totals: Record<string, number> = {}
-    const processDate = (d: string) => {
-      const date = new Date(d), key = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}`
+    const allDates = [...(allDatesC || []), ...(allDatesR || [])]
+    
+    // ⚡️ Pre-fill fullActivities with lightweight data so Heatmap works immediately
+    const lightweightActivities = [
+      ...(allDatesC || []).map(c => ({ created_at: c.created_at, type: 'comment', isLightweight: true })),
+      ...(allDatesR || []).map(r => ({ created_at: r.created_at, type: 'review', isLightweight: true }))
+    ]
+    fullActivities.value = lightweightActivities
+
+    allDates.forEach(d => {
+      const date = new Date(d.created_at)
+      const key = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}`
       totals[key] = (totals[key] || 0) + 1
-    }
-    allCDates?.forEach(c => processDate(c.created_at)); allRDates?.forEach(r => processDate(r.created_at))
+    })
     monthlyTotals.value = totals
-    stats.value.comments = (allCDates?.length || 0) + (allRDates?.length || 0)
+    stats.value.comments = allDates.length
+    
+    // 🎯 Calculate Streak using ALL dates (Not paginated)
+    stats.value.streak = calculateStreakFromData(allDatesC || [], allDatesR || [])
+
+    await loadMoreTimeline()
   } catch (err) { console.error(err) } finally { loading.value = false }
+}
+
+const fetchInsightData = async (year: number) => {
+  if (loadedYears.value.has(year) || isFetchingInsight.value) return
+  const userId = userStore.profile?.id || userStore.user?.id
+  if (!userId) return
+
+  isFetchingInsight.value = true
+  try {
+    const startOfYear = new Date(year, 0, 1).toISOString()
+    const endOfYear = new Date(year, 11, 31, 23, 59, 59).toISOString()
+
+    // 🎯 해당 연도의 상세 활동 데이터 가져오기 (모달 표시용 필드 포함)
+    const [ { data: yearC }, { data: yearR } ] = await Promise.all([
+      client.from('comments').select(`
+        id, content, anchor_text, position_pct, created_at, parent_id, 
+        parent:parent_id (content, anchor_text, user:users (nickname, avatar_url)), 
+        group_book:group_books (id, group:groups (name, id), book:books (title, cover_url))
+      `)
+        .eq('user_id', userId)
+        .gte('created_at', startOfYear)
+        .lte('created_at', endOfYear),
+      client.from('reviews').select(`
+        id, content, rating, created_at, group_book_id, 
+        group_book:group_books (id, group:groups (name, id), book:books (title, cover_url))
+      `)
+        .eq('user_id', userId)
+        .gte('created_at', startOfYear)
+        .lte('created_at', endOfYear)
+    ])
+
+    const processedYear = [
+      ...(yearC || []).map((c: any) => {
+        const p = Array.isArray(c.parent) ? c.parent[0] : c.parent
+        const pu = p ? (Array.isArray(p.user) ? p.user[0] : p.user) : null
+        const pd = p ? { nickname: pu?.nickname || '알 수 없는 사용자', avatar_url: pu?.avatar_url, content: p.content, anchor_text: p.anchor_text } : null
+        return { 
+          type: 'comment', 
+          id: c.id, 
+          created_at: c.created_at, 
+          content: c.content, 
+          anchor_text: c.anchor_text, 
+          position_pct: c.position_pct, 
+          isReply: !!c.parent_id, 
+          parentData: pd, 
+          groupId: c.group_book?.group?.id, 
+          groupName: c.group_book?.group?.name, 
+          bookTitle: c.group_book?.book?.title, 
+          bookCover: c.group_book?.book?.cover_url, 
+          groupBookId: c.group_book?.id,
+          isLightweight: false 
+        }
+      }),
+      ...(yearR || []).map((r: any) => ({ 
+        type: 'review', 
+        id: r.id, 
+        created_at: r.created_at, 
+        content: r.content, 
+        rating: r.rating, 
+        groupId: r.group_book?.group?.id, 
+        groupName: r.group_book?.group?.name, 
+        bookTitle: r.group_book?.book?.title, 
+        bookCover: r.group_book?.book?.cover_url, 
+        groupBookId: r.group_book?.id,
+        isLightweight: false 
+      }))
+    ]
+    
+    // 기존 경량 데이터를 해당 연도의 상세 데이터로 교체
+    const otherYearsData = fullActivities.value.filter(a => new Date(a.created_at).getFullYear() !== year)
+    fullActivities.value = [...otherYearsData, ...processedYear]
+    
+    loadedYears.value.add(year)
+  } catch (err) { console.error(err) } finally { isFetchingInsight.value = false }
 }
 
 const loadMoreTimeline = async () => {
@@ -335,7 +433,6 @@ const loadMoreTimeline = async () => {
     else {
       timeline.value = [...timeline.value, ...combined]
       timelineOffset.value += TIMELINE_PAGE_SIZE
-      stats.value.streak = calculateStreakFromData(timeline.value.filter(i => i.type === 'comment'), timeline.value.filter(i => i.type === 'review'))
     }
   } catch (err) { console.error(err) } finally { isLoadingMoreTimeline.value = false }
 }
@@ -348,7 +445,12 @@ const handleDayClick = (day: any) => { selectedDay.value = day; showDayActivityM
 const closeDayActivity = () => { showDayActivityModal.value = false; selectedDay.value = null }
 const startEditGoal = () => { tempGoal.value = yearlyGoal.value; editingGoal.value = true }
 const cancelEditGoal = () => editingGoal.value = false
-const handleInsightTabClick = () => { if (!isPremium.value) { upgradeInsightOpen.value = true; return } activeTab.value = 'insight' }
+const handleInsightTabClick = () => { 
+  if (!isPremium.value) { upgradeInsightOpen.value = true; return } 
+  activeTab.value = 'insight'
+  fetchInsightData(new Date().getFullYear())
+}
+const handleYearChange = (year: number) => fetchInsightData(year)
 const isBookFinished = (id: string) => library.value.find(b => b.groupBookId === id)?.finished_at != null
 
 const navigateToItem = (item: any) => {
@@ -362,8 +464,11 @@ const navigateToItem = (item: any) => {
 
 const saveGoal = async () => {
   if (tempGoal.value <= 0) { toast.error('목표는 1권 이상이어야 합니다'); return }
+  const userId = userStore.profile?.id || userStore.user?.id
+  if (!userId) { toast.error('사용자 정보를 찾을 수 없습니다'); return }
+  
   try {
-    const { error } = await client.from('users').update({ yearly_reading_goal: tempGoal.value }).eq('id', userStore.user!.id)
+    const { error } = await client.from('users').update({ yearly_reading_goal: tempGoal.value }).eq('id', userId)
     if (error) throw error
     yearlyGoal.value = tempGoal.value; editingGoal.value = false; toast.success('목표가 저장되었습니다')
   } catch (err) { toast.error('목표 저장 실패') }
