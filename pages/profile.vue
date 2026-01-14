@@ -20,12 +20,13 @@
         <button
           v-for="t in (['library', 'timeline', 'insight'] as const)"
           :key="t"
-          @click="activeTab = t; t === 'insight' ? handleInsightTabClick() : null"
+          @click="t === 'insight' ? handleInsightTabClick() : activeTab = t"
           class="flex-1 py-3 text-sm font-bold transition-colors relative text-center"
           :class="activeTab === t ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
         >
           <span class="flex items-center justify-center gap-1">
             {{ t === 'library' ? '서재' : t === 'timeline' ? '기록' : '분석' }}
+            <Lock v-if="t === 'insight' && !limits.hasStatisticsAccess" :size="12" class="text-zinc-400" />
           </span>
           <div v-if="activeTab === t" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
         </button>
@@ -175,7 +176,7 @@ const userStore = useUserStore()
 const toast = useToastStore()
 const client = useSupabaseClient()
 const { toggleTheme } = useTheme()
-const { isPremium, subscription: subscriptionDetails, fetchSubscription } = useSubscription()
+const { isPremium, subscription: subscriptionDetails, fetchLimits, fetchSubscription, limits } = useSubscription()
 
 // Core State
 const activeTab = ref<'timeline' | 'library' | 'insight'>('library')
@@ -491,6 +492,10 @@ const closeDayActivity = () => { showDayActivityModal.value = false; selectedDay
 const startEditGoal = () => { tempGoal.value = yearlyGoal.value; editingGoal.value = true }
 const cancelEditGoal = () => editingGoal.value = false
 const handleInsightTabClick = () => { 
+  if (!limits.value.hasStatisticsAccess) {
+    upgradeInsightOpen.value = true
+    return
+  }
   activeTab.value = 'insight'
   fetchInsightData(new Date().getFullYear())
 }
@@ -563,7 +568,7 @@ const formatDate = (d: string) => {
 }
 
 onMounted(async () => {
-  await Promise.all([userStore.fetchProfile(), fetchSubscription()])
+  await Promise.all([userStore.fetchProfile(), fetchSubscription(), fetchLimits()])
   if (userStore.profile?.notification_settings) notificationSettings.value = userStore.profile.notification_settings
   if (userStore.profile?.app_settings) appSettings.value = { ...appSettings.value, ...userStore.profile.app_settings }
   await fetchData()
