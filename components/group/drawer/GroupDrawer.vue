@@ -58,6 +58,7 @@
           :selected-book-id="selectedBookId"
           :toc="toc"
           :reading-books="readingBooks"
+          :locked-reading-books="lockedReadingBooks"
           :view-progress="viewProgress"
           :is-admin="isAdmin"
           :user-reviewed-books="userReviewedBooks"
@@ -71,6 +72,7 @@
           @unmark-finished="(bookId) => emit('unmarkFinished', bookId)"
           @delete-book="(bookId) => emit('deleteBook', bookId)"
           @open-review="(bookId) => emit('openReview', bookId)"
+          @open-upgrade-modal="emit('openUpgradeModal')"
         />
 
         <GroupDrawerMembersTab
@@ -132,6 +134,7 @@ interface Props {
   currentBook: any | null
   selectedBookId: string | null
   readingBooks: any[]
+  lockedReadingBooks: any[]
   historyBooks: any[]
   lockedHistoryBooks: any[]
   sortedMembersWithProgress: any[]

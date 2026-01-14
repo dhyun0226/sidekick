@@ -8,8 +8,8 @@
       <div class="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl border-t border-zinc-200/50 dark:border-white/5 px-6 pt-2 pb-8 sm:pb-6 relative">
         
         <!-- Chapter Name & Write Button Row -->
-        <div class="flex justify-between items-end mb-6 px-1">
-          <div class="flex flex-col min-w-0 pr-4">
+        <div class="flex justify-between items-end mb-6 px-1 gap-4">
+          <div class="flex flex-col min-w-0 flex-1">
             <span class="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase mb-0.5">지금 읽는 곳</span>
             <span class="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate leading-tight">
               {{ currentChapterName || bookTitle || '읽기 시작' }}
@@ -18,7 +18,7 @@
           
           <button
             @click="$emit('write')"
-            class="flex items-center gap-2 pl-3 pr-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg shadow-zinc-500/20"
+            class="flex items-center gap-2 pl-3 pr-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg shadow-zinc-500/20 shrink-0"
           >
             <PenLine :size="14" />
             <span class="text-xs font-bold">기록</span>
@@ -145,17 +145,12 @@ watch(() => props.modelValue, (newVal) => {
   }
 })
 
-// Mock TOC if not provided
-const defaultToc: Chapter[] = [
-  { title: 'Intro', start: 0, end: 10 },
-  { title: 'Chapter 1', start: 10, end: 40 },
-  { title: 'Chapter 2', start: 40, end: 80 },
-  { title: 'Epilogue', start: 80, end: 100 },
-]
-
+// If TOC is not provided, use a single chapter representing the whole book
 const chapters = computed(() => {
-  const list = props.toc || defaultToc
-  return list.map(c => ({
+  if (!props.toc || props.toc.length === 0) {
+    return [{ title: '', start: 0, end: 100, width: 100 }]
+  }
+  return props.toc.map(c => ({
     ...c,
     width: c.end - c.start
   }))

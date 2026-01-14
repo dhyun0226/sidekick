@@ -364,7 +364,7 @@ const getDaysRemaining = (targetDateStr: string) => {
 }
 
 const getDdayShort = (targetDateStr: string) => {
-  if (!targetDateStr) return 'Reading'
+  if (!targetDateStr) return '독서 중'
   const days = getDaysRemaining(targetDateStr)
   if (days > 0) return `D-${days}`
   if (days === 0) return 'D-Day'

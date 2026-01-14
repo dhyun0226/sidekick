@@ -26,7 +26,7 @@
         >
           <span class="flex items-center justify-center gap-1">
             {{ t === 'library' ? '서재' : t === 'timeline' ? '기록' : '분석' }}
-            <Lock v-if="t === 'insight' && !limits.hasStatisticsAccess" :size="12" class="text-zinc-400" />
+            <Lock v-if="t === 'insight' && !limits.has_statistics_access" :size="12" class="text-zinc-400" />
           </span>
           <div v-if="activeTab === t" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
         </button>
@@ -492,7 +492,7 @@ const closeDayActivity = () => { showDayActivityModal.value = false; selectedDay
 const startEditGoal = () => { tempGoal.value = yearlyGoal.value; editingGoal.value = true }
 const cancelEditGoal = () => editingGoal.value = false
 const handleInsightTabClick = () => { 
-  if (!limits.value.hasStatisticsAccess) {
+  if (!limits.value.has_statistics_access) {
     upgradeInsightOpen.value = true
     return
   }
@@ -569,6 +569,10 @@ const formatDate = (d: string) => {
 
 onMounted(async () => {
   await Promise.all([userStore.fetchProfile(), fetchSubscription(), fetchLimits()])
+  
+  console.log('[Profile] Limits loaded:', limits.value)
+  console.log('[Profile] User Tier:', userStore.profile?.subscription_tier)
+
   if (userStore.profile?.notification_settings) notificationSettings.value = userStore.profile.notification_settings
   if (userStore.profile?.app_settings) appSettings.value = { ...appSettings.value, ...userStore.profile.app_settings }
   await fetchData()

@@ -1,66 +1,72 @@
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center p-4">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/70 backdrop-blur-md" @click="$emit('close')"></div>
+      <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center p-6">
+        <!-- Backdrop with Deep Blur -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="$emit('close')"></div>
 
-        <!-- Modal -->
-        <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800">
-          <!-- Gradient Header -->
-          <div class="bg-gradient-to-br from-lime-400 via-lime-500 to-emerald-500 p-8 text-center relative overflow-hidden">
-            <div class="absolute inset-0 opacity-10"></div>
-            <div class="relative z-10">
-              <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4">
-                <component :is="featureIcon" :size="32" class="text-white" />
+        <!-- Premium Modal Container -->
+        <div class="relative w-full max-w-[380px] bg-white dark:bg-zinc-900 rounded-[32px] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] border border-zinc-100 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-300">
+          
+          <!-- Decorative Light Effect -->
+          <div class="absolute -top-24 -right-24 w-48 h-48 bg-lime-400/20 dark:bg-lime-400/10 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <!-- Close Button -->
+          <button @click="$emit('close')" class="absolute top-5 right-5 z-20 p-2 rounded-full bg-zinc-50 dark:bg-zinc-800 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors active:scale-90">
+            <X :size="18" stroke-width="2.5" />
+          </button>
+
+          <!-- Top Section: Icon & Badges -->
+          <div class="pt-12 pb-6 px-8 text-center relative">
+            <div class="w-20 h-20 bg-gradient-to-tr from-lime-400 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-lime-400/20 rotate-3">
+              <component :is="featureIcon" :size="40" class="text-white drop-shadow-sm" stroke-width="2.5" />
+            </div>
+            
+            <div class="inline-flex items-center gap-1.5 bg-lime-50 dark:bg-lime-900/20 px-3 py-1 rounded-full mb-3">
+              <Sparkles :size="12" class="text-lime-600 dark:text-lime-400" />
+              <span class="text-[10px] font-black text-lime-700 dark:text-lime-400 uppercase tracking-widest">Premium Membership</span>
+            </div>
+            
+            <h3 class="text-2xl font-black text-zinc-900 dark:text-white leading-tight mb-2 tracking-tight whitespace-pre-line">
+              {{ featureTitle }}
+            </h3>
+            <p class="text-[13px] text-zinc-500 dark:text-zinc-400 leading-relaxed px-2">
+              {{ featureMessage }}
+            </p>
+          </div>
+
+          <!-- Mid Section: Benefits -->
+          <div class="px-8 pb-8 space-y-3">
+            <div v-for="benefit in benefits" :key="benefit" class="flex items-center gap-3 bg-zinc-50 dark:bg-zinc-800/50 p-3.5 rounded-2xl border border-zinc-100 dark:border-zinc-800/50 group transition-colors hover:border-lime-200">
+              <div class="w-6 h-6 rounded-full bg-white dark:bg-zinc-700 flex items-center justify-center shadow-sm text-lime-500 flex-shrink-0 group-hover:bg-lime-500 group-hover:text-white transition-colors">
+                <Check :size="14" stroke-width="3" />
               </div>
-              <h3 class="text-2xl font-bold text-white mb-2">{{ featureTitle }}</h3>
-              <div class="inline-block bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                <span class="text-sm font-bold text-white">PREMIUM</span>
-              </div>
+              <span class="text-sm font-bold text-zinc-700 dark:text-zinc-300">{{ benefit }}</span>
             </div>
           </div>
 
-          <!-- Content -->
-          <div class="p-6">
-            <p class="text-zinc-700 dark:text-zinc-300 text-center mb-6 leading-relaxed">
-              {{ featureMessage }}
-            </p>
-
-            <!-- Benefits List -->
-            <div class="space-y-3 mb-6">
-              <div v-for="benefit in benefits" :key="benefit" class="flex items-center gap-3">
-                <Check :size="20" class="text-lime-500 flex-shrink-0" />
-                <span class="text-sm text-zinc-700 dark:text-zinc-300">{{ benefit }}</span>
+          <!-- Bottom Section: Pricing & Action -->
+          <div class="p-8 bg-zinc-50 dark:bg-zinc-800/30 border-t border-zinc-100 dark:border-zinc-800/50">
+            <div class="flex items-center justify-between mb-6">
+              <div class="text-left">
+                <p class="text-[10px] font-bold text-zinc-400 uppercase mb-0.5">베이직 플랜</p>
+                <p class="text-lg font-black text-zinc-900 dark:text-white leading-none">₩2,500 <span class="text-xs font-normal text-zinc-500">/ 월</span></p>
+              </div>
+              <div class="text-right">
+                <div class="bg-lime-400 text-[10px] font-black px-2 py-1 rounded-lg text-black animate-pulse-gentle shadow-sm shadow-lime-400/30">
+                  BEST VALUE
+                </div>
               </div>
             </div>
 
-            <!-- Pricing Preview -->
-            <div class="bg-zinc-100 dark:bg-zinc-800/50 rounded-xl p-4 mb-6 text-center">
-              <div class="text-xs text-zinc-500 mb-1">월 단위</div>
-              <div class="text-2xl font-bold text-zinc-900 dark:text-white">
-                ₩2,500<span class="text-sm font-normal text-zinc-500">/월</span>
-              </div>
-              <div class="text-xs text-lime-600 dark:text-lime-400 mt-1">
-                연간 구독 시 37% 할인 (월 ₩1,583)
-              </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="space-y-2">
+            <div class="space-y-3">
               <button
                 @click="goToSubscription"
-                class="w-full py-4 bg-gradient-to-r from-lime-400 to-lime-500 text-black font-bold rounded-xl hover:from-lime-300 hover:to-lime-400 transition-all shadow-lg hover:shadow-lime-400/30 hover:scale-[1.02] flex items-center justify-center gap-2"
+                class="w-full py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-black rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-zinc-900/10 dark:shadow-white/5 flex items-center justify-center gap-2"
               >
-                <Sparkles :size="20" />
-                프리미엄으로 업그레이드
+                멤버십 시작하기
               </button>
-              <button
-                @click="$emit('close')"
-                class="w-full py-3 text-zinc-600 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-white transition-colors"
-              >
-                나중에
-              </button>
+              <p class="text-[10px] text-zinc-400 text-center font-medium">언제든지 해지할 수 있습니다.</p>
             </div>
           </div>
         </div>
@@ -71,7 +77,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Check, Users, BookOpen, TrendingUp, Lock, Sparkles } from 'lucide-vue-next'
+import { Check, Users, BookOpen, TrendingUp, Lock, Sparkles, X } from 'lucide-vue-next'
 
 interface Props {
   isOpen: boolean
@@ -83,31 +89,31 @@ const props = defineProps<Props>()
 const emit = defineEmits(['close'])
 const router = useRouter()
 
-// 기능별 설정
+// 기능별 설정 (정책 변경 반영)
 const featureConfig = {
   groups: {
     icon: Users,
-    title: '더 많은 그룹에 참가하고 싶으신가요?',
-    message: `무료 플랜은 1개 그룹만 참가할 수 있습니다. 프리미엄으로 업그레이드하면 무제한 그룹에 참가할 수 있어요!`,
-    benefits: ['무제한 그룹 참가', '무제한 책 보기 및 추가', '고급 통계 분석']
+    title: '그룹은 최대 2개까지\n참여 가능합니다',
+    message: '프리미엄 회원이 되면 제한 없이 더 많은 그룹에서 함께 읽을 수 있어요.',
+    benefits: ['무제한 그룹 참가 가능', '그룹당 등록 가능한 책 무제한', '모든 독서 데이터 무제한 보관']
   },
   books: {
     icon: BookOpen,
-    title: '이 책을 읽으려면 프리미엄이 필요합니다',
-    message: '무료 플랜은 그룹에서 가장 오래된 10권까지만 읽을 수 있습니다. 프리미엄으로 업그레이드하면 모든 책을 읽을 수 있어요!',
-    benefits: ['모든 책 무제한 읽기', '무제한 책 추가', '무제한 그룹 참가']
+    title: '더 많은 책을 읽어볼까요?',
+    message: '무료 플랜은 그룹당 최신 10권까지만 제공됩니다. 프리미엄으로 과거의 기록까지 모두 열어보세요!',
+    benefits: ['그룹 내 모든 책 무제한 열람', '읽고 싶은 책 무제한 추가', '완독 기록 영구 보존']
   },
   insights: {
     icon: TrendingUp,
-    title: '고급 통계를 확인해보세요',
-    message: '프리미엄 회원만 연간 독서 목표, 히트맵, 상세 분석을 이용할 수 있습니다.',
-    benefits: ['연간 독서 목표 설정', '히트맵으로 습관 추적', '월별 상세 분석']
+    title: '나만의 독서 통계,\n더 자세히 알고 싶다면',
+    message: '고급 통계 기능으로 나의 독서 습관을 완벽하게 분석하고 관리해 보세요.',
+    benefits: ['연간 독서 목표 정밀 관리', '상세 활동 히트맵 제공', '장르별/기간별 독서 리포트']
   },
   general: {
     icon: Lock,
-    title: '프리미엄 기능입니다',
-    message: '이 기능은 프리미엄 회원 전용입니다.',
-    benefits: ['모든 프리미엄 기능 이용', '신규 기능 우선 체험', '우선 지원']
+    title: '사이드킥 프리미엄\n전용 기능입니다',
+    message: '지금 업그레이드하고 사이드킥의 모든 기능을 제한 없이 누려보세요.',
+    benefits: ['모든 프리미엄 기능 무제한', '새로운 기능 우선 이용권', '전용 고객 지원']
   }
 }
 
@@ -126,11 +132,21 @@ const goToSubscription = () => {
 <style scoped>
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+
+@keyframes pulse-gentle {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+.animate-pulse-gentle {
+  animation: pulse-gentle 2s infinite ease-in-out;
 }
 </style>

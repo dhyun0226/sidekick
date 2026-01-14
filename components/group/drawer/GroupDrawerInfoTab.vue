@@ -103,6 +103,37 @@
           </div>
         </div>
       </div>
+
+      <!-- Locked Reading Books -->
+      <div v-if="lockedReadingBooks && lockedReadingBooks.length > 0" class="mt-4 space-y-2 px-3 pb-3">
+        <div class="flex items-center gap-2 mb-2 px-1">
+          <Lock :size="10" class="text-zinc-400" />
+          <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">잠긴 책 (구독 필요)</span>
+        </div>
+        
+        <div
+          v-for="book in lockedReadingBooks"
+          :key="book.id"
+          class="p-4 bg-zinc-100/50 dark:bg-zinc-800/30 border border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors group"
+          @click="emit('openUpgradeModal')"
+        >
+          <div class="flex gap-3 opacity-50 grayscale transition-all group-hover:opacity-70 group-hover:grayscale-0">
+            <div class="relative shrink-0">
+              <img :src="book.book?.cover_url" class="w-14 h-20 object-cover rounded shadow-sm bg-zinc-200 dark:bg-zinc-800" />
+              <div class="absolute inset-0 flex items-center justify-center bg-black/20 rounded">
+                <Lock :size="20" class="text-white" />
+              </div>
+            </div>
+            <div class="flex-1 min-w-0 flex flex-col justify-center">
+              <h3 class="font-bold text-zinc-900 dark:text-white line-clamp-1 text-sm mb-1">{{ book.book?.title }}</h3>
+              <p class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium truncate">{{ book.book?.author }}</p>
+              <div class="mt-2 text-[10px] font-bold text-lime-600 dark:text-lime-400 flex items-center gap-1">
+                프리미엄 구독 시 열람 가능 <ChevronRight :size="10" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       </div>
 
       <!-- Chapter Navigation (선택된 책의 목차) -->
@@ -175,9 +206,11 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { Edit2, Settings, UserCheck, UserX, Edit3, Check, X, Tag } from 'lucide-vue-next'
+import { Edit2, Settings, UserCheck, UserX, Edit3, Check, X, Tag, Lock, ChevronRight } from 'lucide-vue-next'
 import DropdownMenu from '~/components/DropdownMenu.vue'
 import RatingBadge from '~/components/RatingBadge.vue'
+import GenreBadge from '~/components/GenreBadge.vue'
+import Badge from '~/components/Badge.vue'
 
 interface Book {
   id: string
@@ -210,6 +243,7 @@ interface Props {
   selectedBookId: string | null
   toc: TocChapter[]
   readingBooks: Book[]
+  lockedReadingBooks: Book[]
   viewProgress: number
   isAdmin: boolean
   userReviewedBooks: Map<string, number>
@@ -226,6 +260,7 @@ interface Emits {
   (e: 'unmarkFinished', bookId: string): void
   (e: 'deleteBook', bookId: string): void
   (e: 'openReview', bookId: string): void
+  (e: 'openUpgradeModal'): void
 }
 
 const props = defineProps<Props>()

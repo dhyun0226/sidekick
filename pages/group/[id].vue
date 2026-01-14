@@ -124,7 +124,8 @@
       :group-name="groupName"
       :current-book="currentBook"
       :selected-book-id="selectedBookId"
-      :reading-books="readingBooks"
+      :reading-books="visibleReadingBooks"
+      :locked-reading-books="lockedReadingBooks"
       :history-books="visibleHistoryBooks"
       :locked-history-books="lockedHistoryBooks"
       :sorted-members-with-progress="sortedMembersWithProgress"
@@ -535,7 +536,7 @@ const currentChapterName = computed(() => {
   const pct = viewProgress.value
   const chapters = toc.value
 
-  if (!chapters || chapters.length === 0) return 'Reading'
+  if (!chapters || chapters.length === 0) return '독서 기록'
 
   const found = chapters.find((c: any, index: number) => {
     const isLast = index === chapters.length - 1  // Fixed: chapters is already an array
@@ -661,6 +662,16 @@ const sliderMembers = computed(() => {
 // Subscription-based book filtering
 const visibleAllBooks = computed(() => getVisibleBooks(allBooks.value))
 const lockedAllBooks = computed(() => getLockedBooks(allBooks.value))
+
+const visibleReadingBooks = computed(() => {
+  const visible = visibleAllBooks.value.map(b => b.id)
+  return readingBooks.value.filter(book => visible.includes(book.id))
+})
+
+const lockedReadingBooks = computed(() => {
+  const locked = lockedAllBooks.value.map(b => b.id)
+  return readingBooks.value.filter(book => locked.includes(book.id))
+})
 
 const visibleHistoryBooks = computed(() => {
   const visible = visibleAllBooks.value.map(b => b.id)
