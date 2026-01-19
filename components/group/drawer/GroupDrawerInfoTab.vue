@@ -28,7 +28,7 @@
           @click="emit('selectBook', book.id)"
         >
           <!-- Settings Menu (Common Component) -->
-          <div class="absolute top-3 right-3">
+          <div v-if="!isArchived" class="absolute top-3 right-3">
             <DropdownMenu
               :is-open="activeBookMenu === book.id"
               @toggle="toggleBookMenu(book.id)"
@@ -246,6 +246,7 @@ interface Props {
   lockedReadingBooks: Book[]
   viewProgress: number
   isAdmin: boolean
+  isArchived: boolean
   userReviewedBooks: Map<string, number>
 }
 

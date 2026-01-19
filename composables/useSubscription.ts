@@ -12,6 +12,19 @@
  * - 책 추가 제한 확인
  */
 
+// ============================================
+// Global State (Singleton Pattern)
+// ============================================
+
+const limits = ref({
+  max_groups: 1,
+  max_books_per_group: 10,
+  has_statistics_access: false
+})
+
+const limitsLoading = ref(false)
+const limitsLoaded = ref(false)
+
 export const useSubscription = () => {
   const client = useSupabaseClient()
   const userStore = useUserStore()
@@ -34,30 +47,31 @@ export const useSubscription = () => {
   // DB로부터 제한 값 관리 ⭐
   // ============================================
 
-  const limits = ref({
-    max_groups: 1,
-    max_books_per_group: 10,
-    has_statistics_access: false
-  })
-
-  const limitsLoading = ref(false)
-  const limitsLoaded = ref(false)
-
   /**
    * ⭐ subscription_limits 테이블에서 제한 값 가져오기
-   * 앱 로딩 시 한 번만 호출하면 됨
+   * 앱 로딩 시 한 번만 호출하면 됨 (force=true로 강제 갱신 가능)
    */
-  const fetchLimits = async () => {
-    if (limitsLoaded.value) return // 이미 로드됨
-    if (!userStore.profile?.subscription_tier) return
+  const fetchLimits = async (force = false) => {
+    // 이미 로드되었고 강제 갱신이 아니면 리턴 (단, 값이 기본값과 다를 때만)
+    if (!force && limitsLoaded.value) return 
+    
+    const currentTier = userStore.profile?.subscription_tier
+    console.log('[fetchLimits] User Tier:', currentTier)
+    
+    if (!currentTier) {
+      console.warn('[fetchLimits] No tier found for user')
+      return
+    }
 
     limitsLoading.value = true
     try {
       const { data, error } = await client
         .from('subscription_limits')
         .select('max_groups_created, max_books_per_group, has_statistics_access')
-        .eq('tier', userStore.profile.subscription_tier)
+        .eq('tier', currentTier)
         .single()
+
+      console.log('[fetchLimits] DB Query Result:', { data, error })
 
       if (error) {
         console.error('[fetchLimits] Error:', error)
@@ -71,6 +85,7 @@ export const useSubscription = () => {
           has_statistics_access: data.has_statistics_access
         }
         limitsLoaded.value = true
+        console.log('[fetchLimits] Limits updated:', limits.value)
       }
     } catch (err) {
       console.error('[fetchLimits] Exception:', err)
@@ -239,6 +254,8 @@ export const useSubscription = () => {
 
     // ⭐ DB에서 읽은 제한 값 사용
     const limit = limits.value.max_groups
+    
+    console.log('[canJoinGroup] Check:', { currentCount, limit, isPremium: isPremium.value })
 
     if (currentCount >= limit) {
       return {

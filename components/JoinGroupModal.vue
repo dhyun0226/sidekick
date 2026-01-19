@@ -152,20 +152,23 @@ const joinGroup = async (groupId: string, groupName: string) => {
   const { data: { user } } = await client.auth.getUser()
   if (!user) return
 
+  // 1. 기존 멤버십 정보 확인 (탈퇴 이력 포함)
   const { data: existingMember } = await client
     .from('group_members')
-    .select('role')
+    .select('id, role, left_at')
     .eq('group_id', groupId)
     .eq('user_id', user.id)
     .maybeSingle()
 
-  if (existingMember) {
+  // 2. 이미 활성 멤버인 경우
+  if (existingMember && !existingMember.left_at) {
     toast.info('이미 가입된 그룹입니다.')
     emit('joined', groupId)
     close()
     return
   }
 
+  // 3. 구독 제한 체크 (새로 가입하거나 재가입할 때 모두 체크)
   const limitCheck = await canJoinGroup()
   if (!limitCheck.allowed) {
     groupLimitInfo.value = limitCheck
@@ -174,14 +177,33 @@ const joinGroup = async (groupId: string, groupName: string) => {
     return
   }
 
-  const { error: joinError } = await client
-    .from('group_members')
-    .insert({ group_id: groupId, user_id: user.id, role: 'member' })
+  try {
+    if (existingMember && existingMember.left_at) {
+      // 4-A. 재가입: 기존 레코드의 left_at 초기화
+      const { error: updateError } = await client
+        .from('group_members')
+        .update({ left_at: null })
+        .eq('id', existingMember.id)
+      
+      if (updateError) throw updateError
+      toast.success(`'${groupName}' 그룹에 다시 참여했습니다! 👋`)
+    } else {
+      // 4-B. 신규 가입: 새 레코드 삽입
+      const { error: joinError } = await client
+        .from('group_members')
+        .insert({ group_id: groupId, user_id: user.id, role: 'member' })
 
-  if (joinError) throw joinError
-  toast.success(`'${groupName}' 그룹에 참여했습니다! 🎉`)
-  emit('joined', groupId)
-  close()
+      if (joinError) throw joinError
+      toast.success(`'${groupName}' 그룹에 참여했습니다! 🎉`)
+    }
+
+    emit('joined', groupId)
+    close()
+  } catch (err: any) {
+    console.error('Join group failed:', err)
+    error.value = '그룹 가입에 실패했습니다.'
+    loading.value = false
+  }
 }
 </script>
 

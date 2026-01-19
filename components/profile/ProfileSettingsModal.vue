@@ -178,7 +178,14 @@ watch(() => props.profile, (np) => {
 }, { immediate: true })
 
 const getNotificationLabel = (type: string) => {
-  const labels: Record<string, string> = { comment_reply: '내 글에 달린 답글', reaction: '내 기록에 달린 반응', member_join: '새로운 멤버 가입', completion: '멤버의 완독 소식', book_added: '새로운 책 추가' }
+  const labels: Record<string, string> = { 
+    comment_reply: '내 글에 달린 답글', 
+    reaction: '내 기록에 달린 반응', 
+    member_join: '새로운 멤버 가입', 
+    completion: '멤버의 완독 소식', 
+    book_added: '새로운 책 추가',
+    group_archived: '그룹 활동 종료'
+  }
   return labels[type] || type
 }
 

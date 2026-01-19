@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
     <!-- Invite Code -->
-    <div>
+    <div v-if="!isArchived">
       <div class="flex items-center justify-between px-1 mb-3">
         <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">초대 코드</h3>
       </div>
@@ -44,13 +44,15 @@
           v-model="localGroupName"
           type="text"
           placeholder="그룹 이름"
-          class="flex-1 min-w-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg py-2 px-3 text-sm text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-400/20 transition-all"
+          :disabled="isArchived"
+          class="flex-1 min-w-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg py-2 px-3 text-sm text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-400/20 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
         />
-        <button @click="handleSaveGroupName" class="flex-shrink-0 p-2.5 bg-zinc-900 dark:bg-zinc-700 text-white rounded-lg hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-colors">
+        <button v-if="!isArchived" @click="handleSaveGroupName" class="flex-shrink-0 p-2.5 bg-zinc-900 dark:bg-zinc-700 text-white rounded-lg hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-colors">
           <Save :size="18" />
         </button>
       </div>
       <button
+        v-if="!isArchived"
         @click="emit('openSearchModal')"
         class="w-full py-2.5 border border-lime-300 dark:border-lime-700 text-lime-600 dark:text-lime-400 rounded-lg text-xs font-bold hover:bg-lime-50 dark:hover:bg-lime-900/20 transition-colors flex items-center justify-center gap-2"
       >
@@ -58,17 +60,19 @@
         새 책 시작하기
       </button>
       <button
+        v-if="!isArchived"
         @click="emit('deleteGroup')"
         class="w-full py-2.5 mt-2 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg text-xs font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center justify-center gap-2"
       >
         <Trash2 :size="14" />
-        그룹 영구 삭제
+        그룹 종료 (아카이브)
       </button>
       </div>
     </div>
 
     <!-- Leave Group -->
     <button
+      v-if="!isArchived"
       @click="emit('leaveGroup')"
       class="w-full py-2.5 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg text-xs font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center justify-center gap-2"
     >
@@ -86,6 +90,7 @@ interface Props {
   inviteCode: string
   groupName: string
   isAdmin: boolean
+  isArchived: boolean
 }
 
 interface Emits {

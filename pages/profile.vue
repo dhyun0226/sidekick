@@ -205,13 +205,13 @@ const showDeleteAccountConfirm = ref(false)
 const upgradeInsightOpen = ref(false)
 
 // Data State
-const notificationSettings = ref({ comment_reply: true, reaction: true, member_join: true, completion: true, book_added: true })
+const notificationSettings = ref({ comment_reply: true, reaction: true, member_join: true, completion: true, book_added: true, group_archived: true })
 const appSettings = ref({ library_view_mode: 'year', calendar_include_comments: true })
 const yearlyGoal = ref(50), editingGoal = ref(false), tempGoal = ref(50)
 const isSaving = ref(false)
 
 // Computed Properties
-const readingBooks = computed(() => library.value.filter(book => !book.finished_at))
+const readingBooks = computed(() => library.value.filter(book => !book.finished_at && !book.isArchived))
 const finishedLibrary = computed(() => library.value.filter(book => book.finished_at))
 const libraryByYear = computed(() => {
   const grouped: Record<string, any[]> = {}
@@ -336,9 +336,10 @@ const fetchData = async () => {
   try {
     // 1. Fetch lightweight data for initial load & stats
     const [ { data: pd }, { data: rd }, { count: gc }, { data: ud }, { data: allDatesC }, { data: allDatesR } ] = await Promise.all([
-      client.from('user_reading_progress').select('finished_at, progress_pct, last_read_at, group_book:group_books (id, book:books (*))').eq('user_id', userId).order('last_read_at', { ascending: false }),
+      client.from('user_reading_progress').select('finished_at, progress_pct, last_read_at, group_book:group_books (id, book:books (*), group:groups (deleted_at))').eq('user_id', userId).order('last_read_at', { ascending: false }),
       client.from('reviews').select('group_book_id, rating').eq('user_id', userId),
-      client.from('group_members').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      // 🎯 활성 그룹만 카운트 (deleted_at이 null인 그룹)
+      client.from('group_members').select('groups!inner(deleted_at)', { count: 'exact', head: true }).eq('user_id', userId).is('groups.deleted_at', null),
       client.from('users').select('yearly_reading_goal').eq('id', userId).single(),
       client.from('comments').select('created_at').eq('user_id', userId),
       client.from('reviews').select('created_at').eq('user_id', userId)
@@ -349,7 +350,8 @@ const fetchData = async () => {
       id: p.group_book?.book?.isbn, groupBookId: p.group_book?.id, title: p.group_book?.book?.title,
       author: p.group_book?.book?.author, publisher: p.group_book?.book?.publisher, total_pages: p.group_book?.book?.total_pages,
       cover_url: p.group_book?.book?.cover_url, genre: p.group_book?.book?.official_genre || p.group_book?.book?.draft_genre,
-      finished_at: p.finished_at, progress_pct: p.progress_pct, last_read_at: p.last_read_at, myRating: rm.get(p.group_book?.id) || null
+      finished_at: p.finished_at, progress_pct: p.progress_pct, last_read_at: p.last_read_at, myRating: rm.get(p.group_book?.id) || null,
+      isArchived: p.group_book?.group?.deleted_at != null
     }))
     stats.value.books = library.value.filter(b => b.finished_at).length
     stats.value.groups = gc || 0
@@ -573,8 +575,13 @@ onMounted(async () => {
   console.log('[Profile] Limits loaded:', limits.value)
   console.log('[Profile] User Tier:', userStore.profile?.subscription_tier)
 
-  if (userStore.profile?.notification_settings) notificationSettings.value = userStore.profile.notification_settings
-  if (userStore.profile?.app_settings) appSettings.value = { ...appSettings.value, ...userStore.profile.app_settings }
+  if (userStore.profile?.notification_settings) {
+    // 🎯 기존 설정과 DB 설정을 병합 (새로 추가된 항목 누락 방지)
+    notificationSettings.value = { ...notificationSettings.value, ...userStore.profile.notification_settings }
+  }
+  if (userStore.profile?.app_settings) {
+    appSettings.value = { ...appSettings.value, ...userStore.profile.app_settings }
+  }
   await fetchData()
 })
 

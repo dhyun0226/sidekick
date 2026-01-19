@@ -72,14 +72,16 @@
             <!-- Review Header -->
             <div class="flex items-start justify-between mb-4">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-200 dark:border-zinc-700">
+                <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-200 dark:border-zinc-700 opacity-80 shadow-inner">
                   <img v-if="review.user?.avatar_url" :src="review.user.avatar_url" class="w-full h-full object-cover" />
-                  <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
-                    <User :size="18" />
+                  <div v-else class="w-full h-full flex items-center justify-center text-zinc-400 text-sm font-bold">
+                    {{ (review.user?.display_name || '탈').charAt(0).toUpperCase() }}
                   </div>
                 </div>
                 <div>
-                  <p class="font-bold text-sm text-zinc-900 dark:text-white">{{ review.user?.display_name || '익명' }}</p>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white" :class="{ 'text-zinc-400 font-medium italic': !review.user }">
+                    {{ review.user?.display_name || '탈퇴한 사용자' }}
+                  </p>
                   <p class="text-[10px] text-zinc-400 font-medium">{{ formatDate(review.created_at) }}</p>
                 </div>
               </div>

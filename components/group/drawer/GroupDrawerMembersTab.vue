@@ -94,7 +94,7 @@
         </div>
 
         <!-- Right Section: Menu (Common Component) -->
-        <div v-if="isAdmin && member.id !== currentUserId" class="absolute right-2 top-1/2 -translate-y-1/2">
+        <div v-if="isAdmin && member.id !== currentUserId && !isArchived" class="absolute right-2 top-1/2 -translate-y-1/2">
           <DropdownMenu
             :is-open="activeMemberMenu === member.id"
             @toggle="toggleMemberMenu(member.id)"
@@ -149,6 +149,7 @@ interface MemberWithProgress {
 interface Props {
   sortedMembersWithProgress: MemberWithProgress[]
   isAdmin: boolean
+  isArchived: boolean
   currentUserId: string | null
 }
 

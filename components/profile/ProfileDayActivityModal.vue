@@ -53,8 +53,10 @@
           <div v-if="item.isReply && item.parentData" class="mb-3 overflow-hidden rounded-lg border border-zinc-100 dark:border-zinc-800 text-left">
             <div class="bg-zinc-50 dark:bg-zinc-800/50 px-3.5 py-3">
               <div class="flex items-center gap-2 mb-2">
-                <Avatar :src="item.parentData.avatar_url" :fallback="item.parentData.nickname?.charAt(0) || 'U'" size="xs" className="w-4 h-4 shadow-xs" />
-                <p class="text-[11px] font-bold text-zinc-400">{{ item.parentData.nickname }}님의 기록</p>
+                <Avatar :src="item.parentData.avatar_url" :fallback="item.parentData.nickname || '탈'" size="xs" className="w-4 h-4 shadow-xs opacity-80" />
+                <p class="text-[11px] font-bold text-zinc-400">
+                  <span :class="{ 'italic opacity-70': !item.parentData.nickname }">{{ item.parentData.nickname || '탈퇴한 사용자' }}</span>님의 기록
+                </p>
               </div>
               <div v-if="item.parentData.anchor_text" class="mb-2 pl-2 border-l-2 border-zinc-300 dark:border-zinc-600">
                 <p class="text-[13px] text-zinc-500 dark:text-zinc-400 italic font-serif leading-relaxed line-clamp-1">{{ item.parentData.anchor_text }}</p>

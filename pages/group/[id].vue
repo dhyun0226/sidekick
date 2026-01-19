@@ -21,6 +21,13 @@
 
     <!-- Loaded Content -->
     <template v-else>
+      <!-- Archived Notice Banner -->
+      <div v-if="isArchived" class="bg-amber-500/10 dark:bg-amber-500/20 border-b border-amber-500/30 px-4 py-2 text-center relative z-30">
+        <p class="text-[11px] font-black text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1.5 uppercase tracking-tighter">
+          <Archive :size="12" /> 이 그룹은 종료되었습니다. (과거의 기록만 열람 가능)
+        </p>
+      </div>
+
       <!-- 2. Hero Section (Immersive Book Info) -->
       <BookHeroSection
         :book="selectedBook ? {
@@ -100,6 +107,7 @@
         :totalPages="selectedBook.book?.total_pages"
         :bookTitle="bookTitle"
         :members="selectedBook.status === 'reading' ? sliderMembers : []"
+        :is-archived="isArchived"
         @update:modelValue="handleSliderInput"
         @change="handleSliderChange"
         @write="handleWrite"
@@ -130,6 +138,7 @@
       :locked-history-books="lockedHistoryBooks"
       :sorted-members-with-progress="sortedMembersWithProgress"
       :is-admin="isAdmin"
+      :is-archived="isArchived"
       :current-user-id="currentUserId"
       :invite-code="group?.invite_code || ''"
       :toc="toc"
@@ -265,13 +274,13 @@
 
     <ConfirmModal
       :is-open="modals.deleteGroup"
-      variant="danger"
-      title="그룹 삭제"
+      variant="warning"
+      title="그룹 종료"
       :message="members.length > 1
-        ? `이 그룹에는 ${members.length}명의 멤버가 있습니다.\n그룹을 삭제하면 모든 데이터(책, 댓글, 리뷰 등)가 영구적으로 삭제됩니다.`
-        : '그룹을 삭제하면 모든 데이터가 영구적으로 삭제됩니다.'"
-      description="정말로 삭제하시겠습니까?"
-      confirm-text="다음"
+        ? `이 그룹에는 ${members.length}명의 멤버가 있습니다.\n그룹을 종료하시겠습니까?`
+        : '그룹을 종료하시겠습니까?'"
+      description="종료된 그룹은 '지난 그룹' 목록으로 이동하며, 모든 독서 기록은 안전하게 보관됩니다."
+      confirm-text="종료하기"
       cancel-text="취소"
       @confirm="confirmDeleteGroup"
       @cancel="modals.deleteGroup = false"
@@ -279,11 +288,11 @@
 
     <TextInputModal
       :is-open="modals.deleteGroupConfirm"
-      title="그룹 삭제 확인"
-      message="정말로 삭제하려면 아래 그룹 이름을 정확히 입력하세요."
+      title="그룹 종료 확인"
+      message="정말로 종료하려면 아래 그룹 이름을 정확히 입력하세요."
       :expected-text="group?.name || ''"
       placeholder="그룹 이름 입력"
-      confirm-text="삭제"
+      confirm-text="종료하기"
       cancel-text="취소"
       @confirm="executeDeleteGroup"
       @cancel="modals.deleteGroupConfirm = false"
@@ -478,6 +487,8 @@ const {
 )
 
 // ===== Additional State =====
+const myMembership = computed(() => members.value.find(m => m.id === currentUserId.value))
+const isArchived = computed(() => group.value?.deleted_at != null || myMembership.value?.left_at != null)
 const reviewInitialData = ref({ rating: 0, content: '' })
 const isEditingReview = ref(false)
 const reviewingBookId = ref<string | null>(null) // Track which book is being reviewed
@@ -579,7 +590,10 @@ const commentCount = computed(() => comments.value.length)
 const sortedMembersWithProgress = computed(() => {
   const { formatTimeAgo, isInactive, formatShortDate } = useDateUtils()
 
-  const membersWithData = members.value.map(member => {
+  // 🎯 활성 멤버만 필터링 (left_at이 null인 멤버만 레이스에 참여)
+  const activeMembers = members.value.filter(m => !m.left_at)
+
+  const membersWithData = activeMembers.map(member => {
     // 현재 선택된 책의 progress만 매칭 (다른 그룹의 같은 책 데이터 제외)
     const progressData = memberProgress.value.find(
       p => p.user_id === member.id && p.group_book_id === selectedBookId.value
@@ -588,11 +602,13 @@ const sortedMembersWithProgress = computed(() => {
     // 진행도
     let progress: number
     if (member.id === currentUserId.value) {
-      // 현재 사용자: 완독 여부에 따라 다르게 처리
+      // 현재 사용자: 완독 여부 혹은 그룹 종료 여부에 따라 처리
       const isFinished = progressData?.finished_at != null
-      progress = isFinished
-        ? (progressData?.progress_pct || 100)  // 완독: DB 값 고정 (슬라이더 움직여도 아바타 고정)
-        : Math.round(viewProgress.value)       // 미완독: 실시간 값 (슬라이더 따라 움직임)
+      // 🎯 종료된 그룹이거나 완독한 경우: DB 값 고정 (움직이지 않음)
+      //    그 외(진행 중): 실시간 값 (슬라이더 따라 움직임)
+      progress = (isFinished || isArchived.value)
+        ? (progressData?.progress_pct || 0)
+        : Math.round(viewProgress.value)
     } else {
       // 다른 멤버들: 항상 DB 값
       progress = progressData?.progress_pct || 0
@@ -749,7 +765,8 @@ const fetchData = async () => {
         id: m.user.id,
         nickname: m.user.nickname,
         avatar_url: m.user.avatar_url,
-        role: m.role
+        role: m.role,
+        left_at: m.left_at // 🎯 Add left_at
       }))
     }
 
@@ -940,20 +957,13 @@ const handleSliderChange = async (val: number) => {
     scrollToPosition(Math.round(val))
   })
 
-  // 완독 여부 확인
+  // 완독 여부 및 그룹 종료 여부 확인
   const currentBookData = allBooks.value.find(b => b.id === selectedBookId.value)
   const isFinished = currentBookData?.user_finished_at != null
 
-  console.log('[Slider] 🎯 Check:', {
-    bookId: selectedBookId.value,
-    user_finished_at: currentBookData?.user_finished_at,
-    isFinished,
-    memberProgress_finished_at: memberProgress.value.find(p => p.group_book_id === selectedBookId.value && p.user_id === currentUserId.value)?.finished_at
-  })
-
-  if (isFinished) {
-    // 완독 후: 네비게이션 모드 (진행도 저장 안함)
-    console.log('[Slider] Navigation mode - book is finished, not saving progress')
+  // 🎯 종료된 그룹이거나 완독한 책이면 DB에 저장하지 않음 (이동용으로만 사용)
+  if (isArchived.value || isFinished) {
+    console.log('[Slider] Navigation mode - archived or finished, not saving progress')
   } else {
     // 완독 전: 진행도 추적 모드 (진행도 저장)
     console.log('[Slider] Tracking mode - saving progress:', val)
@@ -1657,6 +1667,12 @@ const saveEditedFinishedDate = async (finishedDate: string) => {
 }
 
 const handleBookAdd = async (data: any) => {
+  // Archived group check
+  if (isArchived.value) {
+    toast.error('종료된 그룹에는 책을 추가할 수 없습니다.')
+    return
+  }
+
   // Admin permission check
   if (!isAdmin.value) {
     toast.error('관리자만 책을 추가할 수 있습니다.')
@@ -1994,11 +2010,12 @@ const executeDeleteGroup = async (inputText: string) => {
   }
 
   try {
-    console.log('[Group] Deleting group:', groupId)
+    console.log('[Group] Soft deleting group:', groupId)
 
+    // 🎯 하드 삭제 대신 deleted_at 업데이트 (Soft Delete)
     const { error } = await client
       .from('groups')
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', groupId)
 
     if (error) {
@@ -2007,7 +2024,7 @@ const executeDeleteGroup = async (inputText: string) => {
       return
     }
 
-    toast.success('그룹이 삭제되었습니다.')
+    toast.success('그룹이 종료되었습니다. (아카이브 보관)')
     router.push('/')
   } catch (err) {
     console.error('Unexpected error:', err)
@@ -2020,9 +2037,10 @@ const executeDeleteGroup = async (inputText: string) => {
 const leaveGroup = () => {
   if (!currentUserId.value) return
 
-  // Check if user is the only admin
+  // Check if user is the only admin AND there are other members
   const admins = members.value.filter(m => m.role === 'admin')
-  if (admins.length === 1 && admins[0].id === currentUserId.value) {
+  // 멤버가 나 혼자뿐이면 그냥 나갈 수 있음 (그룹은 유령 상태로 남음)
+  if (admins.length === 1 && admins[0].id === currentUserId.value && members.value.length > 1) {
     toast.error('그룹의 유일한 관리자입니다. 다른 멤버를 관리자로 지정한 후 나가주세요.')
     return
   }
@@ -2034,15 +2052,16 @@ const executeLeaveGroup = async () => {
   if (!currentUserId.value) return
 
   try {
+    // 🎯 Soft Leave: left_at 업데이트
     const { error } = await client
       .from('group_members')
-      .delete()
+      .update({ left_at: new Date().toISOString() })
       .eq('group_id', groupId)
       .eq('user_id', currentUserId.value)
 
     if (error) throw error
 
-    toast.success('그룹에서 나갔습니다.')
+    toast.success('그룹을 보관함으로 이동했습니다. (지난 그룹에서 확인 가능)')
     router.push('/')
   } catch (error) {
     console.error('Leave group error:', error)
@@ -2118,8 +2137,8 @@ const selectBook = async (bookId: string) => {
     }
 
     // 책을 선택했다는 것을 기록 (last_read_at 업데이트)
-    // 단, 이미 완독한 책(책장 탭)은 기록하지 않음 (순서 변경 방지)
-    if (!progressData?.finished_at) {
+    // 단, 종료된 그룹이거나 이미 완독한 책(책장 탭)은 기록하지 않음 (순서 변경 방지)
+    if (!isArchived.value && !progressData?.finished_at) {
       await saveProgress(viewProgress.value)
     }
   }

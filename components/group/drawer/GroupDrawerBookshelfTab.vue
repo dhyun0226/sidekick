@@ -66,7 +66,7 @@
         <!-- Book Info -->
         <div class="p-3 flex gap-3 relative">
           <!-- Settings Menu (Common Component) -->
-          <div class="absolute top-3 right-3 z-20">
+          <div v-if="!isArchived" class="absolute top-3 right-3 z-20">
             <DropdownMenu
               :is-open="activeBookMenu === book.id"
               @toggle="toggleBookMenu(book.id)"
@@ -256,6 +256,7 @@ interface Props {
   historyBooks: HistoryBook[]
   lockedHistoryBooks: HistoryBook[]
   isAdmin: boolean
+  isArchived: boolean
   userReviewedBooks: Map<string, number>
 }
 

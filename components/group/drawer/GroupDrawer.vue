@@ -61,6 +61,7 @@
           :locked-reading-books="lockedReadingBooks"
           :view-progress="viewProgress"
           :is-admin="isAdmin"
+          :is-archived="isArchived"
           :user-reviewed-books="userReviewedBooks"
           @select-book="(id) => emit('selectBook', id)"
           @jump-to-chapter="(start) => emit('jumpToChapter', start)"
@@ -79,6 +80,7 @@
           v-if="activeTab === 'members'"
           :sorted-members-with-progress="sortedMembersWithProgress"
           :is-admin="isAdmin"
+          :is-archived="isArchived"
           :current-user-id="currentUserId"
           @change-member-role="(member) => emit('changeMemberRole', member)"
           @kick-member="(member) => emit('kickMember', member)"
@@ -89,6 +91,7 @@
           :history-books="historyBooks"
           :locked-history-books="lockedHistoryBooks"
           :is-admin="isAdmin"
+          :is-archived="isArchived"
           :user-reviewed-books="userReviewedBooks"
           @select-book="(id) => emit('selectBook', id)"
           @open-reviews="(bookId) => emit('openReviews', bookId)"
@@ -107,6 +110,7 @@
           :invite-code="inviteCode"
           :group-name="groupName"
           :is-admin="isAdmin"
+          :is-archived="isArchived"
           @copy-invite-code="emit('copyInviteCode')"
           @copy-invite-link="emit('copyInviteLink')"
           @regenerate-invite-code="emit('regenerateInviteCode')"
@@ -139,6 +143,7 @@ interface Props {
   lockedHistoryBooks: any[]
   sortedMembersWithProgress: any[]
   isAdmin: boolean
+  isArchived: boolean
   currentUserId: string | null
   inviteCode: string
   toc: any[]

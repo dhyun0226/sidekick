@@ -17,6 +17,7 @@
           </div>
           
           <button
+            v-if="!isArchived"
             @click="$emit('write')"
             class="flex items-center gap-2 pl-3 pr-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg shadow-zinc-500/20 shrink-0"
           >
@@ -129,6 +130,7 @@ const props = defineProps<{
   totalPages?: number
   bookTitle?: string
   members?: Array<{ id: string; nickname: string; avatar_url?: string; progress: number }>
+  isArchived?: boolean
 }>()
 
 const emit = defineEmits(['update:modelValue', 'change', 'write', 'dragging'])

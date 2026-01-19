@@ -42,12 +42,14 @@
           <div class="flex items-center gap-2 mb-1.5">
             <Avatar
               :src="comment.user?.avatar_url"
-              :fallback="comment.user?.nickname || 'U'"
+              :fallback="comment.user?.nickname || '탈'"
               size="xs"
-              :alt="comment.user?.nickname"
-              className="w-5 h-5 shadow-sm"
+              :alt="comment.user?.nickname || '탈퇴한 사용자'"
+              className="w-5 h-5 shadow-sm opacity-80"
             />
-            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">{{ comment.user?.nickname }}</span>
+            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100" :class="{ 'text-zinc-400 font-medium italic': !comment.user }">
+              {{ comment.user?.nickname || '탈퇴한 사용자' }}
+            </span>
             <span class="text-[10px] text-zinc-300 dark:text-zinc-600">{{ formatDate(comment.created_at) }}</span>
           </div>
 
@@ -132,12 +134,14 @@
                 <div class="flex items-center gap-1.5">
                   <Avatar
                     :src="reply.user?.avatar_url"
-                    :fallback="reply.user?.nickname || 'U'"
+                    :fallback="reply.user?.nickname || '탈'"
                     size="xs"
-                    :alt="reply.user?.nickname"
-                    className="w-4 h-4 shadow-xs"
+                    :alt="reply.user?.nickname || '탈퇴한 사용자'"
+                    className="w-4 h-4 shadow-xs opacity-80"
                   />
-                  <span class="text-[11px] font-bold text-zinc-500 dark:text-zinc-400">{{ reply.user.nickname }}</span>
+                  <span class="text-[11px] font-bold text-zinc-500 dark:text-zinc-400" :class="{ 'italic font-medium opacity-70': !reply.user }">
+                    {{ reply.user?.nickname || '탈퇴한 사용자' }}
+                  </span>
                   <span class="text-[10px] text-zinc-300 dark:text-zinc-600">{{ formatDate(reply.created_at) }}</span>
                 </div>
                 

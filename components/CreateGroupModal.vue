@@ -136,24 +136,28 @@ const reset = () => {
 }
 
 const handleCreate = async () => {
-  if (!canSubmit.value) return
-
-  // 1. 그룹 생성 제한 체크 (구독 tier 기반)
-  const limitCheck = await canCreateGroup()
-
-  if (!limitCheck.allowed) {
-    groupLimitInfo.value = limitCheck
-    upgradePromptOpen.value = true
-    return // 그룹 생성 중단
-  }
-
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) return
+  if (!canSubmit.value || loading.value) return
 
   loading.value = true
   error.value = ''
 
   try {
+    // 1. 그룹 생성 제한 체크 (구독 tier 기반)
+    const limitCheck = await canCreateGroup()
+
+    if (!limitCheck.allowed) {
+      groupLimitInfo.value = limitCheck
+      upgradePromptOpen.value = true
+      loading.value = false // 제한에 걸렸으므로 다시 버튼 활성화
+      return // 그룹 생성 중단
+    }
+
+    const { data: { user } } = await client.auth.getUser()
+    if (!user) {
+      loading.value = false
+      return
+    }
+
     console.log('[CreateGroup] Creating group:', groupName.value)
 
     // 1. 그룹 생성 (invite_code는 DB 기본값으로 자동 생성)
@@ -197,7 +201,6 @@ const handleCreate = async () => {
   } catch (err: any) {
     console.error('[CreateGroup] Error:', err)
     error.value = err.message || '그룹 생성 중 오류가 발생했습니다.'
-  } finally {
     loading.value = false
   }
 }
