@@ -527,19 +527,36 @@ const toc = computed(() => {
   const snapshot = selectedBook.value?.toc_snapshot
   const totalPages = selectedBook.value?.book?.total_pages
 
-  if (!snapshot || !Array.isArray(snapshot) || !totalPages) return []
+  if (!snapshot || !Array.isArray(snapshot)) return []
+  if (!totalPages) return []
 
-  // DB의 페이지 번호 기반 목차를 UI용 퍼센트 기반으로 변환
+  // DB의 데이터를 UI용 표준 포맷({title, start, end, startPage})으로 변환
   return snapshot.map((c: any, i: number) => {
-    const startPage = c.page || 0
+    // 1. 시작 페이지 결정 (startPage -> page 순서로 시도)
+    let startPage = c.startPage !== undefined ? c.startPage : (c.page !== undefined ? c.page : null)
+    
+    // 2. 만약 페이지 번호가 전혀 없다면 (아주 오래된 퍼센트 데이터), 퍼센트 기반으로 역계산
+    if (startPage === null && c.start !== undefined) {
+      startPage = Math.round((c.start / 100) * totalPages)
+    }
+    
+    // 최종 보강 (최소 1페이지)
+    startPage = startPage || 1
+
+    // 3. 종료 페이지 결정
     const nextChapter = snapshot[i + 1]
-    const endPage = nextChapter ? nextChapter.page : totalPages
+    let nextStartPage = nextChapter?.startPage !== undefined ? nextChapter.startPage : (nextChapter?.page !== undefined ? nextChapter.page : null)
+    if (nextStartPage === null && nextChapter?.start !== undefined) {
+      nextStartPage = Math.round((nextChapter.start / 100) * totalPages)
+    }
+    
+    const endPage = nextStartPage ? nextStartPage - 1 : totalPages
 
     return {
       title: c.title,
       start: (startPage / totalPages) * 100,
       end: (endPage / totalPages) * 100,
-      page: startPage // 원본 페이지 번호 유지
+      startPage
     }
   })
 })

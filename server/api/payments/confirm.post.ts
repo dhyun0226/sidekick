@@ -93,47 +93,94 @@ export default defineEventHandler(async (event) => {
       throw new Error('Plan not found')
     }
 
-    // 5. 구독 생성 (billing_period_months에 따라)
-    const startDate = new Date()
-
-    // 월말 날짜 문제 해결: 정확한 만료일 계산
-    const endDate = new Date(startDate)
-    const targetMonth = endDate.getMonth() + plan.billing_period_months
-    const targetYear = endDate.getFullYear() + Math.floor(targetMonth / 12)
-    const finalMonth = targetMonth % 12
-
-    // 원본 날짜 저장
-    const originalDay = endDate.getDate()
-
-    // 월 설정
-    endDate.setFullYear(targetYear)
-    endDate.setMonth(finalMonth)
-
-    // 해당 월의 마지막 날짜 구하기
-    const lastDayOfMonth = new Date(targetYear, finalMonth + 1, 0).getDate()
-
-    // 원본 날짜가 해당 월의 마지막 날보다 크면, 해당 월의 마지막 날로 설정
-    endDate.setDate(Math.min(originalDay, lastDayOfMonth))
-
-    const { data: subscription, error: subscriptionError } = await client
+    // 5. 구독 처리 (신규 또는 연장)
+    
+    // 현재 활성 구독 확인
+    const { data: activeSub } = await client
       .from('subscriptions')
-      .insert({
-        user_id: user.id,
-        plan_id: plan.id,
-        status: 'active',
-        start_date: startDate.toISOString(),
-        end_date: endDate.toISOString(),
-        auto_renew: true
-      })
-      .select()
-      .single()
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .maybeSingle()
 
-    if (subscriptionError) throw subscriptionError
+    let subscriptionId: string
+    let startDate: Date
+    let endDate: Date
 
-    // 5. 결제에 구독 ID 연결
+    if (activeSub) {
+      // === 구독 연장 로직 ===
+      startDate = new Date(activeSub.start_date) // 시작일은 유지
+      const currentEndDate = new Date(activeSub.end_date)
+      
+      // 현재 만료일 기준 + 플랜 기간
+      const targetMonth = currentEndDate.getMonth() + plan.billing_period_months
+      const targetYear = currentEndDate.getFullYear() + Math.floor(targetMonth / 12)
+      const finalMonth = targetMonth % 12
+      
+      const originalDay = currentEndDate.getDate()
+      
+      endDate = new Date(currentEndDate)
+      endDate.setFullYear(targetYear)
+      endDate.setMonth(finalMonth)
+      
+      const lastDayOfMonth = new Date(targetYear, finalMonth + 1, 0).getDate()
+      endDate.setDate(Math.min(originalDay, lastDayOfMonth))
+
+      // 기존 구독 업데이트
+      const { data: updatedSub, error: updateError } = await client
+        .from('subscriptions')
+        .update({
+          plan_id: plan.id, // 플랜 변경 가능성 고려
+          end_date: endDate.toISOString(),
+          auto_renew: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', activeSub.id)
+        .select()
+        .single()
+
+      if (updateError) throw updateError
+      subscriptionId = updatedSub.id
+
+    } else {
+      // === 신규 구독 생성 로직 ===
+      startDate = new Date()
+      
+      // 오늘 기준 + 플랜 기간
+      const targetMonth = startDate.getMonth() + plan.billing_period_months
+      const targetYear = startDate.getFullYear() + Math.floor(targetMonth / 12)
+      const finalMonth = targetMonth % 12
+      
+      const originalDay = startDate.getDate()
+      
+      endDate = new Date(startDate)
+      endDate.setFullYear(targetYear)
+      endDate.setMonth(finalMonth)
+      
+      const lastDayOfMonth = new Date(targetYear, finalMonth + 1, 0).getDate()
+      endDate.setDate(Math.min(originalDay, lastDayOfMonth))
+
+      const { data: newSub, error: insertError } = await client
+        .from('subscriptions')
+        .insert({
+          user_id: user.id,
+          plan_id: plan.id,
+          status: 'active',
+          start_date: startDate.toISOString(),
+          end_date: endDate.toISOString(),
+          auto_renew: true
+        })
+        .select()
+        .single()
+
+      if (insertError) throw insertError
+      subscriptionId = newSub.id
+    }
+
+    // 6. 결제에 구독 ID 연결
     await client
       .from('payments')
-      .update({ subscription_id: subscription.id })
+      .update({ subscription_id: subscriptionId })
       .eq('order_id', orderId)
 
     // 6. 사용자 구독 등급 업데이트

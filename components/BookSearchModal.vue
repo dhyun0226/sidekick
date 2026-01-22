@@ -288,12 +288,27 @@ const selectBook = async (book: any) => {
   selectedBook.value = book
   const client = useSupabaseClient()
   const { data: existingBook } = await client.from('books').select('official_toc, official_genre, total_pages').eq('isbn', book.isbn).maybeSingle()
-  if (existingBook?.official_toc) {
+  
+  if (existingBook) {
     const totalPagesFromDB = existingBook.total_pages || 100
     totalPages.value = totalPagesFromDB
-    chapters.value = existingBook.official_toc.map((c: any) => ({ title: c.title, startPage: Math.round((c.start / 100) * totalPagesFromDB) }))
-  } else { totalPages.value = null; chapters.value = [] }
-  selectedGenre.value = existingBook?.official_genre || ''
+    
+    if (existingBook.official_toc && Array.isArray(existingBook.official_toc)) {
+      // 하위 호환성 유지: startPage가 있으면 쓰고, 없으면 start 퍼센트로 계산
+      chapters.value = existingBook.official_toc.map((c: any) => ({
+        title: c.title,
+        startPage: c.startPage || (c.start !== undefined ? Math.round((c.start / 100) * totalPagesFromDB) : 1)
+      }))
+    } else {
+      chapters.value = []
+    }
+    selectedGenre.value = existingBook.official_genre || ''
+  } else {
+    totalPages.value = null
+    chapters.value = []
+    selectedGenre.value = ''
+  }
+  
   step.value = 2
 }
 

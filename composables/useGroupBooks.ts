@@ -246,7 +246,7 @@ export const useGroupBooks = (groupId: string) => {
       .insert({
         group_id: groupId,
         isbn: data.book.isbn,
-        toc_snapshot: data.toc.map(c => ({ title: c.title, page: c.startPage })),
+        toc_snapshot: data.toc.map(c => ({ title: c.title, startPage: c.startPage })),
         status: 'reading',
         target_start_date: data.startDate,
         target_end_date: data.endDate,
@@ -308,7 +308,7 @@ export const useGroupBooks = (groupId: string) => {
     totalPages: number,
     chapters: { title: string; startPage: number }[]
   ) => {
-    const tocSnapshot = chapters.map(c => ({ title: c.title, page: c.startPage }))
+    const tocSnapshot = chapters.map(c => ({ title: c.title, startPage: c.startPage }))
 
     const { error: groupBookError } = await client
       .from('group_books')

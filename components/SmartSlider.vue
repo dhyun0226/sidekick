@@ -120,8 +120,9 @@ import Avatar from './Avatar.vue'
 
 interface Chapter {
   title: string
-  start: number // 0-100
-  end: number   // 0-100
+  start?: number // 0-100
+  end?: number   // 0-100
+  startPage?: number
 }
 
 const props = defineProps<{
@@ -152,10 +153,31 @@ const chapters = computed(() => {
   if (!props.toc || props.toc.length === 0) {
     return [{ title: '', start: 0, end: 100, width: 100 }]
   }
-  return props.toc.map(c => ({
-    ...c,
-    width: c.end - c.start
-  }))
+
+  return props.toc.map((c, idx) => {
+    let start = 0
+    let end = 100
+
+    if (c.startPage !== undefined && props.totalPages) {
+      // ✅ 페이지 기반 계산
+      start = (c.startPage / props.totalPages) * 100
+      
+      const nextChapter = props.toc![idx + 1]
+      const endPage = nextChapter?.startPage ? nextChapter.startPage - 1 : props.totalPages
+      end = (endPage / props.totalPages) * 100
+    } else {
+      // ✅ 기존 퍼센트 기반 (하위 호환)
+      start = c.start || 0
+      end = c.end || 100
+    }
+
+    return {
+      ...c,
+      start,
+      end,
+      width: Math.max(0, end - start)
+    }
+  })
 })
 
 const members = computed(() => props.members || [])

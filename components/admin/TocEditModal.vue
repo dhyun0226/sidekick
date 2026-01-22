@@ -169,12 +169,20 @@ watch(() => props.show, (show) => {
     // Parse the appropriate TOC based on tocType
     const tocSource = props.tocType === 'official' ? props.book.official_toc : props.book.draft_toc
     const toc = parseToc(tocSource)
-    editedToc.value = toc.map((chapter: any) => ({
-      title: chapter.title,
-      start: chapter.start,
-      end: chapter.end,
-      startPage: Math.round((chapter.start / 100) * totalPages.value)
-    }))
+    
+    editedToc.value = toc.map((chapter: any) => {
+      // ✅ 하위 호환성: startPage가 있으면 쓰고, 없으면 %로 계산
+      const startPage = chapter.startPage || Math.round((chapter.start / 100) * totalPages.value) || 1
+      
+      return {
+        title: chapter.title,
+        startPage,
+        start: (startPage / totalPages.value) * 100,
+        end: 0 // updatePercentages에서 계산됨
+      }
+    })
+
+    updatePercentages()
   }
 })
 
@@ -253,11 +261,10 @@ const save = async () => {
   saving.value = true
 
   try {
-    // Convert to final TOC format (without startPage)
-    const finalToc = editedToc.value.map(({ title, start, end }) => ({
+    // ✅ 퍼센트가 아닌 페이지 번호 기반으로 저장
+    const finalToc = editedToc.value.map(({ title, startPage }) => ({
       title,
-      start,
-      end
+      startPage
     }))
 
     emit('save', {

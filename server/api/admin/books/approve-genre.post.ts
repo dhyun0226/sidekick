@@ -30,9 +30,9 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Request body에서 ISBN 받기
+  // Request body에서 ISBN과 선택적 장르 받기
   const body = await readBody(event)
-  const { isbn } = body
+  const { isbn, genre } = body
 
   if (!isbn) {
     throw createError({
@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // 1. 책 정보 가져오기
+  // 1. 책 정보 가져오기 (장르 정보 포함)
   const { data: book, error: fetchError } = await client
     .from('books')
     .select('isbn, title, draft_genre')
@@ -55,18 +55,21 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  if (!book.draft_genre) {
+  // 사용할 장르 결정 (파라미터로 받은 장르 -> 없으면 draft_genre)
+  const finalGenre = genre || book.draft_genre
+
+  if (!finalGenre) {
     throw createError({
       statusCode: 400,
-      message: '승인할 장르가 없습니다.'
+      message: '승인할 장르 정보가 없습니다.'
     })
   }
 
-  // 2. draft_genre → official_genre 복사
+  // 2. official_genre 업데이트
   const { error: updateError } = await client
     .from('books')
     .update({
-      official_genre: book.draft_genre,
+      official_genre: finalGenre,
       updated_at: new Date().toISOString()
     })
     .eq('isbn', isbn)

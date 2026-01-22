@@ -236,7 +236,19 @@
                       <span class="text-zinc-700 dark:text-zinc-300 flex-1 truncate">
                         <span class="text-zinc-400 mr-2">{{ idx + 1 }}.</span>{{ chapter.title }}
                       </span>
-                      <span class="text-zinc-500 text-xs ml-4">{{ chapter.start.toFixed(0) }}% ~ {{ chapter.end.toFixed(0) }}%</span>
+                      <span class="text-zinc-500 text-xs ml-4">
+                        <template v-if="chapter.startPage">
+                          p.{{ chapter.startPage }} ~ 
+                          p.{{ 
+                            parseToc(book.official_toc || book.draft_toc)[idx + 1]?.startPage 
+                            ? parseToc(book.official_toc || book.draft_toc)[idx + 1].startPage - 1 
+                            : book.total_pages || '?' 
+                          }}
+                        </template>
+                        <template v-else>
+                          {{ chapter.start.toFixed(0) }}% ~ {{ chapter.end.toFixed(0) }}%
+                        </template>
+                      </span>
                     </div>
                   </div>
                 </td>
@@ -255,6 +267,14 @@
       @close="showEditModal = false"
       @save="saveTocEdit"
     />
+
+    <!-- Genre Edit Modal -->
+    <EditGenreModal
+      :is-open="showGenreModal"
+      :current-genre="editingBook?.official_genre || editingBook?.draft_genre"
+      @close="showGenreModal = false"
+      @save="saveGenreEdit"
+    />
   </div>
 </template>
 
@@ -263,6 +283,7 @@ import { ref, computed, onMounted } from 'vue'
 import { ArrowLeft, BookOpen, FileText, CheckCircle, Edit, Search, ChevronDown } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 import TocEditModal from '~/components/admin/TocEditModal.vue'
+import EditGenreModal from '~/components/admin/EditGenreModal.vue'
 
 definePageMeta({
   middleware: 'admin'
@@ -276,9 +297,44 @@ const allBooks = ref<any[]>([])
 const approvingToc = ref<string | null>(null)
 const approvingGenre = ref<string | null>(null)
 const showEditModal = ref(false)
+const showGenreModal = ref(false)
 const editingBook = ref<any>(null)
 const editingTocType = ref<'draft' | 'official'>('draft')
 const expandedBookId = ref<string | null>(null)
+
+// ... (중략: 기존 computed 및 onMounted 로직) ...
+
+const openEditGenre = (book: any) => {
+  editingBook.value = book
+  showGenreModal.value = true
+}
+
+const saveGenreEdit = async (genre: string) => {
+  if (!editingBook.value) return
+
+  try {
+    const response = await $fetch('/api/admin/books/approve-genre', {
+      method: 'POST',
+      body: { 
+        isbn: editingBook.value.isbn,
+        genre 
+      }
+    })
+
+    toast.success(response.message)
+
+    // Update local data
+    const bookIndex = allBooks.value.findIndex(b => b.isbn === editingBook.value.isbn)
+    if (bookIndex >= 0) {
+      allBooks.value[bookIndex].official_genre = genre
+    }
+
+    showGenreModal.value = false
+  } catch (error: any) {
+    console.error('[Admin] Genre update error:', error)
+    toast.error(error.data?.message || '장르 수정에 실패했습니다.')
+  }
+}
 
 // Search & Filter
 const searchQuery = ref('')
