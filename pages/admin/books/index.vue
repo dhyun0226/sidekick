@@ -302,8 +302,6 @@ const editingBook = ref<any>(null)
 const editingTocType = ref<'draft' | 'official'>('draft')
 const expandedBookId = ref<string | null>(null)
 
-// ... (중략: 기존 computed 및 onMounted 로직) ...
-
 const openEditGenre = (book: any) => {
   editingBook.value = book
   showGenreModal.value = true

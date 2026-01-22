@@ -661,7 +661,94 @@ const editingLimit = ref<any>(null)
 
 const tabs = [
   { label: '구독 관리', value: 'subscriptions' },
-// ... (중략) ...
+  { label: '결제 내역', value: 'payments' },
+  { label: '등급 관리', value: 'tiers' },
+  { label: '제한 설정', value: 'limits' },
+  { label: '통계', value: 'analytics' }
+]
+
+// Computed: Filtered Subscriptions
+const filteredSubscriptions = computed(() => {
+  if (!searchQuery.value) return allSubscriptions.value
+  const query = searchQuery.value.toLowerCase()
+  return allSubscriptions.value.filter(sub => 
+    sub.user?.username?.toLowerCase().includes(query) ||
+    sub.user?.email?.toLowerCase().includes(query)
+  )
+})
+
+// Computed: Filtered Users
+const filteredUsers = computed(() => {
+  if (!searchQuery.value) return allUsers.value
+  const query = searchQuery.value.toLowerCase()
+  return allUsers.value.filter(user => 
+    user.username?.toLowerCase().includes(query) ||
+    user.email?.toLowerCase().includes(query) ||
+    user.nickname?.toLowerCase().includes(query)
+  )
+})
+
+// Computed: Stats
+const activeCount = computed(() => allSubscriptions.value.filter(s => s.status === 'active').length)
+
+const monthlyRevenue = computed(() => {
+  const now = new Date()
+  const currentMonth = now.getMonth()
+  const currentYear = now.getFullYear()
+  
+  return allPayments.value
+    .filter(p => {
+      const d = new Date(p.approved_at || p.created_at)
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear && p.status === 'done'
+    })
+    .reduce((sum, p) => sum + p.amount, 0)
+})
+
+const totalRevenue = computed(() => {
+  return allPayments.value
+    .filter(p => p.status === 'done')
+    .reduce((sum, p) => sum + p.amount, 0)
+})
+
+const expiringCount = computed(() => {
+  const now = new Date()
+  const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+  
+  return allSubscriptions.value.filter(s => {
+    if (s.status !== 'active') return false
+    const endDate = new Date(s.end_date)
+    return endDate > now && endDate <= sevenDaysLater
+  }).length
+})
+
+// Analytics Computed Properties
+const conversionRate = computed(() => {
+  if (allUsers.value.length === 0) return 0
+  const premiumUsers = allUsers.value.filter(u => u.subscription_tier !== 'free').length
+  return (premiumUsers / allUsers.value.length) * 100
+})
+
+const churnRate = computed(() => {
+  const totalSubs = allSubscriptions.value.length
+  if (totalSubs === 0) return 0
+  const cancelledSubs = allSubscriptions.value.filter(s => s.status === 'cancelled').length
+  return (cancelledSubs / totalSubs) * 100
+})
+
+const avgSubscriptionDuration = computed(() => {
+  const endedSubs = allSubscriptions.value.filter(s => s.status === 'cancelled' || s.status === 'expired')
+  if (endedSubs.length === 0) return 0
+  
+  const totalDurationDays = endedSubs.reduce((sum, s) => {
+    const start = new Date(s.start_date)
+    const end = new Date(s.cancelled_at || s.end_date)
+    const diffTime = Math.abs(end.getTime() - start.getTime())
+    return sum + (diffTime / (1000 * 60 * 60 * 24)) 
+  }, 0)
+  
+  return (totalDurationDays / endedSubs.length) / 30 // Convert to months
+})
+
 // MRR (Monthly Recurring Revenue): 월간 반복 수익
 const mrr = computed(() => {
   if (subscriptionPlans.value.length === 0) return 0
@@ -683,7 +770,71 @@ const mrr = computed(() => {
     }, 0)
 })
 
-// ... (중략) ...
+const arr = computed(() => mrr.value * 12)
+
+const arpu = computed(() => {
+  if (activeCount.value === 0) return 0
+  return mrr.value / activeCount.value
+})
+
+const monthlyRevenueData = computed(() => {
+  const months = []
+  const now = new Date()
+  
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const monthLabel = d.toLocaleString('ko-KR', { month: 'long' })
+    const year = d.getFullYear()
+    const month = d.getMonth()
+    
+    const revenue = allPayments.value
+      .filter(p => {
+        const pd = new Date(p.approved_at || p.created_at)
+        return pd.getMonth() === month && pd.getFullYear() === year && p.status === 'done'
+      })
+      .reduce((sum, p) => sum + p.amount, 0)
+      
+    months.push({ label: monthLabel, revenue })
+  }
+  return months
+})
+
+const maxMonthlyRevenue = computed(() => {
+  return Math.max(...monthlyRevenueData.value.map(d => d.revenue), 1)
+})
+
+const monthlyChurnData = computed(() => {
+  const months = []
+  const now = new Date()
+  
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const monthLabel = d.toLocaleString('ko-KR', { month: 'long' })
+    const year = d.getFullYear()
+    const month = d.getMonth()
+    
+    const newSubs = allSubscriptions.value.filter(s => {
+      const sd = new Date(s.created_at)
+      return sd.getMonth() === month && sd.getFullYear() === year
+    }).length
+    
+    const churned = allSubscriptions.value.filter(s => {
+      if (s.status !== 'cancelled' && s.status !== 'expired') return false
+      const ed = new Date(s.cancelled_at || s.end_date)
+      return ed.getMonth() === month && ed.getFullYear() === year
+    }).length
+    
+    months.push({ label: monthLabel, newSubs, churned })
+  }
+  return months
+})
+
+const maxChurnCount = computed(() => {
+  return Math.max(
+    ...monthlyChurnData.value.map(d => Math.max(d.newSubs, d.churned)),
+    1
+  )
+})
 
 onMounted(async () => {
   await Promise.all([
@@ -694,8 +845,6 @@ onMounted(async () => {
     fetchPlans()
   ])
 })
-
-// ... (중략) ...
 
 // Fetch subscription plans
 const fetchPlans = async () => {
