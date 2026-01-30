@@ -28,8 +28,8 @@
             <span class="font-bold text-zinc-900 dark:text-white">{{ formatAmount(paymentInfo.amount) }}</span>
           </div>
           <div class="flex justify-between text-sm">
-            <span class="text-zinc-600 dark:text-zinc-400">다음 결제일</span>
-            <span class="font-bold text-zinc-900 dark:text-white">{{ nextBillingDate }}</span>
+            <span class="text-zinc-600 dark:text-zinc-400">구독 만료일</span>
+            <span class="font-bold text-zinc-900 dark:text-white">{{ subscriptionEndDate }}</span>
           </div>
         </div>
 
@@ -116,7 +116,7 @@ onMounted(async () => {
   }
 })
 
-const nextBillingDate = computed(() => {
+const subscriptionEndDate = computed(() => {
   if (!paymentInfo.value.subscription) return ''
   const date = new Date(paymentInfo.value.subscription.end_date)
   return date.toLocaleDateString('ko-KR', {

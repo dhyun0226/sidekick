@@ -22,7 +22,7 @@
 
         <!-- Anchor Text (Quote Style) -->
         <div v-if="anchorText" class="pl-4 border-l-[3px] border-lime-400">
-          <p class="font-serif text-[15px] text-zinc-600 dark:text-zinc-400 italic leading-relaxed line-clamp-2">
+          <p class="text-[15px] text-zinc-600 dark:text-zinc-400 italic leading-relaxed line-clamp-2">
             {{ anchorText }}
           </p>
         </div>

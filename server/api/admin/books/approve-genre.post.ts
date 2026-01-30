@@ -3,10 +3,9 @@
  * draft_genre → official_genre 복사
  */
 
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  const client = await serverSupabaseClient(event)
   const user = await serverSupabaseUser(event)
 
   if (!user) {
@@ -16,11 +15,14 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // 관리자 권한 체크
-  const { data: userData, error: userError } = await client
+  // Service Role 클라이언트로 RLS 우회
+  const serviceClient = serverSupabaseServiceRole(event)
+
+  // 관리자 권한 체크 (Service Role로 조회)
+  const { data: userData, error: userError } = await serviceClient
     .from('users')
     .select('subscription_tier')
-    .eq('id', user.id)
+    .eq('id', user.sub)
     .single()
 
   if (userError || userData?.subscription_tier !== 'admin') {
@@ -42,7 +44,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // 1. 책 정보 가져오기 (장르 정보 포함)
-  const { data: book, error: fetchError } = await client
+  const { data: book, error: fetchError } = await serviceClient
     .from('books')
     .select('isbn, title, draft_genre')
     .eq('isbn', isbn)
@@ -66,7 +68,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // 2. official_genre 업데이트
-  const { error: updateError } = await client
+  const { error: updateError } = await serviceClient
     .from('books')
     .update({
       official_genre: finalGenre,

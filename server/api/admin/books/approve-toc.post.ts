@@ -3,10 +3,9 @@
  * draft_toc → official_toc 복사
  */
 
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  const client = await serverSupabaseClient(event)
   const user = await serverSupabaseUser(event)
 
   if (!user) {
@@ -16,11 +15,14 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // 관리자 권한 체크
-  const { data: userData, error: userError } = await client
+  // Service Role 클라이언트로 RLS 우회
+  const serviceClient = serverSupabaseServiceRole(event)
+
+  // 관리자 권한 체크 (Service Role로 조회)
+  const { data: userData, error: userError } = await serviceClient
     .from('users')
     .select('subscription_tier')
-    .eq('id', user.id)
+    .eq('id', user.sub)
     .single()
 
   if (userError || userData?.subscription_tier !== 'admin') {
@@ -42,9 +44,9 @@ export default defineEventHandler(async (event) => {
   }
 
   // 1. 책 정보 가져오기
-  const { data: book, error: fetchError } = await client
+  const { data: book, error: fetchError } = await serviceClient
     .from('books')
-    .select('isbn, title, draft_toc')
+    .select('isbn, title, draft_toc, draft_pages')
     .eq('isbn', isbn)
     .single()
 
@@ -62,11 +64,12 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // 2. draft_toc → official_toc 복사
-  const { error: updateError } = await client
+  // 2. ✅ draft_toc + draft_pages → official_toc + official_pages 복사
+  const { error: updateError } = await serviceClient
     .from('books')
     .update({
       official_toc: book.draft_toc,
+      official_pages: book.draft_pages,  // ✅ 페이지수도 함께 승인
       updated_at: new Date().toISOString()
     })
     .eq('isbn', isbn)

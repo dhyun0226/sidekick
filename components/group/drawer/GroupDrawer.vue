@@ -58,10 +58,10 @@
           :selected-book-id="selectedBookId"
           :toc="toc"
           :reading-books="readingBooks"
-          :locked-reading-books="lockedReadingBooks"
           :view-progress="viewProgress"
           :is-admin="isAdmin"
           :is-archived="isArchived"
+          :is-read-only-mode="isReadOnlyMode"
           :user-reviewed-books="userReviewedBooks"
           @select-book="(id) => emit('selectBook', id)"
           @jump-to-chapter="(start) => emit('jumpToChapter', start)"
@@ -89,9 +89,9 @@
         <GroupDrawerBookshelfTab
           v-if="activeTab === 'bookshelf'"
           :history-books="historyBooks"
-          :locked-history-books="lockedHistoryBooks"
           :is-admin="isAdmin"
           :is-archived="isArchived"
+          :is-read-only-mode="isReadOnlyMode"
           :user-reviewed-books="userReviewedBooks"
           @select-book="(id) => emit('selectBook', id)"
           @open-reviews="(bookId) => emit('openReviews', bookId)"
@@ -111,6 +111,7 @@
           :group-name="groupName"
           :is-admin="isAdmin"
           :is-archived="isArchived"
+          :is-paused="isPaused"
           @copy-invite-code="emit('copyInviteCode')"
           @copy-invite-link="emit('copyInviteLink')"
           @regenerate-invite-code="emit('regenerateInviteCode')"
@@ -138,12 +139,12 @@ interface Props {
   currentBook: any | null
   selectedBookId: string | null
   readingBooks: any[]
-  lockedReadingBooks: any[]
   historyBooks: any[]
-  lockedHistoryBooks: any[]
   sortedMembersWithProgress: any[]
   isAdmin: boolean
   isArchived: boolean
+  isPaused?: boolean
+  isReadOnlyMode?: boolean
   currentUserId: string | null
   inviteCode: string
   toc: any[]

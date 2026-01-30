@@ -27,7 +27,7 @@
             :class="[
               'w-full rounded-lg px-3 py-2 text-sm focus:outline-none',
               anchorTextLocked
-                ? 'bg-lime-100 dark:bg-zinc-800/50 text-lime-600 dark:text-lime-400 font-serif italic cursor-not-allowed border border-lime-400/30'
+                ? 'bg-lime-100 dark:bg-zinc-800/50 text-lime-600 dark:text-lime-400 italic cursor-not-allowed border border-lime-400/30'
                 : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:ring-2 focus:ring-lime-400'
             ]"
           />

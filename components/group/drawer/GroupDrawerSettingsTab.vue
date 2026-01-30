@@ -91,6 +91,7 @@ interface Props {
   groupName: string
   isAdmin: boolean
   isArchived: boolean
+  isPaused?: boolean
 }
 
 interface Emits {

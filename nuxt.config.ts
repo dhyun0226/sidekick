@@ -20,6 +20,7 @@ export default defineNuxtConfig({
     naverClientId: process.env.NAVER_CLIENT_ID,
     naverClientSecret: process.env.NAVER_CLIENT_SECRET,
     tossSecretKey: process.env.TOSS_SECRET_KEY,
+    cronSecret: process.env.CRON_SECRET,
 
     // 클라이언트 사이드 (브라우저에 노출됨)
     public: {
@@ -34,7 +35,8 @@ export default defineNuxtConfig({
   supabase: {
     redirect: false,
     url: process.env.SUPABASE_URL,
-    key: process.env.SUPABASE_KEY
+    key: process.env.SUPABASE_KEY,
+    serviceKey: process.env.SUPABASE_SECRET_KEY
   },
 
   // PWA 설정

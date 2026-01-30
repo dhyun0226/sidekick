@@ -35,11 +35,12 @@
             max="100"
             step="1"
             v-model.number="localPct"
+            :disabled="isReadOnlyMode"
             @input="handleInput"
             @change="handleChange"
             @touchstart="handleTouchStart"
             @mousedown="handleMouseDown"
-            class="absolute -top-4 left-0 right-0 w-full h-20 opacity-0 cursor-pointer z-30"
+            :class="isReadOnlyMode ? 'absolute -top-4 left-0 right-0 w-full h-20 opacity-0 z-30 pointer-events-none' : 'absolute -top-4 left-0 right-0 w-full h-20 opacity-0 cursor-pointer z-30'"
             style="touch-action: none;"
           />
 
@@ -132,6 +133,7 @@ const props = defineProps<{
   bookTitle?: string
   members?: Array<{ id: string; nickname: string; avatar_url?: string; progress: number }>
   isArchived?: boolean
+  isReadOnlyMode?: boolean
 }>()
 
 const emit = defineEmits(['update:modelValue', 'change', 'write', 'dragging'])

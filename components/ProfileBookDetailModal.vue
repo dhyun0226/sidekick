@@ -18,6 +18,10 @@
               <img :src="book.cover_url" class="w-full h-full object-cover" />
             </div>
             <div class="flex-1 min-w-0 flex flex-col pt-0.5">
+              <!-- 그룹명 -->
+              <p class="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 mb-1">
+                {{ book.groupName }}에서 {{ book.finished_at ? '읽음' : '읽는중' }}
+              </p>
               <h2 class="text-lg font-bold text-zinc-900 dark:text-white line-clamp-2 leading-tight mb-2 tracking-tight">{{ book.title }}</h2>
               <div class="flex flex-wrap items-center gap-1.5 mb-3 text-sm text-zinc-500 dark:text-zinc-400">
                 <span class="font-medium">{{ book.author }}</span>
@@ -31,9 +35,17 @@
 
               <div class="flex items-center gap-2 mb-2 flex-wrap">
                 <GenreBadge v-if="book.genre" :genre="book.genre" />
+                <Badge v-if="book.round && book.round > 1">
+                  {{ book.round }}회차
+                </Badge>
                 <RatingBadge v-if="book.myRating" :rating="book.myRating" />
+                <!-- 읽는 중: D-Day 배지 -->
+                <Badge v-if="!book.finished_at && book.target_end_date" variant="lime">
+                  {{ formatDday(book.target_end_date) }}
+                </Badge>
+                <!-- 완독: 완독일 배지 -->
                 <Badge v-if="book.finished_at" variant="lime">
-                  {{ formatCompletionDate(book.finished_at) }} 완독
+                  {{ formatCompletionDate(book.finished_at) }} {{ book.groupType === 'solo' ? '완독' : '완주' }}
                 </Badge>
               </div>
             </div>
@@ -120,7 +132,7 @@
                     </div>
                     <!-- Larger & Bordered Anchor -->
                     <div v-if="item.parentData.anchor_text" class="mb-2 pl-2 border-l-2 border-zinc-300 dark:border-zinc-600">
-                      <p class="text-[13px] text-zinc-500 dark:text-zinc-400 italic font-serif">
+                      <p class="text-[13px] text-zinc-500 dark:text-zinc-400 italic ">
                         {{ item.parentData.anchor_text }}
                       </p>
                     </div>
@@ -132,7 +144,7 @@
 
                 <!-- Quote -->
                 <div v-if="item.anchor_text" class="mb-3 pl-3 border-l-2 border-zinc-200 dark:border-zinc-700 text-left">
-                  <p class="text-xs text-zinc-500 dark:text-zinc-400 italic leading-relaxed font-serif">
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 italic leading-relaxed ">
                     {{ item.anchor_text }}
                   </p>
                 </div>
@@ -280,5 +292,16 @@ const formatCompletionDate = (dateStr: string) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
   return `${String(date.getFullYear()).slice(-2)}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
+}
+
+const formatDday = (targetDateStr: string) => {
+  const target = new Date(targetDateStr)
+  target.setHours(0, 0, 0, 0)
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  const days = Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  if (days > 0) return `D-${days}`
+  if (days === 0) return 'D-Day'
+  return `D+${Math.abs(days)}`
 }
 </script>

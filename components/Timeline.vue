@@ -25,7 +25,7 @@
         class="mb-4 pl-4 border-l-[3px] border-lime-400 cursor-pointer hover:opacity-80 transition-opacity"
         :class="{ 'blur-sm opacity-40 select-none': isSpoiler(group.position) }"
       >
-        <p class="font-serif text-[15px] text-zinc-700 dark:text-zinc-300 italic leading-relaxed">
+        <p class="text-[15px] text-zinc-700 dark:text-zinc-300 italic leading-relaxed">
           {{ group.anchorText }}
         </p>
       </div>
@@ -38,8 +38,8 @@
           class="relative group"
           :class="{ 'opacity-50 hover:opacity-100 transition-opacity': highlightedCommentId === comment.id }"
         >
-          <!-- User & Date (With Avatar) -->
-          <div class="flex items-center gap-2 mb-1.5">
+          <!-- User & Date (With Avatar) - Hidden in Solo mode -->
+          <div v-if="!isSolo" class="flex items-center gap-2 mb-1.5">
             <Avatar
               :src="comment.user?.avatar_url"
               :fallback="comment.user?.nickname || '탈'"
@@ -50,6 +50,11 @@
             <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100" :class="{ 'text-zinc-400 font-medium italic': !comment.user }">
               {{ comment.user?.nickname || '탈퇴한 사용자' }}
             </span>
+            <span class="text-[10px] text-zinc-300 dark:text-zinc-600">{{ formatDate(comment.created_at) }}</span>
+          </div>
+
+          <!-- Date only in Solo mode -->
+          <div v-else class="flex items-center gap-2 mb-1.5">
             <span class="text-[10px] text-zinc-300 dark:text-zinc-600">{{ formatDate(comment.created_at) }}</span>
           </div>
 
@@ -79,8 +84,8 @@
             </div>
           </div>
 
-          <!-- Actions (Always Visible) -->
-          <div v-if="!isSpoiler(group.position) && editingCommentId !== comment.id" class="flex items-center gap-4 mt-2.5">
+          <!-- Actions (Hidden in Solo mode) -->
+          <div v-if="!isSolo && !isSpoiler(group.position) && editingCommentId !== comment.id" class="flex items-center gap-4 mt-2.5">
             <button
               @click.stop="toggleLike(comment.id)"
               class="flex items-center gap-1 text-[10px] font-bold transition-colors"
@@ -105,8 +110,14 @@
             </div>
           </div>
 
-          <!-- Reply Form -->
-          <div v-if="activeReplyId === comment.id" class="mt-3 animate-fade-in">
+          <!-- Solo mode actions (Edit/Delete only) -->
+          <div v-if="isSolo && !isSpoiler(group.position) && editingCommentId !== comment.id && isOwnComment(comment)" class="flex items-center gap-3 mt-2.5">
+            <button @click.stop="startEdit(comment)" class="text-[10px] font-bold text-zinc-300 dark:text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors">수정</button>
+            <button @click.stop="confirmDelete(comment.id)" class="text-[10px] font-bold text-zinc-300 dark:text-zinc-600 hover:text-red-500 transition-colors">삭제</button>
+          </div>
+
+          <!-- Reply Form (Hidden in Solo mode) -->
+          <div v-if="!isSolo && activeReplyId === comment.id" class="mt-3 animate-fade-in">
             <div class="relative">
               <input
                 v-model="replyContent"
@@ -116,8 +127,8 @@
                 @keyup.enter="submitReply(comment.id)"
                 autoFocus
               />
-              <button 
-                @click="submitReply(comment.id)" 
+              <button
+                @click="submitReply(comment.id)"
                 class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-lime-600 hover:bg-lime-100 dark:hover:bg-lime-900/30 rounded-full transition-colors"
                 :disabled="!replyContent"
               >
@@ -126,8 +137,8 @@
             </div>
           </div>
 
-          <!-- Nested Replies (Limited Preview) -->
-          <div v-if="comment.replies && comment.replies.length > 0" class="mt-3 pl-3 border-l border-zinc-100 dark:border-zinc-800/50 space-y-4">
+          <!-- Nested Replies (Limited Preview - Hidden in Solo mode) -->
+          <div v-if="!isSolo && comment.replies && comment.replies.length > 0" class="mt-3 pl-3 border-l border-zinc-100 dark:border-zinc-800/50 space-y-4">
             <div v-for="reply in comment.replies.slice(0, 2)" :key="reply.id" class="relative group/reply">
               <!-- Reply User & Actions -->
               <div class="flex items-center justify-between mb-1.5">
@@ -155,10 +166,15 @@
               <!-- Reply Content / Edit Mode -->
               <div class="pl-5">
                 <div v-if="editingReplyId !== reply.id">
-                  <p class="text-[13px] text-zinc-500 dark:text-zinc-400 leading-snug break-words whitespace-pre-wrap">{{ reply.content }}</p>
-                  
+                  <p
+                    class="text-[13px] text-zinc-500 dark:text-zinc-400 leading-snug break-words whitespace-pre-wrap"
+                    :class="{
+                      'blur-sm opacity-40 select-none pointer-events-none': isSpoiler(group.position)
+                    }"
+                  >{{ reply.content }}</p>
+
                   <!-- Reply Like Button (Added) -->
-                  <div class="flex items-center gap-3 mt-2">
+                  <div v-if="!isSpoiler(group.position)" class="flex items-center gap-3 mt-2">
                     <button
                       @click.stop="toggleLike(reply.id)"
                       class="flex items-center gap-1.5 text-[10px] font-bold transition-colors"
@@ -318,6 +334,7 @@ const props = defineProps<{
   isLoadingMore?: boolean
   highlightedCommentId?: string | null
   isFinished?: boolean
+  isSolo?: boolean
 }>()
 
 const activeReplyId = ref<string | null>(null)
@@ -395,6 +412,9 @@ const groupedComments = computed(() => {
 })
 
 const isSpoiler = (position: number) => {
+  // Solo 모드는 스포일러 없음 (본인 기록만 있음)
+  if (props.isSolo) return false
+
   // 완독한 경우 스포일러 잠금 해제
   if (props.isFinished) return false
 

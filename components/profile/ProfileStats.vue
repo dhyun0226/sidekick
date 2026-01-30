@@ -19,7 +19,7 @@
       </button>
       <div class="w-px h-8 bg-zinc-200 dark:bg-zinc-700"></div>
 
-      <button @click="router.push('/')" class="flex flex-col items-center flex-1 active:opacity-60 transition-opacity">
+      <button @click="$emit('tab-change', 'groups')" class="flex flex-col items-center flex-1 active:opacity-60 transition-opacity">
         <span class="text-lg font-bold text-zinc-900 dark:text-white">{{ stats.groups }}</span>
         <span class="text-[10px] text-zinc-500 dark:text-zinc-400">그룹</span>
       </button>
@@ -28,8 +28,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-
 defineProps<{
   stats: {
     books: number
@@ -40,6 +38,4 @@ defineProps<{
 }>()
 
 defineEmits(['tab-change'])
-
-const router = useRouter()
 </script>

@@ -22,15 +22,15 @@
               <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-sm mb-1.5 truncate">{{ currentBook.book?.title }}</h3>
               <div class="flex flex-wrap items-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">
                 <span class="truncate max-w-[100px]">{{ currentBook.book?.author }}</span>
-                <template v-if="currentBook.book?.publisher || currentBook.book?.total_pages">
+                <template v-if="currentBook.book?.publisher || currentBook.total_pages">
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
                   <span v-if="currentBook.book?.publisher" class="truncate max-w-[80px]">{{ currentBook.book?.publisher }}</span>
-                  <span v-if="currentBook.book?.publisher && currentBook.book?.total_pages">·</span>
-                  <span v-if="currentBook.book?.total_pages">{{ currentBook.book?.total_pages }}p</span>
+                  <span v-if="currentBook.book?.publisher && currentBook.total_pages">·</span>
+                  <span v-if="currentBook.total_pages">{{ currentBook.total_pages }}p</span>
                 </template>
-                <template v-if="currentBook.book?.official_genre || currentBook.book?.draft_genre">
+                <template v-if="currentBook.genre">
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  <GenreBadge :genre="currentBook.book?.official_genre || currentBook.book?.draft_genre" size="sm" />
+                  <GenreBadge :genre="currentBook.genre" size="sm" />
                 </template>
               </div>
             </div>
@@ -103,9 +103,9 @@
         </div>
 
         <div class="text-center mb-8 pt-4">
-          <h2 class="text-xl font-black text-zinc-900 dark:text-white mb-1.5">완주 처리하시겠습니까?</h2>
+          <h2 class="text-xl font-black text-zinc-900 dark:text-white mb-1.5">{{ props.isSolo ? '완독' : '완주' }} 처리하시겠습니까?</h2>
           <p class="text-sm text-zinc-500 dark:text-zinc-400">
-            목표를 달성한 이 책을 서재로 옮깁니다.
+            {{ props.isSolo ? '다 읽은 이 책을 책장으로 옮깁니다.' : '목표를 달성한 이 책을 서재로 옮깁니다.' }}
           </p>
         </div>
         
@@ -120,11 +120,11 @@
               <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-sm mb-1.5 truncate">{{ currentBook.book?.title }}</h3>
               <div class="flex flex-wrap items-center gap-1.5 text-[12px] text-zinc-500 dark:text-zinc-400 font-medium leading-none">
                 <span class="truncate max-w-[80px]">{{ currentBook.book?.author }}</span>
-                <template v-if="currentBook.book?.publisher || currentBook.book?.total_pages">
+                <template v-if="currentBook.book?.publisher || currentBook.total_pages">
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
                   <span v-if="currentBook.book?.publisher" class="truncate max-w-[60px]">{{ currentBook.book?.publisher }}</span>
-                  <span v-if="currentBook.book?.publisher && currentBook.book?.total_pages">·</span>
-                  <span v-if="currentBook.book?.total_pages">{{ currentBook.book?.total_pages }}p</span>
+                  <span v-if="currentBook.book?.publisher && currentBook.total_pages">·</span>
+                  <span v-if="currentBook.total_pages">{{ currentBook.total_pages }}p</span>
                 </template>
               </div>
             </div>
@@ -142,7 +142,7 @@
             @click="emit('markAsCompleted')"
             class="flex-[2] py-4 bg-lime-400 text-black font-black rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95"
           >
-            완주 완료
+            {{ props.isSolo ? '완독 완료' : '완주 완료' }}
           </button>
         </div>
       </div>
@@ -203,7 +203,7 @@
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditFinishedDate')"></div>
       <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">완주 날짜 수정</h2>
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">{{ props.isSolo ? '완독' : '완주' }} 날짜 수정</h2>
           <button @click="emit('closeEditFinishedDate')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="24" />
           </button>
@@ -222,7 +222,7 @@
           </div>
 
           <div class="space-y-2">
-            <label class="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 uppercase">완주 날짜</label>
+            <label class="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 uppercase">{{ props.isSolo ? '완독' : '완주' }} 날짜</label>
             <input
               v-model="localFinishedDate"
               type="date"
@@ -276,9 +276,9 @@
                   <span v-if="currentBook.book?.publisher && localTotalPages">·</span>
                   <span v-if="localTotalPages">{{ localTotalPages }}p</span>
                 </template>
-                <template v-if="currentBook.book?.official_genre || currentBook.book?.draft_genre">
+                <template v-if="currentBook.genre">
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  <GenreBadge :genre="currentBook.book?.official_genre || currentBook.book?.draft_genre" size="sm" />
+                  <GenreBadge :genre="currentBook.genre" size="sm" />
                 </template>
               </div>
             </div>
@@ -313,7 +313,7 @@
     <!-- Edit Genre Modal -->
     <EditGenreModal
       :isOpen="editGenreOpen"
-      :currentGenre="currentBook?.genre || currentBook?.book?.official_genre || currentBook?.book?.draft_genre"
+      :currentGenre="currentBook?.genre_snapshot || currentBook?.book?.official_genre || currentBook?.book?.draft_genre"
       @close="emit('closeEditGenre')"
       @save="(genre) => emit('saveEditedGenre', genre)"
     />
@@ -337,6 +337,7 @@ interface Props {
   editFinishedDateOpen: boolean
   currentBook: any | null
   commentCount: number
+  isSolo?: boolean // 내 서재인 경우 true (완주 → 완독 용어 변경)
 }
 
 interface Emits {
@@ -419,7 +420,8 @@ const tocFormRef = ref<InstanceType<typeof TocInputForm> | null>(null)
 
 watch([() => props.editTocOpen, () => props.currentBook], ([isOpen, currentBook]) => {
   if (isOpen && currentBook) {
-    localTotalPages.value = currentBook.book?.total_pages || null
+    // ✅ Use snapshot (사용자 입력값) first, fallback to official → draft
+    localTotalPages.value = currentBook.pages_snapshot || currentBook.book?.official_pages || currentBook.book?.draft_pages || null
 
     if (currentBook.toc_snapshot && currentBook.toc_snapshot.length > 0) {
       // 이제 snapshot에 실제 페이지(page)가 저장되어 있으므로 그대로 사용

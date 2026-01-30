@@ -19,7 +19,8 @@
                 :class="{
                   'bg-red-100 dark:bg-red-950/30': variant === 'danger',
                   'bg-yellow-100 dark:bg-yellow-950/30': variant === 'warning',
-                  'bg-blue-100 dark:bg-blue-950/30': variant === 'info'
+                  'bg-blue-100 dark:bg-blue-950/30': variant === 'info',
+                  'bg-lime-100 dark:bg-lime-950/30': variant === 'success'
                 }"
               >
                 <component
@@ -28,7 +29,8 @@
                   :class="{
                     'text-red-600 dark:text-red-400': variant === 'danger',
                     'text-yellow-600 dark:text-yellow-400': variant === 'warning',
-                    'text-blue-600 dark:text-blue-400': variant === 'info'
+                    'text-blue-600 dark:text-blue-400': variant === 'info',
+                    'text-lime-600 dark:text-lime-400': variant === 'success'
                   }"
                 />
               </div>
@@ -36,10 +38,10 @@
                 {{ title }}
               </h3>
             </div>
-            <p class="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+            <p class="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
               {{ message }}
             </p>
-            <p v-if="description" class="text-xs text-zinc-500 dark:text-zinc-500 mt-2">
+            <p v-if="description" class="text-xs text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">
               {{ description }}
             </p>
           </div>
@@ -54,11 +56,12 @@
             </button>
             <button
               @click="onConfirm"
-              class="flex-1 px-4 py-3 rounded-xl font-bold transition-all hover:scale-[1.02]"
+              class="flex-1 px-4 py-3 rounded-xl font-bold transition-all hover:scale-[1.02] shadow-lg"
               :class="{
-                'bg-red-500 text-white hover:bg-red-600': variant === 'danger',
-                'bg-yellow-500 text-white hover:bg-yellow-600': variant === 'warning',
-                'bg-lime-400 text-black hover:bg-lime-300': variant === 'info'
+                'bg-red-500 text-white hover:bg-red-600 shadow-red-500/30': variant === 'danger',
+                'bg-yellow-500 text-white hover:bg-yellow-600 shadow-yellow-500/30': variant === 'warning',
+                'bg-blue-500 text-white hover:bg-blue-600 shadow-blue-500/30': variant === 'info',
+                'bg-lime-500 text-white hover:bg-lime-600 shadow-lime-500/30': variant === 'success'
               }"
             >
               {{ confirmText }}
@@ -72,7 +75,7 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { AlertTriangle, AlertCircle, Info } from 'lucide-vue-next'
+import { AlertTriangle, AlertCircle, Info, CheckCircle } from 'lucide-vue-next'
 
 interface Props {
   isOpen: boolean
@@ -81,7 +84,7 @@ interface Props {
   description?: string
   confirmText?: string
   cancelText?: string
-  variant?: 'danger' | 'warning' | 'info'
+  variant?: 'danger' | 'warning' | 'info' | 'success'
 }
 
 interface Emits {
@@ -115,6 +118,8 @@ const iconComponent = computed(() => {
       return AlertTriangle
     case 'warning':
       return AlertCircle
+    case 'success':
+      return CheckCircle
     case 'info':
     default:
       return Info

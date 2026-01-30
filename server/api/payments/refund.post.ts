@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   const { data: userData, error: userError } = await client
     .from('users')
     .select('subscription_tier')
-    .eq('id', user.id)
+    .eq('id', user.sub)
     .single()
 
   if (userError || userData?.subscription_tier !== 'admin') {
@@ -73,6 +73,8 @@ export default defineEventHandler(async (event) => {
 
   // 3. (옵션) 관련된 구독 처리
   // 이 결제 건으로 인해 시작된 구독이 있다면 만료 처리하거나 등급 하향
+  // TODO: 여러 활성 구독이 있을 경우 처리 로직 개선 필요
+  // TODO: 부분 환불 시나리오 고려 필요
   const { data: subscription } = await client
     .from('subscriptions')
     .select('*')
@@ -82,7 +84,8 @@ export default defineEventHandler(async (event) => {
 
   if (subscription) {
     // 가장 최근 결제 건인지 확인 로직이 필요할 수 있으나, 단순화하여 즉시 취소 처리
-    await client
+    // TODO: payment.id와 subscription 간의 연관성 확인 필요
+    const { error: subCancelError } = await client
       .from('subscriptions')
       .update({
         status: 'cancelled',
@@ -90,12 +93,22 @@ export default defineEventHandler(async (event) => {
         updated_at: new Date().toISOString()
       })
       .eq('id', subscription.id)
-    
+
+    if (subCancelError) {
+      console.error('[Refund] Failed to cancel subscription:', subCancelError)
+      // 구독 취소 실패해도 환불은 계속 진행
+    }
+
     // 유저 등급도 free로 하향
-    await client
+    const { error: tierDowngradeError } = await client
       .from('users')
       .update({ subscription_tier: 'free' })
       .eq('id', payment.user_id)
+
+    if (tierDowngradeError) {
+      console.error('[Refund] Failed to downgrade tier:', tierDowngradeError)
+      // 등급 하향 실패해도 환불은 계속 진행
+    }
   }
 
   return {

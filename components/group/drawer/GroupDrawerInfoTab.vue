@@ -28,7 +28,7 @@
           @click="emit('selectBook', book.id)"
         >
           <!-- Settings Menu (Common Component) -->
-          <div v-if="!isArchived" class="absolute top-3 right-3">
+          <div v-if="!isArchived && !isReadOnlyMode" class="absolute top-3 right-3">
             <DropdownMenu
               :is-open="activeBookMenu === book.id"
               @toggle="toggleBookMenu(book.id)"
@@ -72,18 +72,18 @@
                 <h3 class="font-bold text-zinc-900 dark:text-white line-clamp-1 text-sm mb-1 pr-8">{{ book.book?.title }}</h3>
                 <div class="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
                   <span class="truncate max-w-[80px]">{{ book.book?.author }}</span>
-                  <template v-if="book.book?.publisher || book.book?.total_pages">
+                  <template v-if="book.book?.publisher || book.total_pages">
                     <span class="text-zinc-300 dark:text-zinc-700">·</span>
                     <span v-if="book.book?.publisher" class="truncate max-w-[60px]">{{ book.book?.publisher }}</span>
-                    <span v-if="book.book?.publisher && book.book?.total_pages">·</span>
-                    <span v-if="book.book?.total_pages">{{ book.book?.total_pages }}p</span>
+                    <span v-if="book.book?.publisher && book.total_pages">·</span>
+                    <span v-if="book.total_pages">{{ book.total_pages }}p</span>
                   </template>
                 </div>
               </div>
 
               <!-- Badges Line -->
               <div class="flex flex-wrap items-center gap-1.5 mt-2">
-                <GenreBadge v-if="book.book?.official_genre || book.book?.draft_genre" :genre="book.book?.official_genre || book.book?.draft_genre" size="sm" />
+                <GenreBadge v-if="book.genre" :genre="book.genre" size="sm" />
                 
                 <RatingBadge v-if="props.userReviewedBooks.has(book.id)" :rating="props.userReviewedBooks.get(book.id)" size="sm" />
 
@@ -98,37 +98,6 @@
                 <Badge v-if="getBookDaysRemaining(book) !== null" variant="lime" size="sm">
                   {{ getBookDaysRemaining(book)! > 0 ? `D-${getBookDaysRemaining(book)}` : getBookDaysRemaining(book) === 0 ? 'D-Day' : `D+${Math.abs(getBookDaysRemaining(book)!)}` }}
                 </Badge>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Locked Reading Books -->
-      <div v-if="lockedReadingBooks && lockedReadingBooks.length > 0" class="mt-4 space-y-2 px-3 pb-3">
-        <div class="flex items-center gap-2 mb-2 px-1">
-          <Lock :size="10" class="text-zinc-400" />
-          <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">잠긴 책 (구독 필요)</span>
-        </div>
-        
-        <div
-          v-for="book in lockedReadingBooks"
-          :key="book.id"
-          class="p-4 bg-zinc-100/50 dark:bg-zinc-800/30 border border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors group"
-          @click="emit('openUpgradeModal')"
-        >
-          <div class="flex gap-3 opacity-50 grayscale transition-all group-hover:opacity-70 group-hover:grayscale-0">
-            <div class="relative shrink-0">
-              <img :src="book.book?.cover_url" class="w-14 h-20 object-cover rounded shadow-sm bg-zinc-200 dark:bg-zinc-800" />
-              <div class="absolute inset-0 flex items-center justify-center bg-black/20 rounded">
-                <Lock :size="20" class="text-white" />
-              </div>
-            </div>
-            <div class="flex-1 min-w-0 flex flex-col justify-center">
-              <h3 class="font-bold text-zinc-900 dark:text-white line-clamp-1 text-sm mb-1">{{ book.book?.title }}</h3>
-              <p class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium truncate">{{ book.book?.author }}</p>
-              <div class="mt-2 text-[10px] font-bold text-lime-600 dark:text-lime-400 flex items-center gap-1">
-                프리미엄 구독 시 열람 가능 <ChevronRight :size="10" />
               </div>
             </div>
           </div>
@@ -219,11 +188,10 @@ interface Book {
     title: string
     author: string
     publisher?: string
-    total_pages?: number
     cover_url: string
-    official_genre?: string
-    draft_genre?: string
   }
+  genre?: string // ✅ Unified genre (snapshot → official → draft)
+  total_pages?: number // ✅ Unified pages (snapshot → official → draft)
   target_start_date?: string
   target_end_date?: string
   user_finished_at?: string
@@ -243,10 +211,10 @@ interface Props {
   selectedBookId: string | null
   toc: TocChapter[]
   readingBooks: Book[]
-  lockedReadingBooks: Book[]
   viewProgress: number
   isAdmin: boolean
   isArchived: boolean
+  isReadOnlyMode?: boolean
   userReviewedBooks: Map<string, number>
 }
 

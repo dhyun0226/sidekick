@@ -66,7 +66,7 @@
         <!-- Book Info -->
         <div class="p-3 flex gap-3 relative">
           <!-- Settings Menu (Common Component) -->
-          <div v-if="!isArchived" class="absolute top-3 right-3 z-20">
+          <div v-if="!isArchived && !isReadOnlyMode" class="absolute top-3 right-3 z-20">
             <DropdownMenu
               :is-open="activeBookMenu === book.id"
               @toggle="toggleBookMenu(book.id)"
@@ -119,7 +119,7 @@
 
             <!-- Badges Line -->
             <div class="flex flex-wrap items-center gap-1.5 mt-2">
-              <GenreBadge v-if="book.official_genre || book.draft_genre" :genre="book.official_genre || book.draft_genre" size="sm" />
+              <GenreBadge v-if="book.genre" :genre="book.genre" size="sm" />
               <RatingBadge :rating="book.averageRating" size="sm" />
               <Badge v-if="formatDateYY(book.date)" variant="lime" size="sm">
                 {{ formatDateYY(book.date) }} 완주
@@ -153,74 +153,8 @@
       </div>
     </div>
 
-    <!-- Locked Books Section -->
-    <div v-if="lockedHistoryBooks.length > 0" class="space-y-2 mt-4">
-      <!-- Locked Section Header -->
-      <div class="flex items-center gap-2 px-1 mb-2">
-        <Lock :size="12" class="text-zinc-400" />
-        <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">잠긴 책</h4>
-      </div>
-
-      <!-- Locked Books List -->
-      <div
-        v-for="book in lockedHistoryBooks"
-        :key="'locked-' + book.id"
-        @click="emit('openUpgradeModal')"
-        class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-300 dark:border-zinc-700 border-dashed relative overflow-hidden cursor-pointer hover:border-lime-400 dark:hover:border-lime-500 transition-all group"
-      >
-        <!-- Locked Book Info -->
-        <div class="p-3 flex gap-3 relative opacity-60 group-hover:opacity-70 transition-opacity">
-          <!-- Blurred Cover with Lock -->
-          <div class="relative flex-shrink-0">
-            <img
-              :src="book.cover_url"
-              :alt="book.title"
-              class="w-14 h-20 object-cover rounded shadow-sm bg-zinc-200 dark:bg-zinc-800 blur-sm"
-              @error="(e) => (e.target as HTMLImageElement).src = '/placeholder-book.png'"
-            />
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div class="w-8 h-8 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center">
-                <Lock :size="16" class="text-white" />
-              </div>
-            </div>
-          </div>
-
-          <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-            <div>
-              <h4 class="font-bold text-sm text-zinc-800 dark:text-zinc-200 line-clamp-1 mb-1">{{ book.title }}</h4>
-              <div class="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
-                <span class="truncate max-w-[80px]">{{ book.author }}</span>
-                <template v-if="book.publisher || book.total_pages">
-                  <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                  <span v-if="book.publisher" class="truncate max-w-[60px]">{{ book.publisher }}</span>
-                  <span v-if="book.publisher && book.total_pages">·</span>
-                  <span v-if="book.total_pages">{{ book.total_pages }}p</span>
-                </template>
-              </div>
-            </div>
-
-            <!-- Badges Line -->
-            <div class="flex flex-wrap items-center gap-1.5 mt-2">
-              <GenreBadge v-if="book.official_genre || book.draft_genre" :genre="book.official_genre || book.draft_genre" size="sm" />
-              <div class="text-[10px] font-bold text-zinc-400 bg-zinc-50 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
-                잠금됨
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Locked Message -->
-        <div class="border-t border-zinc-200 dark:border-zinc-700 bg-lime-50 dark:bg-lime-900/20 px-3 py-2.5">
-          <div class="flex items-center justify-center gap-2 text-xs font-medium text-lime-700 dark:text-lime-400">
-            <Lock :size="14" />
-            <span>프리미엄으로 업그레이드하여 잠금 해제</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Empty State -->
-    <div v-else-if="filteredAndSortedBooks.length === 0" class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
+    <div v-if="filteredAndSortedBooks.length === 0" class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
       <div class="text-4xl mb-3">{{ searchQuery ? '🔍' : '📚' }}</div>
       <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 완주한 책이 없습니다' }}</p>
     </div>
@@ -243,8 +177,7 @@ interface HistoryBook {
   cover_url: string
   publisher?: string
   total_pages?: number
-  official_genre?: string
-  draft_genre?: string
+  genre?: string // ✅ Unified genre (snapshot → official → draft)
   date: string
   round?: number
   reviewCount?: number
@@ -254,9 +187,9 @@ interface HistoryBook {
 
 interface Props {
   historyBooks: HistoryBook[]
-  lockedHistoryBooks: HistoryBook[]
   isAdmin: boolean
   isArchived: boolean
+  isReadOnlyMode?: boolean
   userReviewedBooks: Map<string, number>
 }
 

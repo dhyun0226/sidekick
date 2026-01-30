@@ -31,16 +31,103 @@
       </div>
     </header>
 
-    <!-- 1. Reading Now Section -->
-    <div v-if="readingGroups.length > 0" class="space-y-1 mb-4">
+    <!-- 1. My Library Section (Solo Group) -->
+    <div v-if="soloGroup" class="mb-6">
+      <div
+        @click="router.push('/my-library')"
+        class="relative w-full rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 flex gap-4 items-stretch shadow-sm cursor-pointer group transition-all hover:border-lime-400 dark:hover:border-lime-500 active:scale-[0.98] min-h-[140px]"
+      >
+        <div v-if="soloGroup.currentBook" class="flex gap-4 w-full">
+          <!-- Book Cover -->
+          <div class="w-16 sm:w-20 aspect-[2/3] flex-shrink-0 self-center">
+            <div class="w-full h-full shadow-md bg-zinc-100 dark:bg-zinc-800 rounded-sm overflow-hidden">
+              <img :src="soloGroup.currentBook.cover_url" class="w-full h-full object-cover" />
+            </div>
+          </div>
+
+          <!-- Info -->
+          <div class="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5">
+            <!-- Top: Group Name & D-Day Badge -->
+            <div class="flex justify-between items-start mb-1 gap-2">
+              <h4 class="text-[13px] font-bold text-zinc-500 dark:text-zinc-400 truncate min-w-0">
+                {{ soloGroup.name }}
+              </h4>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <!-- D-Day Badge -->
+                <Badge variant="lime" size="sm">
+                  {{ getDdayShort(soloGroup.currentBook.target_end_date) }}
+                </Badge>
+                <!-- Done Books Badge -->
+                <Badge v-if="soloGroup.doneCount > 0" size="sm">
+                  <template #icon><BookOpen :size="10" /></template>
+                  {{ soloGroup.doneCount }}
+                </Badge>
+              </div>
+            </div>
+
+            <!-- Middle: Title & Author -->
+            <div class="flex-1 flex flex-col justify-center min-h-0 overflow-hidden">
+              <h3 class="text-base font-bold text-zinc-900 dark:text-white leading-tight line-clamp-2 mb-1 min-h-0">
+                {{ soloGroup.currentBook.title }}
+              </h3>
+              <div class="flex items-center h-4 gap-1 mt-1 whitespace-nowrap overflow-hidden leading-none text-[11px] text-zinc-600 dark:text-zinc-300">
+                <p class="truncate max-w-[100px] font-bold flex-shrink-0">
+                  {{ soloGroup.currentBook.author }}
+                </p>
+
+                <template v-if="soloGroup.currentBook.publisher || soloGroup.currentBook.total_pages">
+                  <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold relative -translate-y-[0.5px] flex-shrink-0">·</span>
+                  <span v-if="soloGroup.currentBook.publisher" class="truncate max-w-[80px] font-medium flex-shrink-0">{{ soloGroup.currentBook.publisher }}</span>
+                  <span v-if="soloGroup.currentBook.publisher && soloGroup.currentBook.total_pages" class="text-[10px] text-zinc-300 dark:text-zinc-600 flex-shrink-0">·</span>
+                  <span v-if="soloGroup.currentBook.total_pages" class="font-medium flex-shrink-0">{{ soloGroup.currentBook.total_pages }}p</span>
+                </template>
+              </div>
+            </div>
+
+            <!-- Bottom: Date & Progress -->
+            <div class="w-full mt-auto pt-2">
+              <div class="flex justify-between items-center mb-0.5 px-0.5">
+                <div class="text-[10px] text-zinc-500 dark:text-zinc-400 flex gap-0.5 font-bold">
+                  <span>{{ soloGroup.currentBook.target_start_date ? formatDateSimple(soloGroup.currentBook.target_start_date) : 'Start' }}</span>
+                  <span>~</span>
+                  <span>{{ soloGroup.currentBook.target_end_date ? formatDateSimple(soloGroup.currentBook.target_end_date) : 'End' }}</span>
+                </div>
+                <span class="text-[10px] font-bold text-lime-600 dark:text-lime-400">{{ Math.round(soloGroup.currentBook.progress) }}%</span>
+              </div>
+              <div class="h-1 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                <div class="h-full bg-lime-500 rounded-full transition-all duration-300" :style="{ width: `${soloGroup.currentBook.progress}%` }"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else class="flex items-center justify-center w-full gap-3">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" :class="soloGroup.doneCount > 0 ? 'bg-amber-100 dark:bg-amber-900/20' : 'bg-lime-100 dark:bg-lime-900/20'">
+            {{ soloGroup.doneCount > 0 ? '🎉' : '📚' }}
+          </div>
+          <div>
+            <p class="text-sm font-bold text-zinc-900 dark:text-white">
+              {{ soloGroup.doneCount > 0 ? `${soloGroup.doneCount}권의 책을 완독했어요!` : '읽을 책을 추가해보세요' }}
+            </p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">
+              {{ soloGroup.doneCount > 0 ? '독서 여정을 이어가세요' : '독서 여정을 시작하세요' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Reading Social Groups Section -->
+    <div v-if="readingSocialGroups.length > 0" class="space-y-1 mb-4">
       <div class="flex items-center gap-2 px-1">
         <span class="text-lg">🔥</span>
-        <h2 class="text-xs font-bold text-zinc-900 dark:text-white">지금 읽고 있어요</h2>
+        <h2 class="text-xs font-bold text-zinc-900 dark:text-white">함께 읽고 있어요</h2>
       </div>
       
       <div class="grid gap-4">
         <div
-          v-for="group in readingGroups"
+          v-for="group in readingSocialGroups"
           :key="group.id"
           @click="router.push(`/group/${group.id}`)"
           class="relative w-full rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 flex gap-4 items-stretch shadow-sm cursor-pointer group transition-all hover:border-lime-400 dark:hover:border-lime-500 active:scale-[0.98] min-h-[140px]"
@@ -57,21 +144,26 @@
 
                       <!-- Right: Info -->
                       <div class="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5">
-                        
+
                         <!-- Top: Group Name & Badges -->
                         <div class="flex justify-between items-start mb-1 gap-2">
                           <h4 class="text-[13px] font-bold text-zinc-500 dark:text-zinc-400 truncate min-w-0">
                             {{ group.name }}
                           </h4>
                 <div class="flex items-center gap-1.5 flex-shrink-0">
-                  <!-- D-Day Badge (Common Component) -->
+                  <!-- D-Day Badge -->
                   <Badge variant="lime" size="sm">
                     {{ getDdayShort(group.currentBook.target_end_date) }}
                   </Badge>
-                  <!-- Members Badge (Common Component) -->
+                  <!-- Members Badge -->
                   <Badge size="sm">
                     <template #icon><User :size="10" /></template>
                     {{ group.members.length }}
+                  </Badge>
+                  <!-- Done Books Badge -->
+                  <Badge v-if="group.doneCount > 0" size="sm">
+                    <template #icon><BookOpen :size="10" /></template>
+                    {{ group.doneCount }}
                   </Badge>
                 </div>
                           
@@ -115,8 +207,8 @@
       </div>
     </div>
 
-    <!-- 2. Idle Groups Section -->
-    <div v-if="idleGroups.length > 0" class="space-y-1 mb-4">
+    <!-- 3. Idle Social Groups Section -->
+    <div v-if="idleSocialGroups.length > 0" class="space-y-1 mb-4">
       <div class="flex items-center gap-2 px-1">
         <span class="text-lg">💤</span>
         <h2 class="text-xs font-bold text-zinc-900 dark:text-white">잠시 쉬고 있어요</h2>
@@ -124,7 +216,7 @@
 
       <div class="grid gap-3">
         <div
-          v-for="group in idleGroups"
+          v-for="group in idleSocialGroups"
           :key="group.id"
           @click="router.push(`/group/${group.id}`)"
           class="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-200 dark:border-zinc-800 flex items-center gap-4 shadow-sm active:scale-[0.99] transition-all cursor-pointer group hover:border-lime-400 dark:hover:border-lime-500"
@@ -137,12 +229,17 @@
           <!-- Right Content -->
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-1">
-              <!-- Group Name (Flexible Truncate) -->
+              <!-- Group Name -->
               <h3 class="font-bold text-zinc-900 dark:text-zinc-200 text-sm truncate">{{ group.name }}</h3>
-              <!-- Member Badge (Fixed Position relative to name) -->
+              <!-- Member Badge -->
               <div class="flex items-center gap-1 text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded flex-shrink-0">
                  <User :size="10" />
                  <span>{{ group.members.length }}</span>
+              </div>
+              <!-- Done Books Badge -->
+              <div v-if="group.doneCount > 0" class="flex items-center gap-1 text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded flex-shrink-0">
+                 <BookOpen :size="10" />
+                 <span>{{ group.doneCount }}</span>
               </div>
             </div>
             <p class="text-xs text-zinc-400 dark:text-zinc-500">
@@ -155,7 +252,7 @@
       </div>
     </div>
 
-    <!-- 3. Archived Groups Section -->
+    <!-- 4. Archived Groups Section -->
     <div v-if="archivedGroups.length > 0" class="space-y-1 mb-4 opacity-60">
       <div 
         @click="showArchivedGroups = !showArchivedGroups"
@@ -198,24 +295,24 @@
       </div>
     </div>
 
-    <!-- Empty State -->
-    <div v-if="activeGroups.length === 0 && archivedGroups.length === 0 && !loading" class="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
+    <!-- Empty State (Social 그룹이 없을 때) -->
+    <div v-if="socialGroups.length === 0 && archivedGroups.length === 0 && !loading" class="flex flex-col items-center justify-center min-h-[40vh] px-4 text-center">
       <div class="w-24 h-24 bg-gradient-to-tr from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner">
         <span class="text-5xl">👋</span>
       </div>
       <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">반가워요, {{ userStore.profile?.nickname }}님!</h2>
       <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-8 max-w-xs leading-relaxed">
-        아직 참여 중인 독서 모임이 없네요.<br />
+        아직 참여 중인 공유 그룹이 없네요.<br />
         새로운 모임을 만들거나 초대를 받아보세요.
       </p>
       
       <div class="w-full max-w-xs space-y-3">
         <button
-          @click="createGroupModalOpen = true"
+          @click="handleCreateGroupClick"
           class="w-full py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center justify-center gap-2"
         >
           <Plus :size="20" />
-          새 그룹 만들기
+          공유 그룹 만들기
         </button>
         <button
           @click="joinGroupModalOpen = true"
@@ -232,11 +329,11 @@
       <LoadingSpinner size="lg" message="그룹 목록 불러오는 중..." />
     </div>
 
-    <!-- FAB -->
+    <!-- FAB (항상 표시) -->
     <button
-      v-if="groups.length > 0"
-      @click="createGroupModalOpen = true"
+      @click="handleCreateGroupClick"
       class="fixed bottom-6 right-6 w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-transform z-40"
+      title="공유 그룹 만들기"
     >
       <Plus :size="24" />
     </button>
@@ -272,7 +369,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { User, Plus, KeyRound, ChevronRight, MessageCircle, Coffee, Archive, Trash2, ChevronDown } from 'lucide-vue-next'
+import { User, Plus, KeyRound, ChevronRight, MessageCircle, Coffee, Archive, Trash2, ChevronDown, BookOpen } from 'lucide-vue-next'
 import NotificationCenter from '~/components/NotificationCenter.vue'
 import CreateGroupModal from '~/components/CreateGroupModal.vue'
 import JoinGroupModal from '~/components/JoinGroupModal.vue'
@@ -288,7 +385,7 @@ const router = useRouter()
 const userStore = useUserStore()
 const toast = useToastStore()
 const client = useSupabaseClient()
-const { fetchLimits, limits } = useSubscription()
+const { fetchLimits, limits, isPremium } = useSubscription()
 
 const groups = ref<any[]>([])
 const loading = ref(true)
@@ -302,11 +399,22 @@ const showArchivedGroups = ref(false)
 // 나간 그룹(left_at이 있는 경우)은 아예 목록에서 제외
 const myGroups = computed(() => groups.value.filter(g => !g.left_at))
 
-const activeGroups = computed(() => myGroups.value.filter(g => !g.deleted_at))
+// Solo 그룹과 Social 그룹 분리
+const soloGroup = computed(() => {
+  const active = myGroups.value.filter(g => !g.deleted_at && g.status === 'active')
+  return active.find(g => g.group_type === 'solo') || null
+})
+
+const socialGroups = computed(() => {
+  const active = myGroups.value.filter(g => !g.deleted_at && g.status === 'active')
+  return active.filter(g => g.group_type === 'social')
+})
+
 const archivedGroups = computed(() => myGroups.value.filter(g => g.deleted_at))
 
-const readingGroups = computed(() => activeGroups.value.filter(g => g.currentBook))
-const idleGroups = computed(() => activeGroups.value.filter(g => !g.currentBook))
+// Social 그룹만 reading/idle로 분리
+const readingSocialGroups = computed(() => socialGroups.value.filter(g => g.currentBook))
+const idleSocialGroups = computed(() => socialGroups.value.filter(g => !g.currentBook))
 
 const fetchGroups = async () => {
   const { data: { user } } = await client.auth.getUser()
@@ -322,6 +430,8 @@ const fetchGroups = async () => {
         groups (
           id,
           name,
+          group_type,
+          status,
           deleted_at
         )
       `)
@@ -340,11 +450,14 @@ const fetchGroups = async () => {
           created_at,
           target_start_date,
           target_end_date,
+          pages_snapshot,
+          genre_snapshot,
           books (
             title,
             author,
             publisher,
-            total_pages,
+            official_pages,
+            draft_pages,
             cover_url,
             official_genre,
             draft_genre
@@ -362,6 +475,19 @@ const fetchGroups = async () => {
         .from('group_members')
         .select('group_id')
         .in('group_id', groupIds)
+
+      // 완독한 책 수 조회
+      const { data: doneBooks } = await client
+        .from('group_books')
+        .select('group_id')
+        .in('group_id', groupIds)
+        .eq('status', 'done')
+
+      const doneCountByGroup = new Map<string, number>()
+      doneBooks?.forEach(book => {
+        const count = doneCountByGroup.get(book.group_id) || 0
+        doneCountByGroup.set(book.group_id, count + 1)
+      })
 
       const booksByGroup = new Map<string, any[]>()
       allBooks?.forEach(book => {
@@ -398,23 +524,27 @@ const fetchGroups = async () => {
         return {
           id: group.id,
           name: group.name,
+          group_type: group.group_type,
+          status: group.status,
           deleted_at: group.deleted_at,
           left_at: item.left_at,
           members: { length: memberCountByGroup.get(group.id) || 0 },
+          doneCount: doneCountByGroup.get(group.id) || 0,
           currentBook: bookData ? {
             ...bookData.books,
             created_at: bookData.created_at,
             target_start_date: bookData.target_start_date,
             target_end_date: bookData.target_end_date,
-            genre: bookData.books?.official_genre || bookData.books?.draft_genre,
+            genre: bookData.genre_snapshot || bookData.books?.official_genre || bookData.books?.draft_genre,
+            total_pages: bookData.pages_snapshot || bookData.books?.official_pages || bookData.books?.draft_pages,
             progress: bookData.user_reading_progress?.[0]?.progress_pct || 0
           } : null
         }
       })
       
       console.log('[Index] Fetched groups:', groups.value)
-      console.log('[Index] Active:', activeGroups.value.length, 'Archived:', archivedGroups.value.length)
-      console.log('[Index] Reading:', readingGroups.value.length, 'Idle:', idleGroups.value.length)
+      console.log('[Index] Solo:', soloGroup.value ? 1 : 0, 'Social:', socialGroups.value.length, 'Archived:', archivedGroups.value.length)
+      console.log('[Index] Reading Social:', readingSocialGroups.value.length, 'Idle Social:', idleSocialGroups.value.length)
     }
   } catch (e: any) {
     console.error('Error fetching groups:', e)
@@ -456,6 +586,15 @@ const formatDateSimple = (dateStr: string) => {
   return `${year}.${month}.${day}`
 }
 
+const handleCreateGroupClick = () => {
+  if (!isPremium.value) {
+    toast.error('공유 그룹 생성은 프리미엄 구독이 필요합니다.')
+    router.push('/subscription')
+    return
+  }
+  createGroupModalOpen.value = true
+}
+
 const handleGroupCreated = async (newGroup: any) => {
   toast.success('새 그룹이 생성되었습니다!')
   await fetchGroups()
@@ -474,8 +613,8 @@ const confirmLeaveArchivedGroup = (group: any) => {
 
 const handleLeaveArchivedGroup = async () => {
   if (!targetGroupToLeave.value) return
-  
-  const userId = userStore.profile?.id || userStore.user?.id
+
+  const userId = userStore.profile?.id
   if (!userId) {
     toast.error('사용자 정보를 찾을 수 없습니다.')
     return

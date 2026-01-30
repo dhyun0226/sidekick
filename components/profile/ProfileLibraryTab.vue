@@ -25,12 +25,21 @@
         </div>
         <div class="grid grid-cols-4 gap-2">
           <div v-for="book in readingBooks" :key="book.id" @click="$emit('open-book', book)" class="cursor-pointer active:opacity-70 transition-opacity opacity-60">
-            <div class="aspect-[1/1.5] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800">
+            <div class="aspect-[1/1.5] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800 relative">
               <img :src="book.cover_url" class="w-full h-full object-cover" />
+              <!-- 회차 배지 (2회차 이상일 때만) -->
+              <div v-if="book.round && book.round > 1" class="absolute top-1 right-1 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                {{ book.round }}회
+              </div>
             </div>
-            <div class="mt-1 text-center">
-              <div class="h-3 mb-0.5 flex items-center justify-center"><span class="text-[10px] text-zinc-400">읽는 중</span></div>
-              <div class="text-[9px] text-zinc-400">{{ Math.round(book.progress_pct) }}%</div>
+            <div class="mt-1 flex items-center justify-center gap-1 text-[10px] text-zinc-400">
+              <template v-if="book.target_end_date">
+                <span class="font-bold" :class="getDaysRemaining(book.target_end_date) < 0 ? 'text-red-500' : 'text-lime-600 dark:text-lime-400'">
+                  {{ formatDday(book.target_end_date) }}
+                </span>
+                <span>·</span>
+              </template>
+              <span>{{ Math.round(book.progress_pct) }}%</span>
             </div>
           </div>
         </div>
@@ -45,13 +54,20 @@
         </div>
         <div class="grid grid-cols-4 gap-2">
           <div v-for="book in group.books" :key="book.id" @click="$emit('open-book', book)" class="cursor-pointer active:opacity-70 transition-opacity">
-            <div class="aspect-[1/1.5] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800">
+            <div class="aspect-[1/1.5] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800 relative">
               <img :src="book.cover_url" class="w-full h-full object-cover" />
+              <!-- 회차 배지 (2회차 이상일 때만) -->
+              <div v-if="book.round && book.round > 1" class="absolute top-1 right-1 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                {{ book.round }}회
+              </div>
             </div>
-            <div class="mt-1 text-center">
-              <div v-if="book.myRating" class="flex items-center justify-center gap-0.5 mb-0.5"><Star :size="10" fill="#EAB308" class="text-yellow-500" /><span class="text-[10px] font-bold text-zinc-900 dark:text-white">{{ book.myRating }}</span></div>
-              <div v-else class="h-3 mb-0.5 flex items-center justify-center"><span class="text-[10px] text-zinc-400">──</span></div>
-              <div class="text-[9px] text-zinc-500">{{ formatMonthOnly(book.finished_at) }}</div>
+            <div class="mt-1 flex items-center justify-center gap-1 text-[10px]">
+              <template v-if="book.myRating">
+                <Star :size="10" fill="#EAB308" class="text-yellow-500" />
+                <span class="font-bold text-zinc-900 dark:text-white">{{ book.myRating }}</span>
+                <span class="text-zinc-300 dark:text-zinc-600">·</span>
+              </template>
+              <span class="text-zinc-500">{{ formatMonthOnly(book.finished_at) }}</span>
             </div>
           </div>
         </div>
@@ -88,5 +104,20 @@ const formatMonthOnly = (dateStr: string) => {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   return `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
+}
+
+const getDaysRemaining = (targetDateStr: string) => {
+  const target = new Date(targetDateStr)
+  target.setHours(0, 0, 0, 0)
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  return Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+}
+
+const formatDday = (targetDateStr: string) => {
+  const days = getDaysRemaining(targetDateStr)
+  if (days > 0) return `D-${days}`
+  if (days === 0) return 'D-Day'
+  return `D+${Math.abs(days)}`
 }
 </script>

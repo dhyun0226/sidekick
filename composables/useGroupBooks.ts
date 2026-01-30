@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, toValue, type MaybeRef } from 'vue'
 
 interface BookData {
   id: string
@@ -7,16 +7,18 @@ interface BookData {
   target_start_date?: string
   target_end_date?: string
   toc_snapshot?: any[]
+  pages_snapshot?: number // ✅ Group specific total pages (사용자 입력값)
+  genre_snapshot?: string // ✅ Group specific genre (사용자 입력값)
   finished_at?: string
   created_at: string
-  genre?: string // Group specific genre
   book?: {
     title: string
     author: string
     cover_url: string
-    total_pages?: number
-    official_genre?: string
+    draft_pages?: number // Draft pages (미승인)
+    official_pages?: number // Official pages (승인된 가이드)
     draft_genre?: string
+    official_genre?: string // Official genre (승인된 가이드)
   }
   user_reading_progress?: Array<{
     last_read_at?: string
@@ -33,13 +35,13 @@ interface HistoryBook {
   author: string
   cover_url: string
   publisher?: string
-  total_pages?: number
+  total_pages?: number // Unified from snapshot → official → draft
   genre?: string // Unified genre to display
   date: string
   round?: number
   reviewCount?: number
   user_finished_at?: string | null
-  // Keep these for reference if needed, but 'genre' is the main one
+  // Keep these for reference if needed
   official_genre?: string
   draft_genre?: string
 }
@@ -59,9 +61,9 @@ interface BookAddData {
   endDate: string
 }
 
-export const useGroupBooks = (groupId: string) => {
+export const useGroupBooks = (groupId: MaybeRef<string>) => {
   const client = useSupabaseClient()
-  const { getBookRound } = useBookRound()
+  const { getBookRound, getBatchBookRounds } = useBookRound()
   const userStore = useUserStore()
 
   const currentBook = ref<BookData | null>(null)
@@ -89,7 +91,7 @@ export const useGroupBooks = (groupId: string) => {
           finished_at
         )
       `)
-      .eq('group_id', groupId)
+      .eq('group_id', toValue(groupId))
       .in('status', ['reading', 'done'])
       .eq('user_reading_progress.user_id', userId)
 
@@ -110,20 +112,27 @@ export const useGroupBooks = (groupId: string) => {
       const booksWithUserProgress = sortedAllBooks.map((b: any) => ({
         ...b,
         user_finished_at: b.user_reading_progress?.[0]?.finished_at || null,
-        // Prioritize group specific genre -> official -> draft
-        genre: b.genre || b.book?.official_genre || b.book?.draft_genre
+        // ✅ Unified genre for display (snapshot → official → draft)
+        genre: b.genre_snapshot || b.book?.official_genre || b.book?.draft_genre,
+        // ✅ Unified total_pages for display (snapshot → official → draft)
+        total_pages: b.pages_snapshot || b.book?.official_pages || b.book?.draft_pages
       }))
 
-      allBooks.value = booksWithUserProgress
-
-      const rawReadingBooks = booksWithUserProgress.filter((b: any) => b.status === 'reading')
-      
-      readingBooks.value = await Promise.all(
-        rawReadingBooks.map(async (b: any) => {
-          const round = await getBookRound(groupId, b.isbn, b.id)
-          return { ...b, round }
-        })
+      // Batch fetch rounds for ALL books (reading + done)
+      const allRoundsMap = await getBatchBookRounds(
+        toValue(groupId),
+        booksWithUserProgress.map((b: any) => ({ isbn: b.isbn, id: b.id }))
       )
+
+      // Add round to allBooks
+      allBooks.value = booksWithUserProgress.map((b: any) => ({
+        ...b,
+        round: allRoundsMap.get(b.id) || null
+      }))
+
+      const rawReadingBooks = allBooks.value.filter((b: any) => b.status === 'reading')
+
+      readingBooks.value = rawReadingBooks
 
       currentBook.value = readingBooks.value[0] || null
 
@@ -156,7 +165,7 @@ export const useGroupBooks = (groupId: string) => {
 
       const historyBooksWithRounds = await Promise.all(
         doneBooks.map(async (gb: any) => {
-          const round = await getBookRound(groupId, gb.isbn, gb.id)
+          const round = await getBookRound(toValue(groupId), gb.isbn, gb.id)
           const stats = reviewStatsMap.get(gb.id) || { count: 0, totalRating: 0 }
           const avgRating = stats.count > 0 ? (stats.totalRating / stats.count).toFixed(1) : null
 
@@ -167,9 +176,10 @@ export const useGroupBooks = (groupId: string) => {
             author: gb.book.author,
             cover_url: gb.book.cover_url,
             publisher: gb.book.publisher,
-            total_pages: gb.book.total_pages,
-            // Use the calculated genre priority
-            genre: gb.genre || gb.book.official_genre || gb.book.draft_genre,
+            // ✅ Use snapshot (사용자 입력값) → fallback to official → draft
+            total_pages: gb.pages_snapshot || gb.book.official_pages || gb.book.draft_pages,
+            // ✅ Use snapshot (사용자 입력값) → fallback to official → draft
+            genre: gb.genre_snapshot || gb.book.official_genre || gb.book.draft_genre,
             official_genre: gb.book.official_genre, // Keep for fallback/debug
             draft_genre: gb.book.draft_genre,       // Keep for fallback/debug
             date: gb.finished_at || gb.created_at,
@@ -207,6 +217,7 @@ export const useGroupBooks = (groupId: string) => {
     if (bookCheckError) console.error('Book check error:', bookCheckError)
 
     if (!existingBook) {
+      // ✅ 새 책 추가 시: draft만 저장
       const { error: bookInsertError } = await client
         .from('books')
         .insert({
@@ -215,19 +226,20 @@ export const useGroupBooks = (groupId: string) => {
           author: data.book.author,
           publisher: data.book.publisher,
           cover_url: data.book.cover,
-          total_pages: data.totalPages,
+          draft_pages: data.totalPages, // ✅ Draft pages
           draft_toc: data.toc,
           draft_genre: data.genre
         })
 
       if (bookInsertError) throw new Error('책 정보 저장에 실패했습니다.')
-    } else if (!existingBook.official_toc || !existingBook.official_genre) {
+    } else if (!existingBook.official_toc || !existingBook.official_genre || !existingBook.official_pages) {
+      // ✅ 승인되지 않은 항목만 draft 업데이트
       const updateData: any = {
-        total_pages: data.totalPages,
         updated_at: new Date().toISOString()
       }
       if (!existingBook.official_toc) updateData.draft_toc = data.toc
       if (!existingBook.official_genre) updateData.draft_genre = data.genre
+      if (!existingBook.official_pages) updateData.draft_pages = data.totalPages
 
       const { error: bookUpdateError } = await client
         .from('books')
@@ -237,49 +249,69 @@ export const useGroupBooks = (groupId: string) => {
       if (bookUpdateError) throw new Error('책 정보 업데이트에 실패했습니다.')
     }
 
-    // Determine initial genre for group_books
-    // If official exists, use it. If not, use draft (from user input or existing)
-    const initialGenre = existingBook?.official_genre || data.genre
-
-    const { error: groupBookError } = await client
+    const { data: newGroupBook, error: groupBookError } = await client
       .from('group_books')
       .insert({
-        group_id: groupId,
+        group_id: toValue(groupId),
         isbn: data.book.isbn,
         toc_snapshot: data.toc.map(c => ({ title: c.title, startPage: c.startPage })),
+        pages_snapshot: data.totalPages, // ✅ 사용자 입력 페이지수
+        genre_snapshot: data.genre, // ✅ 사용자 입력 장르
         status: 'reading',
         target_start_date: data.startDate,
-        target_end_date: data.endDate,
-        genre: initialGenre // Save genre snapshot
+        target_end_date: data.endDate
       })
+      .select('id')
+      .single()
 
     if (groupBookError) throw new Error('그룹에 책 추가에 실패했습니다.')
 
     const currentUserId = userStore.profile?.id
-    if (currentUserId) {
-      const { data: members } = await client
-        .from('group_members')
-        .select('user_id, user:users(notification_settings)')
-        .eq('group_id', groupId)
-        .neq('user_id', currentUserId)
 
-      if (members && members.length > 0) {
-        const currentUserName = userStore.profile?.nickname || '누군가'
-        const notificationsToSend = members
-          .filter((member: any) => member.user?.notification_settings?.book_added !== false)
-          .map((member: any) => ({
-            user_id: member.user_id,
-            type: 'book_added',
-            title: '📚 새로운 책이 시작되었습니다',
-            message: `${currentUserName}님이 "${data.book.title}"을(를) 추가했습니다`,
-            source_id: groupId,
-            link: `/group/${groupId}`
-          }))
+    // Check if group is solo type
+    const { data: groupData } = await client
+      .from('groups')
+      .select('group_type')
+      .eq('id', toValue(groupId))
+      .single()
 
-        if (notificationsToSend.length > 0) {
-          await client.from('notifications').insert(notificationsToSend)
+    // ✅ Solo 그룹: user_reading_progress 레코드 생성 (profile 서재에 바로 나타나도록)
+    if (groupData?.group_type === 'solo' && newGroupBook?.id && currentUserId) {
+      await client.from('user_reading_progress').upsert({
+        user_id: currentUserId,
+        group_book_id: newGroupBook.id,
+        progress_pct: 0,
+        last_read_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,group_book_id'
+      })
+    }
+
+    // ✅ Social 그룹에서만 알림 생성
+    if (currentUserId && groupData?.group_type === 'social') {
+        const { data: members } = await client
+          .from('group_members')
+          .select('user_id, user:users(notification_settings)')
+          .eq('group_id', toValue(groupId))
+          .neq('user_id', currentUserId)
+
+        if (members && members.length > 0) {
+          const currentUserName = userStore.profile?.nickname || '누군가'
+          const notificationsToSend = members
+            .filter((member: any) => member.user?.notification_settings?.book_added !== false)
+            .map((member: any) => ({
+              user_id: member.user_id,
+              type: 'book_added',
+              title: '📚 새로운 책이 시작되었습니다',
+              message: `${currentUserName}님이 "${data.book.title}"을(를) 추가했습니다`,
+              source_id: toValue(groupId),
+              link: `/group/${toValue(groupId)}`
+            }))
+
+          if (notificationsToSend.length > 0) {
+            await client.from('notifications').insert(notificationsToSend)
+          }
         }
-      }
     }
 
     await fetchBooks()
@@ -310,48 +342,55 @@ export const useGroupBooks = (groupId: string) => {
   ) => {
     const tocSnapshot = chapters.map(c => ({ title: c.title, startPage: c.startPage }))
 
+    // ✅ Update group-specific snapshot (toc_snapshot + pages_snapshot)
     const { error: groupBookError } = await client
       .from('group_books')
-      .update({ toc_snapshot: tocSnapshot })
+      .update({
+        toc_snapshot: tocSnapshot,
+        pages_snapshot: totalPages // ✅ 사용자 입력 페이지수 저장
+      })
       .eq('id', bookId)
 
     if (groupBookError) throw groupBookError
 
+    // ✅ Update only draft_toc (NOT total_pages - 승인된 가이드는 유지)
     const { error: bookError } = await client
       .from('books')
-      .update({ total_pages: totalPages, draft_toc: tocSnapshot })
+      .update({ draft_toc: tocSnapshot })
       .eq('isbn', isbn)
 
     if (bookError) throw bookError
 
+    // Update local state
     if (currentBook.value?.id === bookId) {
       currentBook.value.toc_snapshot = tocSnapshot
-      if (currentBook.value.book) {
-        currentBook.value.book.total_pages = totalPages
-      }
+      currentBook.value.pages_snapshot = totalPages
     }
   }
 
   const updateGenre = async (bookId: string, isbn: string, genre: string) => {
-    // 1. Update group specific genre
+    // ✅ 1. Update group specific genre snapshot
     const { error: groupError } = await client
       .from('group_books')
-      .update({ genre })
+      .update({ genre_snapshot: genre })
       .eq('id', bookId)
 
     if (groupError) throw groupError
 
-    // 2. Update public draft genre (Contribution)
+    // ✅ 2. Update public draft genre (Contribution)
     const { error: publicError } = await client
       .from('books')
       .update({ draft_genre: genre })
       .eq('isbn', isbn)
-    
+
     if (publicError) console.warn('Failed to update public draft genre:', publicError)
 
     // Update local state immediately
     const book = allBooks.value.find(b => b.id === bookId)
-    if (book) book.genre = genre
+    if (book) {
+      book.genre_snapshot = genre
+      book.genre = genre // Also update unified genre
+    }
     
     if (currentBook.value?.id === bookId) {
       currentBook.value.genre = genre

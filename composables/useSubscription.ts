@@ -14,6 +14,8 @@
 
 // ============================================
 // Global State (Singleton Pattern)
+// ⚠️ WARNING: 전역 상태로 인한 메모리 누수 위험
+// TODO: 추후 Pinia Store로 이동 권장
 // ============================================
 
 const limits = ref({
@@ -24,6 +26,19 @@ const limits = ref({
 
 const limitsLoading = ref(false)
 const limitsLoaded = ref(false)
+
+/**
+ * 전역 상태 리셋 (테스트 및 로그아웃 시 사용)
+ */
+const resetLimitsCache = () => {
+  limits.value = {
+    max_groups: 1,
+    max_books_per_group: 10,
+    has_statistics_access: false
+  }
+  limitsLoading.value = false
+  limitsLoaded.value = false
+}
 
 export const useSubscription = () => {
   const client = useSupabaseClient()
@@ -214,9 +229,9 @@ export const useSubscription = () => {
   }
 
   /**
-   * 그룹에 참가할 수 있는지 확인 (생성 포함)
-   * - Premium/Admin: 항상 가능
-   * - Free: DB에서 읽은 max_groups_created 확인
+   * 그룹에 참가할 수 있는지 확인
+   * - 모든 유저: 무제한 참가 가능
+   * - Free 유저는 Social 그룹에서 읽기 전용 모드로 참가
    */
   const canJoinGroup = async (): Promise<{
     allowed: boolean
@@ -231,48 +246,50 @@ export const useSubscription = () => {
       }
     }
 
-    if (isPremium.value) {
-      return { allowed: true, currentCount: 0, message: '' }
-    }
-
-    // Free 유저: 현재 참가 중인 그룹 수 확인
-    const { count, error } = await client
-      .from('group_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userStore.profile.id)
-
-    if (error) {
-      console.error('[canJoinGroup] Error:', error)
-      return {
-        allowed: false,
-        currentCount: 0,
-        message: '오류가 발생했습니다.'
-      }
-    }
-
-    const currentCount = count || 0
-
-    // ⭐ DB에서 읽은 제한 값 사용
-    const limit = limits.value.max_groups
-    
-    console.log('[canJoinGroup] Check:', { currentCount, limit, isPremium: isPremium.value })
-
-    if (currentCount >= limit) {
-      return {
-        allowed: false,
-        currentCount,
-        message: `무료 플랜은 ${limit}개 그룹만 참가할 수 있습니다.`
-      }
-    }
-
-    return { allowed: true, currentCount, message: '' }
+    // 모든 유저 무제한 참가 가능
+    return { allowed: true, currentCount: 0, message: '' }
   }
 
   /**
-   * 그룹을 생성할 수 있는지 확인
-   * (canJoinGroup과 동일한 로직)
+   * Social 그룹을 생성할 수 있는지 확인
+   * - Premium/Admin: 항상 가능
+   * - Free: 불가능 (Social 그룹 생성은 프리미엄 전용)
    */
-  const canCreateGroup = canJoinGroup
+  const canCreateGroup = async (): Promise<{
+    allowed: boolean
+    currentCount: number
+    message: string
+  }> => {
+    if (!userStore.profile?.id) {
+      return {
+        allowed: false,
+        currentCount: 0,
+        message: '로그인이 필요합니다.'
+      }
+    }
+
+    // Social 그룹 생성은 프리미엄 전용
+    if (!isPremium.value) {
+      return {
+        allowed: false,
+        currentCount: 0,
+        message: '공유 그룹 생성은 프리미엄 회원만 가능합니다.'
+      }
+    }
+
+    return { allowed: true, currentCount: 0, message: '' }
+  }
+
+  /**
+   * Social 그룹에서 읽기 전용 모드인지 확인
+   * - Free 유저: Social 그룹에서는 읽기 전용 (댓글/진도/완독 불가)
+   * - Free 유저: Solo 그룹에서는 모든 기능 가능
+   * - Premium/Admin: 모든 그룹에서 모든 기능 가능
+   */
+  const isReadOnlyInGroup = (groupType: 'solo' | 'social') => {
+    if (isPremium.value) return false
+    return groupType === 'social'
+  }
 
   // ============================================
   // Subscription Data Fetching
@@ -324,6 +341,7 @@ export const useSubscription = () => {
     limitsLoading,
     limitsLoaded,
     fetchLimits,
+    resetLimitsCache,
 
     // Book visibility
     getVisibleBooks,
@@ -335,6 +353,7 @@ export const useSubscription = () => {
     canAddBookToGroup,
     canJoinGroup,
     canCreateGroup,
+    isReadOnlyInGroup,
 
     // Subscription data
     subscription,

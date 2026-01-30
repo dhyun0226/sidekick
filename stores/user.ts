@@ -1,7 +1,17 @@
 import { defineStore } from 'pinia'
 
+interface UserProfile {
+    id: string
+    email?: string
+    nickname?: string
+    avatar_url?: string
+    subscription_tier?: string
+    created_at?: string
+    updated_at?: string
+}
+
 export const useUserStore = defineStore('user', () => {
-    const profile = ref(null)
+    const profile = ref<UserProfile | null>(null)
     const isLoading = ref(false)
     const lastFetchTime = ref<number | null>(null)
     const CACHE_DURATION = 5 * 60 * 1000 // 5분 캐시
@@ -87,9 +97,18 @@ export const useUserStore = defineStore('user', () => {
             lastFetchTime.value = null
             isLoading.value = false
 
+            // 3. 구독 캐시 초기화
+            try {
+                const { resetLimitsCache } = useSubscription()
+                resetLimitsCache()
+                console.log('[User Store] Subscription cache cleared')
+            } catch (e) {
+                console.warn('[User Store] Could not clear subscription cache:', e)
+            }
+
             console.log('[User Store] Sign out successful')
 
-            // 3. 로그인 페이지로 리다이렉트
+            // 4. 로그인 페이지로 리다이렉트
             getRouter().push('/login')
         } catch (error) {
             console.error('[User Store] Sign out failed:', error)

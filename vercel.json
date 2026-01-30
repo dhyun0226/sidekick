@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/process-renewals",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/expire-subscriptions",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-pending-payments",
+      "schedule": "0 4 * * *"
+    }
+  ]
+}

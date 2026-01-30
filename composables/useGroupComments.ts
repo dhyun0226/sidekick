@@ -77,12 +77,16 @@ export const useGroupComments = (userId: string | null) => {
           .eq('type', 'like')
 
         // Get user's likes for all items
-        const { data: userLikes } = userId ? await client
-          .from('reactions')
-          .select('comment_id')
-          .in('comment_id', allItemIds)
-          .eq('user_id', userId)
-          .eq('type', 'like') : { data: [] }
+        let userLikes: any[] = []
+        if (userId) {
+          const { data } = await client
+            .from('reactions')
+            .select('comment_id')
+            .in('comment_id', allItemIds)
+            .eq('user_id', userId)
+            .eq('type', 'like')
+          userLikes = data || []
+        }
 
         // Count likes per item
         const likeCounts: Record<string, number> = {}
@@ -90,7 +94,7 @@ export const useGroupComments = (userId: string | null) => {
           likeCounts[r.comment_id] = (likeCounts[r.comment_id] || 0) + 1
         })
 
-        const userLikedSet = new Set(userLikes?.map(r => r.comment_id) || [])
+        const userLikedSet = new Set(userLikes.map(r => r.comment_id))
 
         // 1. Process items with full data and initialize replies
         const processedItems = data.map(comment => ({
@@ -123,11 +127,10 @@ export const useGroupComments = (userId: string | null) => {
           }
         })
 
-        // 4. Update main comments with root level comments only
-        const uniqueRoots = rootComments.filter(newRoot => 
-          !comments.value.some(existing => existing.id === newRoot.id)
-        )
-        
+        // 4. Update main comments with root level comments only (optimized with Set)
+        const existingIds = new Set(comments.value.map(c => c.id))
+        const uniqueRoots = rootComments.filter(newRoot => !existingIds.has(newRoot.id))
+
         comments.value = [...comments.value, ...uniqueRoots]
       }
     } finally {

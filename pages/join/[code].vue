@@ -77,6 +77,7 @@ const route = useRoute()
 const router = useRouter()
 const client = useSupabaseClient()
 const toast = useToastStore()
+const { canJoinGroup } = useSubscription()
 
 const code = route.params.code as string
 
@@ -159,6 +160,14 @@ const joinGroup = async () => {
 
   try {
     console.log('[Join] Joining group:', group.value.id)
+
+    // 구독 제한 체크
+    const limitCheck = await canJoinGroup()
+    if (!limitCheck.allowed) {
+      toast.error(limitCheck.message)
+      joining.value = false
+      return
+    }
 
     // 그룹에 멤버로 추가
     const { error: joinError } = await client

@@ -43,8 +43,8 @@
           {{ formatDateRange(book.target_start_date, book.target_end_date) }}
         </Badge>
 
-        <!-- Members Badge -->
-        <Badge>
+        <!-- Members Badge (Social 그룹만) -->
+        <Badge v-if="memberCount !== undefined">
           <template #icon><User :size="12" /></template>
           {{ memberCount }}
         </Badge>
@@ -56,7 +56,7 @@
 
         <!-- Finished Date Badge -->
         <Badge v-if="book.status === 'done' && book.finishedAt" variant="lime">
-          {{ formatDate(book.finishedAt) }} 완주
+          {{ formatDate(book.finishedAt) }} {{ isSolo ? '완독' : '완주' }}
         </Badge>
       </div>
     </div>
@@ -86,7 +86,8 @@ interface Book {
 interface Props {
   book: Book | null
   daysRemaining: number | null
-  memberCount: number
+  memberCount?: number
+  isSolo?: boolean
 }
 
 const props = defineProps<Props>()

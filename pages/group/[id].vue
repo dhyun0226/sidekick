@@ -21,11 +21,65 @@
 
     <!-- Loaded Content -->
     <template v-else>
+      <!-- Read-Only Mode Banner (Free users in Social groups) -->
+      <div v-if="isReadOnlyMode" class="bg-blue-500/10 dark:bg-blue-500/20 border-b border-blue-500/30 px-4 py-3 relative z-30">
+        <div class="max-w-md mx-auto text-center space-y-2">
+          <p class="text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center justify-center gap-2">
+            <Lock :size="16" /> 읽기 전용 모드
+          </p>
+          <p class="text-xs text-blue-600/80 dark:text-blue-400/80">
+            무료 플랜에서는 그룹 내용을 확인만 할 수 있습니다. 참여하려면 프리미엄이 필요합니다.
+          </p>
+          <button
+            @click="modals.upgradeReadOnly = true"
+            class="w-full max-w-xs mx-auto py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 flex items-center justify-center gap-2 text-sm"
+          >
+            <Lock :size="16" />
+            프리미엄으로 참여하기
+          </button>
+        </div>
+      </div>
+
       <!-- Archived Notice Banner -->
       <div v-if="isArchived" class="bg-amber-500/10 dark:bg-amber-500/20 border-b border-amber-500/30 px-4 py-2 text-center relative z-30">
         <p class="text-[11px] font-black text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1.5 uppercase tracking-tighter">
           <Archive :size="12" /> 이 그룹은 종료되었습니다. (과거의 기록만 열람 가능)
         </p>
+      </div>
+
+      <!-- Paused Notice Banner -->
+      <div v-if="isPausedGroup && !isArchived" class="bg-orange-500/10 dark:bg-orange-500/20 border-b border-orange-500/30 px-4 py-3 relative z-30">
+        <div class="max-w-md mx-auto text-center space-y-3">
+          <p class="text-sm font-bold text-orange-600 dark:text-orange-400 flex items-center justify-center gap-2">
+            <Pause :size="16" /> 그룹이 일시 정지되었습니다
+          </p>
+          <p class="text-xs text-orange-600/80 dark:text-orange-400/80">
+            방장의 프리미엄 구독이 만료되어 그룹 활동이 중단되었습니다.
+          </p>
+
+          <!-- 프리미엄 유저: 방장 되기 버튼 -->
+          <button
+            v-if="isPremium"
+            @click="handleBecomeOwner"
+            class="w-full max-w-xs mx-auto py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-orange-500/30 flex items-center justify-center gap-2"
+          >
+            <User :size="18" />
+            방장 되기 (그룹 활성화)
+          </button>
+
+          <!-- 무료 유저: 결제 유도 -->
+          <div v-else class="space-y-2">
+            <p class="text-xs text-orange-600/70 dark:text-orange-400/70">
+              프리미엄으로 업그레이드하면 이 그룹을 다시 활성화할 수 있습니다.
+            </p>
+            <button
+              @click="router.push('/subscription')"
+              class="w-full max-w-xs mx-auto py-2.5 bg-white dark:bg-zinc-800 border-2 border-orange-500 text-orange-600 dark:text-orange-400 font-bold rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all flex items-center justify-center gap-2"
+            >
+              ⭐ 프리미엄 가입하기
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- 2. Hero Section (Immersive Book Info) -->
@@ -35,16 +89,17 @@
           title: bookTitle,
           author: bookAuthor,
           publisher: selectedBook.book?.publisher,
-          total_pages: selectedBook.book?.total_pages,
-          genre: selectedBook.book?.official_genre || selectedBook.book?.draft_genre,
+          total_pages: selectedBook.total_pages,
+          genre: selectedBook.genre,
           status: selectedBook.status,
-          round: currentBookRound,
+          round: selectedBook.round,
           finishedAt: selectedBook.finished_at,
           target_start_date: selectedBook.target_start_date,
           target_end_date: selectedBook.target_end_date
         } : null"
         :days-remaining="daysRemaining"
         :member-count="members.length"
+        :is-solo="false"
       />
 
       <!-- Timeline Content (Flows naturally) -->
@@ -58,7 +113,12 @@
             {{ isAdmin ? '함께 읽을 책을 정해주세요' : '읽을 책을 기다리고 있어요' }}
           </h2>
           <p class="text-sm text-zinc-500 dark:text-zinc-400 text-center mb-8 max-w-xs leading-relaxed">
-            {{ isAdmin ? '어떤 책으로 시작해볼까요?\n새로운 책을 검색해서 등록해보세요!' : '관리자가 책을 등록하면\n함께 독서를 시작할 수 있습니다.' }}
+            <template v-if="isAdmin">
+              어떤 책으로 시작해볼까요?<br />새로운 책을 검색해서 등록해보세요!
+            </template>
+            <template v-else>
+              관리자가 책을 등록하면<br />함께 독서를 시작할 수 있습니다.
+            </template>
           </p>
           
           <button
@@ -108,6 +168,7 @@
         :bookTitle="bookTitle"
         :members="selectedBook.status === 'reading' ? sliderMembers : []"
         :is-archived="isArchived"
+        :is-read-only-mode="isReadOnlyMode"
         @update:modelValue="handleSliderInput"
         @change="handleSliderChange"
         @write="handleWrite"
@@ -133,12 +194,13 @@
       :current-book="currentBook"
       :selected-book-id="selectedBookId"
       :reading-books="visibleReadingBooks"
-      :locked-reading-books="lockedReadingBooks"
       :history-books="visibleHistoryBooks"
-      :locked-history-books="lockedHistoryBooks"
       :sorted-members-with-progress="sortedMembersWithProgress"
       :is-admin="isAdmin"
       :is-archived="isArchived"
+      :is-solo="false"
+      :is-paused="isPausedGroup"
+      :is-read-only-mode="isReadOnlyMode"
       :current-user-id="currentUserId"
       :invite-code="group?.invite_code || ''"
       :toc="toc"
@@ -189,8 +251,8 @@
         author: reviewingBook.book?.author,
         coverUrl: reviewingBook.book?.cover_url,
         publisher: reviewingBook.book?.publisher,
-        total_pages: reviewingBook.book?.total_pages,
-        genre: reviewingBook.book?.official_genre || reviewingBook.book?.draft_genre
+        total_pages: reviewingBook.total_pages,
+        genre: reviewingBook.genre
       } : null"
       @close="closeReviewModal"
       @submit="handleReviewSubmit"
@@ -337,6 +399,15 @@
       @close="modals.upgradeBook = false"
     />
 
+    <!-- Upgrade Prompt Modal for Read-Only Mode -->
+    <UpgradePromptModal
+      :isOpen="modals.upgradeReadOnly"
+      feature="participation"
+      title="그룹에 참여하고 싶으신가요?"
+      description="무료 플랜에서는 그룹 내용을 확인만 할 수 있습니다. 프리미엄으로 업그레이드하면 댓글 작성, 진도 기록, 완독 처리 등 모든 기능을 사용할 수 있어요."
+      @close="modals.upgradeReadOnly = false"
+    />
+
   </div>
 </template>
 
@@ -359,7 +430,7 @@ import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import TextDisplayModal from '~/components/TextDisplayModal.vue'
 import TextInputModal from '~/components/TextInputModal.vue'
-import { Menu, Search, Plus, Settings, Share2, ChevronLeft, ChevronRight, ChevronDown, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X, BarChart3, Copy, User } from 'lucide-vue-next'
+import { Menu, Search, Plus, Settings, Share2, ChevronLeft, ChevronRight, ChevronDown, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X, BarChart3, Copy, User, Archive, Pause, Lock } from 'lucide-vue-next'
 import GroupStatsModal from '~/components/GroupStatsModal.vue'
 import UpgradePromptModal from '~/components/UpgradePromptModal.vue'
 
@@ -373,14 +444,12 @@ const router = useRouter()
 const userStore = useUserStore()
 const toast = useToastStore()
 const client = useSupabaseClient()
-const { getBookRound } = useBookRound()
 const { formatDateRange, getDaysRemaining, getTotalDays, getDaysSinceStart } = useDateUtils()
 const {
   isPremium,
   limits,
   fetchLimits,
-  getVisibleBooks,
-  getLockedBooks
+  isReadOnlyInGroup
 } = useSubscription()
 
 // ===== Core Data & State =====
@@ -444,6 +513,7 @@ const modals = reactive({
   editFinishedDate: false,
   editingBook: null as any,  // 편집 중인 책 (selectedBookId와 독립적)
   upgradeBook: false,  // Upgrade prompt for book addition
+  upgradeReadOnly: false,  // Upgrade prompt for read-only mode
   // Admin action modals
   promoteMember: false,
   kickMember: false,
@@ -489,6 +559,11 @@ const {
 // ===== Additional State =====
 const myMembership = computed(() => members.value.find(m => m.id === currentUserId.value))
 const isArchived = computed(() => group.value?.deleted_at != null || myMembership.value?.left_at != null)
+const isReadOnlyMode = computed(() => {
+  // Social 그룹에서 Free 유저는 읽기 전용
+  const groupType = group.value?.group_type || 'social'
+  return isReadOnlyInGroup(groupType)
+})
 const reviewInitialData = ref({ rating: 0, content: '' })
 const isEditingReview = ref(false)
 const reviewingBookId = ref<string | null>(null) // Track which book is being reviewed
@@ -508,7 +583,6 @@ const reviewingBook = computed(() => {
 
 const showMemberProgress = ref(false)
 const group = ref<any>(null)
-const currentBookRound = ref<number | null>(null)
 const members = ref<any[]>([])
 const editingGroupName = ref('')
 const isScrolled = ref(false)
@@ -518,8 +592,8 @@ const userReviewedBooks = ref<Map<string, number>>(new Map()) // Track which boo
 const groupName = computed(() => group.value?.name || 'Loading...')
 const bookTitle = computed(() => selectedBook.value?.book?.title || 'No Book Selected')
 const bookRoundLabel = computed(() => {
-  if (currentBookRound.value === null) return ''
-  return `[${currentBookRound.value}회]`
+  if (!selectedBook.value?.round) return ''
+  return `[${selectedBook.value.round}회]`
 })
 const bookAuthor = computed(() => selectedBook.value?.book?.author || '')
 const bookCover = computed(() => selectedBook.value?.book?.cover_url || '')
@@ -601,6 +675,9 @@ const isAdmin = computed(() => {
   const member = members.value.find(m => m.id === userId)
   return member?.role === 'admin'
 })
+
+// 공유 그룹 전용 페이지 (Solo는 /my-library 사용)
+const isPausedGroup = computed(() => group.value?.status === 'paused')
 const commentCount = computed(() => comments.value.length)
 
 // Sorted members with progress
@@ -692,29 +769,10 @@ const sliderMembers = computed(() => {
   return othersWithProgress.slice(0, 3)
 })
 
-// Subscription-based book filtering
-const visibleAllBooks = computed(() => getVisibleBooks(allBooks.value))
-const lockedAllBooks = computed(() => getLockedBooks(allBooks.value))
-
-const visibleReadingBooks = computed(() => {
-  const visible = visibleAllBooks.value.map(b => b.id)
-  return readingBooks.value.filter(book => visible.includes(book.id))
-})
-
-const lockedReadingBooks = computed(() => {
-  const locked = lockedAllBooks.value.map(b => b.id)
-  return readingBooks.value.filter(book => locked.includes(book.id))
-})
-
-const visibleHistoryBooks = computed(() => {
-  const visible = visibleAllBooks.value.map(b => b.id)
-  return historyBooks.value.filter(book => visible.includes(book.id))
-})
-
-const lockedHistoryBooks = computed(() => {
-  const locked = lockedAllBooks.value.map(b => b.id)
-  return historyBooks.value.filter(book => locked.includes(book.id))
-})
+// ✅ 모든 유저가 모든 책을 볼 수 있음 (읽기 전용 모드로 활동만 제한)
+const visibleAllBooks = computed(() => allBooks.value)
+const visibleReadingBooks = computed(() => readingBooks.value)
+const visibleHistoryBooks = computed(() => historyBooks.value)
 
 // Fetch user reviews to track which books have been reviewed
 const fetchUserReviews = async () => {
@@ -974,6 +1032,12 @@ const handleSliderChange = async (val: number) => {
     scrollToPosition(Math.round(val))
   })
 
+  // 읽기 전용 모드 체크
+  if (isReadOnlyMode.value) {
+    console.log('[Slider] Read-only mode - not saving progress')
+    return
+  }
+
   // 완독 여부 및 그룹 종료 여부 확인
   const currentBookData = allBooks.value.find(b => b.id === selectedBookId.value)
   const isFinished = currentBookData?.user_finished_at != null
@@ -996,15 +1060,6 @@ const handleSliderChange = async (val: number) => {
     }, 2000)
   }
 }
-
-// Fetch book round number when current book changes
-watch(currentBook, async (newBook) => {
-  if (newBook && newBook.id && newBook.isbn) {
-    currentBookRound.value = await getBookRound(groupId, newBook.isbn, newBook.id)
-  } else {
-    currentBookRound.value = null
-  }
-}, { immediate: true })
 
 // Scroll helper function (only called explicitly when needed, e.g., jumpToChapter)
 const scrollToPosition = (targetPct: number) => {
@@ -1031,12 +1086,25 @@ const scrollToPosition = (targetPct: number) => {
 }
 
 const handleWrite = () => {
+  // 읽기 전용 모드 체크
+  if (isReadOnlyMode.value) {
+    modals.upgradeReadOnly = true
+    return
+  }
+
   modals.commentInput = true
   anchorTextLocked.value = false
 }
 
 const handleWriteFromModal = (data: { anchorText: string, position: number }) => {
   console.log('[Group] handleWriteFromModal called with:', data)
+
+  // 읽기 전용 모드 체크
+  if (isReadOnlyMode.value) {
+    modals.upgradeReadOnly = true
+    return
+  }
+
   // Pre-fill anchor text and position from modal
   newAnchorText.value = data.anchorText
   viewProgress.value = data.position
@@ -1150,9 +1218,9 @@ const handleReviewSubmit = async (data: any) => {
 const openSearchModal = () => {
   modals.drawer = false
 
-  // Check book addition limit for free users (total books in group)
-  if (!isPremium.value && allBooks.value.length >= limits.value.max_books_per_group) {
-    modals.upgradeBook = true
+  // 읽기 전용 모드 체크
+  if (isReadOnlyMode.value) {
+    modals.upgradeReadOnly = true
     return
   }
 
@@ -1176,6 +1244,12 @@ const openEditGenreModal = (bookId: string) => {
 }
 
 const openMarkCompletedModal = (bookId: string) => {
+  // 읽기 전용 모드 체크
+  if (isReadOnlyMode.value) {
+    modals.upgradeReadOnly = true
+    return
+  }
+
   modals.editingBook = allBooks.value.find(b => b.id === bookId) || null
   modals.markCompleted = true
 }
@@ -1311,13 +1385,27 @@ const openReviewModalForBook = async (bookId: string) => {
 }
 
 // 드로어 메뉴에서 완독 처리
-const handleMarkFinished = (bookId: string) => markAsFinished(bookId, true)
+const handleMarkFinished = (bookId: string) => {
+  // 읽기 전용 모드 체크
+  if (isReadOnlyMode.value) {
+    modals.upgradeReadOnly = true
+    return
+  }
+
+  markAsFinished(bookId, true)
+}
 
 /**
  * 완독 취소
  */
 const handleUnmarkFinished = async (bookId: string) => {
   if (!currentUserId.value) return
+
+  // 읽기 전용 모드 체크
+  if (isReadOnlyMode.value) {
+    modals.upgradeReadOnly = true
+    return
+  }
 
   try {
     console.log('[UnmarkFinished] Starting...', { bookId, userId: currentUserId.value })
@@ -1425,6 +1513,12 @@ const handleOpenReview = async (bookId: string) => {
   if (!book) return
 
   if (!userStore.user || !currentUserId.value) return
+
+  // 읽기 전용 모드 체크
+  if (isReadOnlyMode.value) {
+    modals.upgradeReadOnly = true
+    return
+  }
 
   // Set the book being reviewed
   reviewingBookId.value = bookId
@@ -1697,8 +1791,27 @@ const handleBookAdd = async (data: any) => {
   }
 
   try {
+    // ✅ Convert reactive objects to plain objects
+    const plainData = {
+      book: {
+        isbn: data.book.isbn,
+        title: data.book.title,
+        author: data.book.author,
+        publisher: data.book.publisher,
+        cover: data.book.cover
+      },
+      toc: data.toc.map((c: any) => ({
+        title: c.title,
+        startPage: c.startPage
+      })),
+      totalPages: data.totalPages,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      genre: data.genre
+    }
+
     // Use composable's addBook method
-    await addBook(data)
+    await addBook(plainData)
 
     // Refresh other data
     await fetchData()
@@ -1832,6 +1945,37 @@ const executeKickMember = async () => {
     modals.kickMember = false
     pendingMemberAction.value = null
     activeMemberMenu.value = null
+  }
+}
+
+const handleBecomeOwner = async () => {
+  if (!isPremium.value) {
+    toast.error('프리미엄 회원만 방장이 될 수 있습니다.')
+    return
+  }
+
+  if (!isPausedGroup.value) {
+    toast.error('일시 정지된 그룹만 방장이 될 수 있습니다.')
+    return
+  }
+
+  try {
+    const { data, error } = await $fetch('/api/groups/become-owner', {
+      method: 'POST',
+      body: {
+        groupId
+      }
+    })
+
+    if (error) throw error
+
+    toast.success('방장이 되었습니다! 그룹이 다시 활성화되었습니다.', 5000)
+
+    // Reload group data
+    await fetchData()
+  } catch (error: any) {
+    console.error('Become owner error:', error)
+    toast.error(error.message || '방장 되기에 실패했습니다.')
   }
 }
 

@@ -287,28 +287,32 @@ const loadMore = async () => {
 const selectBook = async (book: any) => {
   selectedBook.value = book
   const client = useSupabaseClient()
-  const { data: existingBook } = await client.from('books').select('official_toc, official_genre, total_pages').eq('isbn', book.isbn).maybeSingle()
-  
+  const { data: existingBook } = await client.from('books').select('official_toc, draft_toc, official_genre, draft_genre, official_pages, draft_pages').eq('isbn', book.isbn).maybeSingle()
+
   if (existingBook) {
-    const totalPagesFromDB = existingBook.total_pages || 100
+    // ✅ 승인된 페이지수 우선 → draft → 기본값
+    const totalPagesFromDB = existingBook.official_pages || existingBook.draft_pages || 100
     totalPages.value = totalPagesFromDB
-    
-    if (existingBook.official_toc && Array.isArray(existingBook.official_toc)) {
+
+    // ✅ TOC: official → draft 순으로 사용
+    const tocData = existingBook.official_toc || existingBook.draft_toc
+    if (tocData && Array.isArray(tocData)) {
       // 하위 호환성 유지: startPage가 있으면 쓰고, 없으면 start 퍼센트로 계산
-      chapters.value = existingBook.official_toc.map((c: any) => ({
+      chapters.value = tocData.map((c: any) => ({
         title: c.title,
         startPage: c.startPage || (c.start !== undefined ? Math.round((c.start / 100) * totalPagesFromDB) : 1)
       }))
     } else {
       chapters.value = []
     }
-    selectedGenre.value = existingBook.official_genre || ''
+    // ✅ 장르: official → draft 순으로 사용
+    selectedGenre.value = existingBook.official_genre || existingBook.draft_genre || ''
   } else {
     totalPages.value = null
     chapters.value = []
     selectedGenre.value = ''
   }
-  
+
   step.value = 2
 }
 

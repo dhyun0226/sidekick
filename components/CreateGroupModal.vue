@@ -165,7 +165,8 @@ const handleCreate = async () => {
       .from('groups')
       .insert({
         name: groupName.value.trim(),
-        created_by: user.id
+        created_by: user.id,
+        group_type: 'social' // 공유 그룹 생성
       })
       .select()
       .single()

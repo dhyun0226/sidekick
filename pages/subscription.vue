@@ -25,22 +25,50 @@
                   <h3 class="text-xl font-black text-zinc-900 dark:text-white">{{ currentSubscription.plan?.display_name }}</h3>
                   <span class="px-2 py-0.5 bg-lime-400 text-black text-[10px] font-black rounded uppercase">Active</span>
                 </div>
-                <p class="text-sm text-zinc-500 font-medium">프리미엄 멤버십을 이용 중입니다</p>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+                  {{ formatPrice(currentSubscription.plan?.price) }} / {{ currentSubscription.plan?.billing_period === 'monthly' ? '월' : '년' }}
+                </p>
               </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-4">
+            <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
+              <!-- 결제일 표시 -->
               <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl px-5 py-3 border border-zinc-100 dark:border-zinc-800">
-                <p class="text-[10px] text-zinc-400 font-black uppercase mb-1">다음 결제일</p>
+                <p class="text-[10px] text-zinc-400 font-black uppercase mb-1">
+                  {{ currentSubscription.auto_renew ? '다음 결제일' : '만료일' }}
+                </p>
                 <p class="text-sm font-bold text-zinc-900 dark:text-white">{{ formatDate(currentSubscription.end_date) }}</p>
+                <p v-if="currentSubscription.auto_renew" class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1">
+                  {{ formatPrice(currentSubscription.plan?.price) }} 자동결제
+                </p>
               </div>
+
+              <!-- 자동갱신 상태 표시 -->
+              <div class="flex items-center gap-2 px-4 py-2 rounded-xl" :class="currentSubscription.auto_renew ? 'bg-lime-50 dark:bg-lime-900/20' : 'bg-orange-50 dark:bg-orange-900/20'">
+                <div class="w-2 h-2 rounded-full" :class="currentSubscription.auto_renew ? 'bg-lime-500 animate-pulse' : 'bg-orange-500'"></div>
+                <span class="text-xs font-bold" :class="currentSubscription.auto_renew ? 'text-lime-700 dark:text-lime-400' : 'text-orange-700 dark:text-orange-400'">
+                  {{ currentSubscription.auto_renew ? '자동갱신 ON' : '자동갱신 OFF' }}
+                </span>
+              </div>
+
+              <!-- 자동갱신 ON일 때: 끄기 버튼 -->
               <button
                 v-if="currentSubscription.auto_renew"
                 @click="handleCancelClick"
                 :disabled="canceling"
-                class="px-6 py-3.5 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-2xl text-sm font-black hover:opacity-80 transition-all active:scale-95 disabled:opacity-50"
+                class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-50 shadow-lg shadow-red-500/20"
               >
-                {{ canceling ? '처리 중...' : '구독 관리' }}
+                {{ canceling ? '처리 중...' : '자동갱신 끄기' }}
+              </button>
+
+              <!-- 자동갱신 OFF일 때: 재개 버튼 -->
+              <button
+                v-else
+                @click="handleReactivateClick"
+                :disabled="reactivating"
+                class="px-6 py-3 bg-lime-500 hover:bg-lime-600 text-white rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-50 shadow-lg shadow-lime-500/30"
+              >
+                {{ reactivating ? '처리 중...' : '자동갱신 재개하기' }}
               </button>
             </div>
           </div>
@@ -107,11 +135,19 @@
           </ul>
 
           <button
+            v-if="!currentSubscription || currentSubscription.plan?.name === 'premium_monthly'"
             @click="startPayment('premium_monthly')"
             :disabled="paying"
-            class="w-full py-4 bg-lime-400 hover:bg-lime-300 text-black font-black rounded-2xl transition-all shadow-lg shadow-lime-400/20 active:scale-95"
+            class="w-full py-4 bg-lime-400 hover:bg-lime-300 text-black font-black rounded-2xl transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ payingMonthly ? '처리 중...' : '시작하기' }}
+            {{ payingMonthly ? '처리 중...' : (currentSubscription ? '연장하기' : '시작하기') }}
+          </button>
+          <button
+            v-else
+            disabled
+            class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 font-black rounded-2xl cursor-not-allowed"
+          >
+            다른 플랜 구독 중
           </button>
         </div>
 
@@ -138,11 +174,19 @@
           </ul>
 
           <button
+            v-if="!currentSubscription || currentSubscription.plan?.name === 'premium_yearly'"
             @click="startPayment('premium_yearly')"
             :disabled="paying"
-            class="w-full py-4 bg-white hover:bg-zinc-100 text-black font-black rounded-2xl transition-all shadow-lg active:scale-95 relative z-10"
+            class="w-full py-4 bg-white hover:bg-zinc-100 text-black font-black rounded-2xl transition-all shadow-lg active:scale-95 relative z-10 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ payingYearly ? '처리 중...' : '연간 구독 시작' }}
+            {{ payingYearly ? '처리 중...' : (currentSubscription ? '연장하기' : '연간 구독 시작') }}
+          </button>
+          <button
+            v-else
+            disabled
+            class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 font-black rounded-2xl cursor-not-allowed relative z-10"
+          >
+            다른 플랜 구독 중
           </button>
         </div>
       </div>
@@ -173,14 +217,27 @@
     <!-- Cancel Subscription Confirmation Modal -->
     <ConfirmModal
       :isOpen="showCancelConfirm"
-      title="구독 취소"
-      message="정말 자동 갱신을 취소하시겠습니까?"
-      description="취소해도 현재 결제 기간이 끝날 때까지 프리미엄 기능을 계속 사용할 수 있습니다. 기간 종료 후 무료 플랜으로 전환됩니다."
+      title="자동갱신 취소"
+      :message="`${currentSubscription?.plan?.display_name} 자동갱신을 취소하시겠습니까?`"
+      :description="`${formatDate(currentSubscription?.end_date)}까지 프리미엄 기능을 계속 사용할 수 있습니다. 이후 자동결제가 되지 않으며 무료 플랜으로 전환됩니다.`"
       confirmText="취소하기"
       cancelText="유지하기"
       variant="warning"
       @confirm="confirmCancelSubscription"
       @cancel="cancelCancelSubscription"
+    />
+
+    <!-- Reactivate Subscription Confirmation Modal -->
+    <ConfirmModal
+      :isOpen="showReactivateConfirm"
+      title="자동갱신 재개"
+      :message="`${currentSubscription?.plan?.display_name} 자동갱신을 재개하시겠습니까?`"
+      :description="`${formatDate(currentSubscription?.end_date)} 만료 시 ${formatPrice(currentSubscription?.plan?.price)}가 자동으로 결제되어 프리미엄이 계속 유지됩니다.`"
+      confirmText="재개하기"
+      cancelText="취소"
+      variant="success"
+      @confirm="confirmReactivateSubscription"
+      @cancel="cancelReactivateSubscription"
     />
   </div>
 </template>
@@ -206,7 +263,9 @@ const paying = ref(false)
 const payingMonthly = ref(false)
 const payingYearly = ref(false)
 const showCancelConfirm = ref(false)
+const showReactivateConfirm = ref(false)
 const canceling = ref(false)
+const reactivating = ref(false)
 
 onMounted(async () => {
   await userStore.fetchProfile()
@@ -263,7 +322,7 @@ const confirmCancelSubscription = async () => {
   showCancelConfirm.value = false; canceling.value = true
   try {
     await $fetch('/api/payments/cancel-subscription', { method: 'POST' })
-    toast.success('구독이 취소되었습니다.')
+    toast.success('자동갱신이 취소되었습니다. 기간 만료 시까지 프리미엄을 이용할 수 있습니다.')
     await fetchCurrentSubscription()
   } catch (error: any) {
     toast.error('구독 취소 중 오류가 발생했습니다.')
@@ -271,9 +330,27 @@ const confirmCancelSubscription = async () => {
 }
 const cancelCancelSubscription = () => { showCancelConfirm.value = false }
 
+const handleReactivateClick = () => { showReactivateConfirm.value = true }
+const confirmReactivateSubscription = async () => {
+  showReactivateConfirm.value = false; reactivating.value = true
+  try {
+    await $fetch('/api/payments/reactivate-subscription', { method: 'POST' })
+    toast.success('자동갱신이 재개되었습니다.')
+    await fetchCurrentSubscription()
+  } catch (error: any) {
+    toast.error('자동갱신 재개 중 오류가 발생했습니다.')
+  } finally { reactivating.value = false }
+}
+const cancelReactivateSubscription = () => { showReactivateConfirm.value = false }
+
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr)
   return `${String(date.getFullYear()).slice(-2)}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
+}
+
+const formatPrice = (price?: number) => {
+  if (!price) return '₩0'
+  return `₩${price.toLocaleString()}`
 }
 </script>
 

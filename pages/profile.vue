@@ -26,7 +26,7 @@
         >
           <span class="flex items-center justify-center gap-1">
             {{ t === 'library' ? '서재' : t === 'timeline' ? '기록' : '분석' }}
-            <Lock v-if="t === 'insight' && !limits.has_statistics_access" :size="12" class="text-zinc-400" />
+            <Lock v-if="t === 'insight' && !isPremium" :size="12" class="text-zinc-400" />
           </span>
           <div v-if="activeTab === t" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
         </button>
@@ -177,6 +177,7 @@ const toast = useToastStore()
 const client = useSupabaseClient()
 const { toggleTheme } = useTheme()
 const { isPremium, subscription: subscriptionDetails, fetchLimits, fetchSubscription, limits } = useSubscription()
+const { getBatchBookRounds } = useBookRound()
 
 // Core State
 const activeTab = ref<'timeline' | 'library' | 'insight'>('library')
@@ -328,15 +329,16 @@ const loadedYears = ref(new Set<number>())
 const isFetchingInsight = ref(false)
 
 const fetchData = async () => {
-  const userId = userStore.profile?.id || userStore.user?.id
+  const userId = userStore.profile?.id
   if (!userId) { loading.value = false; return }
   loading.value = true
   timeline.value = []; timelineOffset.value = 0; hasMoreTimeline.value = true
-  
+
   try {
     // 1. Fetch lightweight data for initial load & stats
+    // TODO: 최적화 가능 - 일부 쿼리는 나중에 lazy loading으로 처리
     const [ { data: pd }, { data: rd }, { count: gc }, { data: ud }, { data: allDatesC }, { data: allDatesR } ] = await Promise.all([
-      client.from('user_reading_progress').select('finished_at, progress_pct, last_read_at, group_book:group_books (id, book:books (*), group:groups (deleted_at))').eq('user_id', userId).order('last_read_at', { ascending: false }),
+      client.from('user_reading_progress').select('finished_at, progress_pct, last_read_at, group_book:group_books (id, isbn, genre_snapshot, pages_snapshot, group_id, target_end_date, book:books (*), group:groups (id, name, group_type, deleted_at))').eq('user_id', userId).order('last_read_at', { ascending: false }),
       client.from('reviews').select('group_book_id, rating').eq('user_id', userId),
       // 🎯 활성 그룹만 카운트 (deleted_at이 null인 그룹)
       client.from('group_members').select('groups!inner(deleted_at)', { count: 'exact', head: true }).eq('user_id', userId).is('groups.deleted_at', null),
@@ -344,15 +346,51 @@ const fetchData = async () => {
       client.from('comments').select('created_at').eq('user_id', userId),
       client.from('reviews').select('created_at').eq('user_id', userId)
     ])
-    
+
     const rm = new Map(rd?.map(r => [r.group_book_id, r.rating]) || [])
-    library.value = (pd || []).map((p: any) => ({
-      id: p.group_book?.book?.isbn, groupBookId: p.group_book?.id, title: p.group_book?.book?.title,
-      author: p.group_book?.book?.author, publisher: p.group_book?.book?.publisher, total_pages: p.group_book?.book?.total_pages,
-      cover_url: p.group_book?.book?.cover_url, genre: p.group_book?.book?.official_genre || p.group_book?.book?.draft_genre,
-      finished_at: p.finished_at, progress_pct: p.progress_pct, last_read_at: p.last_read_at, myRating: rm.get(p.group_book?.id) || null,
+
+    // 기본 매핑 (그룹 정보 포함)
+    const libraryData = (pd || []).map((p: any) => ({
+      id: p.group_book?.book?.isbn,
+      isbn: p.group_book?.isbn,
+      groupBookId: p.group_book?.id,
+      groupId: p.group_book?.group?.id,
+      groupName: p.group_book?.group?.name,
+      groupType: p.group_book?.group?.group_type,
+      title: p.group_book?.book?.title,
+      author: p.group_book?.book?.author,
+      publisher: p.group_book?.book?.publisher,
+      total_pages: p.group_book?.pages_snapshot || p.group_book?.book?.official_pages || p.group_book?.book?.draft_pages,
+      cover_url: p.group_book?.book?.cover_url,
+      genre: p.group_book?.genre_snapshot || p.group_book?.book?.official_genre || p.group_book?.book?.draft_genre,
+      finished_at: p.finished_at,
+      progress_pct: p.progress_pct,
+      last_read_at: p.last_read_at,
+      target_end_date: p.group_book?.target_end_date,
+      myRating: rm.get(p.group_book?.id) || null,
       isArchived: p.group_book?.group?.deleted_at != null
     }))
+
+    // 회차 계산 (그룹별로 배치 처리)
+    const groupedByGroup = new Map<string, any[]>()
+    libraryData.forEach(book => {
+      if (book.groupId) {
+        if (!groupedByGroup.has(book.groupId)) {
+          groupedByGroup.set(book.groupId, [])
+        }
+        groupedByGroup.get(book.groupId)!.push(book)
+      }
+    })
+
+    // 각 그룹별로 회차 계산
+    for (const [groupId, books] of groupedByGroup) {
+      const roundsMap = await getBatchBookRounds(groupId, books.map(b => ({ isbn: b.isbn, id: b.groupBookId })))
+      books.forEach(book => {
+        book.round = roundsMap.get(book.groupBookId) || null
+      })
+    }
+
+    library.value = libraryData
     stats.value.books = library.value.filter(b => b.finished_at).length
     stats.value.groups = gc || 0
     yearlyGoal.value = ud?.yearly_reading_goal || 50
@@ -493,8 +531,8 @@ const handleDayClick = (day: any) => { selectedDay.value = day; showDayActivityM
 const closeDayActivity = () => { showDayActivityModal.value = false; selectedDay.value = null }
 const startEditGoal = () => { tempGoal.value = yearlyGoal.value; editingGoal.value = true }
 const cancelEditGoal = () => editingGoal.value = false
-const handleInsightTabClick = () => { 
-  if (!limits.value.has_statistics_access) {
+const handleInsightTabClick = () => {
+  if (!isPremium.value) {
     upgradeInsightOpen.value = true
     return
   }
