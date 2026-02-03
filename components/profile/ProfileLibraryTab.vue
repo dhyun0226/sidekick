@@ -24,16 +24,32 @@
           <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ readingBooks.length }}권</span>
         </div>
         <div class="grid grid-cols-4 gap-2">
-          <div v-for="book in readingBooks" :key="book.id" @click="$emit('open-book', book)" class="cursor-pointer active:opacity-70 transition-opacity opacity-60">
+          <div
+            v-for="book in readingBooks"
+            :key="book.id"
+            @click="!book.isBookDeleted && !book.isDiscontinued && $emit('open-book', book)"
+            class="transition-opacity"
+            :class="[
+              (book.isBookDeleted || book.isDiscontinued) ? 'opacity-40 cursor-not-allowed' : 'opacity-60 cursor-pointer active:opacity-70'
+            ]"
+          >
             <div class="aspect-[1/1.5] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800 relative">
               <img :src="book.cover_url" class="w-full h-full object-cover" />
+              <!-- 삭제됨 배지 -->
+              <div v-if="book.isBookDeleted" class="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <span class="text-[8px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded">삭제됨</span>
+              </div>
+              <!-- 중단됨 배지 -->
+              <div v-else-if="book.isDiscontinued" class="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <span class="text-[8px] font-bold text-white bg-orange-500 px-1.5 py-0.5 rounded">중단됨</span>
+              </div>
               <!-- 회차 배지 (2회차 이상일 때만) -->
-              <div v-if="book.round && book.round > 1" class="absolute top-1 right-1 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+              <div v-else-if="book.round && book.round > 1" class="absolute top-1 right-1 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
                 {{ book.round }}회
               </div>
             </div>
             <div class="mt-1 flex items-center justify-center gap-1 text-[10px] text-zinc-400">
-              <template v-if="book.target_end_date">
+              <template v-if="book.target_end_date && !book.isBookDeleted && !book.isDiscontinued">
                 <span class="font-bold" :class="getDaysRemaining(book.target_end_date) < 0 ? 'text-red-500' : 'text-lime-600 dark:text-lime-400'">
                   {{ formatDday(book.target_end_date) }}
                 </span>
@@ -53,16 +69,28 @@
           <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ group.books.length }}권</span>
         </div>
         <div class="grid grid-cols-4 gap-2">
-          <div v-for="book in group.books" :key="book.id" @click="$emit('open-book', book)" class="cursor-pointer active:opacity-70 transition-opacity">
+          <div
+            v-for="book in group.books"
+            :key="book.id"
+            @click="!book.isBookDeleted && $emit('open-book', book)"
+            class="transition-opacity"
+            :class="[
+              book.isBookDeleted ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer active:opacity-70'
+            ]"
+          >
             <div class="aspect-[1/1.5] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800 relative">
               <img :src="book.cover_url" class="w-full h-full object-cover" />
+              <!-- 삭제됨 배지 -->
+              <div v-if="book.isBookDeleted" class="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <span class="text-[8px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded">삭제됨</span>
+              </div>
               <!-- 회차 배지 (2회차 이상일 때만) -->
-              <div v-if="book.round && book.round > 1" class="absolute top-1 right-1 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+              <div v-else-if="book.round && book.round > 1" class="absolute top-1 right-1 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
                 {{ book.round }}회
               </div>
             </div>
             <div class="mt-1 flex items-center justify-center gap-1 text-[10px]">
-              <template v-if="book.myRating">
+              <template v-if="book.myRating && !book.isBookDeleted">
                 <Star :size="10" fill="#EAB308" class="text-yellow-500" />
                 <span class="font-bold text-zinc-900 dark:text-white">{{ book.myRating }}</span>
                 <span class="text-zinc-300 dark:text-zinc-600">·</span>

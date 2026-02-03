@@ -1,6 +1,6 @@
 -- =============================================
 -- Sidekick - Complete Initial Schema (Solo/Social)
--- For NEW Supabase Projects - Creates everything from scratch
+-- 방안 1: Soft Delete로 기록 보존
 -- =============================================
 
 -- =============================================
@@ -190,7 +190,7 @@ create table public.books (
   updated_at timestamptz not null default timezone('utc'::text, now())
 );
 
--- 3.9 Group Books
+-- 3.9 Group Books (그룹에서 어떤 책을 읽고 있는지 - 목록 역할)
 create table public.group_books (
   id uuid default uuid_generate_v4() primary key,
   group_id uuid references public.groups(id) on delete cascade not null,
@@ -204,15 +204,17 @@ create table public.group_books (
   finished_at timestamptz,
   target_start_date date,
   target_end_date date,
+  deleted_at timestamptz,  -- Soft delete: 그룹에서 책 삭제 시
   created_at timestamptz not null default timezone('utc'::text, now()),
-  updated_at timestamptz not null default timezone('utc'::text, now())
+  updated_at timestamptz not null default timezone('utc'::text, now()),
+  unique(group_id, isbn, deleted_at)  -- 같은 그룹에서 같은 책 중복 방지 (삭제된 건 제외)
 );
 
--- 3.10 Comments
+-- 3.10 Comments (group_book_id 기반, soft delete로 보존)
 create table public.comments (
   id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.users(id) on delete cascade not null,
   group_book_id uuid references public.group_books(id) on delete cascade not null,
-  user_id uuid references public.users(id) on delete cascade,
   parent_id uuid references public.comments(id) on delete cascade,
   content text not null check (char_length(trim(both from content)) >= 1 and char_length(trim(both from content)) <= 500),
   anchor_text text,
@@ -231,29 +233,30 @@ create table public.reactions (
   unique(user_id, comment_id, type)
 );
 
--- 3.12 Reviews
+-- 3.12 Reviews (group_book_id 기반, soft delete로 보존)
 create table public.reviews (
   id uuid default uuid_generate_v4() primary key,
-  user_id uuid references public.users(id) on delete cascade,
+  user_id uuid references public.users(id) on delete cascade not null,
   group_book_id uuid references public.group_books(id) on delete cascade not null,
   rating numeric not null check (rating >= 0.5 and rating <= 5),
   content text,
   created_at timestamptz not null default timezone('utc'::text, now()),
   updated_at timestamptz not null default timezone('utc'::text, now()),
-  unique(user_id, group_book_id)
+  unique(user_id, group_book_id)  -- 같은 사용자가 같은 그룹책에 하나의 리뷰
 );
 
--- 3.13 Reading Progress
+-- 3.13 Reading Progress (group_book_id 기반, soft delete로 보존)
 create table public.user_reading_progress (
   id uuid default uuid_generate_v4() primary key,
-  user_id uuid references public.users(id) on delete cascade,
+  user_id uuid references public.users(id) on delete cascade not null,
   group_book_id uuid references public.group_books(id) on delete cascade not null,
   progress_pct integer not null default 0 check (progress_pct >= 0 and progress_pct <= 100),
   last_read_at timestamptz not null default timezone('utc'::text, now()),
   finished_at timestamptz,
+  hidden boolean not null default false,  -- 프로필 서재에서 숨김 여부
   created_at timestamptz not null default timezone('utc'::text, now()),
   updated_at timestamptz not null default timezone('utc'::text, now()),
-  unique(user_id, group_book_id)
+  unique(user_id, group_book_id)  -- 같은 사용자가 같은 그룹책에 하나의 진행률
 );
 
 -- 3.14 Notifications
@@ -267,6 +270,15 @@ create table public.notifications (
   link text,
   is_read boolean default false not null,
   created_at timestamptz not null default timezone('utc'::text, now())
+);
+
+-- 3.15 User Wishlists (읽고 싶은 책 목록)
+create table public.user_wishlists (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.users(id) on delete cascade not null,
+  isbn text references public.books(isbn) on delete cascade not null,
+  created_at timestamptz not null default timezone('utc'::text, now()),
+  unique(user_id, isbn)
 );
 
 -- =============================================
@@ -298,10 +310,11 @@ create index idx_books_author on public.books using gin (author gin_trgm_ops);
 create index idx_group_books_group on public.group_books(group_id);
 create index idx_group_books_status on public.group_books(status);
 create index idx_group_books_isbn on public.group_books(isbn);
+create index idx_group_books_deleted_at on public.group_books(deleted_at);
 
 -- Comments
-create index idx_comments_group_book on public.comments(group_book_id);
 create index idx_comments_user on public.comments(user_id);
+create index idx_comments_group_book on public.comments(group_book_id);
 create index idx_comments_parent on public.comments(parent_id);
 create index idx_comments_position on public.comments(position_pct);
 
@@ -310,8 +323,8 @@ create index idx_reactions_comment on public.reactions(comment_id);
 create index idx_reactions_user on public.reactions(user_id);
 
 -- Reviews
-create index idx_reviews_group_book on public.reviews(group_book_id);
 create index idx_reviews_user on public.reviews(user_id);
+create index idx_reviews_group_book on public.reviews(group_book_id);
 
 -- Subscriptions
 create index idx_subscriptions_user on public.subscriptions(user_id);
@@ -330,6 +343,9 @@ create index idx_notifications_created_at on public.notifications(created_at des
 -- Reading Progress
 create index idx_reading_progress_user on public.user_reading_progress(user_id);
 create index idx_reading_progress_group_book on public.user_reading_progress(group_book_id);
+
+-- User Wishlists
+create index idx_user_wishlists_user_id on public.user_wishlists(user_id);
 
 -- =============================================
 -- 5. FUNCTIONS
@@ -411,6 +427,9 @@ create trigger update_comments_updated_at before update on public.comments
   for each row execute procedure public.update_updated_at_column();
 
 create trigger update_reviews_updated_at before update on public.reviews
+  for each row execute procedure public.update_updated_at_column();
+
+create trigger update_reading_progress_updated_at before update on public.user_reading_progress
   for each row execute procedure public.update_updated_at_column();
 
 create trigger update_subscriptions_updated_at before update on public.subscriptions
@@ -547,9 +566,11 @@ begin
     return true;
   end if;
 
-  -- Count current books
+  -- Count current books (not deleted)
   select count(*) into v_current_count
-  from public.group_books where group_id = p_group_id;
+  from public.group_books
+  where group_id = p_group_id
+  and deleted_at is null;
 
   return v_current_count < v_max_books;
 end;
@@ -595,10 +616,12 @@ as $$
 declare
   parent_user_id uuid;
   replier_nickname text;
+  v_group_id uuid;
 begin
   if new.parent_id is not null then
     select user_id into parent_user_id from public.comments where id = new.parent_id;
     select nickname into replier_nickname from public.users where id = new.user_id;
+    select group_id into v_group_id from public.group_books where id = new.group_book_id;
 
     if parent_user_id != new.user_id then
       insert into public.notifications (user_id, type, title, message, source_id, link)
@@ -608,7 +631,7 @@ begin
         '새 댓글 알림',
         coalesce(replier_nickname, '누군가') || '님이 회원님의 댓글에 답글을 남겼습니다.',
         new.id,
-        '/group/' || (select group_id from public.group_books where id = new.group_book_id)
+        '/group/' || v_group_id
       );
     end if;
   end if;
@@ -628,9 +651,12 @@ security definer set search_path = public
 as $$
 declare
   comment_author_id uuid;
+  comment_group_book_id uuid;
+  v_group_id uuid;
   reactor_nickname text;
 begin
-  select user_id into comment_author_id from public.comments where id = new.comment_id;
+  select user_id, group_book_id into comment_author_id, comment_group_book_id from public.comments where id = new.comment_id;
+  select group_id into v_group_id from public.group_books where id = comment_group_book_id;
   select nickname into reactor_nickname from public.users where id = new.user_id;
 
   if comment_author_id != new.user_id then
@@ -641,7 +667,7 @@ begin
       '반응 알림',
       coalesce(reactor_nickname, '누군가') || '님이 회원님의 댓글에 반응했습니다.',
       new.comment_id,
-      '/group/' || (select gb.group_id from public.comments c join public.group_books gb on c.group_book_id = gb.id where c.id = new.comment_id)
+      '/group/' || v_group_id
     );
   end if;
 
@@ -721,6 +747,7 @@ alter table public.subscriptions enable row level security;
 alter table public.payments enable row level security;
 alter table public.subscription_plans enable row level security;
 alter table public.subscription_limits enable row level security;
+alter table public.user_wishlists enable row level security;
 
 -- 6.1 Users policies
 create policy "Users can view all profiles"
@@ -865,7 +892,7 @@ create policy "Admins can delete group books"
     )
   );
 
--- 6.6 Comments policies
+-- 6.6 Comments policies (group_book_id 기반)
 create policy "Everyone can view comments"
   on public.comments for select using (true);
 
@@ -881,6 +908,7 @@ create policy "Members can add comments in active groups"
       where gb.id = group_book_id
       and gm.user_id = auth.uid()
       and gm.left_at is null
+      and gb.deleted_at is null
       and can_perform_social_action(auth.uid(), g.id)
     )
   );
@@ -895,27 +923,17 @@ create policy "Users can delete own comments"
 create policy "Everyone can view reactions"
   on public.reactions for select using (true);
 
-create policy "Members can add reactions in active groups"
+create policy "Members can add reactions"
   on public.reactions for insert
   with check (
     auth.role() = 'authenticated'
     and user_id = auth.uid()
-    and exists (
-      select 1 from public.comments c
-      join public.group_books gb on gb.id = c.group_book_id
-      join public.groups g on g.id = gb.group_id
-      join public.group_members gm on gm.group_id = g.id
-      where c.id = comment_id
-      and gm.user_id = auth.uid()
-      and gm.left_at is null
-      and can_perform_social_action(auth.uid(), g.id)
-    )
   );
 
 create policy "Users can delete own reactions"
   on public.reactions for delete using (auth.uid() = user_id);
 
--- 6.8 Reviews policies
+-- 6.8 Reviews policies (group_book_id 기반)
 create policy "Everyone can view reviews"
   on public.reviews for select using (true);
 
@@ -929,9 +947,9 @@ create policy "Users can update own reviews"
 create policy "Users can delete own reviews"
   on public.reviews for delete using (auth.uid() = user_id);
 
--- 6.9 Reading Progress policies
-create policy "Users can view own progress"
-  on public.user_reading_progress for select using (auth.uid() = user_id);
+-- 6.9 Reading Progress policies (group_book_id 기반)
+create policy "Users can view all progress"
+  on public.user_reading_progress for select using (true);
 
 create policy "Users can insert own progress"
   on public.user_reading_progress for insert
@@ -977,6 +995,12 @@ create policy "Users can create own subscriptions"
 
 create policy "Users can update own subscription auto_renew"
   on public.subscriptions for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- 6.16 User Wishlists policies
+create policy "Users can manage own wishlists"
+  on public.user_wishlists for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
@@ -1060,5 +1084,7 @@ grant all on all sequences in schema public to service_role;
 grant all on all functions in schema public to service_role;
 
 -- =============================================
--- COMPLETE - Ready for Solo/Social System with Payments!
+-- COMPLETE - 방안 1: Soft Delete로 기록 보존
+-- 책 삭제 시 deleted_at만 설정, 기록은 그대로 유지
+-- n회차 읽기도 자연스럽게 분리됨
 -- =============================================

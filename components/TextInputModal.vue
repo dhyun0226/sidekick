@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 
 interface Props {
   isOpen: boolean
@@ -120,6 +120,13 @@ watch(() => props.isOpen, (isOpen) => {
     if (typeof document !== 'undefined') {
       document.body.style.overflow = ''
     }
+  }
+})
+
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
   }
 })
 </script>

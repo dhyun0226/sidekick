@@ -133,7 +133,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onUnmounted } from 'vue'
 import { X, BookOpen, Star, MessageCircle, Calendar } from 'lucide-vue-next'
 
 interface BookHistory {
@@ -190,6 +190,13 @@ watch(() => props.isOpen, async (isOpen) => {
     if (typeof document !== 'undefined') {
       document.body.style.overflow = ''
     }
+  }
+})
+
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
   }
 })
 

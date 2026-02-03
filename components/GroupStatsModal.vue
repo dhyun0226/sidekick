@@ -135,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { X, Star } from 'lucide-vue-next'
 
 const props = defineProps<{
@@ -393,6 +393,13 @@ watch(() => props.isOpen, (newVal) => {
     if (typeof document !== 'undefined') {
       document.body.style.overflow = ''
     }
+  }
+})
+
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
   }
 })
 </script>

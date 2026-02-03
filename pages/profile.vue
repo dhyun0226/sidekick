@@ -18,14 +18,14 @@
     <div class="sticky top-0 z-30 bg-gray-50/95 dark:bg-[#09090b]/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
       <div class="flex px-4">
         <button
-          v-for="t in (['library', 'timeline', 'insight'] as const)"
+          v-for="t in (['library', 'wishlist', 'timeline', 'insight', 'groups'] as const)"
           :key="t"
           @click="t === 'insight' ? handleInsightTabClick() : activeTab = t"
           class="flex-1 py-3 text-sm font-bold transition-colors relative text-center"
           :class="activeTab === t ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
         >
           <span class="flex items-center justify-center gap-1">
-            {{ t === 'library' ? '서재' : t === 'timeline' ? '기록' : '분석' }}
+            {{ t === 'library' ? '서재' : t === 'wishlist' ? '위시' : t === 'timeline' ? '기록' : t === 'insight' ? '분석' : '그룹' }}
             <Lock v-if="t === 'insight' && !isPremium" :size="12" class="text-zinc-400" />
           </span>
           <div v-if="activeTab === t" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
@@ -35,13 +35,21 @@
 
     <!-- 3. Dynamic Tab Content Section -->
     <div class="px-4 pt-3 min-h-[300px]">
-      <ProfileLibraryTab 
+      <ProfileLibraryTab
         v-if="activeTab === 'library'"
         :library="library"
         :reading-books="readingBooks"
         :library-groups="libraryByYear"
         :loading="loading"
         @open-book="openBookDetail"
+      />
+
+      <ProfileWishlistTab
+        v-if="activeTab === 'wishlist'"
+        :wishlist="wishlist"
+        :loading="wishlistLoading"
+        @refresh="fetchWishlistData"
+        @start-book="handleStartBookFromWishlist"
       />
 
       <ProfileTimelineTab
@@ -75,13 +83,19 @@
         :longest-streak="longestStreak"
         :this-month-books="thisMonthBooks"
         :this-month-comments="thisMonthComments"
-        :finishedBooks="finishedLibrary"
+        :finishedBooks="finishedLibraryForStats"
         :include-comments="appSettings.calendar_include_comments"
         @start-edit-goal="startEditGoal"
         @save-goal="saveGoal"
         @cancel-edit-goal="cancelEditGoal"
         @day-click="handleDayClick"
         @year-change="handleYearChange"
+      />
+
+      <ProfileGroupsTab
+        v-if="activeTab === 'groups'"
+        @refresh-stats="fetchData"
+        @refresh-library="fetchData"
       />
     </div>
 
@@ -146,6 +160,13 @@
       feature="insights"
       @close="upgradeInsightOpen = false"
     />
+
+    <BookSearchModal
+      :isOpen="bookSearchModalOpen"
+      :initialBook="initialBookForModal"
+      @close="bookSearchModalOpen = false; initialBookForModal = null"
+      @confirm="handleBookConfirmFromWishlist"
+    />
   </div>
 </template>
 
@@ -162,11 +183,14 @@ import ProfileSubscriptionBanner from '~/components/profile/ProfileSubscriptionB
 import ProfileLibraryTab from '~/components/profile/ProfileLibraryTab.vue'
 import ProfileTimelineTab from '~/components/profile/ProfileTimelineTab.vue'
 import ProfileInsightTab from '~/components/profile/ProfileInsightTab.vue'
+import ProfileGroupsTab from '~/components/profile/ProfileGroupsTab.vue'
+import ProfileWishlistTab from '~/components/profile/ProfileWishlistTab.vue'
 import ProfileSettingsModal from '~/components/profile/ProfileSettingsModal.vue'
 import ProfileDayActivityModal from '~/components/profile/ProfileDayActivityModal.vue'
 import ProfileBookDetailModal from '~/components/ProfileBookDetailModal.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import UpgradePromptModal from '~/components/UpgradePromptModal.vue'
+import BookSearchModal from '~/components/BookSearchModal.vue'
 
 // 인증 미들웨어 적용
 definePageMeta({ middleware: ['auth'] })
@@ -178,13 +202,14 @@ const client = useSupabaseClient()
 const { toggleTheme } = useTheme()
 const { isPremium, subscription: subscriptionDetails, fetchLimits, fetchSubscription, limits } = useSubscription()
 const { getBatchBookRounds } = useBookRound()
+const { wishlist, loading: wishlistLoading, fetchWishlist } = useWishlist()
 
 // Core State
-const activeTab = ref<'timeline' | 'library' | 'insight'>('library')
+const activeTab = ref<'timeline' | 'library' | 'insight' | 'groups' | 'wishlist'>('library')
 const loading = ref(true)
 const timeline = ref<any[]>([])
 const library = ref<any[]>([])
-const stats = ref({ books: 0, comments: 0, streak: 0, groups: 0 })
+const stats = ref({ books: 0, wish: 0, comments: 0, streak: 0, groups: 0 })
 const longestStreak = ref(0)
 
 // Pagination & Totals
@@ -204,6 +229,8 @@ const selectedDay = ref<any>(null)
 const showLogoutConfirm = ref(false)
 const showDeleteAccountConfirm = ref(false)
 const upgradeInsightOpen = ref(false)
+const bookSearchModalOpen = ref(false)
+const initialBookForModal = ref<any>(null)
 
 // Data State
 const notificationSettings = ref({ comment_reply: true, reaction: true, member_join: true, completion: true, book_added: true, group_archived: true })
@@ -212,17 +239,24 @@ const yearlyGoal = ref(50), editingGoal = ref(false), tempGoal = ref(50)
 const isSaving = ref(false)
 
 // Computed Properties
-const readingBooks = computed(() => library.value.filter(book => !book.finished_at && !book.isArchived))
-const finishedLibrary = computed(() => library.value.filter(book => book.finished_at))
+// hidden 책은 서재에서 숨김, isBookDeleted는 표시하되 UI에서 다르게 처리
+// 읽고 있는 책: 완독 안 한 책 (중단된 책 포함)
+const readingBooks = computed(() => library.value.filter(book => !book.finished_at && !book.hidden))
+// 완독한 책만
+const finishedLibrary = computed(() => library.value.filter(book => book.finished_at && !book.hidden))
+// 통계용: 삭제된 책 제외
+const finishedLibraryForStats = computed(() => library.value.filter(book => book.finished_at && !book.hidden && !book.isBookDeleted))
 const libraryByYear = computed(() => {
   const grouped: Record<string, any[]> = {}
   finishedLibrary.value.forEach(book => {
-    const d = new Date(book.finished_at!)
+    if (!book.finished_at) return
+
+    const d = new Date(book.finished_at)
     // Group by Year or Month based on settings
-    const key = appSettings.value.library_view_mode === 'year' 
-      ? `${d.getFullYear()}` 
+    const key = appSettings.value.library_view_mode === 'year'
+      ? `${d.getFullYear()}`
       : `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}`
-    
+
     if (!grouped[key]) grouped[key] = []
     grouped[key].push(book)
   })
@@ -232,7 +266,7 @@ const libraryByYear = computed(() => {
 
 const thisMonthBooks = computed(() => {
   const now = new Date()
-  return library.value.filter(b => b.finished_at && new Date(b.finished_at).getMonth() === now.getMonth() && new Date(b.finished_at).getFullYear() === now.getFullYear()).length
+  return library.value.filter(b => b.finished_at && !b.isBookDeleted && new Date(b.finished_at).getMonth() === now.getMonth() && new Date(b.finished_at).getFullYear() === now.getFullYear()).length
 })
 
 const thisMonthComments = computed(() => {
@@ -243,7 +277,7 @@ const thisMonthComments = computed(() => {
 
 const thisYearBooks = computed(() => {
   const now = new Date()
-  return library.value.filter(b => b.finished_at && new Date(b.finished_at).getFullYear() === now.getFullYear()).length
+  return library.value.filter(b => b.finished_at && !b.isBookDeleted && new Date(b.finished_at).getFullYear() === now.getFullYear()).length
 })
 
 const daysLeftInYear = computed(() => Math.ceil((new Date(new Date().getFullYear(), 11, 31, 23, 59, 59).getTime() - new Date().getTime()) / 86400000))
@@ -337,39 +371,50 @@ const fetchData = async () => {
   try {
     // 1. Fetch lightweight data for initial load & stats
     // TODO: 최적화 가능 - 일부 쿼리는 나중에 lazy loading으로 처리
-    const [ { data: pd }, { data: rd }, { count: gc }, { data: ud }, { data: allDatesC }, { data: allDatesR } ] = await Promise.all([
-      client.from('user_reading_progress').select('finished_at, progress_pct, last_read_at, group_book:group_books (id, isbn, genre_snapshot, pages_snapshot, group_id, target_end_date, book:books (*), group:groups (id, name, group_type, deleted_at))').eq('user_id', userId).order('last_read_at', { ascending: false }),
+    const [ { data: pd }, { data: rd }, { count: gc }, { data: ud }, { data: allDatesC }, { data: allDatesR }, { data: membershipData } ] = await Promise.all([
+      client.from('user_reading_progress').select('finished_at, progress_pct, last_read_at, hidden, group_book:group_books (id, isbn, genre_snapshot, pages_snapshot, group_id, target_end_date, deleted_at, book:books (*), group:groups (id, name, group_type, deleted_at))').eq('user_id', userId).order('last_read_at', { ascending: false }),
       client.from('reviews').select('group_book_id, rating').eq('user_id', userId),
-      // 🎯 활성 그룹만 카운트 (deleted_at이 null인 그룹)
-      client.from('group_members').select('groups!inner(deleted_at)', { count: 'exact', head: true }).eq('user_id', userId).is('groups.deleted_at', null),
+      // 🎯 활성 그룹만 카운트 (deleted_at이 null인 그룹, left_at이 null인 멤버)
+      client.from('group_members').select('groups!inner(deleted_at)', { count: 'exact', head: true }).eq('user_id', userId).is('groups.deleted_at', null).is('left_at', null),
       client.from('users').select('yearly_reading_goal').eq('id', userId).single(),
       client.from('comments').select('created_at').eq('user_id', userId),
-      client.from('reviews').select('created_at').eq('user_id', userId)
+      client.from('reviews').select('created_at').eq('user_id', userId),
+      // 🎯 사용자의 모든 그룹 멤버십 (목록에서 제거된 그룹 필터링용)
+      client.from('group_members').select('group_id').eq('user_id', userId)
     ])
+
+    // 멤버십이 있는 그룹 ID Set (목록에서 제거되지 않은 그룹)
+    const memberGroupIds = new Set((membershipData || []).map((m: any) => m.group_id))
 
     const rm = new Map(rd?.map(r => [r.group_book_id, r.rating]) || [])
 
-    // 기본 매핑 (그룹 정보 포함)
-    const libraryData = (pd || []).map((p: any) => ({
-      id: p.group_book?.book?.isbn,
-      isbn: p.group_book?.isbn,
-      groupBookId: p.group_book?.id,
-      groupId: p.group_book?.group?.id,
-      groupName: p.group_book?.group?.name,
-      groupType: p.group_book?.group?.group_type,
-      title: p.group_book?.book?.title,
-      author: p.group_book?.book?.author,
-      publisher: p.group_book?.book?.publisher,
-      total_pages: p.group_book?.pages_snapshot || p.group_book?.book?.official_pages || p.group_book?.book?.draft_pages,
-      cover_url: p.group_book?.book?.cover_url,
-      genre: p.group_book?.genre_snapshot || p.group_book?.book?.official_genre || p.group_book?.book?.draft_genre,
-      finished_at: p.finished_at,
-      progress_pct: p.progress_pct,
-      last_read_at: p.last_read_at,
-      target_end_date: p.group_book?.target_end_date,
-      myRating: rm.get(p.group_book?.id) || null,
-      isArchived: p.group_book?.group?.deleted_at != null
-    }))
+    // 기본 매핑 (그룹 정보 포함) - 멤버십이 있는 그룹만 포함
+    const libraryData = (pd || [])
+      .filter((p: any) => memberGroupIds.has(p.group_book?.group?.id))
+      .map((p: any) => ({
+        id: p.group_book?.book?.isbn,
+        isbn: p.group_book?.isbn,
+        groupBookId: p.group_book?.id,
+        groupId: p.group_book?.group?.id,
+        groupName: p.group_book?.group?.name,
+        groupType: p.group_book?.group?.group_type,
+        title: p.group_book?.book?.title,
+        author: p.group_book?.book?.author,
+        publisher: p.group_book?.book?.publisher,
+        total_pages: p.group_book?.pages_snapshot || p.group_book?.book?.official_pages || p.group_book?.book?.draft_pages,
+        cover_url: p.group_book?.book?.cover_url,
+        genre: p.group_book?.genre_snapshot || p.group_book?.book?.official_genre || p.group_book?.book?.draft_genre,
+        finished_at: p.finished_at,
+        progress_pct: p.progress_pct,
+        last_read_at: p.last_read_at,
+        target_end_date: p.group_book?.target_end_date,
+        myRating: rm.get(p.group_book?.id) || null,
+        isArchived: p.group_book?.group?.deleted_at != null,
+        isBookDeleted: p.group_book?.deleted_at != null,  // 그룹에서 책이 삭제됨
+        hidden: p.hidden || false,  // 프로필 서재에서 숨김
+        // 중단된 책: 종료된 그룹 + 완독 안 함
+        isDiscontinued: p.group_book?.group?.deleted_at != null && !p.finished_at
+      }))
 
     // 회차 계산 (그룹별로 배치 처리)
     const groupedByGroup = new Map<string, any[]>()
@@ -391,7 +436,7 @@ const fetchData = async () => {
     }
 
     library.value = libraryData
-    stats.value.books = library.value.filter(b => b.finished_at).length
+    stats.value.books = library.value.filter(b => b.finished_at && !b.isBookDeleted).length
     stats.value.groups = gc || 0
     yearlyGoal.value = ud?.yearly_reading_goal || 50
     
@@ -602,6 +647,86 @@ const confirmDeleteAccount = async () => {
   } catch (err) { toast.error('계정 삭제 실패') }
 }
 
+const fetchWishlistData = async () => {
+  const userId = userStore.profile?.id
+  if (userId) {
+    await fetchWishlist(userId)
+    stats.value.wish = wishlist.value.length
+  }
+}
+
+const handleStartBookFromWishlist = (item: any) => {
+  // 위시에서 책 선택 시 BookSearchModal을 열어서 바로 Step 2로 이동
+  initialBookForModal.value = {
+    isbn: item.isbn,
+    title: item.book.title,
+    author: item.book.author,
+    publisher: item.book.publisher,
+    cover: item.book.cover_url
+  }
+  bookSearchModalOpen.value = true
+}
+
+const handleBookConfirmFromWishlist = async (bookData: any) => {
+  try {
+    // 솔로 그룹 찾기
+    const { data: memberData } = await client
+      .from('group_members')
+      .select('group_id, groups!inner(id, group_type, deleted_at)')
+      .eq('user_id', userStore.profile?.id)
+      .is('groups.deleted_at', null)
+      .eq('groups.group_type', 'solo')
+      .single()
+
+    if (!memberData) {
+      toast.error('내 서재를 찾을 수 없습니다.')
+      return
+    }
+
+    const soloGroupId = memberData.group_id
+
+    // 1. books 테이블에 책 정보 upsert
+    await client.from('books').upsert({
+      isbn: bookData.book.isbn,
+      title: bookData.book.title,
+      author: bookData.book.author,
+      publisher: bookData.book.publisher,
+      cover_url: bookData.book.cover,
+      draft_pages: bookData.totalPages,
+      draft_toc: bookData.toc,
+      draft_genre: bookData.genre
+    }, { onConflict: 'isbn' })
+
+    // 2. group_books에 추가
+    const { data: groupBook, error: gbError } = await client.from('group_books').insert({
+      group_id: soloGroupId,
+      isbn: bookData.book.isbn,
+      pages_snapshot: bookData.totalPages,
+      toc_snapshot: bookData.toc,
+      genre_snapshot: bookData.genre,
+      target_start_date: bookData.startDate,
+      target_end_date: bookData.endDate
+    }).select().single()
+
+    if (gbError) throw gbError
+
+    // 3. reading progress 초기화
+    await client.from('user_reading_progress').insert({
+      user_id: userStore.profile?.id,
+      group_book_id: groupBook.id,
+      progress_pct: 0
+    })
+
+    toast.success('책이 내 서재에 추가되었습니다!')
+    bookSearchModalOpen.value = false
+    initialBookForModal.value = null
+    router.push('/my-library')
+  } catch (err) {
+    console.error('Failed to add book:', err)
+    toast.error('책 추가에 실패했습니다.')
+  }
+}
+
 const formatDate = (d: string) => {
   const date = new Date(d)
   return `${date.getFullYear()}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getDate().toString().padStart(2, '0')}`
@@ -609,7 +734,7 @@ const formatDate = (d: string) => {
 
 onMounted(async () => {
   await Promise.all([userStore.fetchProfile(), fetchSubscription(), fetchLimits()])
-  
+
   console.log('[Profile] Limits loaded:', limits.value)
   console.log('[Profile] User Tier:', userStore.profile?.subscription_tier)
 
@@ -620,7 +745,7 @@ onMounted(async () => {
   if (userStore.profile?.app_settings) {
     appSettings.value = { ...appSettings.value, ...userStore.profile.app_settings }
   }
-  await fetchData()
+  await Promise.all([fetchData(), fetchWishlistData()])
 })
 
 onActivated(async () => {

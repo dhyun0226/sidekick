@@ -1272,25 +1272,19 @@ const confirmDeleteHistoryBook = async () => {
   pendingBookToDelete.value = null
 
   try {
-    // Delete comments first
-    await client
-      .from('comments')
-      .delete()
-      .eq('group_book_id', bookId)
-
-    // Delete reviews
-    await client
-      .from('reviews')
-      .delete()
-      .eq('group_book_id', bookId)
-
-    // Delete book
+    // Soft delete - 기록 보존을 위해 deleted_at만 설정
     const { error } = await client
       .from('group_books')
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', bookId)
 
     if (error) throw error
+
+    // 삭제된 책은 프로필 서재에서 기본 숨김 처리
+    await client
+      .from('user_reading_progress')
+      .update({ hidden: true })
+      .eq('group_book_id', bookId)
 
     toast.success('책이 삭제되었습니다.')
 

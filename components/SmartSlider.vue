@@ -115,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { PenLine } from 'lucide-vue-next'
 import Avatar from './Avatar.vue'
 
@@ -292,6 +292,14 @@ const handleChange = () => {
   emit('update:modelValue', localPct.value)
   emit('change', localPct.value)
 }
+
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
+    document.body.style.touchAction = ''
+  }
+})
 </script>
 
 <style scoped>

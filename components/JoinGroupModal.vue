@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { X, AlertCircle, KeyRound } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
@@ -95,6 +95,13 @@ const { canJoinGroup } = useSubscription()
 watch(() => props.isOpen, (isOpen) => {
   if (typeof document !== 'undefined') {
     document.body.style.overflow = isOpen ? 'hidden' : ''
+  }
+})
+
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
   }
 })
 
@@ -131,13 +138,19 @@ const handleJoin = async () => {
     const code = inviteCode.value.trim().toUpperCase()
     const { data: groupData, error: findError } = await client
       .from('groups')
-      .select('id, name')
+      .select('id, name, deleted_at')
       .eq('invite_code', code)
       .maybeSingle()
 
     if (findError) throw findError
     if (!groupData) {
       error.value = '유효하지 않은 초대 코드입니다. 코드를 다시 확인해주세요.'
+      loading.value = false
+      return
+    }
+    // Block joining ended groups
+    if (groupData.deleted_at) {
+      error.value = '종료된 그룹입니다. 더 이상 참여할 수 없습니다.'
       loading.value = false
       return
     }

@@ -327,7 +327,7 @@
       variant="warning"
       title="그룹 나가기"
       message="정말로 이 그룹에서 나가시겠습니까?"
-      description="그룹을 나가면 다시 초대를 받아야 합니다."
+      description="그룹에서 탈퇴하면 지난 그룹 목록으로 이동합니다. 독서 기록은 서재에서 계속 볼 수 있으며, 다시 참여하면 이어서 활동할 수 있습니다."
       confirm-text="나가기"
       cancel-text="취소"
       @confirm="executeLeaveGroup"
@@ -341,7 +341,7 @@
       :message="members.length > 1
         ? `이 그룹에는 ${members.length}명의 멤버가 있습니다.\n그룹을 종료하시겠습니까?`
         : '그룹을 종료하시겠습니까?'"
-      description="종료된 그룹은 '지난 그룹' 목록으로 이동하며, 모든 독서 기록은 안전하게 보관됩니다."
+      description="그룹을 종료하면 모든 멤버가 더 이상 활동할 수 없습니다. 지금까지의 기록은 모두 유지됩니다."
       confirm-text="종료하기"
       cancel-text="취소"
       @confirm="confirmDeleteGroup"
@@ -1477,25 +1477,19 @@ const confirmDeleteHistoryBook = async () => {
   pendingBookToDelete.value = null
 
   try {
-    // Delete comments first
-    await client
-      .from('comments')
-      .delete()
-      .eq('group_book_id', bookId)
-
-    // Delete reviews
-    await client
-      .from('reviews')
-      .delete()
-      .eq('group_book_id', bookId)
-
-    // Delete book
+    // Soft delete - 기록 보존을 위해 deleted_at만 설정
     const { error } = await client
       .from('group_books')
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', bookId)
 
     if (error) throw error
+
+    // 삭제된 책은 프로필 서재에서 기본 숨김 처리
+    await client
+      .from('user_reading_progress')
+      .update({ hidden: true })
+      .eq('group_book_id', bookId)
 
     toast.success('책이 삭제되었습니다.')
 

@@ -22,64 +22,144 @@
       <!-- Step Content Area (Scrollable) -->
       <div class="flex-1 overflow-y-auto custom-scrollbar py-4 px-0.5">
         
-        <!-- Step 1: Search -->
+        <!-- Step 1: Search / Wishlist -->
         <div v-if="step === 1" class="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <div class="relative group">
-            <input
-              v-model="query"
-              @keyup.enter="searchBooks"
-              type="text"
-              placeholder="책 제목이나 저자를 검색하세요"
-              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl px-4 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-lime-400 border-none transition-all shadow-sm"
-            />
-            <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-lime-500 transition-colors" :size="20" />
+          <!-- 탭 네비게이션 -->
+          <div class="flex gap-2 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
+            <button
+              @click="searchTab = 'search'"
+              class="flex-1 py-2 text-sm font-bold rounded-lg transition-all"
+              :class="searchTab === 'search' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
+            >
+              검색
+            </button>
+            <button
+              @click="searchTab = 'wishlist'"
+              class="flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-1.5"
+              :class="searchTab === 'wishlist' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
+            >
+              내 위시
+              <span v-if="wishlist.length > 0" class="text-[10px] bg-lime-400 text-black px-1.5 py-0.5 rounded-full">{{ wishlist.length }}</span>
+            </button>
           </div>
 
-          <div class="space-y-3 pt-2">
-            <div v-if="loading && searchResults.length === 0" class="flex flex-col items-center justify-center py-12">
-              <LoadingSpinner size="md" message="책을 찾고 있어요" />
+          <!-- 검색 탭 -->
+          <template v-if="searchTab === 'search'">
+            <div class="relative group">
+              <input
+                v-model="query"
+                @keyup.enter="searchBooks"
+                type="text"
+                placeholder="책 제목이나 저자를 검색하세요"
+                class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl px-4 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-lime-400 border-none transition-all shadow-sm"
+              />
+              <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-lime-500 transition-colors" :size="20" />
             </div>
-            
-            <div
-              v-for="book in searchResults"
-              :key="book.isbn"
-              @click="selectBook(book)"
-              class="group flex gap-4 p-3 rounded-2xl bg-zinc-50/50 dark:bg-zinc-800/30 border border-transparent hover:border-lime-200 dark:hover:border-lime-900/50 hover:bg-white dark:hover:bg-zinc-800 cursor-pointer transition-all shadow-sm active:scale-[0.98]"
-            >
-              <div class="w-16 h-24 flex-shrink-0 shadow-md group-hover:shadow-lg transition-all">
-                <img
-                  :src="book.cover"
-                  class="w-full h-full object-cover"
-                  @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
-                />
+
+            <div class="space-y-3 pt-2">
+              <div v-if="loading && searchResults.length === 0" class="flex flex-col items-center justify-center py-12">
+                <LoadingSpinner size="md" message="책을 찾고 있어요" />
               </div>
-              <div class="flex-1 min-w-0 flex flex-col justify-center">
-                <h3 class="font-bold text-zinc-800 dark:text-zinc-200 text-sm mb-1.5 truncate group-hover:text-lime-600 dark:group-hover:text-lime-400 transition-colors">{{ book.title }}</h3>
-                <div class="flex items-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">
-                  <span class="truncate max-w-[120px]">{{ book.author }}</span>
-                  <template v-if="book.publisher">
-                    <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                    <span class="truncate max-w-[100px]">{{ book.publisher }}</span>
-                  </template>
+
+              <div
+                v-for="book in searchResults"
+                :key="book.isbn"
+                class="group flex gap-4 p-3 rounded-2xl bg-zinc-50/50 dark:bg-zinc-800/30 border border-transparent hover:border-lime-200 dark:hover:border-lime-900/50 hover:bg-white dark:hover:bg-zinc-800 transition-all shadow-sm"
+              >
+                <div
+                  @click="selectBook(book)"
+                  class="flex gap-4 flex-1 min-w-0 cursor-pointer active:scale-[0.98]"
+                >
+                  <div class="w-16 h-24 flex-shrink-0 shadow-md group-hover:shadow-lg transition-all">
+                    <img
+                      :src="book.cover"
+                      class="w-full h-full object-cover"
+                      @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+                    />
+                  </div>
+                  <div class="flex-1 min-w-0 flex flex-col justify-center">
+                    <h3 class="font-bold text-zinc-800 dark:text-zinc-200 text-sm mb-1.5 truncate group-hover:text-lime-600 dark:group-hover:text-lime-400 transition-colors">{{ book.title }}</h3>
+                    <div class="flex items-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">
+                      <span class="truncate max-w-[120px]">{{ book.author }}</span>
+                      <template v-if="book.publisher">
+                        <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                        <span class="truncate max-w-[100px]">{{ book.publisher }}</span>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+                <!-- 위시 담기 버튼 -->
+                <button
+                  @click="handleAddToWishlist(book, $event)"
+                  :disabled="isInWishlist(book.isbn)"
+                  class="self-center p-2.5 rounded-xl transition-all"
+                  :class="isInWishlist(book.isbn)
+                    ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-500 cursor-not-allowed'
+                    : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-400 hover:bg-pink-100 dark:hover:bg-pink-900/30 hover:text-pink-500 active:scale-90'"
+                >
+                  <Heart :size="18" :fill="isInWishlist(book.isbn) ? 'currentColor' : 'none'" />
+                </button>
+              </div>
+
+              <div v-if="!loading && query && searchResults.length === 0" class="py-12 text-center">
+                <div class="text-4xl mb-3">🔍</div>
+                <p class="text-sm text-zinc-500 font-medium">검색 결과가 없습니다</p>
+              </div>
+
+              <div v-if="hasMore && searchResults.length > 0" class="pt-4 pb-8">
+                <button
+                  @click="loadMore"
+                  :disabled="loading"
+                  class="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+                >
+                  {{ loading ? '더 불러오는 중...' : '결과 더보기' }}
+                </button>
+              </div>
+            </div>
+          </template>
+
+          <!-- 내 위시 탭 -->
+          <template v-else>
+            <div v-if="wishlistLoading" class="flex flex-col items-center justify-center py-12">
+              <LoadingSpinner size="md" message="위시리스트 불러오는 중" />
+            </div>
+
+            <div v-else-if="wishlist.length === 0" class="py-12 text-center">
+              <div class="text-4xl mb-3">💝</div>
+              <p class="text-sm text-zinc-500 font-medium mb-1">위시리스트가 비어있어요</p>
+              <p class="text-xs text-zinc-400">검색 탭에서 책을 위시에 담아보세요</p>
+            </div>
+
+            <div v-else class="space-y-3 pt-2">
+              <div
+                v-for="item in wishlist"
+                :key="item.id"
+                @click="selectBookFromWishlist(item)"
+                class="group flex gap-4 p-3 rounded-2xl bg-zinc-50/50 dark:bg-zinc-800/30 border border-transparent hover:border-lime-200 dark:hover:border-lime-900/50 hover:bg-white dark:hover:bg-zinc-800 cursor-pointer transition-all shadow-sm active:scale-[0.98]"
+              >
+                <div class="w-16 h-24 flex-shrink-0 shadow-md group-hover:shadow-lg transition-all">
+                  <img
+                    :src="item.book.cover_url"
+                    class="w-full h-full object-cover"
+                    @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+                  />
+                </div>
+                <div class="flex-1 min-w-0 flex flex-col justify-center">
+                  <h3 class="font-bold text-zinc-800 dark:text-zinc-200 text-sm mb-1.5 truncate group-hover:text-lime-600 dark:group-hover:text-lime-400 transition-colors">{{ item.book.title }}</h3>
+                  <div class="flex items-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">
+                    <span class="truncate max-w-[120px]">{{ item.book.author }}</span>
+                    <template v-if="item.book.publisher">
+                      <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                      <span class="truncate max-w-[100px]">{{ item.book.publisher }}</span>
+                    </template>
+                  </div>
+                </div>
+                <div class="self-center">
+                  <Heart :size="18" fill="currentColor" class="text-pink-500" />
                 </div>
               </div>
             </div>
-
-            <div v-if="!loading && query && searchResults.length === 0" class="py-12 text-center">
-              <div class="text-4xl mb-3">🔍</div>
-              <p class="text-sm text-zinc-500 font-medium">검색 결과가 없습니다</p>
-            </div>
-
-            <div v-if="hasMore && searchResults.length > 0" class="pt-4 pb-8">
-              <button
-                @click="loadMore"
-                :disabled="loading"
-                class="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-bold rounded-xl transition-all disabled:opacity-50"
-              >
-                {{ loading ? '더 불러오는 중...' : '결과 더보기' }}
-              </button>
-            </div>
-          </div>
+          </template>
         </div>
 
         <!-- Step 2: Configure TOC & Genre -->
@@ -204,21 +284,53 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { X, Search, Check, Calendar, ListTree, Plus, Sparkles } from 'lucide-vue-next'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { X, Search, Check, Calendar, ListTree, Plus, Sparkles, Heart } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
+import { useUserStore } from '~/stores/user'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import TocInputForm from '~/components/TocInputForm.vue'
 import GenreBadge from '~/components/GenreBadge.vue'
 
-const props = defineProps<{ isOpen: boolean }>()
+interface InitialBook {
+  isbn: string
+  title: string
+  author: string
+  publisher: string
+  cover: string
+}
+
+const props = defineProps<{
+  isOpen: boolean
+  initialBook?: InitialBook | null
+}>()
 const emit = defineEmits(['close', 'confirm'])
 const toast = useToastStore()
+const userStore = useUserStore()
 const { genres } = useGenres()
+const { wishlist, loading: wishlistLoading, fetchWishlist, addToWishlist, removeFromWishlist, isInWishlist } = useWishlist()
 
-watch(() => props.isOpen, (isOpen) => {
+// Step 1 탭: 검색 / 내 위시
+const searchTab = ref<'search' | 'wishlist'>('search')
+
+watch(() => props.isOpen, async (isOpen) => {
   if (typeof document !== 'undefined') {
     document.body.style.overflow = isOpen ? 'hidden' : ''
+  }
+  // 모달이 열릴 때 위시리스트 로드
+  if (isOpen && userStore.profile?.id) {
+    await fetchWishlist(userStore.profile.id)
+    // initialBook이 있으면 해당 책으로 바로 Step 2로 이동
+    if (props.initialBook) {
+      await selectBook(props.initialBook)
+    }
+  }
+})
+
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
   }
 })
 
@@ -256,9 +368,63 @@ const close = () => { emit('close'); reset() }
 const reset = () => {
   step.value = 1; query.value = ''; searchResults.value = []; selectedBook.value = null;
   selectedGenre.value = ''; totalPages.value = null; chapters.value = [];
-  currentStart.value = 1; hasMore.value = false;
+  currentStart.value = 1; hasMore.value = false; searchTab.value = 'search';
   const newDefaults = getDefaultDates()
   startDate.value = newDefaults.start; endDate.value = newDefaults.end
+}
+
+// 위시리스트에 추가
+const handleAddToWishlist = async (book: any, event: Event) => {
+  event.stopPropagation()
+  const userId = userStore.profile?.id
+  if (!userId) {
+    toast.error('로그인이 필요합니다.')
+    return
+  }
+
+  // 먼저 books 테이블에 책이 있는지 확인하고 없으면 추가
+  const client = useSupabaseClient()
+  const { data: existingBook } = await client
+    .from('books')
+    .select('isbn')
+    .eq('isbn', book.isbn)
+    .maybeSingle()
+
+  if (!existingBook) {
+    const { error: bookError } = await client.from('books').insert({
+      isbn: book.isbn,
+      title: book.title,
+      author: book.author,
+      publisher: book.publisher,
+      cover_url: book.cover
+    })
+    if (bookError) {
+      console.error('[BookSearchModal] Failed to insert book:', bookError)
+      toast.error('책 정보 저장에 실패했습니다.')
+      return
+    }
+  }
+
+  const result = await addToWishlist(userId, book.isbn)
+  if (result.success) {
+    toast.success('위시리스트에 담았습니다.')
+    await fetchWishlist(userId)
+  } else {
+    toast.error(result.message || '추가에 실패했습니다.')
+  }
+}
+
+// 위시리스트에서 책 선택
+const selectBookFromWishlist = async (item: any) => {
+  // 위시리스트 아이템을 검색 결과 형식으로 변환
+  const book = {
+    isbn: item.isbn,
+    title: item.book.title,
+    author: item.book.author,
+    publisher: item.book.publisher,
+    cover: item.book.cover_url
+  }
+  await selectBook(book)
 }
 
 const { searchBooks: searchBooksAPI } = useBookSearch()

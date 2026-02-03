@@ -153,7 +153,7 @@
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeDeleteBook')"></div>
       <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-red-500 dark:text-red-400">⚠️ 책 삭제</h2>
+          <h2 class="text-xl font-bold text-amber-600 dark:text-amber-400">책 삭제</h2>
           <button @click="emit('closeDeleteBook')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="24" />
           </button>
@@ -171,12 +171,12 @@
             </div>
           </div>
 
-          <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-900/30">
-            <p class="text-sm text-red-600 dark:text-red-400 font-bold mb-2">정말 이 책을 삭제하시겠습니까?</p>
-            <ul class="text-xs text-red-500 dark:text-red-400/80 space-y-1 opacity-90">
-              <li>• 모든 멤버의 독서 진행도가 삭제됩니다.</li>
-              <li>• 책에 달린 모든 댓글({{ commentCount }}개)이 삭제됩니다.</li>
-              <li>• 이 작업은 절대로 되돌릴 수 없습니다.</li>
+          <div class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-900/30">
+            <p class="text-sm text-amber-700 dark:text-amber-400 font-bold mb-2">이 책을 삭제하시겠습니까?</p>
+            <ul class="text-xs text-amber-600 dark:text-amber-400/80 space-y-1 opacity-90">
+              <li>• 그룹 책장에서 제거됩니다.</li>
+              <li>• 멤버들의 프로필 서재에서 숨겨집니다.</li>
+              <li>• 기록(댓글, 리뷰)은 보존됩니다.</li>
             </ul>
           </div>
         </div>
@@ -190,9 +190,9 @@
           </button>
           <button
             @click="emit('deleteBook')"
-            class="flex-[2] bg-red-500 text-white font-bold py-4 rounded-xl hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 active:scale-95"
+            class="flex-[2] bg-amber-500 text-white font-bold py-4 rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95"
           >
-            영구 삭제
+            삭제
           </button>
         </div>
       </div>

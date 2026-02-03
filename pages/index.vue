@@ -18,7 +18,14 @@
         </div>
       </div>
       <div class="flex gap-2 items-center">
-        <button 
+        <button
+          @click="router.push('/discover')"
+          class="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-lime-500 dark:hover:text-lime-400 hover:border-lime-200 transition-colors shadow-sm"
+          title="디스커버"
+        >
+          <Compass :size="20" />
+        </button>
+        <button
           @click="joinGroupModalOpen = true"
           class="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-lime-500 dark:hover:text-lime-400 hover:border-lime-200 transition-colors shadow-sm"
           title="초대 코드 입력"
@@ -252,51 +259,8 @@
       </div>
     </div>
 
-    <!-- 4. Archived Groups Section -->
-    <div v-if="archivedGroups.length > 0" class="space-y-1 mb-4 opacity-60">
-      <div 
-        @click="showArchivedGroups = !showArchivedGroups"
-        class="flex items-center justify-between px-1 cursor-pointer py-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-colors"
-      >
-        <div class="flex items-center gap-2">
-          <span class="text-lg">📦</span>
-          <h2 class="text-xs font-bold text-zinc-900 dark:text-white">지난 그룹</h2>
-          <span class="text-[10px] font-bold text-zinc-400 bg-zinc-200 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">{{ archivedGroups.length }}</span>
-        </div>
-        <ChevronDown 
-          :size="16" 
-          class="text-zinc-400 transition-transform duration-300"
-          :class="{ 'rotate-180': showArchivedGroups }"
-        />
-      </div>
-
-      <div v-show="showArchivedGroups" class="grid gap-3">
-        <div
-          v-for="group in archivedGroups"
-          :key="group.id"
-          @click="router.push(`/group/${group.id}`)"
-          class="bg-zinc-100 dark:bg-zinc-800/50 rounded-2xl p-4 border border-zinc-200 dark:border-zinc-800 flex items-center gap-4 shadow-sm active:scale-[0.99] transition-all cursor-pointer group hover:border-zinc-400"
-        >
-          <div class="w-12 h-12 rounded-xl bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 border border-zinc-300 dark:border-zinc-700 flex-shrink-0">
-            <Archive :size="20" />
-          </div>
-          <div class="flex-1 min-w-0 text-left">
-            <h3 class="font-bold text-zinc-700 dark:text-zinc-300 text-sm truncate">{{ group.name }}</h3>
-            <p class="text-[10px] text-zinc-500 dark:text-zinc-500 font-bold">과거의 기록을 다시 볼 수 있습니다.</p>
-          </div>
-          <button 
-            @click.stop="confirmLeaveArchivedGroup(group)"
-            class="p-2 -mr-2 text-zinc-400 hover:text-red-500 transition-colors rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700"
-            title="목록에서 제거 (나가기)"
-          >
-            <Trash2 :size="16" />
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Empty State (Social 그룹이 없을 때) -->
-    <div v-if="socialGroups.length === 0 && archivedGroups.length === 0 && !loading" class="flex flex-col items-center justify-center min-h-[40vh] px-4 text-center">
+    <div v-if="socialGroups.length === 0 && !loading" class="flex flex-col items-center justify-center min-h-[40vh] px-4 text-center">
       <div class="w-24 h-24 bg-gradient-to-tr from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner">
         <span class="text-5xl">👋</span>
       </div>
@@ -350,17 +314,6 @@
       @joined="handleGroupJoined"
     />
 
-    <ConfirmModal
-      :isOpen="leaveArchivedGroupModalOpen"
-      variant="danger"
-      title="그룹 목록에서 제거"
-      :message="`'${targetGroupToLeave?.name}' 그룹을 목록에서 지우시겠습니까?`"
-      description="주의: 그룹을 나가면 내 서재와 기록 탭에서도 해당 그룹의 독서 기록이 사라집니다."
-      confirm-text="제거하기"
-      cancel-text="취소"
-      @confirm="handleLeaveArchivedGroup"
-      @cancel="leaveArchivedGroupModalOpen = false"
-    />
   </div>
 </template>
 
@@ -369,12 +322,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { User, Plus, KeyRound, ChevronRight, MessageCircle, Coffee, Archive, Trash2, ChevronDown, BookOpen } from 'lucide-vue-next'
+import { User, Plus, KeyRound, ChevronRight, MessageCircle, Coffee, BookOpen, Compass } from 'lucide-vue-next'
 import NotificationCenter from '~/components/NotificationCenter.vue'
 import CreateGroupModal from '~/components/CreateGroupModal.vue'
 import JoinGroupModal from '~/components/JoinGroupModal.vue'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
-import ConfirmModal from '~/components/ConfirmModal.vue'
 
 // 인증 미들웨어 적용
 definePageMeta({
@@ -391,9 +343,6 @@ const groups = ref<any[]>([])
 const loading = ref(true)
 const createGroupModalOpen = ref(false)
 const joinGroupModalOpen = ref(false)
-const leaveArchivedGroupModalOpen = ref(false)
-const targetGroupToLeave = ref<any>(null)
-const showArchivedGroups = ref(false)
 
 // Computed for splitting groups
 // 나간 그룹(left_at이 있는 경우)은 아예 목록에서 제외
@@ -409,8 +358,6 @@ const socialGroups = computed(() => {
   const active = myGroups.value.filter(g => !g.deleted_at && g.status === 'active')
   return active.filter(g => g.group_type === 'social')
 })
-
-const archivedGroups = computed(() => myGroups.value.filter(g => g.deleted_at))
 
 // Social 그룹만 reading/idle로 분리
 const readingSocialGroups = computed(() => socialGroups.value.filter(g => g.currentBook))
@@ -543,7 +490,7 @@ const fetchGroups = async () => {
       })
       
       console.log('[Index] Fetched groups:', groups.value)
-      console.log('[Index] Solo:', soloGroup.value ? 1 : 0, 'Social:', socialGroups.value.length, 'Archived:', archivedGroups.value.length)
+      console.log('[Index] Solo:', soloGroup.value ? 1 : 0, 'Social:', socialGroups.value.length)
       console.log('[Index] Reading Social:', readingSocialGroups.value.length, 'Idle Social:', idleSocialGroups.value.length)
     }
   } catch (e: any) {
@@ -604,40 +551,6 @@ const handleGroupCreated = async (newGroup: any) => {
 const handleGroupJoined = async (groupId: string) => {
   await fetchGroups()
   router.push(`/group/${groupId}`)
-}
-
-const confirmLeaveArchivedGroup = (group: any) => {
-  targetGroupToLeave.value = group
-  leaveArchivedGroupModalOpen.value = true
-}
-
-const handleLeaveArchivedGroup = async () => {
-  if (!targetGroupToLeave.value) return
-
-  const userId = userStore.profile?.id
-  if (!userId) {
-    toast.error('사용자 정보를 찾을 수 없습니다.')
-    return
-  }
-
-  try {
-    const { error } = await client
-      .from('group_members')
-      .delete()
-      .eq('group_id', targetGroupToLeave.value.id)
-      .eq('user_id', userId)
-
-    if (error) throw error
-
-    toast.success('목록에서 제거되었습니다.')
-    await fetchGroups() // 목록 새로고침
-  } catch (error) {
-    console.error('Leave group error:', error)
-    toast.error('그룹 나가기에 실패했습니다.')
-  } finally {
-    leaveArchivedGroupModalOpen.value = false
-    targetGroupToLeave.value = null
-  }
 }
 </script>
 

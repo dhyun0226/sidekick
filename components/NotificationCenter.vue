@@ -136,6 +136,13 @@ watch(isOpen, (val) => {
   }
 })
 
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
+  }
+})
+
 const unreadCount = computed(() => notifications.value.filter(n => !n.is_read).length)
 
 const toggleOpen = async () => {

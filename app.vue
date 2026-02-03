@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-100 dark:bg-black min-h-screen flex justify-center">
+  <div class="bg-gray-100 dark:bg-black h-screen flex justify-center overflow-hidden">
     <!-- Initial App Loading Screen -->
     <div
       v-if="appLoading"
@@ -22,7 +22,7 @@
     <!-- Main App Content -->
     <div
       v-else
-      class="w-full min-h-screen bg-white dark:bg-[#09090b] relative"
+      class="w-full h-screen bg-white dark:bg-[#09090b] relative overflow-y-auto"
       :class="isAdminPage ? '' : 'max-w-[480px] shadow-2xl'"
     >
       <NuxtLoadingIndicator color="#a3e635" />

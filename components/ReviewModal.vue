@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import { Star, X, Sparkles } from 'lucide-vue-next'
 import GenreBadge from '~/components/GenreBadge.vue'
 
@@ -145,6 +145,13 @@ watch(() => props.isOpen, (newVal) => {
     if (typeof document !== 'undefined') {
       document.body.style.overflow = ''
     }
+  }
+})
+
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
   }
 })
 

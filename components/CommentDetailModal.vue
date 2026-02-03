@@ -222,7 +222,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { ChevronLeft, Heart, MessageCircle, Send, PenLine, Edit2, Trash2, ArrowUp } from 'lucide-vue-next'
 import ConfirmModal from './ConfirmModal.vue'
 import Avatar from './Avatar.vue'
@@ -274,6 +274,13 @@ watch(() => props.isOpen, (isOpen) => {
     } else {
       document.body.style.overflow = ''
     }
+  }
+})
+
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
   }
 })
 
