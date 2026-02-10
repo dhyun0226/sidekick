@@ -35,7 +35,7 @@
 
         <NuxtLink
           to="/"
-          class="block w-full py-3 bg-lime-400 hover:bg-lime-500 text-black font-bold rounded-xl text-center transition-colors"
+          class="block w-full py-3 bg-lime-400 hover:bg-lime-300 text-black font-bold rounded-xl text-center transition-colors"
         >
           홈으로 이동
         </NuxtLink>
@@ -51,7 +51,7 @@
         <div class="flex gap-3">
           <NuxtLink
             to="/subscription"
-            class="flex-1 py-3 bg-lime-400 hover:bg-lime-500 text-black font-bold rounded-xl text-center transition-colors"
+            class="flex-1 py-3 bg-lime-400 hover:bg-lime-300 text-black font-bold rounded-xl text-center transition-colors"
           >
             다시 시도
           </NuxtLink>

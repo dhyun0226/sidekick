@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  if (payment.status !== 'done') {
+  if (payment.status !== 'completed') {
     throw createError({
       statusCode: 400,
       message: '완료된 결제만 환불할 수 있습니다.'

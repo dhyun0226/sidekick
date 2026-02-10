@@ -50,7 +50,7 @@
       <button
         @click="saveSelection"
         :disabled="selectedGroups.length !== 2"
-        class="w-full mt-6 py-4 bg-lime-500 text-white font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-lime-600 transition-colors"
+        class="w-full mt-6 py-4 bg-lime-400 text-black font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-lime-300 transition-colors"
       >
         저장하기
       </button>

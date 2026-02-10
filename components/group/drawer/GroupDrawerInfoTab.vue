@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 pb-20">
     <!-- NOW READING -->
     <div v-if="readingBooks.length > 0">
       <!-- Header -->

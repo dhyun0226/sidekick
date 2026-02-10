@@ -77,6 +77,12 @@
               <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
               <Badge variant="purple" size="sm" class="!px-1 !py-0 !text-[9px] !h-3.5 relative -translate-y-[0.5px]">그룹장</Badge>
             </template>
+
+            <!-- Free user badge (read-only in social groups) -->
+            <template v-if="member.subscription_tier === 'free'">
+              <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
+              <Badge variant="zinc" size="sm" class="!px-1 !py-0 !text-[9px] !h-3.5 relative -translate-y-[0.5px]">읽기전용</Badge>
+            </template>
           </div>
           
           <!-- Slim Progress Bar -->
@@ -144,6 +150,7 @@ interface MemberWithProgress {
   finishedAt?: string | null
   finishedDate?: string | null
   isCompleted?: boolean
+  subscription_tier?: 'free' | 'premium' | 'admin'
 }
 
 interface Props {

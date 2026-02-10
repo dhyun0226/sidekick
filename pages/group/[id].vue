@@ -19,6 +19,31 @@
       </div>
     </template>
 
+    <!-- Error State -->
+    <template v-else-if="loadError">
+      <div class="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
+        <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4">
+          <AlertCircle :size="32" class="text-red-500" />
+        </div>
+        <h2 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">문제가 발생했습니다</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">{{ loadError }}</p>
+        <div class="flex gap-3">
+          <button
+            @click="fetchData"
+            class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-all"
+          >
+            다시 시도
+          </button>
+          <button
+            @click="router.push('/')"
+            class="px-6 py-3 bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-all"
+          >
+            홈으로
+          </button>
+        </div>
+      </div>
+    </template>
+
     <!-- Loaded Content -->
     <template v-else>
       <!-- Read-Only Mode Banner (Free users in Social groups) -->
@@ -430,7 +455,7 @@ import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import TextDisplayModal from '~/components/TextDisplayModal.vue'
 import TextInputModal from '~/components/TextInputModal.vue'
-import { Menu, Search, Plus, Settings, Share2, ChevronLeft, ChevronRight, ChevronDown, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X, BarChart3, Copy, User, Archive, Pause, Lock } from 'lucide-vue-next'
+import { Menu, Search, Plus, Settings, Share2, ChevronLeft, ChevronRight, ChevronDown, LogOut, MoreVertical, UserCheck, UserX, Edit2, Send, X, BarChart3, Copy, User, Archive, Pause, Lock, AlertCircle } from 'lucide-vue-next'
 import GroupStatsModal from '~/components/GroupStatsModal.vue'
 import UpgradePromptModal from '~/components/UpgradePromptModal.vue'
 
@@ -457,6 +482,7 @@ const groupId = route.params.id as string
 const viewProgress = ref(0)
 const currentUserId = computed(() => userStore.profile?.id)
 const isLoading = ref(true)
+const loadError = ref<string | null>(null)
 
 // ===== Composables =====
 // Books management
@@ -813,6 +839,7 @@ const fetchData = async () => {
   if (!userStore.user) return
 
   isLoading.value = true
+  loadError.value = null
 
   try {
     // Fetch group info
@@ -841,7 +868,8 @@ const fetchData = async () => {
         nickname: m.user.nickname,
         avatar_url: m.user.avatar_url,
         role: m.role,
-        left_at: m.left_at // 🎯 Add left_at
+        left_at: m.left_at, // 🎯 Add left_at
+        subscription_tier: m.user.subscription_tier || 'free' // 🎯 Add subscription_tier for free user badge
       }))
     }
 
@@ -883,6 +911,9 @@ const fetchData = async () => {
         await fetchComments(selectedBookId.value)
       }
     }
+  } catch (err: any) {
+    console.error('[Group] fetchData error:', err)
+    loadError.value = err.message || '데이터를 불러오는데 실패했습니다.'
   } finally {
     isLoading.value = false
   }

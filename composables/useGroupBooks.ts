@@ -80,7 +80,7 @@ export const useGroupBooks = (groupId: MaybeRef<string>) => {
   const fetchBooks = async () => {
     const userId = userStore.profile?.id
 
-    const { data: allBooksData } = await client
+    const { data: allBooksData, error: fetchError } = await client
       .from('group_books')
       .select(`
         *,
@@ -95,6 +95,11 @@ export const useGroupBooks = (groupId: MaybeRef<string>) => {
       .in('status', ['reading', 'done'])
       .is('deleted_at', null)  // 삭제된 책 제외
       .eq('user_reading_progress.user_id', userId)
+
+    if (fetchError) {
+      console.error('[useGroupBooks] Failed to fetch books:', fetchError)
+      throw new Error('책 목록을 불러오는데 실패했습니다.')
+    }
 
     if (allBooksData) {
       const sortedAllBooks = allBooksData.sort((a: any, b: any) => {
@@ -164,7 +169,8 @@ export const useGroupBooks = (groupId: MaybeRef<string>) => {
         })
       })
 
-      const historyBooksWithRounds = await Promise.all(
+      // Promise.allSettled로 개별 실패해도 다른 책 정보는 유지
+      const historyBooksResults = await Promise.allSettled(
         doneBooks.map(async (gb: any) => {
           const round = await getBookRound(toValue(groupId), gb.isbn, gb.id)
           const stats = reviewStatsMap.get(gb.id) || { count: 0, totalRating: 0 }
@@ -173,16 +179,16 @@ export const useGroupBooks = (groupId: MaybeRef<string>) => {
           return {
             id: gb.id,
             isbn: gb.isbn,
-            title: gb.book.title,
-            author: gb.book.author,
-            cover_url: gb.book.cover_url,
-            publisher: gb.book.publisher,
+            title: gb.book?.title || '제목 없음',
+            author: gb.book?.author || '저자 미상',
+            cover_url: gb.book?.cover_url || '',
+            publisher: gb.book?.publisher,
             // ✅ Use snapshot (사용자 입력값) → fallback to official → draft
-            total_pages: gb.pages_snapshot || gb.book.official_pages || gb.book.draft_pages,
+            total_pages: gb.pages_snapshot || gb.book?.official_pages || gb.book?.draft_pages,
             // ✅ Use snapshot (사용자 입력값) → fallback to official → draft
-            genre: gb.genre_snapshot || gb.book.official_genre || gb.book.draft_genre,
-            official_genre: gb.book.official_genre, // Keep for fallback/debug
-            draft_genre: gb.book.draft_genre,       // Keep for fallback/debug
+            genre: gb.genre_snapshot || gb.book?.official_genre || gb.book?.draft_genre,
+            official_genre: gb.book?.official_genre, // Keep for fallback/debug
+            draft_genre: gb.book?.draft_genre,       // Keep for fallback/debug
             date: gb.finished_at || gb.created_at,
             round,
             reviewCount: stats.count,
@@ -191,6 +197,11 @@ export const useGroupBooks = (groupId: MaybeRef<string>) => {
           }
         })
       )
+
+      // 성공한 결과만 필터링
+      const historyBooksWithRounds = historyBooksResults
+        .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
+        .map(result => result.value)
       historyBooks.value = historyBooksWithRounds.sort((a, b) =>
         new Date(b.date).getTime() - new Date(a.date).getTime()
       )

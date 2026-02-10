@@ -39,7 +39,7 @@
               :class="searchTab === 'wishlist' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
             >
               내 위시
-              <span v-if="wishlist.length > 0" class="text-[10px] bg-lime-400 text-black px-1.5 py-0.5 rounded-full">{{ wishlist.length }}</span>
+              <span v-if="wishlist.length > 0" class="text-[10px] bg-lime-400 text-black min-w-[18px] h-[18px] inline-flex items-center justify-center rounded-full font-bold leading-none">{{ wishlist.length }}</span>
             </button>
           </div>
 

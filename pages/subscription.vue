@@ -66,7 +66,7 @@
                 v-else
                 @click="handleReactivateClick"
                 :disabled="reactivating"
-                class="px-6 py-3 bg-lime-500 hover:bg-lime-600 text-white rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-50 shadow-lg shadow-lime-500/30"
+                class="px-6 py-3 bg-lime-400 hover:bg-lime-300 text-black rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-50 shadow-lg shadow-lime-400/30"
               >
                 {{ reactivating ? '처리 중...' : '자동갱신 재개하기' }}
               </button>

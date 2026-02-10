@@ -91,15 +91,25 @@ export default defineEventHandler(async (event) => {
           payment_key: (tossResponse as any).paymentKey,
           amount: sub.plan.price,
           method: (tossResponse as any).method,
-          status: 'done',
+          status: 'completed',
           approved_at: new Date().toISOString(),
           toss_response: tossResponse
         })
 
-        // 구독 연장
+        // 구독 연장 (월 오버플로우 방지)
         const currentEndDate = new Date(sub.end_date)
+        const targetMonth = currentEndDate.getMonth() + sub.plan.billing_period_months
+        const targetYear = currentEndDate.getFullYear() + Math.floor(targetMonth / 12)
+        const finalMonth = targetMonth % 12
+        const originalDay = currentEndDate.getDate()
+
         const newEndDate = new Date(currentEndDate)
-        newEndDate.setMonth(newEndDate.getMonth() + sub.plan.billing_period_months)
+        newEndDate.setFullYear(targetYear)
+        newEndDate.setMonth(finalMonth)
+
+        // 월말 날짜 보정 (예: 1월 31일 + 1개월 = 2월 28일)
+        const lastDayOfMonth = new Date(targetYear, finalMonth + 1, 0).getDate()
+        newEndDate.setDate(Math.min(originalDay, lastDayOfMonth))
 
         await serviceClient
           .from('subscriptions')

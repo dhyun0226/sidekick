@@ -36,6 +36,12 @@ export const useRealtimeSubscriptions = (
    * Setup comment realtime subscription for a specific book
    */
   const setupCommentSubscription = () => {
+    // 기존 채널 정리 (메모리 누수 방지)
+    if (commentChannel) {
+      client.removeChannel(commentChannel)
+      commentChannel = null
+    }
+
     commentChannel = client.channel('public:comments')
       .on(
         'postgres_changes',

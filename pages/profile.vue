@@ -1,9 +1,15 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-[#09090b] pb-20 pb-safe">
+    <!-- Auth Guard: 프로필이 없으면 로딩 표시 -->
+    <div v-if="!userStore.profile" class="flex items-center justify-center min-h-screen">
+      <LoadingSpinner />
+    </div>
+
+    <template v-else>
     <!-- 1. Common UI Section -->
-    <ProfileHeader 
-      :profile="userStore.profile" 
-      @open-settings="openSettings" 
+    <ProfileHeader
+      :profile="userStore.profile"
+      @open-settings="openSettings"
     />
     <ProfileStats 
       :stats="stats" 
@@ -167,6 +173,7 @@
       @close="bookSearchModalOpen = false; initialBookForModal = null"
       @confirm="handleBookConfirmFromWishlist"
     />
+    </template>
   </div>
 </template>
 
@@ -734,6 +741,12 @@ const formatDate = (d: string) => {
 
 onMounted(async () => {
   await Promise.all([userStore.fetchProfile(), fetchSubscription(), fetchLimits()])
+
+  // Auth guard: 로그인하지 않은 사용자는 로그인 페이지로 리다이렉트
+  if (!userStore.profile) {
+    navigateTo('/login')
+    return
+  }
 
   console.log('[Profile] Limits loaded:', limits.value)
   console.log('[Profile] User Tier:', userStore.profile?.subscription_tier)

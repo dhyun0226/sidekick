@@ -20,6 +20,7 @@ export default defineNuxtConfig({
     naverClientId: process.env.NAVER_CLIENT_ID,
     naverClientSecret: process.env.NAVER_CLIENT_SECRET,
     tossSecretKey: process.env.TOSS_SECRET_KEY,
+    tossWebhookSecret: process.env.TOSS_WEBHOOK_SECRET,
     cronSecret: process.env.CRON_SECRET,
 
     // 클라이언트 사이드 (브라우저에 노출됨)
@@ -62,6 +63,13 @@ export default defineNuxtConfig({
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
       title: 'Sidekick'
+    }
+  },
+
+  // Vite 설정 - 프로덕션 빌드 시 console.log 제거
+  vite: {
+    esbuild: {
+      drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : []
     }
   }
 })

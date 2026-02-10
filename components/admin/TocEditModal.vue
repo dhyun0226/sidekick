@@ -128,7 +128,7 @@
         <button
           @click="save"
           :disabled="saving || !isValid"
-          class="flex-1 py-3 rounded-xl bg-lime-400 hover:bg-lime-500 text-black font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="flex-1 py-3 rounded-xl bg-lime-400 hover:bg-lime-300 text-black font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {{ saving ? '저장 중...' : '저장하기' }}
         </button>

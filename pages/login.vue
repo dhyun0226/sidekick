@@ -78,7 +78,7 @@
 
     <!-- Footer -->
     <div class="absolute bottom-6 text-center text-xs text-zinc-600">
-      <p>로그인하시면 <a href="#" class="text-zinc-600 dark:text-zinc-500 hover:text-lime-400 underline">서비스 이용약관</a> 및 <a href="#" class="text-zinc-600 dark:text-zinc-500 hover:text-lime-400 underline">개인정보처리방침</a>에 동의하게 됩니다.</p>
+      <p>로그인하시면 <NuxtLink to="/terms" class="text-zinc-600 dark:text-zinc-500 hover:text-lime-400 underline">서비스 이용약관</NuxtLink> 및 <NuxtLink to="/privacy" class="text-zinc-600 dark:text-zinc-500 hover:text-lime-400 underline">개인정보처리방침</NuxtLink>에 동의하게 됩니다.</p>
     </div>
   </div>
 </template>

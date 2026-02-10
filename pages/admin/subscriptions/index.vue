@@ -179,7 +179,7 @@
                 <span
                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                   :class="{
-                    'bg-lime-100 dark:bg-lime-900/20 text-lime-700 dark:text-lime-400': payment.status === 'done',
+                    'bg-lime-100 dark:bg-lime-900/20 text-lime-700 dark:text-lime-400': payment.status === 'completed',
                     'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400': payment.status === 'pending',
                     'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400': payment.status === 'failed'
                   }"
@@ -477,14 +477,14 @@ const monthlyRevenue = computed(() => {
   return allPayments.value
     .filter(p => {
       const d = new Date(p.approved_at || p.created_at)
-      return d.getMonth() === currentMonth && d.getFullYear() === currentYear && p.status === 'done'
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear && p.status === 'completed'
     })
     .reduce((sum, p) => sum + p.amount, 0)
 })
 
 const totalRevenue = computed(() => {
   return allPayments.value
-    .filter(p => p.status === 'done')
+    .filter(p => p.status === 'completed')
     .reduce((sum, p) => sum + p.amount, 0)
 })
 
@@ -568,7 +568,7 @@ const monthlyRevenueData = computed(() => {
     const revenue = allPayments.value
       .filter(p => {
         const pd = new Date(p.approved_at || p.created_at)
-        return pd.getMonth() === month && pd.getFullYear() === year && p.status === 'done'
+        return pd.getMonth() === month && pd.getFullYear() === year && p.status === 'completed'
       })
       .reduce((sum, p) => sum + p.amount, 0)
       

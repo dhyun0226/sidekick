@@ -46,8 +46,12 @@
               @click="$emit('start-book', item)"
               class="cursor-pointer active:opacity-70 transition-opacity"
             >
-              <div class="aspect-[1/1.5] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800">
+              <div class="aspect-[2/3] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800 rounded-lg">
                 <img :src="item.book.cover_url" class="w-full h-full object-cover" />
+              </div>
+              <div class="mt-2">
+                <p class="text-xs font-bold text-zinc-800 dark:text-zinc-200 line-clamp-2 leading-tight">{{ item.book.title }}</p>
+                <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">{{ item.book.author }}</p>
               </div>
             </div>
             <!-- 삭제 버튼 -->

@@ -109,10 +109,10 @@
                             <p class="font-bold text-zinc-900 dark:text-white">₩{{ payment.amount.toLocaleString() }}</p>
                             <p class="text-xs text-zinc-500">{{ formatDateTime(payment.approved_at || payment.created_at) }}</p>
                           </div>
-                          <span 
+                          <span
                             class="px-2 py-0.5 rounded text-[10px] font-bold"
                             :class="{
-                              'bg-green-100 text-green-700': payment.status === 'done',
+                              'bg-green-100 text-green-700': payment.status === 'completed',
                               'bg-red-100 text-red-700': payment.status === 'failed',
                               'bg-yellow-100 text-yellow-700': payment.status === 'pending'
                             }"

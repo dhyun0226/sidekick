@@ -92,13 +92,23 @@
           @delete-group="emit('deleteGroup')"
         />
       </div>
+
+      <!-- FAB: 새 책 추가 버튼 -->
+      <button
+        v-if="activeTab === 'info' && !isArchived"
+        @click="emit('openSearchModal')"
+        class="absolute bottom-6 right-6 w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-all active:scale-95 z-10"
+        title="새 책 추가"
+      >
+        <Plus :size="24" />
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, onUnmounted } from 'vue'
-import { X } from 'lucide-vue-next'
+import { X, Plus } from 'lucide-vue-next'
 import MyLibraryInfoTab from '~/components/my-library/MyLibraryInfoTab.vue'
 import MyLibraryBookshelfTab from '~/components/my-library/MyLibraryBookshelfTab.vue'
 import MyLibrarySettingsTab from '~/components/my-library/MyLibrarySettingsTab.vue'

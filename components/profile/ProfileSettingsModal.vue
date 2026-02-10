@@ -144,13 +144,40 @@
         </section>
 
         <!-- Account -->
-        <section class="pb-4">
+        <section>
           <div class="flex items-center justify-between mb-4 px-1">
             <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">계정</h4>
           </div>
           <div class="grid grid-cols-2 gap-3">
             <button @click="$emit('sign-out')" class="py-3.5 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 rounded-xl text-xs font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all flex items-center justify-center gap-2 border border-zinc-100 dark:border-zinc-800"><LogOut :size="14" /> 로그아웃</button>
             <button @click="$emit('delete-account')" class="py-3.5 bg-red-50/50 dark:bg-red-900/10 text-red-500/80 rounded-xl text-xs font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-all flex items-center justify-center gap-2 border border-red-100/50 dark:border-red-900/20"><Trash2 :size="14" /> 계정 삭제</button>
+          </div>
+        </section>
+
+        <!-- Legal -->
+        <section class="pb-4">
+          <div class="flex items-center justify-between mb-4 px-1">
+            <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">약관 및 정책</h4>
+          </div>
+          <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50 divide-y divide-zinc-100 dark:divide-zinc-800">
+            <NuxtLink to="/terms" class="flex items-center justify-between p-4 hover:bg-white/50 dark:hover:bg-zinc-800/50 transition-colors">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                  <FileText :size="16" />
+                </div>
+                <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">이용약관</span>
+              </div>
+              <ChevronRight :size="16" class="text-zinc-400" />
+            </NuxtLink>
+            <NuxtLink to="/privacy" class="flex items-center justify-between p-4 hover:bg-white/50 dark:hover:bg-zinc-800/50 transition-colors">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                  <Shield :size="16" />
+                </div>
+                <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">개인정보처리방침</span>
+              </div>
+              <ChevronRight :size="16" class="text-zinc-400" />
+            </NuxtLink>
           </div>
         </section>
       </div>
@@ -160,7 +187,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { X, User as UserIcon, Camera, Save, LogOut, Trash2, Moon, Sun, Bell, LayoutGrid, Calendar } from 'lucide-vue-next'
+import { X, User as UserIcon, Camera, Save, LogOut, Trash2, Moon, Sun, Bell, LayoutGrid, Calendar, FileText, Shield, ChevronRight } from 'lucide-vue-next'
 
 const props = defineProps<{
   isOpen: boolean, profile: any, notificationSettings: any, appSettings: any, isSaving: boolean
