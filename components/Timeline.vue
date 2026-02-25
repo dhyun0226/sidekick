@@ -427,8 +427,18 @@ const toggleLike = async (commentId: string) => {
   if (!user) return
 
   try {
-    const comment = props.comments.find(c => c.id === commentId)
-    if (!comment) return
+    let target = props.comments.find(c => c.id === commentId)
+
+    if (!target) {
+      for (const comment of props.comments) {
+        if (comment.replies) {
+          target = comment.replies.find(r => r.id === commentId)
+          if (target) break
+        }
+      }
+    }
+
+    if (!target) return
 
     const { data: existingReaction } = await client
       .from('reactions')
@@ -444,8 +454,8 @@ const toggleLike = async (commentId: string) => {
         .delete()
         .eq('id', existingReaction.id)
 
-      comment.isLiked = false
-      comment.likes = (comment.likes || 1) - 1
+      target.isLiked = false
+      target.likes = (target.likes || 1) - 1
     } else {
       await client
         .from('reactions')
@@ -455,8 +465,8 @@ const toggleLike = async (commentId: string) => {
           type: 'like'
         })
 
-      comment.isLiked = true
-      comment.likes = (comment.likes || 0) + 1
+      target.isLiked = true
+      target.likes = (target.likes || 0) + 1
     }
   } catch (error) {
     console.error('Like toggle error:', error)

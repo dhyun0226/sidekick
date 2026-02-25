@@ -19,19 +19,19 @@
           인용 텍스트 {{ anchorTextLocked ? '' : '(선택사항)' }}
         </label>
         <div class="relative">
-          <input
+          <textarea
             v-model="anchorText"
-            type="text"
+            rows="3"
             :readonly="anchorTextLocked"
             :placeholder="anchorTextLocked ? '' : '예: &quot;주인공은 결국 돌아왔다&quot;'"
             :class="[
-              'w-full rounded-lg px-3 py-2 text-sm focus:outline-none',
+              'w-full rounded-lg px-3 py-2 text-sm focus:outline-none resize-y',
               anchorTextLocked
                 ? 'bg-lime-100 dark:bg-zinc-800/50 text-lime-600 dark:text-lime-400 italic cursor-not-allowed border border-lime-400/30'
                 : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:ring-2 focus:ring-lime-400'
             ]"
-          />
-          <div v-if="anchorTextLocked" class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-600 dark:text-zinc-500 bg-white dark:bg-zinc-900 px-2 py-1 rounded">
+          ></textarea>
+          <div v-if="anchorTextLocked" class="absolute right-2 top-2 text-xs text-zinc-600 dark:text-zinc-500 bg-white dark:bg-zinc-900 px-2 py-1 rounded">
             고정됨
           </div>
         </div>
