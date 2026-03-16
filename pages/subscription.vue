@@ -343,7 +343,8 @@ const confirmReactivateSubscription = async () => {
 }
 const cancelReactivateSubscription = () => { showReactivateConfirm.value = false }
 
-const formatDate = (dateStr: string) => {
+const formatDate = (dateStr: string | null | undefined) => {
+  if (!dateStr) return ''
   const date = new Date(dateStr)
   return `${String(date.getFullYear()).slice(-2)}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
 }

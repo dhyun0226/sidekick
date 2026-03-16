@@ -22,30 +22,81 @@
     <!-- Main App Content -->
     <div
       v-else
-      class="w-full h-screen bg-white dark:bg-[#09090b] relative overflow-y-auto"
-      :class="isAdminPage ? '' : 'max-w-[480px] shadow-2xl'"
+      class="w-full h-screen bg-white dark:bg-[#09090b] relative"
+      :class="[
+        isAdminPage ? '' : (isDesktop ? '' : 'max-w-[480px] shadow-2xl'),
+        isDesktop ? 'overflow-hidden' : 'overflow-y-auto'
+      ]"
     >
       <NuxtLoadingIndicator color="#a3e635" />
       <ToastContainer />
       <NuxtPwaManifest />
-      <NuxtLayout>
-        <NuxtPage />
-      </NuxtLayout>
+
+      <!-- Desktop Layout with Sidebar -->
+      <div v-if="isDesktop && !isAdminPage" class="flex h-full">
+        <DesktopSidebar />
+        <main class="flex-1 overflow-y-auto">
+          <NuxtLayout>
+            <NuxtPage />
+          </NuxtLayout>
+        </main>
+      </div>
+
+      <!-- Mobile Layout (original) -->
+      <template v-else>
+        <NuxtLayout>
+          <NuxtPage />
+        </NuxtLayout>
+      </template>
     </div>
+
+    <!-- Command Palette (Desktop only) -->
+    <DesktopCommandPalette
+      v-if="isDesktop"
+      :is-open="commandPaletteOpen"
+      @close="commandPaletteOpen = false"
+      @navigate="handleCommandNavigate"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
 import ToastContainer from '~/components/ToastContainer.vue'
+
+const DesktopSidebar = defineAsyncComponent(() => import('~/components/desktop/core/DesktopSidebar.vue'))
+const DesktopCommandPalette = defineAsyncComponent(() => import('~/components/desktop/core/DesktopCommandPalette.vue'))
 
 // Global setup
 const { initTheme } = useTheme()
+const { isDesktop } = useDevice()
 const route = useRoute()
+const router = useRouter()
 const userStore = useUserStore()
 
 // App loading state
 const appLoading = ref(true)
+
+// Command palette
+const commandPaletteOpen = ref(false)
+
+const handleCommandNavigate = (path: string) => {
+  router.push(path)
+}
+
+// Global keyboard shortcuts (desktop only)
+if (typeof window !== 'undefined') {
+  useKeyboardShortcuts([
+    {
+      key: 'k',
+      meta: true,
+      description: 'Open command palette',
+      handler: () => {
+        if (isDesktop.value) commandPaletteOpen.value = !commandPaletteOpen.value
+      }
+    }
+  ])
+}
 
 // Check if current page is admin page or subscription page (needs full width)
 const isAdminPage = computed(() => {

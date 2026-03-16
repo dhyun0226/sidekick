@@ -15,15 +15,31 @@
               {{ currentChapterName || bookTitle || '읽기 시작' }}
             </span>
           </div>
-          
-          <button
-            v-if="!isArchived"
-            @click="$emit('write')"
-            class="flex items-center gap-2 pl-3 pr-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg shadow-zinc-500/20 shrink-0"
-          >
-            <PenLine :size="14" />
-            <span class="text-xs font-bold">기록</span>
-          </button>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <!-- Percent/Page Toggle -->
+            <div v-if="totalPages" class="flex bg-zinc-100 dark:bg-zinc-800 rounded-full p-0.5">
+              <button
+                @click="displayMode = 'percent'"
+                class="px-2 py-1 text-[10px] font-bold rounded-full transition-all"
+                :class="displayMode === 'percent' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-400'"
+              >%</button>
+              <button
+                @click="displayMode = 'page'"
+                class="px-2 py-1 text-[10px] font-bold rounded-full transition-all"
+                :class="displayMode === 'page' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-400'"
+              >p</button>
+            </div>
+
+            <button
+              v-if="!isArchived"
+              @click="$emit('write')"
+              class="flex items-center gap-2 pl-3 pr-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg shadow-zinc-500/20"
+            >
+              <PenLine :size="14" />
+              <span class="text-xs font-bold">기록</span>
+            </button>
+          </div>
         </div>
 
         <!-- Interactive Slider Area -->
@@ -102,8 +118,8 @@
             class="absolute -top-16 left-0 -ml-8 bg-zinc-900 dark:bg-white text-white dark:text-black px-4 py-2 rounded-2xl shadow-xl flex flex-col items-center min-w-[64px] animate-in fade-in slide-in-from-bottom-2 duration-200"
             :style="{ left: `${currentPct}%` }"
           >
-            <span class="text-sm font-black leading-none">{{ Math.round(currentPct) }}%</span>
-            <span v-if="currentPage" class="text-[10px] font-medium opacity-80 leading-none mt-1">p.{{ currentPage }}</span>
+            <span class="text-sm font-black leading-none">{{ displayMode === 'page' && currentPage ? `p.${currentPage}` : `${Math.round(currentPct)}%` }}</span>
+            <span v-if="displayMode === 'page' ? true : currentPage" class="text-[10px] font-medium opacity-80 leading-none mt-1">{{ displayMode === 'page' ? `${Math.round(currentPct)}%` : (currentPage ? `p.${currentPage}` : '') }}</span>
             <!-- Arrow -->
             <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-900 dark:bg-white rotate-45"></div>
           </div>
@@ -142,6 +158,7 @@ const rangeInput = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
 const localPct = ref(props.modelValue)
 const lastPct = ref(props.modelValue)
+const displayMode = ref<'percent' | 'page'>('percent')
 
 // Sync localPct with external modelValue changes
 watch(() => props.modelValue, (newVal) => {

@@ -72,7 +72,7 @@ export function useGroupPage(config: GroupPageConfig) {
     addComment,
     hasMore,
     isLoadingMore
-  } = useGroupComments(currentUserId.value)
+  } = useGroupComments(currentUserId)
 
   // ===== Modal States =====
   const modals = reactive<GroupPageModals>({
@@ -1299,11 +1299,10 @@ export function useGroupPage(config: GroupPageConfig) {
       return
     }
     try {
-      const { data, error } = await $fetch('/api/groups/become-owner', {
+      await $fetch('/api/groups/become-owner', {
         method: 'POST',
         body: { groupId: config.groupIdRef.value }
       })
-      if (error) throw error
 
       toast.success('방장이 되었습니다! 그룹이 다시 활성화되었습니다.', 5000)
       await fetchData()
@@ -1397,10 +1396,11 @@ export function useGroupPage(config: GroupPageConfig) {
 
       if (group.value) group.value.invite_code = newCode
       toast.success(`새 초대 코드가 생성되었습니다: ${newCode}`)
-      modals.regenerateInviteCode = false
     } catch (err) {
       console.error('Unexpected error:', err)
       toast.error('예상치 못한 오류가 발생했습니다.')
+    } finally {
+      modals.regenerateInviteCode = false
     }
   }
 

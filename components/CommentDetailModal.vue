@@ -264,7 +264,7 @@ const props = defineProps<{
   currentUserId: string | null
 }>()
 
-const emit = defineEmits(['close', 'writeComment'])
+const emit = defineEmits(['close', 'writeComment', 'replySubmitted'])
 
 // Prevent body scroll when modal is open
 watch(() => props.isOpen, (isOpen) => {

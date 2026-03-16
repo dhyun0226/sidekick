@@ -1,5 +1,16 @@
 <template>
-  <div class="pb-24 pb-safe px-4 pt-safe min-h-screen bg-gray-50 dark:bg-[#09090b]">
+  <!-- Desktop View -->
+  <DesktopHomeDashboard
+    v-if="isDesktop"
+    :loading="loading"
+    :solo-group="soloGroup"
+    :reading-groups="desktopReadingGroups"
+    :idle-groups="desktopIdleGroups"
+    @create-group="handleCreateGroupClick"
+    @join-group="joinGroupModalOpen = true"
+  />
+
+  <div v-else class="pb-24 pb-safe px-4 pt-safe min-h-screen bg-gray-50 dark:bg-[#09090b]">
     <!-- Header -->
     <header class="flex justify-between items-center py-6 sticky top-0 z-20 bg-gray-50/80 dark:bg-[#09090b]/80 backdrop-blur-md">
       <div class="flex items-center gap-3">
@@ -302,23 +313,24 @@
       <Plus :size="24" />
     </button>
 
-    <!-- Modals -->
-    <CreateGroupModal
-      :isOpen="createGroupModalOpen"
-      @close="createGroupModalOpen = false"
-      @created="handleGroupCreated"
-    />
-    <JoinGroupModal
-      :isOpen="joinGroupModalOpen"
-      @close="joinGroupModalOpen = false"
-      @joined="handleGroupJoined"
-    />
-
   </div>
+
+  <!-- Modals (desktop/mobile 공통) -->
+  <CreateGroupModal
+    :isOpen="createGroupModalOpen"
+    @close="createGroupModalOpen = false"
+    @created="handleGroupCreated"
+  />
+  <JoinGroupModal
+    :isOpen="joinGroupModalOpen"
+    @close="joinGroupModalOpen = false"
+    @joined="handleGroupJoined"
+  />
 </template>
 
+
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
@@ -327,6 +339,8 @@ import NotificationCenter from '~/components/NotificationCenter.vue'
 import CreateGroupModal from '~/components/CreateGroupModal.vue'
 import JoinGroupModal from '~/components/JoinGroupModal.vue'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
+
+const DesktopHomeDashboard = defineAsyncComponent(() => import('~/components/desktop/home/DesktopHomeDashboard.vue'))
 
 // 인증 미들웨어 적용
 definePageMeta({
@@ -338,6 +352,28 @@ const userStore = useUserStore()
 const toast = useToastStore()
 const client = useSupabaseClient()
 const { fetchLimits, limits, isPremium } = useSubscription()
+const { isDesktop } = useDevice()
+
+// Desktop computed
+const desktopReadingGroups = computed(() =>
+  readingSocialGroups.value.map(g => ({
+    id: g.id,
+    name: g.name,
+    memberCount: g.members?.length || 0,
+    currentBook: g.currentBook ? {
+      title: g.currentBook.title,
+      cover_url: g.currentBook.cover_url,
+      progress: g.currentBook.progress
+    } : undefined
+  }))
+)
+const desktopIdleGroups = computed(() =>
+  idleSocialGroups.value.map(g => ({
+    id: g.id,
+    name: g.name,
+    memberCount: g.members?.length || 0
+  }))
+)
 
 const groups = ref<any[]>([])
 const loading = ref(true)
@@ -416,6 +452,7 @@ const fetchGroups = async () => {
         `)
         .in('group_id', groupIds)
         .eq('status', 'reading')
+        .is('deleted_at', null)
         .eq('user_reading_progress.user_id', user.id)
 
       const { data: allMembers } = await client

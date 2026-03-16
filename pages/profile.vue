@@ -1,5 +1,23 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-[#09090b] pb-20 pb-safe">
+  <!-- Desktop View -->
+  <template v-if="isDesktop && userStore.profile">
+    <DesktopProfileView
+      :profile="userStore.profile"
+      :stats="stats"
+      :active-tab="activeTab"
+      @tab-change="(t) => t === 'insight' ? handleInsightTabClick() : activeTab = t"
+    >
+      <div class="min-h-[300px]">
+        <ProfileLibraryTab v-if="activeTab === 'library'" :library="library" :reading-books="readingBooks" :library-groups="libraryByYear" :loading="loading" @open-book="openBookDetail" />
+        <ProfileWishlistTab v-if="activeTab === 'wishlist'" :wishlist="wishlist" :loading="wishlistLoading" @refresh="fetchWishlistData" @start-book="handleStartBookFromWishlist" />
+        <ProfileTimelineTab v-if="activeTab === 'timeline'" :timeline="timeline" :loading="loading" :is-loading-more="isLoadingMoreTimeline" :has-more="hasMoreTimeline" :monthly-totals="monthlyTotals" :is-book-finished="isBookFinished" @load-more="loadMoreTimeline" @navigate="navigateToItem" />
+        <ProfileInsightTab v-if="activeTab === 'insight'" :timeline="fullActivities" :is-goal-achieved="isGoalAchieved" :last-year-books="lastYearBooks" :year-over-year-growth="yearOverYearGrowth" :editing-goal="editingGoal" v-model:temp-goal="tempGoal" :this-year-books="thisYearBooks" :yearly-goal="yearlyGoal" :days-left-in-year="daysLeftInYear" :books-needed-per-month="booksNeededPerMonth" :on-track="onTrack" :monthly-progress="monthlyProgress" :max-monthly-count="maxMonthlyCount" :current-streak="stats.streak" :longest-streak="longestStreak" :this-month-books="thisMonthBooks" :this-month-comments="thisMonthComments" :finishedBooks="finishedLibraryForStats" :include-comments="appSettings.calendar_include_comments" @start-edit-goal="startEditGoal" @save-goal="saveGoal" @cancel-edit-goal="cancelEditGoal" @day-click="handleDayClick" @year-change="handleYearChange" />
+        <ProfileGroupsTab v-if="activeTab === 'groups'" @refresh-stats="fetchData" @refresh-library="fetchData" />
+      </div>
+    </DesktopProfileView>
+  </template>
+
+  <div v-else class="min-h-screen bg-gray-50 dark:bg-[#09090b] pb-20 pb-safe">
     <!-- Auth Guard: 프로필이 없으면 로딩 표시 -->
     <div v-if="!userStore.profile" class="flex items-center justify-center min-h-screen">
       <LoadingSpinner />
@@ -105,84 +123,88 @@
       />
     </div>
 
-    <!-- 4. Modals & Overlays -->
-    <ProfileSettingsModal
-      v-if="settingsModalOpen"
-      :is-open="settingsModalOpen"
-      :profile="userStore.profile"
-      :notification-settings="notificationSettings"
-      :app-settings="appSettings"
-      :is-saving="isSaving"
-      @close="settingsModalOpen = false"
-      @handle-file="handleFileChange"
-      @save-profile="saveProfile"
-      @sign-out="handleSignOut"
-      @delete-account="handleDeleteAccount"
-      @toggle-theme="toggleTheme"
-    />
-
-    <ProfileBookDetailModal
-      :isOpen="showBookDetailModal"
-      :book="selectedBook"
-      @close="closeBookDetail"
-      @navigate="navigateToItem"
-    />
-
-    <ProfileDayActivityModal
-      v-if="showDayActivityModal"
-      :is-open="showDayActivityModal"
-      :selected-day="selectedDay"
-      :is-book-finished="isBookFinished"
-      @close="closeDayActivity"
-      @navigate="navigateToItem"
-    />
-
-    <ConfirmModal
-      :isOpen="showLogoutConfirm"
-      title="로그아웃"
-      message="정말 로그아웃 하시겠습니까?"
-      description="다시 로그인하려면 구글 계정으로 로그인해야 합니다."
-      confirmText="로그아웃"
-      cancelText="취소"
-      variant="warning"
-      @confirm="confirmLogout"
-      @cancel="showLogoutConfirm = false"
-    />
-
-    <ConfirmModal
-      :isOpen="showDeleteAccountConfirm"
-      title="계정 삭제"
-      message="정말 계정을 삭제하시겠습니까?"
-      description="모든 데이터가 영구적으로 삭제되며, 복구할 수 없습니다."
-      confirmText="삭제하기"
-      cancelText="취소"
-      variant="danger"
-      @confirm="confirmDeleteAccount"
-      @cancel="showDeleteAccountConfirm = false"
-    />
-
-    <UpgradePromptModal
-      :isOpen="upgradeInsightOpen"
-      feature="insights"
-      @close="upgradeInsightOpen = false"
-    />
-
-    <BookSearchModal
-      :isOpen="bookSearchModalOpen"
-      :initialBook="initialBookForModal"
-      @close="bookSearchModalOpen = false; initialBookForModal = null"
-      @confirm="handleBookConfirmFromWishlist"
-    />
     </template>
   </div>
+
+  <!-- Shared Modals (desktop/mobile 공통) -->
+  <ProfileSettingsModal
+    v-if="settingsModalOpen"
+    :is-open="settingsModalOpen"
+    :profile="userStore.profile"
+    :notification-settings="notificationSettings"
+    :app-settings="appSettings"
+    :is-saving="isSaving"
+    @close="settingsModalOpen = false"
+    @handle-file="handleFileChange"
+    @save-profile="saveProfile"
+    @sign-out="handleSignOut"
+    @delete-account="handleDeleteAccount"
+    @toggle-theme="toggleTheme"
+  />
+
+  <ProfileBookDetailModal
+    :isOpen="showBookDetailModal"
+    :book="selectedBook"
+    @close="closeBookDetail"
+    @navigate="navigateToItem"
+  />
+
+  <ProfileDayActivityModal
+    v-if="showDayActivityModal"
+    :is-open="showDayActivityModal"
+    :selected-day="selectedDay"
+    :is-book-finished="isBookFinished"
+    @close="closeDayActivity"
+    @navigate="navigateToItem"
+  />
+
+  <ConfirmModal
+    :isOpen="showLogoutConfirm"
+    title="로그아웃"
+    message="정말 로그아웃 하시겠습니까?"
+    description="다시 로그인하려면 구글 계정으로 로그인해야 합니다."
+    confirmText="로그아웃"
+    cancelText="취소"
+    variant="warning"
+    @confirm="confirmLogout"
+    @cancel="showLogoutConfirm = false"
+  />
+
+  <ConfirmModal
+    :isOpen="showDeleteAccountConfirm"
+    title="계정 삭제"
+    message="정말 계정을 삭제하시겠습니까?"
+    description="모든 데이터가 영구적으로 삭제되며, 복구할 수 없습니다."
+    confirmText="삭제하기"
+    cancelText="취소"
+    variant="danger"
+    @confirm="confirmDeleteAccount"
+    @cancel="showDeleteAccountConfirm = false"
+  />
+
+  <UpgradePromptModal
+    :isOpen="upgradeInsightOpen"
+    feature="insights"
+    @close="upgradeInsightOpen = false"
+  />
+
+  <BookSearchModal
+    :isOpen="bookSearchModalOpen"
+    :initialBook="initialBookForModal"
+    @close="bookSearchModalOpen = false; initialBookForModal = null"
+    @confirm="handleBookConfirmFromWishlist"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onActivated, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onActivated, watch, nextTick, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
 import { Lock } from 'lucide-vue-next'
+
+const DesktopProfileView = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopProfileView.vue'))
+const { isDesktop } = useDevice()
 
 import ProfileHeader from '~/components/profile/ProfileHeader.vue'
 import ProfileStats from '~/components/profile/ProfileStats.vue'
@@ -599,7 +621,8 @@ const navigateToItem = (item: any) => {
     const q: any = {}
     if (item.groupBookId) q.bookId = item.groupBookId
     if (item.type === 'comment') { q.jumpTo = item.position_pct; q.highlightComment = item.id }
-    router.push({ path: `/group/${item.groupId}`, query: q })
+    const path = item.groupType === 'solo' ? '/my-library' : `/group/${item.groupId}`
+    router.push({ path, query: q })
   } else toast.warning('해당 그룹을 찾을 수 없습니다.')
 }
 
@@ -759,6 +782,7 @@ onMounted(async () => {
     appSettings.value = { ...appSettings.value, ...userStore.profile.app_settings }
   }
   await Promise.all([fetchData(), fetchWishlistData()])
+  settingsReady.value = true
 })
 
 onActivated(async () => {
@@ -766,7 +790,10 @@ onActivated(async () => {
   await fetchData()
 })
 
+const settingsReady = ref(false)
+
 watch(notificationSettings, async (s) => {
+  if (!settingsReady.value) return
   const userId = userStore.profile?.id || userStore.user?.id
   if (!userId) return
   try { await client.from('users').update({ notification_settings: s }).eq('id', userId); await userStore.fetchProfile(true) }
@@ -774,9 +801,10 @@ watch(notificationSettings, async (s) => {
 }, { deep: true })
 
 watch(appSettings, async (s) => {
+  if (!settingsReady.value) return
   const userId = userStore.profile?.id || userStore.user?.id
   if (!userId) return
-  try { 
+  try {
     const { error } = await client.from('users').update({ app_settings: s }).eq('id', userId)
     if (error) {
       console.error('Failed to save app settings:', error)

@@ -9,3 +9,33 @@
     @apply bg-background text-text-main font-sans antialiased;
   }
 }
+
+@layer components {
+  /* Apple-style glass panel */
+  .glass-panel {
+    @apply bg-white/72 dark:bg-zinc-900/72 backdrop-blur-2xl;
+  }
+
+  /* Apple-style card */
+  .apple-card {
+    @apply bg-white dark:bg-zinc-900 rounded-2xl shadow-apple border border-separator-light dark:border-separator-dark;
+  }
+
+  /* Apple-style section header */
+  .section-header {
+    @apply text-desktop-headline text-zinc-900 dark:text-white;
+  }
+
+  /* Desktop sidebar item */
+  .sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-xl text-desktop-body text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ease-apple duration-200 cursor-pointer;
+  }
+  .sidebar-item.active {
+    @apply bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-semibold;
+  }
+
+  /* Desktop input field */
+  .desktop-input {
+    @apply w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-desktop-body text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-400/50 focus:border-lime-400 transition-all;
+  }
+}

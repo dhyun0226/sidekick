@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 
 interface Comment {
   id: string
@@ -12,6 +12,7 @@ interface Comment {
   user?: any
   likes?: number
   isLiked?: boolean
+  replies?: Comment[]
 }
 
 interface CommentPayload {
@@ -20,7 +21,7 @@ interface CommentPayload {
   position: number
 }
 
-export const useGroupComments = (userId: string | null) => {
+export const useGroupComments = (userIdRef: Ref<string | null | undefined>) => {
   const client = useSupabaseClient()
   const comments = ref<Comment[]>([])
   const hasMore = ref(true)
@@ -78,12 +79,12 @@ export const useGroupComments = (userId: string | null) => {
 
         // Get user's likes for all items
         let userLikes: any[] = []
-        if (userId) {
+        if (userIdRef.value) {
           const { data } = await client
             .from('reactions')
             .select('comment_id')
             .in('comment_id', allItemIds)
-            .eq('user_id', userId)
+            .eq('user_id', userIdRef.value)
             .eq('type', 'like')
           userLikes = data || []
         }

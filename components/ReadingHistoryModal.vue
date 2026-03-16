@@ -224,7 +224,7 @@ const fetchReadingHistory = async () => {
             isbn,
             title,
             author,
-            cover,
+            cover_url,
             official_genre,
             draft_genre
           )
@@ -255,7 +255,7 @@ const fetchReadingHistory = async () => {
           isbn,
           title: bookData?.title || '제목 없음',
           author: bookData?.author || '저자 미상',
-          cover: bookData?.cover || null,
+          cover: bookData?.cover_url || null,
           genre: bookData?.official_genre || bookData?.draft_genre || null,
           reviews: [],
           readingHistory: [],

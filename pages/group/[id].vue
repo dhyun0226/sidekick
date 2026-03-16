@@ -1,5 +1,9 @@
 <template>
+  <!-- Desktop View -->
+  <DesktopGroupView v-if="isDesktop" />
+
   <div
+    v-else
     class="relative h-[100dvh] bg-gray-50 dark:bg-background overflow-y-auto overflow-x-hidden"
     style="overscroll-behavior: none;"
     @scroll="handleContainerScroll"
@@ -201,8 +205,9 @@
       />
     </template>
 
-    <!-- Comment Input Overlay -->
+    <!-- Comment Input Overlay (Mobile only) -->
     <CommentInputOverlay
+      v-if="!isDesktop"
       :is-open="modals.commentInput"
       :chapter-name="currentChapterName"
       :position="viewProgress"
@@ -212,7 +217,7 @@
       @submit="handleCommentSubmit"
     />
 
-    <!-- Side Drawer -->
+    <!-- Side Drawer (Mobile only) -->
     <GroupDrawer
       :is-open="modals.drawer"
       :group-name="groupName"
@@ -258,182 +263,177 @@
       @open-review="handleOpenReview"
     />
 
-    <!-- Phase 4: Lazy-loaded Modals -->
-    <BookSearchModal
-      :isOpen="modals.search"
-      @close="modals.search = false"
-      @confirm="handleBookAdd"
-    />
-
-    <ReviewModal
-      :isOpen="modals.review"
-      :initialRating="reviewInitialData.rating"
-      :initialContent="reviewInitialData.content"
-      :isEditing="isEditingReview"
-      :book="reviewingBook ? {
-        title: reviewingBook.book?.title,
-        author: reviewingBook.book?.author,
-        coverUrl: reviewingBook.book?.cover_url,
-        publisher: reviewingBook.book?.publisher,
-        total_pages: reviewingBook.total_pages,
-        genre: reviewingBook.genre
-      } : null"
-      @close="closeReviewModal"
-      @submit="handleReviewSubmit"
-    />
-
-    <ReviewsModal
-      :isOpen="modals.reviews"
-      :bookTitle="reviewsBookTitle"
-      :reviews="reviews"
-      @close="modals.reviews = false; reviews = []"
-    />
-
-    <GroupStatsModal
-      :isOpen="modals.groupStats"
-      :groupId="groupId"
-      :groupName="groupName"
-      @close="modals.groupStats = false"
-    />
-
-    <BookAdminModals
-      :edit-dates-open="modals.editDates"
-      :edit-toc-open="modals.editToc"
-      :edit-genre-open="modals.editGenre"
-      :mark-completed-open="modals.markCompleted"
-      :delete-book-open="modals.deleteBook"
-      :edit-finished-date-open="modals.editFinishedDate"
-      :current-book="modals.editingBook"
-      :comment-count="commentCount"
-      @close-edit-dates="modals.editDates = false; modals.editingBook = null"
-      @close-edit-toc="modals.editToc = false; modals.editingBook = null"
-      @close-edit-genre="modals.editGenre = false; modals.editingBook = null"
-      @close-mark-completed="modals.markCompleted = false; modals.editingBook = null"
-      @close-delete-book="modals.deleteBook = false; modals.editingBook = null"
-      @close-edit-finished-date="modals.editFinishedDate = false; modals.editingBook = null"
-      @save-edited-dates="saveEditedDates"
-      @save-edited-toc="saveEditedToc"
-      @save-edited-genre="saveEditedGenre"
-      @save-edited-finished-date="saveEditedFinishedDate"
-      @mark-as-completed="markAsCompleted"
-      @delete-book="deleteBook"
-    />
-
-    <!-- Admin Action Modals -->
-    <ConfirmModal
-      :is-open="modals.promoteMember"
-      variant="warning"
-      title="관리자 승격"
-      :message="`${pendingMemberAction?.nickname || ''}님을 관리자로 승격하시겠습니까?`"
-      confirm-text="승격"
-      cancel-text="취소"
-      @confirm="executePromoteMember"
-      @cancel="modals.promoteMember = false; pendingMemberAction = null"
-    />
-
-    <ConfirmModal
-      :is-open="modals.kickMember"
-      variant="danger"
-      title="멤버 강퇴"
-      :message="`정말로 ${pendingMemberAction?.nickname || ''}님을 강제 퇴장시키겠습니까?`"
-      description="이 작업은 되돌릴 수 없습니다."
-      confirm-text="강퇴"
-      cancel-text="취소"
-      @confirm="executeKickMember"
-      @cancel="modals.kickMember = false; pendingMemberAction = null"
-    />
-
-    <ConfirmModal
-      :is-open="modals.leaveGroup"
-      variant="warning"
-      title="그룹 나가기"
-      message="정말로 이 그룹에서 나가시겠습니까?"
-      description="그룹에서 탈퇴하면 지난 그룹 목록으로 이동합니다. 독서 기록은 서재에서 계속 볼 수 있으며, 다시 참여하면 이어서 활동할 수 있습니다."
-      confirm-text="나가기"
-      cancel-text="취소"
-      @confirm="executeLeaveGroup"
-      @cancel="modals.leaveGroup = false"
-    />
-
-    <ConfirmModal
-      :is-open="modals.deleteGroup"
-      variant="warning"
-      title="그룹 종료"
-      :message="members.length > 1
-        ? `이 그룹에는 ${members.length}명의 멤버가 있습니다.\n그룹을 종료하시겠습니까?`
-        : '그룹을 종료하시겠습니까?'"
-      description="그룹을 종료하면 모든 멤버가 더 이상 활동할 수 없습니다. 지금까지의 기록은 모두 유지됩니다."
-      confirm-text="종료하기"
-      cancel-text="취소"
-      @confirm="confirmDeleteGroup"
-      @cancel="modals.deleteGroup = false"
-    />
-
-    <TextInputModal
-      :is-open="modals.deleteGroupConfirm"
-      title="그룹 종료 확인"
-      message="정말로 종료하려면 아래 그룹 이름을 정확히 입력하세요."
-      :expected-text="group?.name || ''"
-      placeholder="그룹 이름 입력"
-      confirm-text="종료하기"
-      cancel-text="취소"
-      @confirm="executeDeleteGroup"
-      @cancel="modals.deleteGroupConfirm = false"
-    />
-
-    <TextDisplayModal
-      :is-open="modals.clipboardFallback"
-      :title="clipboardFallbackData.title"
-      :message="clipboardFallbackData.message"
-      :text="clipboardFallbackData.text"
-      @close="modals.clipboardFallback = false"
-    />
-
-    <ConfirmModal
-      :is-open="modals.regenerateInviteCode"
-      variant="warning"
-      title="초대 코드 재생성"
-      message="정말 초대 코드를 재생성하시겠습니까?"
-      description="기존 초대 링크는 더 이상 사용할 수 없게 되며, 이 작업은 되돌릴 수 없습니다."
-      confirm-text="재생성"
-      cancel-text="취소"
-      @confirm="executeRegenerateInviteCode"
-      @cancel="cancelRegenerateInviteCode"
-    />
-
-    <ConfirmModal
-      :is-open="modals.deleteHistoryBook"
-      variant="danger"
-      title="책 삭제"
-      :message="`'${pendingBookToDelete?.title || '이 책'}'을(를) 정말 삭제하시겠습니까?`"
-      description="모든 댓글과 리뷰가 함께 삭제됩니다."
-      confirm-text="삭제"
-      cancel-text="취소"
-      @confirm="confirmDeleteHistoryBook"
-      @cancel="modals.deleteHistoryBook = false; pendingBookToDelete = null"
-    />
-
-    <!-- Upgrade Prompt Modal for Book Addition -->
-    <UpgradePromptModal
-      :isOpen="modals.upgradeBook"
-      feature="books"
-      @close="modals.upgradeBook = false"
-    />
-
-    <!-- Upgrade Prompt Modal for Read-Only Mode -->
-    <UpgradePromptModal
-      :isOpen="modals.upgradeReadOnly"
-      feature="participation"
-      title="그룹에 참여하고 싶으신가요?"
-      description="무료 플랜에서는 그룹 내용을 확인만 할 수 있습니다. 프리미엄으로 업그레이드하면 댓글 작성, 진도 기록, 완독 처리 등 모든 기능을 사용할 수 있어요."
-      @close="modals.upgradeReadOnly = false"
-    />
-
   </div>
+
+  <!-- Shared Modals (desktop + mobile 공용) -->
+  <BookSearchModal
+    :isOpen="modals.search"
+    @close="modals.search = false"
+    @confirm="handleBookAdd"
+  />
+
+  <ReviewModal
+    :isOpen="modals.review"
+    :initialRating="reviewInitialData.rating"
+    :initialContent="reviewInitialData.content"
+    :isEditing="isEditingReview"
+    :book="reviewingBook ? {
+      title: reviewingBook.book?.title,
+      author: reviewingBook.book?.author,
+      coverUrl: reviewingBook.book?.cover_url,
+      publisher: reviewingBook.book?.publisher,
+      total_pages: reviewingBook.total_pages,
+      genre: reviewingBook.genre
+    } : null"
+    @close="closeReviewModal"
+    @submit="handleReviewSubmit"
+  />
+
+  <ReviewsModal
+    :isOpen="modals.reviews"
+    :bookTitle="reviewsBookTitle"
+    :reviews="reviews"
+    @close="modals.reviews = false; reviews = []"
+  />
+
+  <GroupStatsModal
+    :isOpen="modals.groupStats"
+    :groupId="groupId"
+    :groupName="groupName"
+    @close="modals.groupStats = false"
+  />
+
+  <BookAdminModals
+    :edit-dates-open="modals.editDates"
+    :edit-toc-open="modals.editToc"
+    :edit-genre-open="modals.editGenre"
+    :mark-completed-open="modals.markCompleted"
+    :delete-book-open="modals.deleteBook"
+    :edit-finished-date-open="modals.editFinishedDate"
+    :current-book="modals.editingBook"
+    :comment-count="commentCount"
+    @close-edit-dates="modals.editDates = false; modals.editingBook = null"
+    @close-edit-toc="modals.editToc = false; modals.editingBook = null"
+    @close-edit-genre="modals.editGenre = false; modals.editingBook = null"
+    @close-mark-completed="modals.markCompleted = false; modals.editingBook = null"
+    @close-delete-book="modals.deleteBook = false; modals.editingBook = null"
+    @close-edit-finished-date="modals.editFinishedDate = false; modals.editingBook = null"
+    @save-edited-dates="saveEditedDates"
+    @save-edited-toc="saveEditedToc"
+    @save-edited-genre="saveEditedGenre"
+    @save-edited-finished-date="saveEditedFinishedDate"
+    @mark-as-completed="markAsCompleted"
+    @delete-book="deleteBook"
+  />
+
+  <ConfirmModal
+    :is-open="modals.promoteMember"
+    variant="warning"
+    title="관리자 승격"
+    :message="`${pendingMemberAction?.nickname || ''}님을 관리자로 승격하시겠습니까?`"
+    confirm-text="승격"
+    cancel-text="취소"
+    @confirm="executePromoteMember"
+    @cancel="modals.promoteMember = false; pendingMemberAction = null"
+  />
+
+  <ConfirmModal
+    :is-open="modals.kickMember"
+    variant="danger"
+    title="멤버 강퇴"
+    :message="`정말로 ${pendingMemberAction?.nickname || ''}님을 강제 퇴장시키겠습니까?`"
+    description="이 작업은 되돌릴 수 없습니다."
+    confirm-text="강퇴"
+    cancel-text="취소"
+    @confirm="executeKickMember"
+    @cancel="modals.kickMember = false; pendingMemberAction = null"
+  />
+
+  <ConfirmModal
+    :is-open="modals.leaveGroup"
+    variant="warning"
+    title="그룹 나가기"
+    message="정말로 이 그룹에서 나가시겠습니까?"
+    description="그룹에서 탈퇴하면 지난 그룹 목록으로 이동합니다. 독서 기록은 서재에서 계속 볼 수 있으며, 다시 참여하면 이어서 활동할 수 있습니다."
+    confirm-text="나가기"
+    cancel-text="취소"
+    @confirm="executeLeaveGroup"
+    @cancel="modals.leaveGroup = false"
+  />
+
+  <ConfirmModal
+    :is-open="modals.deleteGroup"
+    variant="warning"
+    title="그룹 종료"
+    :message="members.length > 1
+      ? `이 그룹에는 ${members.length}명의 멤버가 있습니다.\n그룹을 종료하시겠습니까?`
+      : '그룹을 종료하시겠습니까?'"
+    description="그룹을 종료하면 모든 멤버가 더 이상 활동할 수 없습니다. 지금까지의 기록은 모두 유지됩니다."
+    confirm-text="종료하기"
+    cancel-text="취소"
+    @confirm="confirmDeleteGroup"
+    @cancel="modals.deleteGroup = false"
+  />
+
+  <TextInputModal
+    :is-open="modals.deleteGroupConfirm"
+    title="그룹 종료 확인"
+    message="정말로 종료하려면 아래 그룹 이름을 정확히 입력하세요."
+    :expected-text="group?.name || ''"
+    placeholder="그룹 이름 입력"
+    confirm-text="종료하기"
+    cancel-text="취소"
+    @confirm="executeDeleteGroup"
+    @cancel="modals.deleteGroupConfirm = false"
+  />
+
+  <TextDisplayModal
+    :is-open="modals.clipboardFallback"
+    :title="clipboardFallbackData.title"
+    :message="clipboardFallbackData.message"
+    :text="clipboardFallbackData.text"
+    @close="modals.clipboardFallback = false"
+  />
+
+  <ConfirmModal
+    :is-open="modals.regenerateInviteCode"
+    variant="warning"
+    title="초대 코드 재생성"
+    message="정말 초대 코드를 재생성하시겠습니까?"
+    description="기존 초대 링크는 더 이상 사용할 수 없게 되며, 이 작업은 되돌릴 수 없습니다."
+    confirm-text="재생성"
+    cancel-text="취소"
+    @confirm="executeRegenerateInviteCode"
+    @cancel="cancelRegenerateInviteCode"
+  />
+
+  <ConfirmModal
+    :is-open="modals.deleteHistoryBook"
+    variant="danger"
+    title="책 삭제"
+    :message="`'${pendingBookToDelete?.title || '이 책'}'을(를) 정말 삭제하시겠습니까?`"
+    description="모든 댓글과 리뷰가 함께 삭제됩니다."
+    confirm-text="삭제"
+    cancel-text="취소"
+    @confirm="confirmDeleteHistoryBook"
+    @cancel="modals.deleteHistoryBook = false; pendingBookToDelete = null"
+  />
+
+  <UpgradePromptModal
+    :isOpen="modals.upgradeBook"
+    feature="books"
+    @close="modals.upgradeBook = false"
+  />
+
+  <UpgradePromptModal
+    :isOpen="modals.upgradeReadOnly"
+    feature="general"
+    @close="modals.upgradeReadOnly = false"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from 'vue'
+import { ref, provide, defineAsyncComponent } from 'vue'
 import NavigationBar from '~/components/group/NavigationBar.vue'
 import BookHeroSection from '~/components/group/BookHeroSection.vue'
 import Timeline from '~/components/Timeline.vue'
@@ -446,6 +446,10 @@ import ConfirmModal from '~/components/ConfirmModal.vue'
 import TextDisplayModal from '~/components/TextDisplayModal.vue'
 import TextInputModal from '~/components/TextInputModal.vue'
 import { AlertCircle, Lock, Archive, Pause, User, Plus, Menu } from 'lucide-vue-next'
+import { GroupPageKey } from '~/types'
+
+const DesktopGroupView = defineAsyncComponent(() => import('~/components/desktop/group/DesktopGroupView.vue'))
+const { isDesktop } = useDevice()
 
 // Phase 4: Lazy-loaded modals
 const BookSearchModal = defineAsyncComponent(() => import('~/components/BookSearchModal.vue'))
@@ -460,6 +464,9 @@ definePageMeta({
 
 const route = useRoute()
 const groupIdRef = ref(route.params.id as string)
+
+const groupPageCtx = useGroupPage({ mode: 'social', groupIdRef })
+provide(GroupPageKey, groupPageCtx)
 
 const {
   router,
@@ -561,7 +568,7 @@ const {
   jumpToChapter,
   selectBook,
   fetchComments
-} = useGroupPage({ mode: 'social', groupIdRef })
+} = groupPageCtx
 </script>
 
 <style>

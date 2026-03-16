@@ -304,14 +304,6 @@ const fetchStats = async () => {
           official_genre,
           draft_genre
         )
-...
-            author: book.books?.author || '저자 미상',
-            cover: book.books?.cover_url,
-            publisher: book.books?.publisher,
-            total_pages: book.books?.total_pages,
-            genre: book.books?.official_genre || book.books?.draft_genre,
-            finishedAt: book.finished_at,
-
       `)
       .eq('group_id', props.groupId)
       .eq('status', 'done')
