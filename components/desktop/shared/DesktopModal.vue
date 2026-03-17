@@ -8,22 +8,22 @@
     >
       <div v-if="isOpen" class="fixed inset-0 z-[9999] flex items-center justify-center" @click.self="$emit('close')">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="$emit('close')"></div>
+        <div class="absolute inset-0 bg-black/25 backdrop-blur-md" @click="$emit('close')"></div>
 
         <!-- Modal Content -->
         <div
-          class="relative bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg border border-zinc-200 dark:border-zinc-800 overflow-hidden"
+          class="relative bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden"
           :class="sizeClass"
           @click.stop
         >
           <!-- Header -->
-          <div v-if="title" class="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
+          <div v-if="title" class="flex items-center justify-between px-6 py-4 border-b border-zinc-100/80 dark:border-zinc-800/60">
             <h2 class="text-desktop-headline text-zinc-900 dark:text-white">{{ title }}</h2>
             <button
               @click="$emit('close')"
-              class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+              class="w-7 h-7 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
-              <X :size="16" />
+              <X :size="15" />
             </button>
           </div>
 
@@ -33,7 +33,7 @@
           </div>
 
           <!-- Footer -->
-          <div v-if="$slots.footer" class="px-6 py-4 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50">
+          <div v-if="$slots.footer" class="px-6 py-4 border-t border-zinc-100/60 dark:border-zinc-800/40 bg-zinc-50/30 dark:bg-zinc-950/30">
             <slot name="footer" />
           </div>
         </div>

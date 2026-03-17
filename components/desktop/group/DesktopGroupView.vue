@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-[100dvh]">
     <!-- Left: Book List -->
-    <div class="w-56 border-r border-zinc-200 dark:border-zinc-800 flex-shrink-0">
+    <div class="w-56 border-r border-zinc-100 dark:border-zinc-800/60 flex-shrink-0">
       <DesktopBookListSidebar
         :reading-books="visibleReadingBooks"
         :history-books="visibleHistoryBooks"
@@ -37,15 +37,15 @@
       <template v-else>
         <!-- Banners -->
         <div v-if="isReadOnlyMode" class="px-8 pt-4">
-          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 flex items-center gap-3">
-            <Lock :size="18" class="text-blue-500 flex-shrink-0" />
+          <div class="bg-zinc-50 dark:bg-zinc-800/40 rounded-xl p-4 flex items-center gap-3 ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
+            <Lock :size="18" class="text-zinc-400 flex-shrink-0" />
             <div class="flex-1">
-              <p class="text-desktop-callout text-blue-600 dark:text-blue-400">읽기 전용 모드</p>
-              <p class="text-desktop-caption text-blue-500/80">프리미엄으로 업그레이드하면 참여할 수 있어요.</p>
+              <p class="text-desktop-callout text-zinc-700 dark:text-zinc-300 font-medium">읽기 전용 모드</p>
+              <p class="text-desktop-caption text-zinc-500">프리미엄으로 업그레이드하면 참여할 수 있어요.</p>
             </div>
             <button
               @click="modals.upgradeReadOnly = true"
-              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-colors text-desktop-caption flex-shrink-0"
+              class="px-4 py-2 bg-zinc-900 dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-zinc-900 font-semibold rounded-full transition-colors duration-200 ease-apple text-desktop-caption flex-shrink-0"
             >
               프리미엄으로 참여하기
             </button>
@@ -53,16 +53,16 @@
         </div>
 
         <div v-if="isPausedGroup && !isArchived" class="px-8 pt-4">
-          <div class="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 flex items-center gap-3">
-            <Lock :size="18" class="text-amber-500 flex-shrink-0" />
+          <div class="bg-zinc-50 dark:bg-zinc-800/40 rounded-xl p-4 flex items-center gap-3 ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
+            <Lock :size="18" class="text-zinc-400 flex-shrink-0" />
             <div class="flex-1">
-              <p class="text-desktop-callout text-amber-600 dark:text-amber-400">일시정지된 그룹</p>
-              <p class="text-desktop-caption text-amber-500/80">구독이 만료되어 그룹이 일시정지 상태입니다.</p>
+              <p class="text-desktop-callout text-zinc-700 dark:text-zinc-300 font-medium">일시정지된 그룹</p>
+              <p class="text-desktop-caption text-zinc-500">구독이 만료되어 그룹이 일시정지 상태입니다.</p>
             </div>
             <button
               v-if="isPremium"
               @click="handleBecomeOwner"
-              class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl transition-colors text-desktop-caption flex-shrink-0"
+              class="px-4 py-2 bg-zinc-900 dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-zinc-900 font-semibold rounded-full transition-colors duration-200 ease-apple text-desktop-caption flex-shrink-0"
             >
               방장 되기
             </button>
@@ -70,15 +70,15 @@
         </div>
 
         <!-- Hero -->
-        <div v-if="selectedBook" class="px-8 pt-8 pb-4">
+        <div v-if="selectedBook" class="px-8 pt-10 pb-6">
           <div class="flex items-start gap-6">
             <div class="w-24 h-34 rounded-xl overflow-hidden shadow-apple flex-shrink-0">
               <img v-if="bookCover" :src="bookCover" class="w-full h-full object-cover" />
             </div>
-            <div>
+            <div class="pt-1">
               <p class="text-desktop-caption text-zinc-400 mb-1">{{ groupName }}</p>
-              <h1 class="text-desktop-title text-zinc-900 dark:text-white mb-1">{{ bookTitle }}</h1>
-              <p class="text-desktop-body text-zinc-500 mb-2">{{ bookAuthor }}</p>
+              <h1 class="text-desktop-title text-zinc-900 dark:text-white mb-1.5">{{ bookTitle }}</h1>
+              <p class="text-desktop-body text-zinc-500 mb-3">{{ bookAuthor }}</p>
               <div class="flex items-center gap-3 text-desktop-caption text-zinc-400">
                 <span v-if="daysRemaining !== null">
                   {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
@@ -92,14 +92,13 @@
         <!-- Empty State -->
         <div v-else-if="!isLoading" class="flex flex-col items-center justify-center h-full">
           <div class="text-center">
-            <div class="w-20 h-20 mx-auto bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4 text-4xl">📚</div>
             <h2 class="text-desktop-headline text-zinc-900 dark:text-white mb-2">
               {{ isAdmin ? '함께 읽을 책을 정해주세요' : '읽을 책을 기다리고 있어요' }}
             </h2>
             <button
               v-if="isAdmin"
               @click="openSearchModal"
-              class="mt-4 px-5 py-2.5 bg-lime-400 text-black font-semibold rounded-xl hover:bg-lime-300 transition-colors text-desktop-callout"
+              class="mt-4 px-5 py-2.5 bg-lime-400 text-black font-semibold rounded-xl hover:bg-lime-300 transition-colors duration-200 ease-apple text-desktop-callout"
             >
               새 책 시작하기
             </button>
@@ -130,16 +129,15 @@
     <!-- Right: Members + Book Info -->
     <DesktopRightPanel v-if="!isLoading && !loadError">
       <!-- Tab Switcher -->
-      <div class="flex border-b border-zinc-200 dark:border-zinc-800 mb-4">
+      <div class="flex bg-zinc-100/80 dark:bg-zinc-800/80 rounded-full p-0.5 mb-5">
         <button
           v-for="tab in rightTabs"
           :key="tab.key"
           @click="activeRightTab = tab.key"
-          class="flex-1 py-2 text-desktop-caption font-semibold transition-colors relative text-center"
-          :class="activeRightTab === tab.key ? 'text-zinc-900 dark:text-white' : 'text-zinc-400'"
+          class="flex-1 py-1.5 text-desktop-caption font-semibold rounded-full transition-all duration-200 ease-apple text-center"
+          :class="activeRightTab === tab.key ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm' : 'text-zinc-500 hover:text-zinc-700'"
         >
           {{ tab.label }}
-          <div v-if="activeRightTab === tab.key" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
         </button>
       </div>
 

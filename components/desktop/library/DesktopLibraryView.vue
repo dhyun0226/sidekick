@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-[100dvh]">
     <!-- Left: Book List Sidebar -->
-    <div class="w-56 border-r border-zinc-200 dark:border-zinc-800 flex-shrink-0">
+    <div class="w-56 border-r border-zinc-100 dark:border-zinc-800/60 flex-shrink-0">
       <DesktopBookListSidebar
         :reading-books="readingBooks"
         :history-books="historyBooks"
@@ -18,14 +18,14 @@
     <!-- Center: Timeline + Inline Input -->
     <div class="flex-1 overflow-y-auto">
       <!-- Hero -->
-      <div v-if="selectedBook" class="px-8 pt-8 pb-4">
+      <div v-if="selectedBook" class="px-8 pt-10 pb-6">
         <div class="flex items-start gap-6">
           <div class="w-24 h-[136px] rounded-xl overflow-hidden shadow-apple flex-shrink-0">
             <img v-if="bookCover" :src="bookCover" class="w-full h-full object-cover" />
           </div>
-          <div>
-            <h1 class="text-desktop-title text-zinc-900 dark:text-white mb-1">{{ bookTitle }}</h1>
-            <p class="text-desktop-body text-zinc-500 mb-2">{{ bookAuthor }}</p>
+          <div class="pt-1">
+            <h1 class="text-desktop-title text-zinc-900 dark:text-white mb-1.5">{{ bookTitle }}</h1>
+            <p class="text-desktop-body text-zinc-500 mb-3">{{ bookAuthor }}</p>
             <div class="flex items-center gap-3 text-desktop-caption text-zinc-400">
               <span v-if="daysRemaining !== null">
                 {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
@@ -40,12 +40,11 @@
       <!-- Empty State -->
       <div v-else-if="!isLoading" class="flex flex-col items-center justify-center h-full">
         <div class="text-center">
-          <div class="w-20 h-20 mx-auto bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4 text-4xl">📚</div>
           <h2 class="text-desktop-headline text-zinc-900 dark:text-white mb-2">읽을 책을 추가해주세요</h2>
-          <p class="text-desktop-body text-zinc-500 mb-6">독서 여정을 시작하세요!</p>
+          <p class="text-desktop-body text-zinc-500 mb-6">독서 여정을 시작하세요</p>
           <button
             @click="openSearchModal"
-            class="px-5 py-2.5 bg-lime-400 text-black font-semibold rounded-xl hover:bg-lime-300 transition-colors text-desktop-callout"
+            class="px-5 py-2.5 bg-lime-400 text-black font-semibold rounded-xl hover:bg-lime-300 transition-colors duration-200 ease-apple text-desktop-callout"
           >
             새 책 추가하기
           </button>

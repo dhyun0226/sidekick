@@ -1,21 +1,21 @@
 <template>
-  <div class="apple-card p-6">
-    <h3 class="text-desktop-headline text-zinc-900 dark:text-white mb-6">알림 설정</h3>
+  <div class="pt-6 border-t border-zinc-200/80 dark:border-zinc-800">
+    <h3 class="text-desktop-caption text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-5">알림 설정</h3>
 
-    <div class="space-y-4">
+    <div class="space-y-5">
       <div v-for="item in notificationItems" :key="item.key" class="flex items-center justify-between">
         <div>
           <p class="text-desktop-body text-zinc-900 dark:text-white">{{ item.label }}</p>
-          <p class="text-desktop-caption text-zinc-500 dark:text-zinc-400">{{ item.description }}</p>
+          <p class="text-desktop-caption text-zinc-400 dark:text-zinc-500 mt-0.5">{{ item.description }}</p>
         </div>
         <button
           @click="$emit('toggle', item.key)"
-          class="relative w-12 h-7 rounded-full transition-colors"
-          :class="settings[item.key] ? 'bg-lime-400' : 'bg-zinc-300'"
+          class="relative w-11 h-[24px] rounded-full transition-colors ease-apple duration-200"
+          :class="settings[item.key] ? 'bg-zinc-900 dark:bg-white' : 'bg-zinc-200 dark:bg-zinc-700'"
         >
           <div
-            class="absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform"
-            :class="settings[item.key] ? 'translate-x-5' : 'translate-x-0.5'"
+            class="absolute top-[3px] w-[18px] h-[18px] bg-white dark:bg-zinc-900 rounded-full shadow-sm transition-transform ease-apple duration-200"
+            :class="settings[item.key] ? 'translate-x-[22px]' : 'translate-x-[3px]'"
           ></div>
         </button>
       </div>

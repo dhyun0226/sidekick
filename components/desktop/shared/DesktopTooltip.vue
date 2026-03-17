@@ -2,7 +2,7 @@
   <div class="relative inline-block group">
     <slot />
     <div
-      class="absolute z-50 px-2 py-1 text-xs font-medium text-white bg-zinc-900 dark:bg-white dark:text-black rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none whitespace-nowrap"
+      class="absolute z-50 px-2 py-1 text-[11px] font-medium text-white bg-zinc-900 dark:bg-white dark:text-black rounded-md shadow-apple-sm opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none whitespace-nowrap"
       :class="positionClass"
     >
       {{ text }}

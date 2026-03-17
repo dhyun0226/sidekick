@@ -4,16 +4,16 @@
     <DesktopDiscoverHero />
 
     <!-- Filters -->
-    <div class="flex items-center gap-4 mb-8">
+    <div class="flex items-center gap-4 mb-10">
       <!-- Period -->
-      <div class="flex bg-zinc-100 dark:bg-zinc-800 rounded-lg p-0.5">
+      <div class="flex bg-zinc-100/80 dark:bg-zinc-800/80 rounded-full p-0.5">
         <button
           v-for="period in periods"
           :key="period.value"
           @click="selectedPeriod = period.value"
-          class="px-3 py-1.5 text-desktop-caption font-semibold rounded-md transition-all"
+          class="px-3.5 py-1.5 text-desktop-caption font-semibold rounded-full transition-all duration-200 ease-apple"
           :class="selectedPeriod === period.value
-            ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+            ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm'
             : 'text-zinc-500 hover:text-zinc-700'"
         >
           {{ period.label }}
@@ -24,7 +24,7 @@
       <div ref="genreDropdownRef" class="relative">
         <button
           @click="genreDropdownOpen = !genreDropdownOpen"
-          class="flex items-center gap-2 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-desktop-caption font-semibold transition-all hover:bg-zinc-200 dark:hover:bg-zinc-700"
+          class="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-desktop-caption font-semibold transition-all duration-200 ease-apple ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:ring-black/[0.08] dark:hover:ring-white/[0.1]"
           :class="selectedGenre ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
         >
           {{ selectedGenre || '전체 장르' }}
@@ -32,11 +32,11 @@
         </button>
         <div
           v-if="genreDropdownOpen"
-          class="absolute top-full left-0 mt-1 w-48 max-h-64 overflow-y-auto bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-apple-lg z-50"
+          class="absolute top-full left-0 mt-1.5 w-48 max-h-64 overflow-y-auto bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-xl shadow-apple-lg z-50 py-1"
         >
           <button
             @click="selectedGenre = null; genreDropdownOpen = false"
-            class="w-full text-left px-3 py-2 text-desktop-caption hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            class="w-full text-left px-3.5 py-2 text-desktop-caption transition-colors duration-200 ease-apple hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50"
             :class="!selectedGenre ? 'text-lime-600 font-semibold' : 'text-zinc-600 dark:text-zinc-400'"
           >
             전체 장르
@@ -45,7 +45,7 @@
             v-for="genre in genres"
             :key="genre"
             @click="selectedGenre = genre; genreDropdownOpen = false"
-            class="w-full text-left px-3 py-2 text-desktop-caption hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            class="w-full text-left px-3.5 py-2 text-desktop-caption transition-colors duration-200 ease-apple hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50"
             :class="selectedGenre === genre ? 'text-lime-600 font-semibold' : 'text-zinc-600 dark:text-zinc-400'"
           >
             {{ genre }}
@@ -55,7 +55,7 @@
     </div>
 
     <!-- Sections -->
-    <div class="space-y-10">
+    <div class="space-y-12">
       <DesktopBookGrid
         title="HOT 도서" icon="🔥" type="hot"
         :books="hotBooks" :loading="loading"
