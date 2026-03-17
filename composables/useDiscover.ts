@@ -106,7 +106,7 @@ export const useDiscover = () => {
       // 카운트 기준 정렬
       const sorted = Array.from(bookMap.values())
         .sort((a, b) => b.count - a.count)
-        .slice(0, 20)
+        .slice(0, 10)
 
       hotBooks.value = sorted.map(item => ({
         isbn: item.book.isbn,
@@ -178,7 +178,7 @@ export const useDiscover = () => {
       // 카운트 기준 정렬
       const sorted = Array.from(bookMap.values())
         .sort((a, b) => b.count - a.count)
-        .slice(0, 20)
+        .slice(0, 10)
 
       wishBooks.value = sorted.map(item => ({
         isbn: item.book.isbn,
@@ -261,7 +261,7 @@ export const useDiscover = () => {
           avgRating: item.ratings.reduce((a, b) => a + b, 0) / item.ratings.length
         }))
         .sort((a, b) => b.avgRating - a.avgRating)
-        .slice(0, 20)
+        .slice(0, 10)
 
       topRatedBooks.value = sorted.map(item => ({
         isbn: item.book.isbn,
@@ -348,7 +348,7 @@ export const useDiscover = () => {
           completionRate: (item.finished / item.total) * 100
         }))
         .sort((a, b) => b.completionRate - a.completionRate)
-        .slice(0, 20)
+        .slice(0, 10)
 
       completionBooks.value = sorted.map(item => ({
         isbn: item.book.isbn,
