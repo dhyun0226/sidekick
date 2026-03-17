@@ -35,7 +35,7 @@
                   : 'text-zinc-400'"
               >p</button>
             </div>
-            <span class="text-[10px] text-zinc-300 dark:text-zinc-600 tracking-wide font-medium">에서 기록</span>
+            <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-medium">에서 기록</span>
           </div>
           <button
             @click="$emit('open-batch')"

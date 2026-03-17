@@ -5,7 +5,7 @@
       <h1 class="text-[28px] font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight mb-2.5">
         {{ greeting.text }}
       </h1>
-      <p class="text-[15px] text-zinc-400 dark:text-zinc-500 font-light tracking-wide">{{ greeting.sub }}</p>
+      <p class="text-[15px] text-zinc-400 dark:text-zinc-500 font-light">{{ greeting.sub }}</p>
     </div>
 
     <!-- Loading -->

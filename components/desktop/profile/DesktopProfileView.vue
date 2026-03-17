@@ -10,7 +10,7 @@
       </div>
       <div>
         <h1 class="text-[24px] font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight">{{ profile?.nickname }}</h1>
-        <p class="text-[14px] text-zinc-400 dark:text-zinc-500 mt-1.5 font-light">{{ profile?.email }}</p>
+        <p class="text-[13px] text-zinc-400 dark:text-zinc-500 mt-1.5 font-light">{{ profile?.email }}</p>
       </div>
     </div>
 
@@ -23,7 +23,7 @@
         v-for="tab in tabs"
         :key="tab.key"
         @click="$emit('tab-change', tab.key)"
-        class="px-5 py-3 text-[13px] font-medium tracking-wide transition-all duration-200 relative"
+        class="px-5 py-3 text-[13px] font-medium transition-all duration-200 relative"
         :class="activeTab === tab.key ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'"
       >
         {{ tab.label }}

@@ -9,7 +9,7 @@
       <div v-if="isOpen" class="fixed inset-0 z-[99999] flex items-start justify-center pt-[18vh]" @click.self="close">
         <div class="absolute inset-0 bg-black/25 backdrop-blur-md" @click="close"></div>
 
-        <div class="relative w-[600px] bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 overflow-hidden ring-1 ring-black/[0.04] dark:ring-white/[0.06]" @click.stop>
+        <div class="relative w-[600px] bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg overflow-hidden ring-1 ring-black/[0.04] dark:ring-white/[0.06]" @click.stop>
           <!-- Search Input -->
           <div class="flex items-center gap-3.5 px-6 py-5">
             <Search :size="18" class="text-zinc-300 dark:text-zinc-600" :stroke-width="1.75" />

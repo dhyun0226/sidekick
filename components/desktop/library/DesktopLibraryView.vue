@@ -44,7 +44,7 @@
           <p class="text-[14px] text-zinc-500 mb-6 font-light">독서 여정을 시작하세요</p>
           <button
             @click="openSearchModal"
-            class="px-5 py-2.5 bg-lime-400 text-black font-semibold rounded-xl hover:bg-lime-300 transition-colors duration-200 ease-apple text-desktop-callout"
+            class="px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors duration-200 ease-apple text-desktop-callout"
           >
             새 책 추가하기
           </button>

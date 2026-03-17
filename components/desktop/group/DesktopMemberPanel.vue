@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-5">
     <div class="flex items-center justify-between">
-      <h4 class="text-desktop-caption text-zinc-400 dark:text-zinc-500 tracking-wide">멤버 {{ members.length }}</h4>
+      <h4 class="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest font-medium">멤버 {{ members.length }}</h4>
       <!-- Leader badge -->
       <span v-if="leader" class="text-[10px] text-zinc-400 dark:text-zinc-500">
         {{ leader.nickname }} 선두

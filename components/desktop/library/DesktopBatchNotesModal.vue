@@ -19,7 +19,7 @@
           <div class="flex items-center justify-between px-8 py-5 shrink-0">
             <div>
               <h2 class="text-[18px] font-semibold tracking-tight text-zinc-900 dark:text-white">일괄 입력</h2>
-              <p class="text-[12px] text-zinc-400 mt-1 font-light tracking-wide">여러 메모를 한번에 작성하세요</p>
+              <p class="text-[12px] text-zinc-400 mt-1 font-light">여러 메모를 한번에 작성하세요</p>
             </div>
             <div class="flex items-center gap-4">
               <!-- Mode Toggle -->

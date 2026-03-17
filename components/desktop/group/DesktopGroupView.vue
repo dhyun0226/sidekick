@@ -29,7 +29,7 @@
         </div>
         <h2 class="text-[18px] font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">문제가 발생했습니다</h2>
         <p class="text-[14px] text-zinc-500 mb-4 font-light">{{ loadError }}</p>
-        <button @click="fetchData" class="px-4 py-2 bg-lime-400 text-black font-semibold rounded-xl hover:bg-lime-300 text-desktop-callout">
+        <button @click="fetchData" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors duration-200 ease-apple text-desktop-callout">
           다시 시도
         </button>
       </div>
@@ -98,7 +98,7 @@
             <button
               v-if="isAdmin"
               @click="openSearchModal"
-              class="mt-4 px-5 py-2.5 bg-lime-400 text-black font-semibold rounded-xl hover:bg-lime-300 transition-colors duration-200 ease-apple text-desktop-callout"
+              class="mt-4 px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors duration-200 ease-apple text-desktop-callout"
             >
               새 책 시작하기
             </button>
