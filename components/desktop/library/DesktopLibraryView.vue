@@ -206,6 +206,7 @@ const handleModeChange = async (mode: 'percent' | 'page') => {
 const handleProgressChange = (pct: number) => {
   viewProgress.value = pct
   handleSliderChange(pct)
+  toast.success(`진행률 ${Math.round(pct)}% 저장`)
 }
 
 const handleInlineSubmit = (data: { content: string; anchorText: string; positionPct: number }) => {
@@ -258,9 +259,25 @@ const handleEditComment = async (comment: any) => {
 
 const handleDeleteComment = async (comment: any) => {
   try {
+    // Soft delete: keep content for undo
+    const savedContent = comment.content
+    const savedAnchor = comment.anchor_text
     await client.from('comments').delete().eq('id', comment.id)
     if (selectedBookId.value) fetchComments(selectedBookId.value)
-    toast.success('삭제되었습니다')
+    toast.success('삭제되었습니다', async () => {
+      // Undo: re-insert the comment
+      try {
+        await client.from('comments').insert({
+          content: savedContent,
+          anchor_text: savedAnchor,
+          position_pct: comment.position_pct,
+          user_id: comment.user_id,
+          group_book_id: comment.group_book_id
+        })
+        if (selectedBookId.value) fetchComments(selectedBookId.value)
+        toast.success('복원되었습니다')
+      } catch { toast.error('복원에 실패했습니다') }
+    })
   } catch (e) { toast.error('삭제에 실패했습니다') }
 }
 

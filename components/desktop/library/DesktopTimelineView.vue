@@ -232,12 +232,20 @@ const submitComment = () => {
   newComment.value = ''
   anchorText.value = ''
 
+  // 제출 후 현재 진행률로 위치 리셋
+  const currentPct = Math.round(props.viewProgress)
+  if (positionMode.value === 'page' && props.totalPages) {
+    commentPosition.value = Math.max(1, Math.round((Math.max(pct, currentPct) / 100) * props.totalPages))
+  } else {
+    commentPosition.value = Math.max(pct, currentPct)
+  }
+
   // 저장 피드백
   showSaved.value = true
   setTimeout(() => { showSaved.value = false }, 2000)
 
-  // 다음 입력을 위해 위치 입력으로 포커스
-  nextTick(() => positionInputRef.value?.focus())
+  // 다음 입력을 위해 내용 입력으로 포커스
+  nextTick(() => contentInputRef.value?.focus())
 }
 
 defineExpose({ anchorText })

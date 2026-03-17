@@ -6,9 +6,9 @@
       enter-from-class="opacity-0"
       leave-to-class="opacity-0"
     >
-      <div v-if="isOpen" class="fixed inset-0 z-[9999] flex items-center justify-center" @click.self="$emit('close')">
+      <div v-if="isOpen" class="fixed inset-0 z-[9999] flex items-center justify-center" @click.self="tryClose">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/25 backdrop-blur-md" @click="$emit('close')"></div>
+        <div class="absolute inset-0 bg-black/25 backdrop-blur-md" @click="tryClose"></div>
 
         <!-- Modal - Full size -->
         <div
@@ -41,7 +41,7 @@
               </div>
               <!-- Close -->
               <button
-                @click="$emit('close')"
+                @click="tryClose"
                 class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
               >
                 <X :size="15" />
@@ -50,7 +50,7 @@
           </div>
 
           <!-- Spreadsheet -->
-          <div class="flex-1 overflow-y-auto px-8">
+          <div v-if="!saveCompleted" class="flex-1 overflow-y-auto px-8">
             <table class="w-full">
               <thead class="sticky top-0 bg-white dark:bg-zinc-900 z-10">
                 <tr class="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">
@@ -127,8 +127,21 @@
             </button>
           </div>
 
+          <!-- Save Completed Screen -->
+          <div v-if="saveCompleted" class="flex-1 flex items-center justify-center">
+            <div class="text-center">
+              <div class="w-14 h-14 mx-auto mb-5 rounded-full bg-lime-50 dark:bg-lime-900/20 flex items-center justify-center">
+                <Check :size="24" class="text-lime-500" />
+              </div>
+              <h3 class="text-[18px] font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">
+                {{ totalToSave }}개 노트 저장 완료
+              </h3>
+              <p class="text-[13px] text-zinc-400 font-light">타임라인에서 확인할 수 있어요</p>
+            </div>
+          </div>
+
           <!-- Saving Progress -->
-          <div v-if="saving" class="px-8 py-3 shrink-0">
+          <div v-if="saving && !saveCompleted" class="px-8 py-3 shrink-0">
             <div class="flex items-center gap-3">
               <div class="flex-1 h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                 <div class="h-full bg-lime-400 rounded-full transition-all duration-300 ease-apple" :style="{ width: `${saveProgress}%` }"></div>
@@ -140,16 +153,25 @@
           <!-- Footer -->
           <div class="flex items-center justify-between px-8 py-4 shrink-0 border-t border-zinc-100 dark:border-zinc-800/60">
             <span class="text-desktop-caption text-zinc-400">
-              {{ validRowCount }}개 노트 작성됨
+              {{ saveCompleted ? '모든 노트가 저장되었습니다' : `${validRowCount}개 노트 작성됨` }}
             </span>
             <div class="flex items-center gap-3">
               <button
-                @click="$emit('close')"
+                v-if="!saveCompleted"
+                @click="tryClose"
                 class="px-4 py-2 text-desktop-callout text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
               >
                 취소
               </button>
               <button
+                v-if="saveCompleted"
+                @click="emit('close')"
+                class="px-6 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-200 text-desktop-callout"
+              >
+                닫기
+              </button>
+              <button
+                v-else
                 @click="handleSave"
                 :disabled="validRowCount === 0 || saving"
                 class="px-6 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-200 text-desktop-callout disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2"
@@ -161,6 +183,36 @@
             </div>
           </div>
         </div>
+
+        <!-- Unsaved Changes Confirm -->
+        <Transition
+          enter-active-class="transition-opacity duration-150"
+          leave-active-class="transition-opacity duration-100"
+          enter-from-class="opacity-0"
+          leave-to-class="opacity-0"
+        >
+          <div v-if="showDiscardConfirm" class="absolute inset-0 z-10 flex items-center justify-center">
+            <div class="absolute inset-0 bg-black/20" @click="showDiscardConfirm = false"></div>
+            <div class="relative bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-6 w-[340px] text-center" @click.stop>
+              <h3 class="text-[15px] font-semibold text-zinc-900 dark:text-white mb-1.5">작성 중인 내용이 있어요</h3>
+              <p class="text-[13px] text-zinc-400 font-light mb-5">닫으면 작성한 내용이 사라집니다.</p>
+              <div class="flex gap-2.5">
+                <button
+                  @click="showDiscardConfirm = false"
+                  class="flex-1 px-4 py-2.5 text-[13px] font-medium text-zinc-600 dark:text-zinc-400 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  계속 작성
+                </button>
+                <button
+                  @click="showDiscardConfirm = false; emit('close')"
+                  class="flex-1 px-4 py-2.5 text-[13px] font-medium text-red-500 bg-red-50 dark:bg-red-900/20 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                >
+                  닫기
+                </button>
+              </div>
+            </div>
+          </div>
+        </Transition>
       </div>
     </Transition>
   </Teleport>
@@ -168,7 +220,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
-import { Plus, Minus, X } from 'lucide-vue-next'
+import { Plus, Minus, X, Check } from 'lucide-vue-next'
 
 interface BatchRow {
   position: number | null
@@ -191,6 +243,8 @@ const inputMode = ref<'percent' | 'page'>(props.preferredMode || 'percent')
 const saving = ref(false)
 const savedCount = ref(0)
 const totalToSave = ref(0)
+const saveCompleted = ref(false)
+const showDiscardConfirm = ref(false)
 
 const rows = ref<BatchRow[]>([
   { position: null, anchor: '', content: '' },
@@ -211,9 +265,21 @@ const validRows = computed(() =>
 
 const validRowCount = computed(() => validRows.value.length)
 
+const isDirty = computed(() =>
+  rows.value.some(r => r.content.trim() || r.anchor.trim() || r.position !== null)
+)
+
 const saveProgress = computed(() =>
   totalToSave.value > 0 ? (savedCount.value / totalToSave.value) * 100 : 0
 )
+
+const tryClose = () => {
+  if (isDirty.value && !saving.value && !saveCompleted.value) {
+    showDiscardConfirm.value = true
+  } else {
+    emit('close')
+  }
+}
 
 const addRow = () => {
   rows.value.push({ position: null, anchor: '', content: '' })
@@ -319,6 +385,7 @@ const incrementSaved = () => {
 
 const finishSave = () => {
   saving.value = false
+  saveCompleted.value = true
 }
 
 // Reset state when modal closes
@@ -331,13 +398,15 @@ const resetState = () => {
   saving.value = false
   savedCount.value = 0
   totalToSave.value = 0
+  saveCompleted.value = false
+  showDiscardConfirm.value = false
 }
 
 // Global keyboard shortcut
 const handleGlobalKeydown = (e: KeyboardEvent) => {
   if (!props.isOpen) return
   if (e.key === 'Escape') {
-    emit('close')
+    tryClose()
   }
 }
 
