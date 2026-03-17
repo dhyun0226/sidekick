@@ -18,8 +18,8 @@
           <!-- Header -->
           <div class="flex items-center justify-between px-8 py-5 shrink-0">
             <div>
-              <h2 class="text-desktop-headline text-zinc-900 dark:text-white">일괄 입력</h2>
-              <p class="text-desktop-caption text-zinc-400 mt-0.5">여러 메모를 한번에 작성하세요</p>
+              <h2 class="text-[18px] font-semibold tracking-tight text-zinc-900 dark:text-white">일괄 입력</h2>
+              <p class="text-[12px] text-zinc-400 mt-1 font-light tracking-wide">여러 메모를 한번에 작성하세요</p>
             </div>
             <div class="flex items-center gap-4">
               <!-- Mode Toggle -->
@@ -53,7 +53,7 @@
           <div class="flex-1 overflow-y-auto px-8">
             <table class="w-full">
               <thead class="sticky top-0 bg-white dark:bg-zinc-900 z-10">
-                <tr class="text-[11px] font-medium text-zinc-400">
+                <tr class="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">
                   <th class="text-left pb-3 w-10">#</th>
                   <th class="text-left pb-3 w-28">{{ inputMode === 'page' ? '페이지' : '위치(%)' }}</th>
                   <th class="text-left pb-3 w-[35%]">인용 구절</th>
@@ -77,7 +77,7 @@
                       type="number"
                       v-model.number="row.position"
                       :placeholder="inputMode === 'page' ? 'p' : '%'"
-                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg text-desktop-body text-zinc-900 dark:text-white text-center transition-all focus:outline-none focus:bg-zinc-100 dark:focus:bg-zinc-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-zinc-300 dark:placeholder:text-zinc-600"
+                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg text-desktop-body text-zinc-900 dark:text-white text-center transition-all focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-100 dark:focus:bg-zinc-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-zinc-300 dark:placeholder:text-zinc-600"
                       @keydown="handleKeydown($event, idx, 'position')"
                     />
                   </td>
@@ -87,7 +87,7 @@
                       v-model="row.anchor"
                       placeholder="인상 깊은 구절..."
                       rows="1"
-                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg text-desktop-body italic text-zinc-600 dark:text-zinc-400 resize-none transition-all focus:outline-none focus:bg-zinc-100 dark:focus:bg-zinc-800 placeholder:text-zinc-300 dark:placeholder:text-zinc-600 placeholder:not-italic"
+                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg text-desktop-body italic text-zinc-600 dark:text-zinc-400 resize-none transition-all focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-100 dark:focus:bg-zinc-800 placeholder:text-zinc-300 dark:placeholder:text-zinc-600 placeholder:not-italic"
                       @keydown="handleKeydown($event, idx, 'anchor')"
                       @input="autoResize($event)"
                     ></textarea>
@@ -98,7 +98,7 @@
                       v-model="row.content"
                       placeholder="느낀 점을 적어보세요..."
                       rows="1"
-                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg text-desktop-body text-zinc-900 dark:text-white resize-none transition-all focus:outline-none focus:bg-zinc-100 dark:focus:bg-zinc-800 placeholder:text-zinc-300 dark:placeholder:text-zinc-600"
+                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg text-desktop-body text-zinc-900 dark:text-white resize-none transition-all focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-100 dark:focus:bg-zinc-800 placeholder:text-zinc-300 dark:placeholder:text-zinc-600"
                       @keydown="handleKeydown($event, idx, 'content')"
                       @input="autoResize($event)"
                     ></textarea>

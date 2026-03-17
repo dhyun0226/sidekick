@@ -1,6 +1,6 @@
 <template>
   <div class="pt-6 border-t border-zinc-200/80 dark:border-zinc-800">
-    <h3 class="text-desktop-caption text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-5">구독</h3>
+    <h3 class="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest font-medium mb-5">구독</h3>
 
     <div class="flex items-center justify-between mb-5">
       <div>

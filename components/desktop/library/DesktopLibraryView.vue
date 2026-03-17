@@ -24,8 +24,8 @@
             <img v-if="bookCover" :src="bookCover" class="w-full h-full object-cover" />
           </div>
           <div class="pt-1">
-            <h1 class="text-desktop-title text-zinc-900 dark:text-white mb-1.5">{{ bookTitle }}</h1>
-            <p class="text-desktop-body text-zinc-500 mb-3">{{ bookAuthor }}</p>
+            <h1 class="text-[22px] font-semibold tracking-tight text-zinc-900 dark:text-white mb-1.5 leading-tight">{{ bookTitle }}</h1>
+            <p class="text-[14px] text-zinc-500 mb-3 font-light">{{ bookAuthor }}</p>
             <div class="flex items-center gap-3 text-desktop-caption text-zinc-400">
               <span v-if="daysRemaining !== null">
                 {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
@@ -40,8 +40,8 @@
       <!-- Empty State -->
       <div v-else-if="!isLoading" class="flex flex-col items-center justify-center h-full">
         <div class="text-center">
-          <h2 class="text-desktop-headline text-zinc-900 dark:text-white mb-2">읽을 책을 추가해주세요</h2>
-          <p class="text-desktop-body text-zinc-500 mb-6">독서 여정을 시작하세요</p>
+          <h2 class="text-[18px] font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">읽을 책을 추가해주세요</h2>
+          <p class="text-[14px] text-zinc-500 mb-6 font-light">독서 여정을 시작하세요</p>
           <button
             @click="openSearchModal"
             class="px-5 py-2.5 bg-lime-400 text-black font-semibold rounded-xl hover:bg-lime-300 transition-colors duration-200 ease-apple text-desktop-callout"

@@ -53,7 +53,7 @@
           ref="editTextareaRef"
           v-model="editContent"
           rows="3"
-          class="w-full px-3 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-desktop-body text-zinc-800 dark:text-zinc-200 resize-none transition-all duration-200 ease-apple focus:border-zinc-400 focus:ring-0 mb-3"
+          class="w-full px-3 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-body text-zinc-800 dark:text-zinc-200 resize-none transition-all duration-200 ease-apple focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-100 dark:focus:bg-zinc-800 mb-3"
           @keydown.meta.enter="saveEdit"
           @keydown.ctrl.enter="saveEdit"
           @keydown.escape="cancelEdit"

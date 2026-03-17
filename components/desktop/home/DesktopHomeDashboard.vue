@@ -1,11 +1,11 @@
 <template>
   <div class="max-w-4xl mx-auto px-8 py-12">
     <!-- Header -->
-    <div class="mb-12">
-      <h1 class="text-desktop-title font-semibold text-zinc-900 dark:text-white mb-2">
+    <div class="mb-14">
+      <h1 class="text-[28px] font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight mb-2.5">
         {{ greeting.text }}
       </h1>
-      <p class="text-desktop-body text-zinc-400 dark:text-zinc-500">{{ greeting.sub }}</p>
+      <p class="text-[15px] text-zinc-400 dark:text-zinc-500 font-light tracking-wide">{{ greeting.sub }}</p>
     </div>
 
     <!-- Loading -->
@@ -16,7 +16,7 @@
     <template v-else>
       <!-- Current Reading (Solo) -->
       <section v-if="soloGroup" class="mb-10">
-        <h2 class="text-desktop-headline font-semibold text-zinc-900 dark:text-white mb-5">내 서재</h2>
+        <h2 class="text-[17px] font-semibold tracking-tight text-zinc-900 dark:text-white mb-5">내 서재</h2>
         <DesktopCurrentBookCard
           v-if="soloGroup.currentBook"
           :book="soloGroup.currentBook"
@@ -36,7 +36,7 @@
 
       <!-- Social Groups - Reading -->
       <section v-if="readingGroups.length > 0" class="mb-10">
-        <h2 class="text-desktop-headline font-semibold text-zinc-900 dark:text-white mb-5">함께 읽고 있어요</h2>
+        <h2 class="text-[17px] font-semibold tracking-tight text-zinc-900 dark:text-white mb-5">함께 읽고 있어요</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <DesktopGroupCard
             v-for="group in readingGroups"
@@ -49,7 +49,7 @@
 
       <!-- Social Groups - Idle -->
       <section v-if="idleGroups.length > 0" class="mb-10">
-        <h2 class="text-desktop-headline font-semibold text-zinc-900 dark:text-white mb-5">잠시 쉬고 있어요</h2>
+        <h2 class="text-[17px] font-semibold tracking-tight text-zinc-900 dark:text-white mb-5">잠시 쉬고 있어요</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <DesktopGroupCard
             v-for="group in idleGroups"
@@ -63,10 +63,10 @@
       <!-- Empty State -->
       <div v-if="!soloGroup && readingGroups.length === 0 && idleGroups.length === 0" class="text-center py-24">
         <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center">
-          <div class="w-6 h-6 rounded-full border-2 border-zinc-300 dark:border-zinc-600"></div>
+          <UsersIcon :size="24" class="text-zinc-300 dark:text-zinc-600" />
         </div>
-        <h3 class="text-desktop-headline font-semibold text-zinc-900 dark:text-white mb-2">공유 그룹에 참여해보세요</h3>
-        <p class="text-desktop-body text-zinc-400 dark:text-zinc-500 mb-8">새로운 모임을 만들거나 초대를 받아보세요.</p>
+        <h3 class="text-[17px] font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">공유 그룹에 참여해보세요</h3>
+        <p class="text-[14px] text-zinc-400 dark:text-zinc-500 font-light mb-8">새로운 모임을 만들거나 초대를 받아보세요.</p>
         <div class="flex gap-3 justify-center">
           <button
             @click="$emit('create-group')"
@@ -88,6 +88,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Users as UsersIcon } from 'lucide-vue-next'
 import { useUserStore } from '~/stores/user'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import DesktopCurrentBookCard from './DesktopCurrentBookCard.vue'

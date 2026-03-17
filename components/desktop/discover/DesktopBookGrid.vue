@@ -1,10 +1,10 @@
 <template>
   <div>
     <!-- Section Header -->
-    <div class="flex items-baseline gap-2.5 mb-5">
-      <span class="text-lg">{{ icon }}</span>
-      <h2 class="text-desktop-headline font-bold text-zinc-900 dark:text-white">{{ title }}</h2>
-      <div class="flex-1 h-px bg-zinc-100 dark:bg-zinc-800/60 ml-2"></div>
+    <div class="flex items-center gap-3 mb-6">
+      <component :is="iconComponent" :size="18" class="text-zinc-400 dark:text-zinc-500" />
+      <h2 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white">{{ title }}</h2>
+      <div class="flex-1 h-px bg-zinc-100 dark:bg-zinc-800/60 ml-1"></div>
     </div>
 
     <!-- Loading -->
@@ -18,7 +18,7 @@
 
     <!-- Empty -->
     <div v-else-if="books.length === 0" class="py-12 text-center">
-      <p class="text-desktop-body text-zinc-400">{{ emptyMessage }}</p>
+      <p class="text-[14px] text-zinc-400 font-light">{{ emptyMessage }}</p>
     </div>
 
     <!-- Book Grid: 5 per row, max 2 rows -->
@@ -47,8 +47,8 @@
               :alt="book.title"
               class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300 ease-out"
             />
-            <div v-else class="w-full h-full flex items-center justify-center text-2xl text-zinc-300 dark:text-zinc-600">
-              📖
+            <div v-else class="w-full h-full flex items-center justify-center">
+              <BookOpen :size="24" class="text-zinc-300 dark:text-zinc-600" />
             </div>
           </div>
         </div>
@@ -84,6 +84,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Flame, Heart, Star, CheckCircle, BookOpen } from 'lucide-vue-next'
 
 const props = defineProps<{
   title: string
@@ -93,6 +94,16 @@ const props = defineProps<{
   loading: boolean
   emptyMessage: string
 }>()
+
+const iconComponent = computed(() => {
+  switch (props.icon) {
+    case 'flame': return Flame
+    case 'heart': return Heart
+    case 'star': return Star
+    case 'check-circle': return CheckCircle
+    default: return Flame
+  }
+})
 
 defineEmits(['book-click'])
 

@@ -4,7 +4,9 @@
     <div v-if="book">
       <div class="relative mx-auto w-32 h-[184px] rounded-xl overflow-hidden shadow-apple-lg mb-5 group/cover">
         <img v-if="book.book?.cover_url" :src="book.book.cover_url" class="w-full h-full object-cover" />
-        <div v-else class="w-full h-full bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 flex items-center justify-center text-4xl">📚</div>
+        <div v-else class="w-full h-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+          <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-600" />
+        </div>
         <!-- Subtle progress overlay -->
         <div class="absolute bottom-0 left-0 right-0 h-1 bg-black/10">
           <div class="h-full bg-lime-400 transition-all duration-500" :style="{ width: `${viewProgress}%` }"></div>
@@ -20,7 +22,7 @@
     <!-- Progress -->
     <div v-if="book" class="px-1">
       <div class="flex items-center justify-between mb-3">
-        <h4 class="text-desktop-caption text-zinc-400 uppercase tracking-wider">진행률</h4>
+        <h4 class="text-[10px] text-zinc-400 uppercase tracking-widest font-medium">진행률</h4>
         <span class="text-desktop-callout font-semibold tabular-nums" :class="viewProgress >= 100 ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-900 dark:text-white'">
           {{ Math.round(viewProgress) }}%
         </span>
@@ -48,7 +50,7 @@
 
     <!-- Book Details -->
     <div v-if="book" class="px-1 space-y-2.5">
-      <h4 class="text-desktop-caption text-zinc-400 uppercase tracking-wider mb-1">정보</h4>
+      <h4 class="text-[10px] text-zinc-400 uppercase tracking-widest font-medium mb-1">정보</h4>
       <div v-if="book.total_pages" class="flex justify-between items-center">
         <span class="text-desktop-caption text-zinc-400 flex items-center gap-1.5">
           <BookOpen :size="12" />
@@ -85,7 +87,7 @@
 
     <!-- TOC -->
     <div v-if="toc && toc.length > 0" class="px-1">
-      <h4 class="text-desktop-caption text-zinc-400 uppercase tracking-wider mb-3">목차</h4>
+      <h4 class="text-[10px] text-zinc-400 uppercase tracking-widest font-medium mb-3">목차</h4>
       <div class="space-y-0.5 max-h-64 overflow-y-auto">
         <button
           v-for="(chapter, idx) in toc"

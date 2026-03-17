@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-2xl mx-auto px-8 py-12">
-    <h1 class="text-desktop-title font-semibold text-zinc-900 dark:text-white mb-10">설정</h1>
+    <h1 class="text-[28px] font-semibold tracking-tight text-zinc-900 dark:text-white mb-10 leading-tight">설정</h1>
 
     <div class="space-y-8">
       <DesktopSettingsProfile
@@ -30,7 +30,7 @@
 
       <!-- Account -->
       <div class="pt-6 border-t border-zinc-100 dark:border-zinc-800/50">
-        <h3 class="text-desktop-caption text-zinc-400 dark:text-zinc-500 tracking-wide mb-4">계정</h3>
+        <h3 class="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest font-medium mb-4">계정</h3>
         <div class="space-y-1">
           <button
             @click="$emit('sign-out')"

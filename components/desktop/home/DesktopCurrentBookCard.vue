@@ -8,7 +8,7 @@
       <div class="w-24 aspect-[2/3] flex-shrink-0 rounded-xl overflow-hidden shadow-apple-lg">
         <img v-if="book.cover_url" :src="book.cover_url" class="w-full h-full object-cover" />
         <div v-else class="w-full h-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-          <div class="w-8 h-10 border-2 border-zinc-300 dark:border-zinc-600 rounded-sm"></div>
+          <BookOpen :size="20" class="text-zinc-300 dark:text-zinc-600" />
         </div>
       </div>
 
@@ -43,6 +43,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { BookOpen } from 'lucide-vue-next'
 
 const props = defineProps<{
   book: {

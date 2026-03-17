@@ -35,7 +35,7 @@
                   : 'text-zinc-400'"
               >p</button>
             </div>
-            <span class="text-[11px] text-zinc-300 dark:text-zinc-600">에서 기록</span>
+            <span class="text-[10px] text-zinc-300 dark:text-zinc-600 tracking-wide font-medium">에서 기록</span>
           </div>
           <button
             @click="$emit('open-batch')"
@@ -64,7 +64,7 @@
             v-model="newComment"
             placeholder="이 부분에서 느낀 점을 자유롭게 적어보세요..."
             rows="3"
-            class="w-full px-4 py-3 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-xl text-desktop-body text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-300 dark:placeholder:text-zinc-600 focus:outline-none focus:bg-zinc-50 dark:focus:bg-zinc-800/50 resize-none transition-all duration-200 ease-apple"
+            class="w-full px-4 py-3 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-xl text-desktop-body text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-300 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-50 dark:focus:bg-zinc-800/50 resize-none transition-all duration-200 ease-apple"
             @keydown.meta.enter="submitComment"
             @keydown.ctrl.enter="submitComment"
           ></textarea>
@@ -122,9 +122,9 @@
 
     <!-- Empty State -->
     <div v-if="comments.length === 0" class="text-center py-20">
-      <Pencil :size="24" class="mx-auto text-zinc-300 dark:text-zinc-600 mb-4" />
-      <h3 class="text-desktop-callout text-zinc-900 dark:text-white mb-1">아직 기록이 없어요</h3>
-      <p class="text-desktop-caption text-zinc-400">책을 읽으면서 느낀 점을 기록해보세요.</p>
+      <Pencil :size="22" class="mx-auto text-zinc-300 dark:text-zinc-600 mb-4" />
+      <h3 class="text-[15px] font-medium tracking-tight text-zinc-900 dark:text-white mb-1.5">아직 기록이 없어요</h3>
+      <p class="text-[13px] text-zinc-400 font-light">책을 읽으면서 느낀 점을 기록해보세요.</p>
     </div>
   </div>
 </template>

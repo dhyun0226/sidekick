@@ -2,7 +2,7 @@
   <aside class="w-sidebar h-full flex flex-col shrink-0 bg-white/50 dark:bg-zinc-950/50">
     <!-- Logo -->
     <div class="px-6 pt-7 pb-5">
-      <h1 class="text-[15px] font-medium tracking-tight text-zinc-400 dark:text-zinc-500 select-none">sidekick</h1>
+      <h1 class="text-[15px] font-medium tracking-[0.02em] text-zinc-400 dark:text-zinc-500 select-none">sidekick</h1>
     </div>
 
     <!-- Navigation -->
@@ -54,7 +54,7 @@
 
       <!-- Spacer -->
       <div class="pt-5 pb-1">
-        <p class="px-3 text-[11px] font-medium text-zinc-300 dark:text-zinc-600 tracking-wide">그룹</p>
+        <p class="px-3 text-[10px] font-medium text-zinc-300 dark:text-zinc-600 uppercase tracking-widest">그룹</p>
       </div>
 
       <NuxtLink

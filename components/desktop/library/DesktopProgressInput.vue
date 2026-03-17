@@ -9,7 +9,7 @@
         :min="0"
         :max="inputMode === 'page' ? totalPages : 100"
         :disabled="disabled"
-        class="w-full px-3 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-center text-lg font-semibold text-zinc-900 dark:text-white pr-10 focus:outline-none focus:bg-zinc-100 dark:focus:bg-zinc-800 transition-all duration-200 ease-apple [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none disabled:opacity-40"
+        class="w-full px-3 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-center text-lg font-semibold text-zinc-900 dark:text-white pr-10 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-100 dark:focus:bg-zinc-800 transition-all duration-200 ease-apple [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none disabled:opacity-40"
         :placeholder="inputMode === 'page' ? '페이지' : '%'"
       />
       <span class="absolute right-3 top-1/2 -translate-y-1/2 text-desktop-caption text-zinc-400 dark:text-zinc-500">

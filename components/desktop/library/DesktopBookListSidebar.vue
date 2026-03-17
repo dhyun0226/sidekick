@@ -8,7 +8,7 @@
     <!-- Reading Books -->
     <div class="flex-1 overflow-y-auto">
       <div v-if="readingBooks.length > 0" class="px-3 pt-2 pb-1">
-        <p class="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 px-2 mb-1.5">읽는 중</p>
+        <p class="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 px-2 mb-1.5 uppercase tracking-widest">읽는 중</p>
         <button
           v-for="book in readingBooks"
           :key="book.id"
@@ -31,7 +31,7 @@
 
       <!-- History Books -->
       <div v-if="historyBooks.length > 0" class="px-3 pt-4 pb-1">
-        <p class="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 px-2 mb-1.5">완독</p>
+        <p class="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 px-2 mb-1.5 uppercase tracking-widest">완독</p>
         <div
           v-for="book in historyBooks"
           :key="book.id"

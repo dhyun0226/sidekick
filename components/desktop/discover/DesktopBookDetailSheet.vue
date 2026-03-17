@@ -9,23 +9,23 @@
 
         <!-- Info -->
         <div class="flex-1 min-w-0 flex flex-col">
-          <h2 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">{{ book.title }}</h2>
-          <p class="mt-1 text-base text-zinc-500">{{ book.author }}</p>
-          <p v-if="book.publisher" class="mt-0.5 text-sm text-zinc-400">{{ book.publisher }}</p>
+          <h2 class="text-[22px] font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight">{{ book.title }}</h2>
+          <p class="mt-1.5 text-[15px] text-zinc-500 font-light">{{ book.author }}</p>
+          <p v-if="book.publisher" class="mt-0.5 text-[13px] text-zinc-400 font-light">{{ book.publisher }}</p>
 
           <!-- Stats grid -->
           <div class="mt-auto pt-6 grid grid-cols-3 gap-4">
             <div v-if="book.avgRating" class="text-center">
-              <p class="text-2xl font-semibold text-zinc-900 dark:text-white">{{ book.avgRating.toFixed(1) }}</p>
-              <p class="mt-0.5 text-xs text-zinc-400 uppercase tracking-wide">평점</p>
+              <p class="text-[24px] font-semibold text-zinc-900 dark:text-white tabular-nums leading-none">{{ book.avgRating.toFixed(1) }}</p>
+              <p class="mt-1 text-[10px] text-zinc-400 uppercase tracking-widest font-medium">평점</p>
             </div>
             <div v-if="book.count" class="text-center">
-              <p class="text-2xl font-semibold text-zinc-900 dark:text-white">{{ book.count }}<span class="text-base font-normal text-zinc-400">명</span></p>
-              <p class="mt-0.5 text-xs text-zinc-400 uppercase tracking-wide">독자 수</p>
+              <p class="text-[24px] font-semibold text-zinc-900 dark:text-white tabular-nums leading-none">{{ book.count }}<span class="text-[14px] font-light text-zinc-400 ml-0.5">명</span></p>
+              <p class="mt-1 text-[10px] text-zinc-400 uppercase tracking-widest font-medium">독자 수</p>
             </div>
             <div v-if="book.completionRate" class="text-center">
-              <p class="text-2xl font-semibold text-lime-500">{{ Math.round(book.completionRate) }}<span class="text-base font-normal">%</span></p>
-              <p class="mt-0.5 text-xs text-zinc-400 uppercase tracking-wide">완독률</p>
+              <p class="text-[24px] font-semibold text-lime-500 tabular-nums leading-none">{{ Math.round(book.completionRate) }}<span class="text-[14px] font-light">%</span></p>
+              <p class="mt-1 text-[10px] text-zinc-400 uppercase tracking-widest font-medium">완독률</p>
             </div>
           </div>
         </div>

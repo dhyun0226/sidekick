@@ -57,25 +57,25 @@
     <!-- Sections -->
     <div class="space-y-12">
       <DesktopBookGrid
-        title="HOT 도서" icon="🔥" type="hot"
+        title="HOT 도서" icon="flame" type="hot"
         :books="hotBooks" :loading="loading"
         empty-message="아직 데이터가 부족해요"
         @book-click="openBookDetail"
       />
       <DesktopBookGrid
-        title="위시 인기" icon="💝" type="wish"
+        title="위시 인기" icon="heart" type="wish"
         :books="wishBooks" :loading="loading"
         empty-message="아직 데이터가 부족해요"
         @book-click="openBookDetail"
       />
       <DesktopBookGrid
-        title="평점 TOP" icon="⭐" type="rating"
+        title="평점 TOP" icon="star" type="rating"
         :books="topRatedBooks" :loading="loading"
         empty-message="리뷰가 3개 이상인 책이 없어요"
         @book-click="openBookDetail"
       />
       <DesktopBookGrid
-        title="완독률 TOP" icon="✅" type="completion"
+        title="완독률 TOP" icon="check-circle" type="completion"
         :books="completionBooks" :loading="loading"
         empty-message="읽은 사람이 5명 이상인 책이 없어요"
         @book-click="openBookDetail"

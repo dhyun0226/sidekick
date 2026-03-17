@@ -1,6 +1,6 @@
 <template>
   <div class="pt-6 border-t border-zinc-200/80 dark:border-zinc-800">
-    <h3 class="text-desktop-caption text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-5">프로필</h3>
+    <h3 class="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest font-medium mb-5">프로필</h3>
 
     <div class="flex items-center gap-5 mb-6">
       <div class="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0">
@@ -10,7 +10,7 @@
         </div>
       </div>
       <div>
-        <label class="px-3.5 py-1.5 text-desktop-callout text-zinc-600 dark:text-zinc-400 cursor-pointer border border-zinc-200 dark:border-zinc-700 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors ease-apple duration-200">
+        <label class="px-3.5 py-1.5 text-desktop-callout text-zinc-600 dark:text-zinc-400 cursor-pointer ring-1 ring-zinc-200 dark:ring-zinc-700 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors ease-apple duration-200">
           사진 변경
           <input type="file" accept="image/*" class="hidden" @change="handleFile" />
         </label>
@@ -19,7 +19,7 @@
 
     <div class="space-y-4">
       <div>
-        <label class="text-desktop-caption text-zinc-400 dark:text-zinc-500 mb-1.5 block">닉네임</label>
+        <label class="text-[11px] text-zinc-400 dark:text-zinc-500 mb-1.5 block font-medium tracking-wide">닉네임</label>
         <input
           v-model="nickname"
           class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 border-0 rounded-xl text-desktop-body text-zinc-900 dark:text-white placeholder-zinc-300 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all ease-apple duration-200"
