@@ -1,66 +1,63 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-8">
     <!-- Group Info -->
-    <div class="apple-card p-4">
-      <h4 class="text-desktop-caption text-zinc-500 uppercase tracking-wider mb-3">그룹 정보</h4>
-      <div class="space-y-3">
-        <div>
-          <label class="text-desktop-caption text-zinc-500 mb-1 block">그룹 이름</label>
-          <div v-if="isAdmin" class="flex items-center gap-2">
-            <input
-              v-if="isEditingName"
-              ref="nameInputRef"
-              v-model="editName"
-              class="desktop-input flex-1"
-              placeholder="그룹 이름"
-              @keydown.enter="saveName"
-              @keydown.escape="cancelEditName"
-            />
-            <p v-else class="text-desktop-body text-zinc-900 dark:text-white font-semibold flex-1">{{ groupName }}</p>
-            <button
-              v-if="isEditingName"
-              @click="saveName"
-              :disabled="!editName.trim() || editName.trim() === groupName"
-              class="px-3 py-1.5 bg-lime-400 text-black text-desktop-caption font-semibold rounded-lg hover:bg-lime-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              저장
-            </button>
-            <button
-              v-if="isEditingName"
-              @click="cancelEditName"
-              class="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-desktop-caption font-semibold rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-            >
-              취소
-            </button>
-            <button
-              v-if="!isEditingName"
-              @click="startEditName"
-              class="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-desktop-caption font-semibold rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-            >
-              수정
-            </button>
-          </div>
-          <p v-else class="text-desktop-body text-zinc-900 dark:text-white font-semibold">{{ groupName }}</p>
+    <div>
+      <h4 class="text-desktop-caption text-zinc-400 dark:text-zinc-500 tracking-wide mb-4">그룹 정보</h4>
+      <div>
+        <div v-if="isAdmin" class="flex items-center gap-2">
+          <input
+            v-if="isEditingName"
+            ref="nameInputRef"
+            v-model="editName"
+            class="desktop-input flex-1"
+            placeholder="그룹 이름"
+            @keydown.enter="saveName"
+            @keydown.escape="cancelEditName"
+          />
+          <p v-else class="text-desktop-body text-zinc-900 dark:text-white font-medium flex-1">{{ groupName }}</p>
+          <button
+            v-if="isEditingName"
+            @click="saveName"
+            :disabled="!editName.trim() || editName.trim() === groupName"
+            class="px-3 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-medium rounded-lg hover:opacity-80 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            저장
+          </button>
+          <button
+            v-if="isEditingName"
+            @click="cancelEditName"
+            class="px-3 py-1.5 text-zinc-500 text-desktop-caption hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+          >
+            취소
+          </button>
+          <button
+            v-if="!isEditingName"
+            @click="startEditName"
+            class="text-desktop-caption text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+          >
+            수정
+          </button>
         </div>
+        <p v-else class="text-desktop-body text-zinc-900 dark:text-white font-medium">{{ groupName }}</p>
       </div>
     </div>
 
     <!-- Invite Code -->
-    <div v-if="inviteCode" class="apple-card p-4">
-      <h4 class="text-desktop-caption text-zinc-500 uppercase tracking-wider mb-3">초대 코드</h4>
-      <div class="flex items-center gap-2">
-        <code class="flex-1 px-3 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-desktop-body font-mono text-zinc-900 dark:text-white">
+    <div v-if="inviteCode">
+      <h4 class="text-desktop-caption text-zinc-400 dark:text-zinc-500 tracking-wide mb-4">초대 코드</h4>
+      <div class="flex items-center gap-3">
+        <code class="text-desktop-body font-mono text-zinc-900 dark:text-white tracking-widest">
           {{ inviteCode }}
         </code>
         <button
           @click="$emit('copy-code')"
-          class="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-desktop-caption text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+          class="text-desktop-caption text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
         >
           복사
         </button>
         <button
           @click="$emit('copy-link')"
-          class="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-desktop-caption text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+          class="text-desktop-caption text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
         >
           링크 복사
         </button>
@@ -68,25 +65,25 @@
       <button
         v-if="isAdmin"
         @click="$emit('regenerate-code')"
-        class="mt-2 px-3 py-2 text-desktop-caption text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+        class="mt-3 text-desktop-caption text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
       >
         초대 코드 재생성
       </button>
     </div>
 
     <!-- Actions -->
-    <div v-if="isAdmin" class="space-y-2">
+    <div v-if="isAdmin" class="pt-4 border-t border-zinc-100 dark:border-zinc-800/50">
       <button
         @click="$emit('delete-group')"
-        class="w-full px-3 py-2 text-desktop-caption text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors text-left"
+        class="text-desktop-caption text-zinc-400 hover:text-red-500 transition-colors text-left"
       >
         그룹 종료
       </button>
     </div>
-    <div v-else class="space-y-2">
+    <div v-else class="pt-4 border-t border-zinc-100 dark:border-zinc-800/50">
       <button
         @click="$emit('leave-group')"
-        class="w-full px-3 py-2 text-desktop-caption text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors text-left"
+        class="text-desktop-caption text-zinc-400 hover:text-red-500 transition-colors text-left"
       >
         그룹 나가기
       </button>

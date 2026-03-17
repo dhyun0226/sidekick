@@ -1,11 +1,11 @@
 <template>
-  <div class="max-w-4xl mx-auto px-8 py-8">
+  <div class="max-w-4xl mx-auto px-8 py-12">
     <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-desktop-title text-zinc-900 dark:text-white mb-1">
+    <div class="mb-12">
+      <h1 class="text-desktop-title font-semibold text-zinc-900 dark:text-white mb-2">
         {{ greeting.text }}
       </h1>
-      <p class="text-desktop-body text-zinc-500 dark:text-zinc-400">{{ greeting.sub }}</p>
+      <p class="text-desktop-body text-zinc-400 dark:text-zinc-500">{{ greeting.sub }}</p>
     </div>
 
     <!-- Loading -->
@@ -15,19 +15,19 @@
 
     <template v-else>
       <!-- Current Reading (Solo) -->
-      <section v-if="soloGroup" class="mb-8">
-        <h2 class="section-header mb-4">내 서재</h2>
+      <section v-if="soloGroup" class="mb-10">
+        <h2 class="text-desktop-headline font-semibold text-zinc-900 dark:text-white mb-5">내 서재</h2>
         <DesktopCurrentBookCard
           v-if="soloGroup.currentBook"
           :book="soloGroup.currentBook"
           :group-name="soloGroup.name"
           @click="router.push('/my-library')"
         />
-        <div v-else class="apple-card p-6 text-center">
-          <p class="text-desktop-body text-zinc-500">읽을 책을 추가해보세요</p>
+        <div v-else class="py-10 text-center">
+          <p class="text-desktop-body text-zinc-400 dark:text-zinc-500 mb-5">읽을 책을 추가해보세요</p>
           <button
             @click="router.push('/my-library')"
-            class="mt-3 px-4 py-2 bg-lime-400 text-black font-semibold rounded-xl hover:bg-lime-300 transition-colors text-desktop-callout"
+            class="px-5 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-medium rounded-full hover:opacity-80 transition-opacity duration-200 ease-apple text-desktop-callout"
           >
             서재로 이동
           </button>
@@ -35,8 +35,8 @@
       </section>
 
       <!-- Social Groups - Reading -->
-      <section v-if="readingGroups.length > 0" class="mb-8">
-        <h2 class="section-header mb-4">함께 읽고 있어요</h2>
+      <section v-if="readingGroups.length > 0" class="mb-10">
+        <h2 class="text-desktop-headline font-semibold text-zinc-900 dark:text-white mb-5">함께 읽고 있어요</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <DesktopGroupCard
             v-for="group in readingGroups"
@@ -48,8 +48,8 @@
       </section>
 
       <!-- Social Groups - Idle -->
-      <section v-if="idleGroups.length > 0" class="mb-8">
-        <h2 class="section-header mb-4">잠시 쉬고 있어요</h2>
+      <section v-if="idleGroups.length > 0" class="mb-10">
+        <h2 class="text-desktop-headline font-semibold text-zinc-900 dark:text-white mb-5">잠시 쉬고 있어요</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <DesktopGroupCard
             v-for="group in idleGroups"
@@ -61,22 +61,22 @@
       </section>
 
       <!-- Empty State -->
-      <div v-if="!soloGroup && readingGroups.length === 0 && idleGroups.length === 0" class="text-center py-16">
-        <div class="w-20 h-20 mx-auto bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4 text-4xl">
-          👋
+      <div v-if="!soloGroup && readingGroups.length === 0 && idleGroups.length === 0" class="text-center py-24">
+        <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center">
+          <div class="w-6 h-6 rounded-full border-2 border-zinc-300 dark:border-zinc-600"></div>
         </div>
-        <h3 class="text-desktop-headline text-zinc-900 dark:text-white mb-2">공유 그룹에 참여해보세요</h3>
-        <p class="text-desktop-body text-zinc-500 mb-6">새로운 모임을 만들거나 초대를 받아보세요.</p>
+        <h3 class="text-desktop-headline font-semibold text-zinc-900 dark:text-white mb-2">공유 그룹에 참여해보세요</h3>
+        <p class="text-desktop-body text-zinc-400 dark:text-zinc-500 mb-8">새로운 모임을 만들거나 초대를 받아보세요.</p>
         <div class="flex gap-3 justify-center">
           <button
             @click="$emit('create-group')"
-            class="px-5 py-2.5 bg-lime-400 text-black font-semibold rounded-xl hover:bg-lime-300 transition-colors text-desktop-callout"
+            class="px-6 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-medium rounded-full hover:opacity-80 transition-opacity duration-200 ease-apple text-desktop-callout"
           >
             그룹 만들기
           </button>
           <button
             @click="$emit('join-group')"
-            class="px-5 py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-semibold rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors text-desktop-callout"
+            class="px-6 py-2.5 text-zinc-600 dark:text-zinc-400 font-medium rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-200 ease-apple text-desktop-callout"
           >
             초대 코드 입력
           </button>

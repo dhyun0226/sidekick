@@ -1,8 +1,8 @@
 <template>
-  <div class="max-w-2xl mx-auto px-8 py-8">
-    <h1 class="text-desktop-title text-zinc-900 dark:text-white mb-8">설정</h1>
+  <div class="max-w-2xl mx-auto px-8 py-12">
+    <h1 class="text-desktop-title font-semibold text-zinc-900 dark:text-white mb-10">설정</h1>
 
-    <div class="space-y-6">
+    <div class="space-y-8">
       <DesktopSettingsProfile
         :profile="profile"
         :saving="saving"
@@ -28,19 +28,19 @@
         @manage="$emit('manage-subscription')"
       />
 
-      <!-- Danger Zone -->
-      <div class="apple-card p-6">
-        <h3 class="text-desktop-headline text-zinc-900 dark:text-white mb-4">계정</h3>
-        <div class="space-y-3">
+      <!-- Account -->
+      <div class="pt-6 border-t border-zinc-100 dark:border-zinc-800/50">
+        <h3 class="text-desktop-caption text-zinc-400 dark:text-zinc-500 tracking-wide mb-4">계정</h3>
+        <div class="space-y-1">
           <button
             @click="$emit('sign-out')"
-            class="w-full px-4 py-2.5 text-desktop-callout text-zinc-600 dark:text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors text-left"
+            class="w-full py-2 text-desktop-callout text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors text-left"
           >
             로그아웃
           </button>
           <button
             @click="$emit('delete-account')"
-            class="w-full px-4 py-2.5 text-desktop-callout text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors text-left"
+            class="w-full py-2 text-desktop-callout text-zinc-400 hover:text-red-500 transition-colors text-left"
           >
             계정 삭제
           </button>

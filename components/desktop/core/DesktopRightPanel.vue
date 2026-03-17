@@ -1,6 +1,6 @@
 <template>
-  <aside class="w-right-panel h-full border-l border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-950/30 overflow-y-auto shrink-0">
-    <div class="p-5">
+  <aside class="w-right-panel h-full overflow-y-auto shrink-0 bg-white dark:bg-zinc-950 shadow-[-1px_0_0_0_rgba(0,0,0,0.04)] dark:shadow-[-1px_0_0_0_rgba(255,255,255,0.04)]">
+    <div class="p-6">
       <slot />
     </div>
   </aside>

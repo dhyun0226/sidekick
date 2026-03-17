@@ -1,16 +1,16 @@
 <template>
-  <div class="max-w-4xl mx-auto px-8 py-8">
+  <div class="max-w-4xl mx-auto px-8 py-12">
     <!-- Header -->
-    <div class="flex items-center gap-6 mb-8">
-      <div class="w-20 h-20 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden flex-shrink-0 shadow-apple">
+    <div class="flex items-center gap-8 mb-12">
+      <div class="w-20 h-20 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0">
         <img v-if="profile?.avatar_url" :src="profile.avatar_url" class="w-full h-full object-cover" />
-        <div v-else class="w-full h-full flex items-center justify-center text-2xl text-zinc-400 dark:text-zinc-500">
+        <div v-else class="w-full h-full flex items-center justify-center text-2xl font-light text-zinc-400 dark:text-zinc-500">
           {{ (profile?.nickname || 'U')[0] }}
         </div>
       </div>
       <div>
-        <h1 class="text-desktop-title text-zinc-900 dark:text-white">{{ profile?.nickname }}</h1>
-        <p class="text-desktop-body text-zinc-500 dark:text-zinc-400">{{ profile?.email }}</p>
+        <h1 class="text-desktop-title font-semibold text-zinc-900 dark:text-white">{{ profile?.nickname }}</h1>
+        <p class="text-desktop-body text-zinc-400 dark:text-zinc-500 mt-1">{{ profile?.email }}</p>
       </div>
     </div>
 
@@ -18,16 +18,19 @@
     <DesktopStatsDashboard :stats="statCards" />
 
     <!-- Tabs -->
-    <div class="flex border-b border-zinc-200 dark:border-zinc-800 mb-6">
+    <div class="flex gap-1 border-b border-zinc-100 dark:border-zinc-800/50 mb-8">
       <button
         v-for="tab in tabs"
         :key="tab.key"
         @click="$emit('tab-change', tab.key)"
-        class="px-5 py-3 text-desktop-callout transition-colors relative"
-        :class="activeTab === tab.key ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 hover:text-zinc-600'"
+        class="px-5 py-3 text-desktop-callout transition-all duration-200 relative"
+        :class="activeTab === tab.key ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'"
       >
         {{ tab.label }}
-        <div v-if="activeTab === tab.key" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
+        <div
+          v-if="activeTab === tab.key"
+          class="absolute bottom-0 left-2 right-2 h-[1.5px] bg-lime-400 rounded-full"
+        ></div>
       </button>
     </div>
 

@@ -1,19 +1,18 @@
 <template>
-  <aside class="w-sidebar h-full border-r border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 flex flex-col shrink-0">
+  <aside class="w-sidebar h-full flex flex-col shrink-0 bg-white/50 dark:bg-zinc-950/50">
     <!-- Logo -->
-    <div class="px-5 py-6 flex items-center gap-2">
-      <span class="text-2xl">📚</span>
-      <h1 class="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">Sidekick</h1>
+    <div class="px-6 pt-7 pb-5">
+      <h1 class="text-[15px] font-medium tracking-tight text-zinc-400 dark:text-zinc-500 select-none">sidekick</h1>
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 px-3 space-y-1">
+    <nav class="flex-1 px-3 space-y-0.5">
       <NuxtLink
         to="/"
         class="sidebar-item"
         :class="{ active: route.path === '/' }"
       >
-        <Home :size="18" />
+        <Home :size="17" :stroke-width="1.75" />
         <span>홈</span>
       </NuxtLink>
 
@@ -22,7 +21,7 @@
         class="sidebar-item"
         :class="{ active: route.path === '/my-library' }"
       >
-        <BookOpen :size="18" />
+        <BookOpen :size="17" :stroke-width="1.75" />
         <span>내 서재</span>
       </NuxtLink>
 
@@ -31,7 +30,7 @@
         class="sidebar-item"
         :class="{ active: route.path === '/discover' }"
       >
-        <Compass :size="18" />
+        <Compass :size="17" :stroke-width="1.75" />
         <span>디스커버</span>
       </NuxtLink>
 
@@ -40,7 +39,7 @@
         class="sidebar-item"
         :class="{ active: route.path === '/profile' }"
       >
-        <User :size="18" />
+        <User :size="17" :stroke-width="1.75" />
         <span>프로필</span>
       </NuxtLink>
 
@@ -49,16 +48,13 @@
         class="sidebar-item"
         :class="{ active: route.path === '/settings' }"
       >
-        <Settings :size="18" />
+        <Settings :size="17" :stroke-width="1.75" />
         <span>설정</span>
       </NuxtLink>
 
-      <!-- Divider -->
-      <div class="h-px bg-zinc-200 dark:bg-zinc-800 my-3"></div>
-
-      <!-- Social Groups -->
-      <div class="px-3 py-2">
-        <p class="text-desktop-caption text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-2">공유 그룹</p>
+      <!-- Spacer -->
+      <div class="pt-5 pb-1">
+        <p class="px-3 text-[11px] font-medium text-zinc-300 dark:text-zinc-600 tracking-wide">그룹</p>
       </div>
 
       <NuxtLink
@@ -68,26 +64,26 @@
         class="sidebar-item"
         :class="{ active: route.path === `/group/${group.id}` }"
       >
-        <Users :size="18" />
+        <Users :size="17" :stroke-width="1.75" />
         <span class="truncate">{{ group.name }}</span>
       </NuxtLink>
 
-      <div v-if="socialGroups.length === 0 && !loading" class="px-3 py-2 text-desktop-caption text-zinc-400">
+      <div v-if="socialGroups.length === 0 && !loading" class="px-3 py-2 text-[12px] text-zinc-300 dark:text-zinc-600">
         참여 중인 그룹이 없어요
       </div>
     </nav>
 
     <!-- Bottom: User -->
-    <div class="px-3 pb-4 pt-2 border-t border-zinc-200 dark:border-zinc-800">
-      <NuxtLink to="/profile" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-        <div class="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden flex-shrink-0">
+    <div class="px-3 pb-5 pt-3">
+      <NuxtLink to="/profile" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-100/70 dark:hover:bg-zinc-800/50 transition-all duration-200 ease-apple">
+        <div class="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0">
           <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
-          <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
-            <User :size="16" />
+          <div v-else class="w-full h-full flex items-center justify-center text-zinc-300 dark:text-zinc-600">
+            <User :size="14" :stroke-width="1.75" />
           </div>
         </div>
         <div class="min-w-0">
-          <p class="text-sm font-semibold text-zinc-900 dark:text-white truncate">{{ userStore.profile?.nickname }}</p>
+          <p class="text-[13px] font-medium text-zinc-600 dark:text-zinc-400 truncate">{{ userStore.profile?.nickname }}</p>
         </div>
       </NuxtLink>
     </div>

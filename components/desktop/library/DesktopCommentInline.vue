@@ -1,48 +1,44 @@
 <template>
   <div
-    class="apple-card group/card overflow-hidden transition-all duration-200"
-    :class="isOwn ? 'ring-1 ring-lime-200/50 dark:ring-lime-800/30' : ''"
+    class="group/card transition-all duration-200 ease-apple rounded-2xl"
+    :class="isOwn ? 'bg-zinc-50/50 dark:bg-zinc-800/20' : ''"
   >
     <!-- Quote Section (if exists) -->
     <div
       v-if="comment.anchor_text"
-      class="px-5 py-3 bg-gradient-to-r from-lime-50/80 to-emerald-50/40 dark:from-lime-950/20 dark:to-emerald-950/10 border-b border-lime-100/80 dark:border-lime-900/30"
+      class="px-5 pt-4 pb-0"
     >
-      <div class="flex items-start gap-2">
-        <Quote :size="14" class="text-lime-500/70 mt-0.5 flex-shrink-0" />
-        <p class="text-desktop-body italic text-zinc-600 dark:text-zinc-400 leading-relaxed">
+      <div class="pl-3 border-l-2 border-lime-400 dark:border-lime-500">
+        <p class="text-desktop-body italic text-zinc-500 dark:text-zinc-400 leading-relaxed">
           {{ comment.anchor_text }}
         </p>
       </div>
     </div>
 
     <!-- Main Content -->
-    <div class="p-5">
+    <div class="px-5 py-4">
       <!-- Author Row -->
       <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center gap-2">
           <!-- Avatar -->
-          <div class="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white dark:ring-zinc-900 shadow-sm">
+          <div class="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
             <img
               v-if="comment.user?.avatar_url"
               :src="comment.user.avatar_url"
               class="w-full h-full object-cover"
             />
-            <div v-else class="w-full h-full bg-gradient-to-br from-lime-400 to-emerald-500 flex items-center justify-center text-white text-[11px] font-bold">
+            <div v-else class="w-full h-full bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center text-white dark:text-zinc-900 text-[10px] font-semibold">
               {{ (comment.user?.nickname || '나')[0] }}
             </div>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="text-desktop-callout text-zinc-900 dark:text-white">{{ comment.user?.nickname || '나' }}</span>
-            <span v-if="isOwn" class="text-[10px] px-1.5 py-0.5 bg-lime-100 dark:bg-lime-900/30 text-lime-600 dark:text-lime-400 rounded-full font-semibold">나</span>
-          </div>
+          <span class="text-desktop-caption font-medium text-zinc-900 dark:text-white">{{ comment.user?.nickname || '나' }}</span>
         </div>
         <div class="flex items-center gap-2">
           <!-- Progress badge -->
-          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
+          <span class="text-[11px] text-zinc-400 dark:text-zinc-500">
             {{ Math.round(comment.position_pct) }}%
           </span>
-          <span class="text-desktop-caption text-zinc-400">{{ timeAgo }}</span>
+          <span class="text-desktop-caption text-zinc-300 dark:text-zinc-600">{{ timeAgo }}</span>
         </div>
       </div>
 
@@ -57,7 +53,7 @@
           ref="editTextareaRef"
           v-model="editContent"
           rows="3"
-          class="w-full px-3 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-desktop-body text-zinc-800 dark:text-zinc-200 resize-none transition-all focus:border-lime-400 focus:ring-1 focus:ring-lime-400/30 mb-3"
+          class="w-full px-3 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-desktop-body text-zinc-800 dark:text-zinc-200 resize-none transition-all duration-200 ease-apple focus:border-zinc-400 focus:ring-0 mb-3"
           @keydown.meta.enter="saveEdit"
           @keydown.ctrl.enter="saveEdit"
           @keydown.escape="cancelEdit"
@@ -66,30 +62,30 @@
           <button
             @click="saveEdit"
             :disabled="!editContent.trim()"
-            class="px-3.5 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-semibold rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-40"
+            class="px-3.5 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-40"
           >
             저장
           </button>
           <button
             @click="cancelEdit"
-            class="px-3.5 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-desktop-caption font-semibold rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+            class="px-3.5 py-1.5 text-zinc-500 text-desktop-caption font-medium hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
           >
             취소
           </button>
-          <kbd class="ml-auto text-[10px] text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">⌘↵ 저장</kbd>
+          <kbd class="ml-auto text-[10px] text-zinc-300 dark:text-zinc-600">⌘↵</kbd>
         </div>
       </template>
 
       <!-- Actions Bar -->
-      <div v-if="!isEditing" class="flex items-center justify-between mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+      <div v-if="!isEditing" class="flex items-center justify-between mt-3">
         <div class="flex items-center gap-1">
           <!-- Like -->
           <button
             @click="handleLike"
-            class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-desktop-caption font-medium transition-all"
+            class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-desktop-caption font-medium transition-all duration-200 ease-apple"
             :class="comment.isLiked
-              ? 'bg-red-50 dark:bg-red-900/20 text-red-500'
-              : 'text-zinc-400 hover:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-900/10'"
+              ? 'text-red-500'
+              : 'text-zinc-300 dark:text-zinc-600 hover:text-red-400'"
           >
             <Heart
               :size="14"
@@ -103,7 +99,7 @@
           <!-- Reply -->
           <button
             @click="$emit('reply', comment)"
-            class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-desktop-caption font-medium text-zinc-400 hover:text-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all"
+            class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-desktop-caption font-medium text-zinc-300 dark:text-zinc-600 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all duration-200 ease-apple"
           >
             <MessageCircle :size="14" />
             <span v-if="comment.replies?.length" class="tabular-nums">{{ comment.replies.length }}</span>
@@ -112,17 +108,17 @@
         </div>
 
         <!-- Own comment actions (hover reveal) -->
-        <div v-if="isOwn" class="flex items-center gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity">
+        <div v-if="isOwn" class="flex items-center gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 ease-apple">
           <button
             @click="startEdit"
-            class="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            class="p-1.5 rounded-lg text-zinc-300 dark:text-zinc-600 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
             title="수정"
           >
             <Pencil :size="13" />
           </button>
           <button
             @click="$emit('delete', comment)"
-            class="p-1.5 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+            class="p-1.5 rounded-lg text-zinc-300 dark:text-zinc-600 hover:text-red-500 transition-colors"
             title="삭제"
           >
             <Trash2 :size="13" />

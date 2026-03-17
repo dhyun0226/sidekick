@@ -6,41 +6,44 @@
       enter-from-class="opacity-0"
       leave-to-class="opacity-0"
     >
-      <div v-if="isOpen" class="fixed inset-0 z-[99999] flex items-start justify-center pt-[20vh]" @click.self="close">
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="close"></div>
+      <div v-if="isOpen" class="fixed inset-0 z-[99999] flex items-start justify-center pt-[18vh]" @click.self="close">
+        <div class="absolute inset-0 bg-black/25 backdrop-blur-md" @click="close"></div>
 
-        <div class="relative w-[560px] bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg border border-zinc-200 dark:border-zinc-800 overflow-hidden" @click.stop>
+        <div class="relative w-[600px] bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 overflow-hidden ring-1 ring-black/[0.04] dark:ring-white/[0.06]" @click.stop>
           <!-- Search Input -->
-          <div class="flex items-center gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
-            <Search :size="18" class="text-zinc-400" />
+          <div class="flex items-center gap-3.5 px-6 py-5">
+            <Search :size="18" class="text-zinc-300 dark:text-zinc-600" :stroke-width="1.75" />
             <input
               ref="inputRef"
               v-model="query"
-              placeholder="페이지 이동, 명령어 검색..."
-              class="flex-1 bg-transparent text-desktop-body text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none"
+              placeholder="어디로 이동할까요?"
+              class="flex-1 bg-transparent text-[15px] text-zinc-900 dark:text-white placeholder-zinc-300 dark:placeholder-zinc-600 focus:outline-none"
               @keydown.down.prevent="moveSelection(1)"
               @keydown.up.prevent="moveSelection(-1)"
               @keydown.enter="executeSelected"
               @keydown.escape="close"
             />
-            <kbd class="text-[10px] text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">ESC</kbd>
+            <kbd class="text-[10px] text-zinc-300 dark:text-zinc-600 bg-zinc-50 dark:bg-zinc-800/50 px-1.5 py-0.5 rounded font-medium">ESC</kbd>
           </div>
 
+          <!-- Divider -->
+          <div class="h-px bg-zinc-100 dark:bg-zinc-800/60"></div>
+
           <!-- Results -->
-          <div class="max-h-[300px] overflow-y-auto py-2">
+          <div class="max-h-[340px] overflow-y-auto py-2">
             <div
               v-for="(item, idx) in filteredItems"
               :key="item.id"
               @click="executeItem(item)"
-              class="flex items-center gap-3 px-5 py-2.5 cursor-pointer transition-colors"
-              :class="idx === selectedIndex ? 'bg-zinc-100 dark:bg-zinc-800' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50'"
+              class="flex items-center gap-3.5 px-6 py-3 cursor-pointer transition-colors duration-150"
+              :class="idx === selectedIndex ? 'bg-zinc-50 dark:bg-zinc-800/60' : 'hover:bg-zinc-50/60 dark:hover:bg-zinc-800/30'"
             >
-              <component :is="item.icon" :size="16" class="text-zinc-400 flex-shrink-0" />
-              <span class="text-desktop-body text-zinc-900 dark:text-white flex-1">{{ item.label }}</span>
-              <span v-if="item.shortcut" class="text-desktop-caption text-zinc-400">{{ item.shortcut }}</span>
+              <component :is="item.icon" :size="16" class="text-zinc-300 dark:text-zinc-600 flex-shrink-0" :stroke-width="1.75" />
+              <span class="text-[14px] text-zinc-700 dark:text-zinc-300 flex-1">{{ item.label }}</span>
+              <span v-if="item.shortcut" class="text-[11px] text-zinc-300 dark:text-zinc-600">{{ item.shortcut }}</span>
             </div>
 
-            <div v-if="filteredItems.length === 0" class="px-5 py-8 text-center text-desktop-body text-zinc-400">
+            <div v-if="filteredItems.length === 0" class="px-6 py-10 text-center text-[14px] text-zinc-300 dark:text-zinc-600">
               결과가 없습니다
             </div>
           </div>
