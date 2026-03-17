@@ -33,31 +33,132 @@
     </div>
 
     <template #footer>
-      <div class="flex justify-end gap-3 px-2">
+      <div class="flex items-center justify-between px-2">
+        <!-- Wishlist button -->
         <button
-          @click="$emit('close')"
-          class="px-5 py-2.5 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors rounded-lg"
+          @click="handleToggleWishlist"
+          :disabled="wishLoading"
+          class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-full transition-all duration-200 ease-apple"
+          :class="isInWishlist
+            ? 'text-pink-500 bg-pink-50 dark:bg-pink-900/20 hover:bg-pink-100 dark:hover:bg-pink-900/30'
+            : 'text-zinc-500 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-pink-900/20'"
         >
-          닫기
+          <Heart :size="16" :fill="isInWishlist ? 'currentColor' : 'none'" />
+          {{ isInWishlist ? '위시에서 제거' : '위시 담기' }}
+          <span v-if="wishCount > 0" class="text-xs text-zinc-400">{{ wishCount }}</span>
         </button>
-        <button
-          @click="$emit('start-book', book)"
-          class="px-6 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-medium rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors"
-        >
-          읽기 시작
-        </button>
+
+        <div class="flex items-center gap-3">
+          <button
+            @click="$emit('close')"
+            class="px-5 py-2.5 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+          >
+            닫기
+          </button>
+          <button
+            @click="handleStartBook"
+            class="px-6 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-medium rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-200 ease-apple"
+          >
+            읽기 시작
+          </button>
+        </div>
       </div>
     </template>
   </DesktopModal>
 </template>
 
 <script setup lang="ts">
+import { ref, watch, computed } from 'vue'
+import { Heart } from 'lucide-vue-next'
+import { useToastStore } from '~/stores/toast'
+import { useUserStore } from '~/stores/user'
 import DesktopModal from '~/components/desktop/shared/DesktopModal.vue'
 
-defineProps<{
+const props = defineProps<{
   isOpen: boolean
   book: any
 }>()
 
-defineEmits(['close', 'start-book'])
+const emit = defineEmits(['close', 'start-book', 'wishlist-updated'])
+
+const toast = useToastStore()
+const userStore = useUserStore()
+const client = useSupabaseClient()
+const { addToWishlist, removeFromWishlist, fetchWishlist, wishlist } = useWishlist()
+
+const wishLoading = ref(false)
+const wishCount = ref(0)
+
+const isInWishlist = computed(() => {
+  if (!props.book) return false
+  return wishlist.value.some((item: any) => item.isbn === props.book.isbn)
+})
+
+watch(() => props.isOpen, async (open) => {
+  if (open && props.book && userStore.profile?.id) {
+    await fetchWishlist(userStore.profile.id)
+    const { count } = await client
+      .from('user_wishlists')
+      .select('*', { count: 'exact', head: true })
+      .eq('isbn', props.book.isbn)
+    wishCount.value = count || 0
+  }
+})
+
+const handleToggleWishlist = async () => {
+  if (!props.book || !userStore.profile?.id) {
+    toast.error('로그인이 필요합니다.')
+    return
+  }
+
+  wishLoading.value = true
+  try {
+    if (isInWishlist.value) {
+      const result = await removeFromWishlist(userStore.profile.id, props.book.isbn)
+      if (result.success) {
+        toast.success('위시리스트에서 제거했습니다.')
+        wishCount.value = Math.max(0, wishCount.value - 1)
+        await fetchWishlist(userStore.profile.id)
+        emit('wishlist-updated')
+      } else {
+        toast.error(result.message || '제거에 실패했습니다.')
+      }
+    } else {
+      const { data: existingBook } = await client
+        .from('books')
+        .select('isbn')
+        .eq('isbn', props.book.isbn)
+        .maybeSingle()
+
+      if (!existingBook) {
+        await client.from('books').insert({
+          isbn: props.book.isbn,
+          title: props.book.title,
+          author: props.book.author,
+          publisher: props.book.publisher,
+          cover_url: props.book.cover_url
+        })
+      }
+
+      const result = await addToWishlist(userStore.profile.id, props.book.isbn)
+      if (result.success) {
+        toast.success('위시리스트에 담았습니다.')
+        wishCount.value++
+        await fetchWishlist(userStore.profile.id)
+        emit('wishlist-updated')
+      } else {
+        toast.error(result.message || '추가에 실패했습니다.')
+      }
+    }
+  } catch (err) {
+    toast.error('처리에 실패했습니다.')
+  } finally {
+    wishLoading.value = false
+  }
+}
+
+const handleStartBook = () => {
+  emit('start-book', props.book)
+  emit('close')
+}
 </script>

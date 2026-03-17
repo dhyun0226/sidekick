@@ -88,6 +88,7 @@
       :book="selectedBook"
       @close="bookDetailOpen = false"
       @start-book="$emit('start-book', $event)"
+      @wishlist-updated="fetchData"
     />
   </div>
 </template>
