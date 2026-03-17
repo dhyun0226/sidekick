@@ -6,6 +6,8 @@
     :is-loading-more="isLoadingMore"
     :is-archived="isArchived"
     :current-user-id="currentUserId"
+    :total-pages="totalPages"
+    :preferred-mode="preferredMode"
     @submit="$emit('submit', $event)"
     @load-more="$emit('load-more')"
     @reply="$emit('reply', $event)"
@@ -13,6 +15,7 @@
     @open-batch="$emit('open-batch')"
     @edit="$emit('edit', $event)"
     @delete="$emit('delete', $event)"
+    @progress-change="$emit('progress-change', $event)"
   />
 </template>
 
@@ -26,7 +29,9 @@ defineProps<{
   isLoadingMore: boolean
   isArchived?: boolean
   currentUserId?: string
+  totalPages?: number
+  preferredMode?: 'percent' | 'page'
 }>()
 
-defineEmits(['submit', 'load-more', 'reply', 'like', 'open-batch', 'edit', 'delete'])
+defineEmits(['submit', 'load-more', 'reply', 'like', 'open-batch', 'edit', 'delete', 'progress-change'])
 </script>

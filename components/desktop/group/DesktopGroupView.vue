@@ -114,6 +114,8 @@
             :is-loading-more="isLoadingMore"
             :is-archived="isArchived"
             :current-user-id="ctx.currentUserId.value"
+            :total-pages="selectedBook?.total_pages"
+            :preferred-mode="preferredInputMode"
             @submit="handleInlineSubmit"
             @load-more="handleLoadMore"
             @reply="handleReply"
@@ -121,6 +123,7 @@
             @open-batch="batchModalOpen = true"
             @edit="handleEditComment"
             @delete="handleDeleteComment"
+            @progress-change="handleProgressChange"
           />
         </div>
       </template>

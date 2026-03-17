@@ -3,11 +3,40 @@
     <!-- Inline Comment Input -->
     <div v-if="!isArchived" class="apple-card overflow-hidden">
       <div class="p-5">
-        <!-- Subtle top row: progress + batch button -->
+        <!-- Top row: position input + batch button -->
         <div class="flex items-center justify-between mb-4">
-          <span class="text-desktop-caption text-zinc-400 dark:text-zinc-500">
-            {{ Math.round(viewProgress) }}%
-          </span>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-full px-1 py-0.5">
+              <input
+                ref="positionInputRef"
+                type="number"
+                :value="commentPosition"
+                @input="handlePositionInput"
+                :min="0"
+                :max="positionMax"
+                class="w-12 px-2 py-1 bg-transparent text-desktop-callout font-semibold text-zinc-900 dark:text-white text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <span class="text-desktop-caption text-zinc-400 pr-2">{{ positionMode === 'page' ? 'p' : '%' }}</span>
+            </div>
+            <!-- Mode toggle (if totalPages available) -->
+            <div v-if="totalPages" class="flex bg-zinc-100 dark:bg-zinc-800 rounded-full p-0.5">
+              <button
+                @click="setMode('percent')"
+                class="px-2 py-0.5 text-[10px] font-semibold rounded-full transition-all duration-200 ease-apple"
+                :class="positionMode === 'percent'
+                  ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm'
+                  : 'text-zinc-400'"
+              >%</button>
+              <button
+                @click="setMode('page')"
+                class="px-2 py-0.5 text-[10px] font-semibold rounded-full transition-all duration-200 ease-apple"
+                :class="positionMode === 'page'
+                  ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm'
+                  : 'text-zinc-400'"
+              >p</button>
+            </div>
+            <span class="text-[11px] text-zinc-300 dark:text-zinc-600">에서 기록</span>
+          </div>
           <button
             @click="$emit('open-batch')"
             class="px-2.5 py-1 text-zinc-400 rounded-lg text-desktop-caption font-medium hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all duration-200 ease-apple flex items-center gap-1"
@@ -101,7 +130,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { Pencil, Quote, MessageSquare, Layers, Check } from 'lucide-vue-next'
 import DesktopCommentInline from './DesktopCommentInline.vue'
 
@@ -112,23 +141,94 @@ const props = defineProps<{
   isLoadingMore: boolean
   isArchived?: boolean
   currentUserId?: string
+  totalPages?: number
+  preferredMode?: 'percent' | 'page'
 }>()
 
-const emit = defineEmits(['submit', 'load-more', 'reply', 'like', 'open-batch', 'edit', 'delete'])
+const emit = defineEmits(['submit', 'load-more', 'reply', 'like', 'open-batch', 'edit', 'delete', 'progress-change'])
 
 const newComment = ref('')
 const anchorText = ref('')
 const showSaved = ref(false)
 const contentInputRef = ref<HTMLTextAreaElement | null>(null)
 const anchorInputRef = ref<HTMLTextAreaElement | null>(null)
+const positionInputRef = ref<HTMLInputElement | null>(null)
+
+// Comment position (independent from viewProgress)
+const commentPosition = ref(Math.round(props.viewProgress))
+const positionMode = ref<'percent' | 'page'>(props.preferredMode || 'percent')
+
+// Sync commentPosition when viewProgress changes from outside (e.g. right panel update)
+watch(() => props.viewProgress, (newVal) => {
+  // Only sync forward — if viewProgress moves ahead, update commentPosition
+  const newPct = Math.round(newVal)
+  if (newPct > commentPosition.value) {
+    commentPosition.value = newPct
+  }
+})
+
+const positionMax = ref(positionMode.value === 'page' && props.totalPages ? props.totalPages : 100)
+
+watch(positionMode, (mode) => {
+  if (mode === 'page' && props.totalPages) {
+    positionMax.value = props.totalPages
+    commentPosition.value = Math.max(1, Math.round((commentPosition.value / 100) * props.totalPages))
+  } else {
+    // Convert back to percent
+    if (props.totalPages && positionMode.value === 'percent') {
+      commentPosition.value = Math.round((commentPosition.value / props.totalPages) * 100)
+    }
+    positionMax.value = 100
+  }
+})
+
+const setMode = (mode: 'percent' | 'page') => {
+  const currentPct = getPositionAsPct()
+  positionMode.value = mode
+  if (mode === 'page' && props.totalPages) {
+    positionMax.value = props.totalPages
+    commentPosition.value = Math.max(1, Math.round((currentPct / 100) * props.totalPages))
+  } else {
+    positionMax.value = 100
+    commentPosition.value = currentPct
+  }
+}
+
+const handlePositionInput = (e: Event) => {
+  const raw = Number((e.target as HTMLInputElement).value)
+  if (isNaN(raw)) return
+  commentPosition.value = Math.min(Math.max(0, raw), positionMax.value)
+
+  // If the new position is ahead of current progress, update progress
+  const pct = getPositionAsPct()
+  if (pct > props.viewProgress) {
+    emit('progress-change', pct)
+  }
+}
+
+const getPositionAsPct = (): number => {
+  if (positionMode.value === 'page' && props.totalPages) {
+    return Math.round((commentPosition.value / props.totalPages) * 100)
+  }
+  return commentPosition.value
+}
 
 const submitComment = () => {
   if (!newComment.value.trim()) return
+
+  const pct = getPositionAsPct()
+
   emit('submit', {
     content: newComment.value.trim(),
     anchorText: anchorText.value.trim(),
-    positionPct: props.viewProgress
+    positionPct: pct
   })
+
+  // If comment position is ahead, update progress
+  if (pct > props.viewProgress) {
+    emit('progress-change', pct)
+  }
+
   newComment.value = ''
   anchorText.value = ''
 
@@ -136,8 +236,8 @@ const submitComment = () => {
   showSaved.value = true
   setTimeout(() => { showSaved.value = false }, 2000)
 
-  // 다음 입력을 위해 포커스
-  nextTick(() => anchorInputRef.value?.focus())
+  // 다음 입력을 위해 위치 입력으로 포커스
+  nextTick(() => positionInputRef.value?.focus())
 }
 
 defineExpose({ anchorText })
