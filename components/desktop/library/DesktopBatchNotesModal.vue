@@ -77,7 +77,7 @@
                       type="number"
                       v-model.number="row.position"
                       :placeholder="inputMode === 'page' ? 'p' : '%'"
-                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg text-desktop-body text-center transition-all focus:outline-none focus:bg-zinc-100 dark:focus:bg-zinc-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-zinc-300 dark:placeholder:text-zinc-600"
+                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg text-desktop-body text-zinc-900 dark:text-white text-center transition-all focus:outline-none focus:bg-zinc-100 dark:focus:bg-zinc-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-zinc-300 dark:placeholder:text-zinc-600"
                       @keydown="handleKeydown($event, idx, 'position')"
                     />
                   </td>
@@ -98,7 +98,7 @@
                       v-model="row.content"
                       placeholder="느낀 점을 적어보세요..."
                       rows="1"
-                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg text-desktop-body resize-none transition-all focus:outline-none focus:bg-zinc-100 dark:focus:bg-zinc-800 placeholder:text-zinc-300 dark:placeholder:text-zinc-600"
+                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg text-desktop-body text-zinc-900 dark:text-white resize-none transition-all focus:outline-none focus:bg-zinc-100 dark:focus:bg-zinc-800 placeholder:text-zinc-300 dark:placeholder:text-zinc-600"
                       @keydown="handleKeydown($event, idx, 'content')"
                       @input="autoResize($event)"
                     ></textarea>
@@ -341,9 +341,13 @@ const handleGlobalKeydown = (e: KeyboardEvent) => {
   }
 }
 
-// Auto-reset when modal closes
+// Auto-reset when modal closes, auto-focus first cell when opens
 watch(() => props.isOpen, (open) => {
-  if (!open) {
+  if (open) {
+    nextTick(() => {
+      cellRefs.value['0-position']?.focus()
+    })
+  } else {
     resetState()
   }
 })
