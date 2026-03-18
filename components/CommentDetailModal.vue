@@ -4,7 +4,7 @@
     <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="$emit('close')"></div>
 
     <!-- Modal Content -->
-    <div class="relative w-full max-w-[480px] h-[85vh] bg-white dark:bg-zinc-900 border-t sm:border border-zinc-300 dark:border-zinc-800 sm:rounded-3xl flex flex-col animate-slide-up shadow-2xl overflow-hidden">
+    <div class="relative w-full max-w-[480px] h-[85vh] bg-white dark:bg-zinc-900 border-t sm:border-none ring-1 ring-black/[0.04] dark:ring-white/[0.06] sm:rounded-3xl flex flex-col animate-slide-up shadow-apple-lg overflow-hidden">
 
       <!-- Header -->
       <div class="flex-shrink-0 px-6 py-5 border-b border-zinc-100 dark:border-zinc-800">
@@ -60,7 +60,7 @@
             <div v-else class="mt-2">
               <textarea
                 v-model="editContent"
-                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-lime-400 resize-none border border-zinc-200 dark:border-zinc-700"
+                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                 rows="3"
                 @keydown.esc="cancelEdit"
               ></textarea>
@@ -104,7 +104,7 @@
                 v-model="replyContent"
                 type="text"
                 placeholder="답글 남기기..."
-                class="w-full bg-zinc-50 dark:bg-zinc-800/50 text-sm text-zinc-900 dark:text-white rounded-xl pl-4 pr-10 py-3.5 focus:outline-none focus:ring-2 focus:ring-lime-400/50 border-none transition-all"
+                class="w-full bg-zinc-50 dark:bg-zinc-800/50 text-sm text-zinc-900 dark:text-white rounded-xl pl-4 pr-10 py-3.5 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none transition-all"
                 @keyup.enter="submitReply(comment.id)"
                 autoFocus
               />
@@ -168,7 +168,7 @@
                 <div v-else class="mt-2">
                   <textarea
                     v-model="editReplyContent"
-                    class="w-full bg-zinc-50 dark:bg-zinc-800 text-sm rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400 resize-none border border-zinc-200 dark:border-zinc-700"
+                    class="w-full bg-zinc-50 dark:bg-zinc-800 text-sm rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                     rows="2"
                   ></textarea>
                   <div class="flex gap-2 mt-2 justify-end">
@@ -420,7 +420,7 @@ const submitReply = async (parentId: string) => {
 
     // 🎯 Notify parent that a reply was submitted to refresh data
     emit('replySubmitted')
-    toast.success('답글이 등록되었습니다! 🎉')
+    toast.success('답글이 등록되었습니다')
 
   } catch (error) {
     console.error('Reply error:', error)

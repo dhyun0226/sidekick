@@ -12,7 +12,7 @@
       <div
         v-for="(member, index) in sortedMembers"
         :key="member.id"
-        class="group relative flex items-center gap-3 px-2 py-2.5 rounded-lg transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
+        class="group relative flex items-center gap-3 px-2 py-2.5 rounded-xl transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
       >
         <!-- Rank -->
         <div class="w-5 text-center flex-shrink-0">
@@ -65,7 +65,7 @@
           </button>
           <div
             v-if="openMenuId === member.id"
-            class="absolute right-0 top-full mt-1 w-36 bg-white dark:bg-zinc-900 rounded-lg shadow-apple border border-zinc-100 dark:border-zinc-800 py-1 z-10"
+            class="absolute right-0 top-full mt-1 w-36 bg-white dark:bg-zinc-900 rounded-lg shadow-apple ring-1 ring-black/[0.04] dark:ring-white/[0.06] py-1 z-10"
           >
             <button
               @click="handleChangeRole(member)"

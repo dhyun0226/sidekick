@@ -80,21 +80,26 @@
       <div v-if="!isEditing" class="flex items-center justify-between mt-3">
         <div class="flex items-center gap-1">
           <!-- Like -->
-          <button
-            @click="handleLike"
-            class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-desktop-caption font-medium transition-all duration-200 ease-apple"
-            :class="comment.isLiked
-              ? 'text-red-500'
-              : 'text-zinc-300 dark:text-zinc-600 hover:text-red-400'"
-          >
-            <Heart
-              :size="14"
-              :fill="comment.isLiked ? 'currentColor' : 'none'"
-              :class="justLiked ? 'animate-like-bounce' : ''"
-            />
-            <span v-if="comment.likes" class="tabular-nums">{{ comment.likes }}</span>
-            <span v-else>좋아요</span>
-          </button>
+          <div class="relative">
+            <button
+              ref="likeBtnRef"
+              @click="handleLike"
+              class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-desktop-caption font-medium transition-all duration-200 ease-apple"
+              :class="comment.isLiked
+                ? 'text-red-500'
+                : 'text-zinc-300 dark:text-zinc-600 hover:text-red-400'"
+            >
+              <Heart
+                :size="14"
+                :fill="comment.isLiked ? 'currentColor' : 'none'"
+                :class="justLiked ? 'animate-like-bounce' : ''"
+              />
+              <span v-if="comment.likes" class="tabular-nums">{{ comment.likes }}</span>
+              <span v-else>좋아요</span>
+            </button>
+            <!-- Heart particles container -->
+            <div ref="particleContainer" class="pointer-events-none absolute inset-0 overflow-visible"></div>
+          </div>
 
           <!-- Reply -->
           <button
@@ -149,6 +154,8 @@ const isEditing = ref(false)
 const editContent = ref('')
 const editTextareaRef = ref<HTMLTextAreaElement | null>(null)
 const justLiked = ref(false)
+const likeBtnRef = ref<HTMLButtonElement | null>(null)
+const particleContainer = ref<HTMLDivElement | null>(null)
 
 const startEdit = () => {
   editContent.value = props.comment.content
@@ -167,9 +174,47 @@ const saveEdit = () => {
   isEditing.value = false
 }
 
+const spawnHeartParticles = () => {
+  const container = particleContainer.value
+  if (!container) return
+
+  const count = 4 + Math.floor(Math.random() * 3) // 4~6 particles
+  for (let i = 0; i < count; i++) {
+    const particle = document.createElement('span')
+    particle.textContent = '♥'
+    particle.className = 'heart-particle'
+
+    // Randomize: angle, distance, size, delay
+    const angle = -30 - Math.random() * 120 // -30° ~ -150° (upward spread)
+    const distance = 20 + Math.random() * 25
+    const size = 8 + Math.random() * 6
+    const delay = Math.random() * 120
+    const rad = (angle * Math.PI) / 180
+    const tx = Math.cos(rad) * distance
+    const ty = Math.sin(rad) * distance
+
+    particle.style.cssText = `
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      font-size: ${size}px;
+      color: #ef4444;
+      pointer-events: none;
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(0);
+      animation: heart-float 0.7s ${delay}ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      --tx: ${tx}px;
+      --ty: ${ty}px;
+    `
+    container.appendChild(particle)
+    setTimeout(() => particle.remove(), 900 + delay)
+  }
+}
+
 const handleLike = () => {
   if (!props.comment.isLiked) {
     justLiked.value = true
+    spawnHeartParticles()
     setTimeout(() => { justLiked.value = false }, 400)
   }
   emit('like', props.comment)
@@ -185,6 +230,24 @@ const handleLike = () => {
 }
 
 .animate-like-bounce {
-  animation: like-bounce 0.4s ease-out;
+  animation: like-bounce 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+</style>
+
+<style>
+@keyframes heart-float {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--tx) * 0.7), calc(-50% + var(--ty) * 0.7)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0.6);
+  }
 }
 </style>

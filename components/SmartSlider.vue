@@ -34,7 +34,7 @@
             <button
               v-if="!isArchived"
               @click="$emit('write')"
-              class="flex items-center gap-2 pl-3 pr-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg shadow-zinc-500/20"
+              class="flex items-center gap-2 pl-3 pr-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-apple"
             >
               <PenLine :size="14" />
               <span class="text-xs font-bold">기록</span>

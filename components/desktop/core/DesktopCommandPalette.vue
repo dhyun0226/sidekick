@@ -1,8 +1,8 @@
 <template>
   <Teleport to="body">
     <Transition
-      enter-active-class="transition-opacity duration-150"
-      leave-active-class="transition-opacity duration-100"
+      enter-active-class="transition-opacity duration-150 ease-apple"
+      leave-active-class="transition-opacity duration-100 ease-apple"
       enter-from-class="opacity-0"
       leave-to-class="opacity-0"
     >
