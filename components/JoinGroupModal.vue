@@ -4,7 +4,7 @@
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="close"></div>
 
     <!-- Modal Content -->
-    <div class="relative w-full max-w-[440px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+    <div class="relative w-full max-w-[440px] bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-t-3xl sm:rounded-2xl p-6 shadow-apple-lg animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Close Button -->
       <div class="absolute top-4 right-4 z-20">
@@ -56,7 +56,7 @@
           <button
             @click="handleJoin"
             :disabled="!canSubmit || loading"
-            class="flex-[2] py-4 bg-lime-400 text-black rounded-2xl font-black hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full font-black hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <div v-if="loading" class="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
             <span v-else>참여하기</span>

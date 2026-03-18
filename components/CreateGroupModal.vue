@@ -4,7 +4,7 @@
     <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="close"></div>
 
     <!-- Modal Content -->
-    <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-2xl p-6 shadow-2xl animate-scale-up">
+    <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-2xl p-6 shadow-apple-lg animate-scale-up">
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold text-zinc-900 dark:text-white">새 그룹 만들기</h2>
@@ -66,7 +66,7 @@
           <button
             @click="handleCreate"
             :disabled="!canSubmit || loading"
-            class="flex-1 py-3 bg-lime-400 text-black rounded-xl font-bold hover:bg-lime-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            class="flex-1 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <div v-if="loading" class="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
             <span v-else>생성하기</span>

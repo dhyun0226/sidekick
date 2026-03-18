@@ -4,7 +4,7 @@
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" @click="close"></div>
 
     <!-- Modal Content -->
-    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-[480px] rounded-t-3xl sm:rounded-2xl p-6 pointer-events-auto max-h-[90dvh] overflow-hidden flex flex-col shadow-2xl border border-zinc-300 dark:border-zinc-800">
+    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-[480px] rounded-t-3xl sm:rounded-2xl p-6 pointer-events-auto max-h-[90dvh] overflow-hidden flex flex-col shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
 
       <!-- Header -->
       <div class="flex justify-between items-center mb-2">
@@ -276,8 +276,8 @@
       <!-- Footer Buttons -->
       <div v-if="step > 1" class="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex gap-3">
         <button @click="step--" class="flex-1 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all">이전</button>
-        <button v-if="step === 2" @click="goToStep3" class="flex-[2] py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20">다음 단계</button>
-        <button v-else @click="confirmBook" class="flex-[2] py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20" :disabled="!startDate || !endDate">지금 시작하기</button>
+        <button v-if="step === 2" @click="goToStep3" class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm">다음 단계</button>
+        <button v-else @click="confirmBook" class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm" :disabled="!startDate || !endDate">지금 시작하기</button>
       </div>
     </div>
   </div>

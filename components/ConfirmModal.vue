@@ -7,7 +7,7 @@
         @click.self="onCancel"
       >
         <div
-          class="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl overflow-hidden animate-scale-up"
+          class="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden animate-scale-up"
           @click.stop
         >
           <!-- Header -->
