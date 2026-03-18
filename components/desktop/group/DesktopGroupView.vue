@@ -310,14 +310,25 @@ const handleReply = (comment: any) => {
 const handleLike = async (comment: any) => {
   const userId = userStore.profile?.id
   if (!userId) return
+
+  // Optimistic update
+  const wasLiked = comment.isLiked
+  const prevLikes = comment.likes || 0
+  comment.isLiked = !wasLiked
+  comment.likes = wasLiked ? Math.max(0, prevLikes - 1) : prevLikes + 1
+
   try {
-    if (comment.isLiked) {
+    if (wasLiked) {
       await client.from('reactions').delete().eq('comment_id', comment.id).eq('user_id', userId).eq('type', 'like')
     } else {
       await client.from('reactions').insert({ comment_id: comment.id, user_id: userId, type: 'like' })
     }
-    if (selectedBookId.value) fetchComments(selectedBookId.value)
-  } catch (e) { console.error('Like toggle failed:', e) }
+  } catch (e) {
+    // Rollback on error
+    comment.isLiked = wasLiked
+    comment.likes = prevLikes
+    console.error('Like toggle failed:', e)
+  }
 }
 
 const handleDeleteBook = () => {
