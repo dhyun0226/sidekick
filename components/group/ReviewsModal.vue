@@ -99,8 +99,8 @@
 
           <!-- Empty State -->
           <div v-if="reviews.length === 0" class="text-center py-16 flex flex-col items-center">
-            <div class="w-20 h-20 bg-zinc-50 dark:bg-zinc-800 rounded-3xl flex items-center justify-center mb-4 text-4xl shadow-inner">
-              ⭐
+            <div class="w-20 h-20 bg-zinc-50 dark:bg-zinc-800 rounded-3xl flex items-center justify-center mb-4 shadow-inner">
+              <Star :size="28" class="text-zinc-300 dark:text-zinc-600" />
             </div>
             <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">아직 리뷰가 없어요</h3>
             <p class="text-xs text-zinc-500">이 책의 첫 번째 리뷰어가 되어보세요!</p>

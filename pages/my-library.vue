@@ -56,8 +56,8 @@
       <div class="px-safe max-w-[480px] mx-auto min-h-[50vh] pb-[200px]">
         <!-- 책이 없을 때 Empty State (개선된 온보딩) -->
         <div v-if="!selectedBook" class="flex flex-col items-center justify-center pt-32 px-4">
-          <div class="w-24 h-24 bg-gradient-to-br from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner text-5xl">
-            📚
+          <div class="w-24 h-24 bg-gradient-to-br from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner">
+            <BookOpen :size="32" class="text-zinc-300 dark:text-zinc-600" />
           </div>
           <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
             읽을 책을 추가해주세요
@@ -68,7 +68,7 @@
 
           <button
             @click="openSearchModal"
-            class="px-8 py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center gap-2 active:scale-95"
+            class="px-8 py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-lg flex items-center gap-2 active:scale-95"
           >
             <Plus :size="20" stroke-width="3" />
             새 책 추가하기
@@ -331,7 +331,7 @@ import BookAdminModals from '~/components/group/BookAdminModals.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import TextDisplayModal from '~/components/TextDisplayModal.vue'
 import TextInputModal from '~/components/TextInputModal.vue'
-import { Archive, Plus } from 'lucide-vue-next'
+import { Archive, Plus, BookOpen } from 'lucide-vue-next'
 import { GroupPageKey } from '~/types'
 
 const DesktopLibraryView = defineAsyncComponent(() => import('~/components/desktop/library/DesktopLibraryView.vue'))

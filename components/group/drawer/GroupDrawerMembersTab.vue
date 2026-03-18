@@ -31,8 +31,14 @@
       />
     </div>
 
+    <!-- Empty State (no members at all) -->
+    <div v-if="sortedMembersWithProgress.length === 0" class="text-center py-8">
+      <Users :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
+      <p class="text-sm font-medium text-zinc-500">아직 멤버가 없어요</p>
+    </div>
+
     <!-- Members List (Slim Style) -->
-    <div v-if="filteredMembers.length > 0" class="space-y-1.5">
+    <div v-else-if="filteredMembers.length > 0" class="space-y-1.5">
       <div 
         v-for="member in filteredMembers" 
         :key="member.id" 
@@ -127,7 +133,7 @@
 
     <!-- Empty Search State -->
     <div v-else class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
-      <div class="text-4xl mb-3">🔍</div>
+      <Search :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
       <p>검색 결과와 일치하는 멤버가 없습니다</p>
     </div>
   </div>

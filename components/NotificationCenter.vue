@@ -43,8 +43,8 @@
         </div>
 
         <div v-else-if="notifications.length === 0" class="p-12 text-center flex flex-col items-center">
-          <div class="w-16 h-16 bg-zinc-50 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mb-4 text-3xl">
-            🔔
+          <div class="w-16 h-16 bg-zinc-50 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mb-4">
+            <Bell :size="28" class="text-zinc-300 dark:text-zinc-600" />
           </div>
           <h4 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">새로운 소식이 없어요</h4>
           <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">

@@ -152,7 +152,7 @@
 
     <!-- Empty State -->
     <div v-if="filteredAndSortedBooks.length === 0" class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
-      <div class="text-4xl mb-3">{{ searchQuery ? '🔍' : '📚' }}</div>
+      <component :is="searchQuery ? Search : BookOpen" :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
       <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 완독한 책이 없습니다' }}</p>
     </div>
   </div>
@@ -160,7 +160,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from 'vue'
-import { MessageCircle, Star, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check, Lock, X } from 'lucide-vue-next'
+import { MessageCircle, Star, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check, Lock, X, BookOpen } from 'lucide-vue-next'
 import DropdownMenu from '~/components/DropdownMenu.vue'
 import RatingBadge from '~/components/RatingBadge.vue'
 import GenreBadge from '~/components/GenreBadge.vue'

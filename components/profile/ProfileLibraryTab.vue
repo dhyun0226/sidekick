@@ -6,13 +6,13 @@
 
     <div v-else-if="library.length === 0" class="py-16 flex flex-col items-center text-center">
       <div class="w-20 h-20 bg-gradient-to-tr from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-5 shadow-inner">
-        <span class="text-4xl">📚</span>
+        <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-600" />
       </div>
       <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">아직 완독한 책이 없어요</h3>
       <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-8 max-w-xs leading-relaxed">
         그룹에서 책을 읽고 완독하면<br />이곳에 서재가 만들어집니다.
       </p>
-      <button @click="router.push('/')" class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30">책 읽으러 가기</button>
+      <button @click="router.push('/')" class="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-lg">책 읽으러 가기</button>
     </div>
 
     <div v-else class="space-y-6">
@@ -106,7 +106,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { Star } from 'lucide-vue-next'
+import { Star, BookOpen } from 'lucide-vue-next'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
 
 defineProps<{

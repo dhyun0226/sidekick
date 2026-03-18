@@ -102,7 +102,7 @@
               </div>
 
               <div v-if="!loading && query && searchResults.length === 0" class="py-12 text-center">
-                <div class="text-4xl mb-3">🔍</div>
+                <Search :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
                 <p class="text-sm text-zinc-500 font-medium">검색 결과가 없습니다</p>
               </div>
 
@@ -125,7 +125,7 @@
             </div>
 
             <div v-else-if="wishlist.length === 0" class="py-12 text-center">
-              <div class="text-4xl mb-3">💝</div>
+              <Heart :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
               <p class="text-sm text-zinc-500 font-medium mb-1">위시리스트가 비어있어요</p>
               <p class="text-xs text-zinc-400">검색 탭에서 책을 위시에 담아보세요</p>
             </div>

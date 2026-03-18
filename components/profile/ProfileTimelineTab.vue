@@ -6,13 +6,13 @@
 
     <div v-else-if="timeline.length === 0 && !loading" class="py-16 flex flex-col items-center text-center">
       <div class="w-20 h-20 bg-gradient-to-tr from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-5 shadow-inner">
-        <span class="text-4xl">✍️</span>
+        <Pencil :size="28" class="text-zinc-300 dark:text-zinc-600" />
       </div>
       <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">아직 남긴 기록이 없어요</h3>
       <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-8 max-w-xs leading-relaxed">
         책을 읽으며 인상 깊은 구절이나<br />떠오르는 생각을 기록해 보세요.
       </p>
-      <button @click="router.push('/')" class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30">기록 남기러 가기</button>
+      <button @click="router.push('/')" class="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-lg">기록 남기러 가기</button>
     </div>
 
     <div v-else class="space-y-8">
@@ -92,6 +92,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Pencil } from 'lucide-vue-next'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import RatingBadge from '~/components/RatingBadge.vue'
 import Badge from '~/components/Badge.vue'

@@ -132,8 +132,10 @@
       </div>
 
       <!-- Empty State -->
-      <div v-if="groups.length === 0" class="text-center py-20">
-        <p class="text-zinc-400 text-sm">참여 중인 그룹이 없습니다</p>
+      <div v-if="groups.length === 0" class="text-center py-12">
+        <Users :size="32" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+        <p class="text-[15px] font-medium text-zinc-900 dark:text-white mb-1">참여 중인 그룹이 없어요</p>
+        <p class="text-[13px] text-zinc-400">그룹에 참여하거나 새로운 그룹을 만들어보세요</p>
       </div>
     </template>
 
@@ -291,7 +293,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { User, BookOpen, ChevronRight, Copy, RefreshCw, Pencil, Archive, LogOut, Trash2, Library, Eye, EyeOff, X, RotateCcw } from 'lucide-vue-next'
+import { User, Users, BookOpen, ChevronRight, Copy, RefreshCw, Pencil, Archive, LogOut, Trash2, Library, Eye, EyeOff, X, RotateCcw } from 'lucide-vue-next'
 import GenreBadge from '~/components/GenreBadge.vue'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'

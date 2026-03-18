@@ -78,7 +78,8 @@
       </div>
 
       <!-- Empty -->
-      <div v-if="readingBooks.length === 0 && historyBooks.length === 0" class="p-6 text-center">
+      <div v-if="readingBooks.length === 0 && historyBooks.length === 0" class="text-center py-8">
+        <BookOpen :size="20" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
         <p class="text-desktop-caption text-zinc-400">책이 없어요</p>
       </div>
     </div>
@@ -98,7 +99,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { Plus, MoreHorizontal } from 'lucide-vue-next'
+import { Plus, MoreHorizontal, BookOpen } from 'lucide-vue-next'
 
 defineProps<{
   readingBooks: any[]
