@@ -51,9 +51,9 @@
                 @keyup.enter="searchBooks"
                 type="text"
                 placeholder="책 제목이나 저자를 검색하세요"
-                class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl px-4 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-lime-400 border-none transition-all shadow-sm"
+                class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl px-4 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none transition-all shadow-sm"
               />
-              <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-lime-500 transition-colors" :size="20" />
+              <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-zinc-900 dark:group-focus-within:text-white transition-colors" :size="20" />
             </div>
 
             <div class="space-y-3 pt-2">
@@ -243,7 +243,7 @@
                 <input 
                   v-model="startDate" 
                   type="date" 
-                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark] transition-all" 
+                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none [color-scheme:light] dark:[color-scheme:dark] transition-all" 
                 />
               </div>
               <div class="space-y-1.5">
@@ -252,7 +252,7 @@
                   v-model="endDate" 
                   type="date" 
                   :min="startDate" 
-                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark] transition-all" 
+                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none [color-scheme:light] dark:[color-scheme:dark] transition-all" 
                 />
               </div>
             </div>

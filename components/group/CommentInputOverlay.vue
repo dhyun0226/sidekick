@@ -28,7 +28,7 @@
               'w-full rounded-lg px-3 py-2 text-sm focus:outline-none resize-y',
               anchorTextLocked
                 ? 'bg-lime-100 dark:bg-zinc-800/50 text-lime-600 dark:text-lime-400 italic cursor-not-allowed border border-lime-400/30'
-                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:ring-2 focus:ring-lime-400'
+                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10'
             ]"
           ></textarea>
           <div v-if="anchorTextLocked" class="absolute right-2 top-2 text-xs text-zinc-600 dark:text-zinc-500 bg-white dark:bg-zinc-900 px-2 py-1 rounded">
@@ -44,7 +44,7 @@
         <textarea
           v-model="content"
           placeholder="이 부분에 대한 생각을 남겨보세요..."
-          class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl p-3 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm"
+          class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl p-3 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 text-sm"
           maxlength="500"
         ></textarea>
         <div class="flex justify-between items-center mt-1">

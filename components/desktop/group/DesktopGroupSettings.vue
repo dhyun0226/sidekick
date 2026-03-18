@@ -19,7 +19,7 @@
             v-if="isEditingName"
             @click="saveName"
             :disabled="!editName.trim() || editName.trim() === groupName"
-            class="px-3 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-medium rounded-full hover:opacity-80 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
+            class="px-3 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-medium rounded-full hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
             저장
           </button>

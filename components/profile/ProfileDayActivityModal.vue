@@ -1,7 +1,7 @@
 <template>
   <div v-if="isOpen && selectedDay" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-black/70 backdrop-blur-md" @click="$emit('close')"></div>
-    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 max-h-[85vh] flex flex-col overflow-hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="$emit('close')"></div>
+    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] max-h-[85vh] flex flex-col overflow-hidden">
       <!-- Header -->
       <div class="bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-800 dark:to-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-4 py-4 text-left">
         <div class="flex items-center justify-between">

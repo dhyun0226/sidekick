@@ -29,7 +29,7 @@
       <button
         @click="$emit('save', nickname)"
         :disabled="!nickname.trim() || saving"
-        class="px-5 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors ease-apple duration-200 text-desktop-callout disabled:opacity-40"
+        class="px-5 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors ease-apple duration-200 text-desktop-callout disabled:opacity-50"
       >
         {{ saving ? '저장 중...' : '저장' }}
       </button>

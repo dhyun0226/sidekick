@@ -1,7 +1,7 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="$emit('close')"></div>
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="$emit('close')"></div>
 
     <!-- Modal Content -->
     <div class="relative w-full max-w-[480px] h-[85vh] bg-white dark:bg-zinc-900 border-t sm:border-none ring-1 ring-black/[0.04] dark:ring-white/[0.06] sm:rounded-3xl flex flex-col animate-slide-up shadow-apple-lg overflow-hidden">

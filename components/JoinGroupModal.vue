@@ -32,7 +32,7 @@
               type="text"
               placeholder="A1B2C3D4"
               maxlength="20"
-              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl px-4 py-5 text-center tracking-[0.5em] text-2xl font-black focus:outline-none focus:ring-2 focus:ring-lime-400 border-none transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700 uppercase shadow-inner"
+              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl px-4 py-5 text-center tracking-[0.5em] text-2xl font-black focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700 uppercase shadow-inner"
               @keyup.enter="handleJoin"
               @input="handleInput"
             />

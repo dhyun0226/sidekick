@@ -1,7 +1,7 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="$emit('close')"></div>
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="$emit('close')"></div>
 
     <!-- Modal Content -->
     <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-2xl p-6 shadow-apple-lg animate-in fade-in zoom-in-95 duration-200">
@@ -83,7 +83,7 @@
         <textarea
           v-model="content"
           placeholder="책을 읽으며 느낀 점을 자유롭게 기록해보세요."
-          class="w-full h-32 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm border-none transition-all"
+          class="w-full h-32 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 text-sm border-none transition-all"
         ></textarea>
       </div>
 

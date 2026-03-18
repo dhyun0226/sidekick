@@ -1,7 +1,7 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-[10000] flex items-center justify-center px-4">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="close"></div>
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="close"></div>
 
     <!-- Modal Content -->
     <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-2xl p-6 shadow-apple-lg animate-scale-up">
@@ -23,7 +23,7 @@
             type="text"
             placeholder="예: 판교 직장인 독서클럽"
             maxlength="50"
-            class="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-400/20 transition-all placeholder-zinc-600 dark:placeholder-zinc-500"
+            class="w-full bg-zinc-100 dark:bg-zinc-800 ring-1 ring-black/[0.04] dark:ring-white/[0.06] text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all placeholder-zinc-600 dark:placeholder-zinc-500"
             @keyup.enter="handleCreate"
           />
           <div class="flex justify-between items-center text-xs">

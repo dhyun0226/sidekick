@@ -18,7 +18,7 @@
           type="number"
           min="1"
           placeholder="책의 마지막 페이지 번호를 적어주세요"
-          class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3.5 pr-16 focus:outline-none focus:ring-2 focus:ring-lime-400 border-none transition-all no-spinner outline-none"
+          class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3.5 pr-16 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none transition-all no-spinner outline-none"
         />
         <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400 font-bold pointer-events-none whitespace-nowrap">쪽까지</span>
       </div>

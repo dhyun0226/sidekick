@@ -174,7 +174,7 @@
                 v-else
                 @click="handleSave"
                 :disabled="validRowCount === 0 || saving"
-                class="px-6 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-200 text-desktop-callout disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2"
+                class="px-6 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-200 text-desktop-callout disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 <span v-if="!saving">저장하기</span>
                 <span v-else>저장 중...</span>

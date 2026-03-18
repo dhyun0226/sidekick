@@ -73,7 +73,7 @@
             <div v-else class="mt-2">
               <textarea
                 v-model="editContent"
-                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-lime-400 resize-none border border-zinc-200 dark:border-zinc-700"
+                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                 rows="2"
                 @keydown.esc="cancelEdit"
               ></textarea>
@@ -123,7 +123,7 @@
                 v-model="replyContent"
                 type="text"
                 placeholder="답글을 남겨보세요..."
-                class="w-full bg-zinc-50 dark:bg-zinc-800/50 text-xs text-zinc-900 dark:text-white rounded-xl pl-3 pr-10 py-3 focus:outline-none focus:ring-1 focus:ring-lime-400 transition-all border-none"
+                class="w-full bg-zinc-50 dark:bg-zinc-800/50 text-xs text-zinc-900 dark:text-white rounded-xl pl-3 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all border-none"
                 @keyup.enter="submitReply(comment.id)"
                 autoFocus
               />
@@ -191,7 +191,7 @@
                 <div v-else class="mt-2">
                   <textarea
                     v-model="editReplyContent"
-                    class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-[13px] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-lime-400 resize-none border border-zinc-200 dark:border-zinc-700"
+                    class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-[13px] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                     rows="2"
                     @keydown.esc="cancelReplyEdit"
                   ></textarea>
