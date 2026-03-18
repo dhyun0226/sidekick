@@ -81,10 +81,11 @@
           </button>
           <button
             @click="handleSaveDates"
-            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95"
-            :disabled="!localStartDate || !localEndDate"
+            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            :disabled="!localStartDate || !localEndDate || isSavingDates"
           >
-            변경사항 저장
+            <div v-if="isSavingDates" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+            <span v-else>변경사항 저장</span>
           </button>
         </div>
       </div>
@@ -139,10 +140,12 @@
             취소
           </button>
           <button
-            @click="emit('markAsCompleted')"
-            class="flex-[2] py-4 bg-lime-400 text-black font-black rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95"
+            @click="isMarkingCompleted = true; emit('markAsCompleted')"
+            :disabled="isMarkingCompleted"
+            class="flex-[2] py-4 bg-lime-400 text-black font-black rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            {{ props.isSolo ? '완독 완료' : '완주 완료' }}
+            <div v-if="isMarkingCompleted" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+            <span v-else>{{ props.isSolo ? '완독 완료' : '완주 완료' }}</span>
           </button>
         </div>
       </div>
@@ -189,10 +192,12 @@
             취소
           </button>
           <button
-            @click="emit('deleteBook')"
-            class="flex-[2] bg-amber-500 text-white font-bold py-4 rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95"
+            @click="isDeletingBook = true; emit('deleteBook')"
+            :disabled="isDeletingBook"
+            class="flex-[2] bg-amber-500 text-white font-bold py-4 rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            삭제
+            <div v-if="isDeletingBook" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+            <span v-else>삭제</span>
           </button>
         </div>
       </div>
@@ -240,10 +245,11 @@
           </button>
           <button
             @click="handleSaveFinishedDate"
-            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95"
-            :disabled="!localFinishedDate"
+            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            :disabled="!localFinishedDate || isSavingFinishedDate"
           >
-            날짜 저장
+            <div v-if="isSavingFinishedDate" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+            <span v-else>날짜 저장</span>
           </button>
         </div>
       </div>
@@ -301,10 +307,11 @@
           </button>
           <button
             @click="handleSaveToc"
-            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95"
-            :disabled="!localTotalPages || localTotalPages <= 0"
+            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            :disabled="!localTotalPages || localTotalPages <= 0 || isSavingToc"
           >
-            수정 완료
+            <div v-if="isSavingToc" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+            <span v-else>수정 완료</span>
           </button>
         </div>
       </div>
@@ -360,6 +367,12 @@ const emit = defineEmits<Emits>()
 
 const toast = useToastStore()
 
+const isSavingDates = ref(false)
+const isSavingToc = ref(false)
+const isSavingFinishedDate = ref(false)
+const isMarkingCompleted = ref(false)
+const isDeletingBook = ref(false)
+
 // Edit Dates
 const localStartDate = ref('')
 const localEndDate = ref('')
@@ -369,6 +382,15 @@ watch(() => props.editDatesOpen, (isOpen) => {
     localStartDate.value = props.currentBook.target_start_date || ''
     localEndDate.value = props.currentBook.target_end_date || ''
   }
+  if (!isOpen) isSavingDates.value = false
+})
+
+watch(() => props.markCompletedOpen, (isOpen) => {
+  if (!isOpen) isMarkingCompleted.value = false
+})
+
+watch(() => props.deleteBookOpen, (isOpen) => {
+  if (!isOpen) isDeletingBook.value = false
 })
 
 const calculateDays = () => {
@@ -380,10 +402,16 @@ const calculateDays = () => {
 }
 
 const handleSaveDates = () => {
-  emit('saveEditedDates', {
-    startDate: localStartDate.value,
-    endDate: localEndDate.value
-  })
+  if (isSavingDates.value) return
+  isSavingDates.value = true
+  try {
+    emit('saveEditedDates', {
+      startDate: localStartDate.value,
+      endDate: localEndDate.value
+    })
+  } finally {
+    isSavingDates.value = false
+  }
 }
 
 // Helper function to get local date string (YYYY-MM-DD) without timezone conversion
@@ -407,10 +435,17 @@ watch(() => props.editFinishedDateOpen, (isOpen) => {
       localFinishedDate.value = ''
     }
   }
+  if (!isOpen) isSavingFinishedDate.value = false
 })
 
 const handleSaveFinishedDate = () => {
-  emit('saveEditedFinishedDate', localFinishedDate.value)
+  if (isSavingFinishedDate.value) return
+  isSavingFinishedDate.value = true
+  try {
+    emit('saveEditedFinishedDate', localFinishedDate.value)
+  } finally {
+    isSavingFinishedDate.value = false
+  }
 }
 
 // Edit TOC
@@ -419,6 +454,7 @@ const localChapters = ref<{ title: string; startPage: number }[]>([])
 const tocFormRef = ref<InstanceType<typeof TocInputForm> | null>(null)
 
 watch([() => props.editTocOpen, () => props.currentBook], ([isOpen, currentBook]) => {
+  if (!isOpen) isSavingToc.value = false
   if (isOpen && currentBook) {
     // ✅ Use snapshot (사용자 입력값) first, fallback to official → draft
     localTotalPages.value = currentBook.pages_snapshot || currentBook.book?.official_pages || currentBook.book?.draft_pages || null
@@ -436,16 +472,21 @@ watch([() => props.editTocOpen, () => props.currentBook], ([isOpen, currentBook]
 })
 
 const handleSaveToc = () => {
-  if (!tocFormRef.value) return
+  if (!tocFormRef.value || isSavingToc.value) return
   const validation = tocFormRef.value.validate()
   if (!validation.valid) {
     toast.error(validation.message || '목차 정보를 확인해주세요.')
     return
   }
-  emit('saveEditedToc', {
-    totalPages: localTotalPages.value!,
-    chapters: localChapters.value
-  })
+  isSavingToc.value = true
+  try {
+    emit('saveEditedToc', {
+      totalPages: localTotalPages.value!,
+      chapters: localChapters.value
+    })
+  } finally {
+    isSavingToc.value = false
+  }
 }
 </script>
 

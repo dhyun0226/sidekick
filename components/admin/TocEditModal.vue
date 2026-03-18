@@ -130,9 +130,10 @@
         <button
           @click="save"
           :disabled="saving || !isValid"
-          class="flex-1 py-3 rounded-xl bg-lime-400 hover:bg-lime-300 text-black font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="flex-1 py-3 rounded-xl bg-lime-400 hover:bg-lime-300 text-black font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
-          {{ saving ? '저장 중...' : '저장하기' }}
+          <div v-if="saving" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+          <span v-else>저장하기</span>
         </button>
       </div>
     </div>

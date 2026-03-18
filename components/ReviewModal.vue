@@ -97,10 +97,11 @@
         </button>
         <button
           @click="submitReview"
-          class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm active:scale-95 disabled:opacity-50"
-          :disabled="rating === 0"
+          class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          :disabled="rating === 0 || isSubmitting"
         >
-          {{ isEditing ? '리뷰 수정하기' : '리뷰 등록하기' }}
+          <div v-if="isSubmitting" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+          <span v-else>{{ isEditing ? '리뷰 수정하기' : '리뷰 등록하기' }}</span>
         </button>
       </div>
     </div>
@@ -133,6 +134,7 @@ const emit = defineEmits(['close', 'submit'])
 
 const rating = ref(0)
 const content = ref('')
+const isSubmitting = ref(false)
 
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
@@ -156,9 +158,15 @@ onUnmounted(() => {
 })
 
 const submitReview = () => {
-  emit('submit', { rating: rating.value, content: content.value })
-  rating.value = 0
-  content.value = ''
+  if (isSubmitting.value) return
+  isSubmitting.value = true
+  try {
+    emit('submit', { rating: rating.value, content: content.value })
+    rating.value = 0
+    content.value = ''
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const skip = () => {

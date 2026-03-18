@@ -87,10 +87,11 @@
             <kbd class="hidden sm:inline text-[10px] text-zinc-300 dark:text-zinc-600">⌘↵</kbd>
             <button
               @click="submitComment"
-              :disabled="!newComment.trim()"
-              class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full text-desktop-caption font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-200 ease-apple disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+              :disabled="!newComment.trim() || isSubmitting"
+              class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full text-desktop-caption font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-200 ease-apple disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 flex items-center justify-center min-w-[72px]"
             >
-              기록하기
+              <div v-if="isSubmitting" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+              <span v-else>기록하기</span>
             </button>
           </div>
         </div>
@@ -150,6 +151,7 @@ const emit = defineEmits(['submit', 'load-more', 'reply', 'like', 'open-batch', 
 const newComment = ref('')
 const anchorText = ref('')
 const showSaved = ref(false)
+const isSubmitting = ref(false)
 const contentInputRef = ref<HTMLTextAreaElement | null>(null)
 const anchorInputRef = ref<HTMLTextAreaElement | null>(null)
 const positionInputRef = ref<HTMLInputElement | null>(null)
@@ -213,39 +215,44 @@ const getPositionAsPct = (): number => {
   return commentPosition.value
 }
 
-const submitComment = () => {
-  if (!newComment.value.trim()) return
+const submitComment = async () => {
+  if (!newComment.value.trim() || isSubmitting.value) return
 
+  isSubmitting.value = true
   const pct = getPositionAsPct()
 
-  emit('submit', {
-    content: newComment.value.trim(),
-    anchorText: anchorText.value.trim(),
-    positionPct: pct
-  })
+  try {
+    emit('submit', {
+      content: newComment.value.trim(),
+      anchorText: anchorText.value.trim(),
+      positionPct: pct
+    })
 
-  // If comment position is ahead, update progress
-  if (pct > props.viewProgress) {
-    emit('progress-change', pct)
+    // If comment position is ahead, update progress
+    if (pct > props.viewProgress) {
+      emit('progress-change', pct)
+    }
+
+    newComment.value = ''
+    anchorText.value = ''
+
+    // 제출 후 현재 진행률로 위치 리셋
+    const currentPct = Math.round(props.viewProgress)
+    if (positionMode.value === 'page' && props.totalPages) {
+      commentPosition.value = Math.max(1, Math.round((Math.max(pct, currentPct) / 100) * props.totalPages))
+    } else {
+      commentPosition.value = Math.max(pct, currentPct)
+    }
+
+    // 저장 피드백
+    showSaved.value = true
+    setTimeout(() => { showSaved.value = false }, 2000)
+
+    // 다음 입력을 위해 내용 입력으로 포커스
+    nextTick(() => contentInputRef.value?.focus())
+  } finally {
+    isSubmitting.value = false
   }
-
-  newComment.value = ''
-  anchorText.value = ''
-
-  // 제출 후 현재 진행률로 위치 리셋
-  const currentPct = Math.round(props.viewProgress)
-  if (positionMode.value === 'page' && props.totalPages) {
-    commentPosition.value = Math.max(1, Math.round((Math.max(pct, currentPct) / 100) * props.totalPages))
-  } else {
-    commentPosition.value = Math.max(pct, currentPct)
-  }
-
-  // 저장 피드백
-  showSaved.value = true
-  setTimeout(() => { showSaved.value = false }, 2000)
-
-  // 다음 입력을 위해 내용 입력으로 포커스
-  nextTick(() => contentInputRef.value?.focus())
 }
 
 defineExpose({ anchorText })

@@ -78,7 +78,10 @@
                 @keydown.esc="cancelEdit"
               ></textarea>
               <div class="flex gap-2 mt-2">
-                <button @click="saveEdit(comment.id)" class="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded hover:opacity-90">저장</button>
+                <button @click="saveEdit(comment.id)" :disabled="isSavingEdit" class="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[48px]">
+                  <div v-if="isSavingEdit" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                  <span v-else>저장</span>
+                </button>
                 <button @click="cancelEdit" class="px-3 py-1 text-zinc-400 text-xs hover:text-zinc-600 dark:hover:text-zinc-200">취소</button>
               </div>
             </div>
@@ -129,10 +132,11 @@
               />
               <button
                 @click="submitReply(comment.id)"
-                class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-lime-600 hover:bg-lime-100 dark:hover:bg-lime-900/30 rounded-full transition-colors"
-                :disabled="!replyContent"
+                class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-lime-600 hover:bg-lime-100 dark:hover:bg-lime-900/30 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="!replyContent || isSubmittingReply"
               >
-                <Send :size="14" />
+                <div v-if="isSubmittingReply" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                <Send v-else :size="14" />
               </button>
             </div>
           </div>
@@ -196,7 +200,10 @@
                     @keydown.esc="cancelReplyEdit"
                   ></textarea>
                   <div class="flex gap-2 mt-2">
-                    <button @click="saveReplyEdit(reply.id)" class="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded hover:opacity-90">저장</button>
+                    <button @click="saveReplyEdit(reply.id)" :disabled="isSavingReplyEdit" class="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[48px]">
+                      <div v-if="isSavingReplyEdit" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                      <span v-else>저장</span>
+                    </button>
                     <button @click="cancelReplyEdit" class="px-3 py-1 text-zinc-400 text-xs hover:text-zinc-600 dark:hover:text-zinc-200">취소</button>
                   </div>
                 </div>
@@ -339,6 +346,9 @@ const props = defineProps<{
 
 const activeReplyId = ref<string | null>(null)
 const replyContent = ref('')
+const isSubmittingReply = ref(false)
+const isSavingEdit = ref(false)
+const isSavingReplyEdit = ref(false)
 const selectedGroupKey = ref<string | null>(null)
 const detailModalOpen = computed(() => !!selectedGroupKey.value)
 
@@ -485,12 +495,13 @@ const toggleReplyForm = (id: string) => {
 const emit = defineEmits(['replySubmitted', 'modalOpen', 'modalClose', 'writeComment', 'loadMore'])
 
 const submitReply = async (parentId: string) => {
-  if (!replyContent.value.trim()) return
+  if (!replyContent.value.trim() || isSubmittingReply.value) return
 
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) return
-
+  isSubmittingReply.value = true
   try {
+    const { data: { user } } = await client.auth.getUser()
+    if (!user) return
+
     const parentComment = props.comments.find(c => c.id === parentId)
     if (!parentComment) return
 
@@ -528,6 +539,8 @@ const submitReply = async (parentId: string) => {
   } catch (error) {
     console.error('Reply error:', error)
     toast.error('답글 작성에 실패했습니다.')
+  } finally {
+    isSubmittingReply.value = false
   }
 }
 
@@ -561,8 +574,9 @@ const startEdit = (comment: Comment) => {
 }
 
 const saveEdit = async (commentId: string) => {
-  if (!editContent.value.trim()) return
+  if (!editContent.value.trim() || isSavingEdit.value) return
 
+  isSavingEdit.value = true
   try {
     const { error } = await client
       .from('comments')
@@ -586,6 +600,8 @@ const saveEdit = async (commentId: string) => {
   } catch (error) {
     console.error('Save edit error:', error)
     toast.error('댓글 수정에 실패했습니다.')
+  } finally {
+    isSavingEdit.value = false
   }
 }
 
@@ -601,8 +617,9 @@ const startReplyEdit = (reply: Reply) => {
 }
 
 const saveReplyEdit = async (replyId: string) => {
-  if (!editReplyContent.value.trim()) return
+  if (!editReplyContent.value.trim() || isSavingReplyEdit.value) return
 
+  isSavingReplyEdit.value = true
   try {
     const { error } = await client
       .from('comments')
@@ -631,6 +648,8 @@ const saveReplyEdit = async (replyId: string) => {
   } catch (error) {
     console.error('Save reply edit error:', error)
     toast.error('답글 수정에 실패했습니다.')
+  } finally {
+    isSavingReplyEdit.value = false
   }
 }
 

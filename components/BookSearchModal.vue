@@ -277,7 +277,10 @@
       <div v-if="step > 1" class="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex gap-3">
         <button @click="step--" class="flex-1 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all">이전</button>
         <button v-if="step === 2" @click="goToStep3" class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm">다음 단계</button>
-        <button v-else @click="confirmBook" class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm" :disabled="!startDate || !endDate">지금 시작하기</button>
+        <button v-else @click="confirmBook" class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center" :disabled="!startDate || !endDate || isConfirming">
+          <div v-if="isConfirming" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+          <span v-else>지금 시작하기</span>
+        </button>
       </div>
     </div>
   </div>
@@ -345,6 +348,7 @@ const chapters = ref<{ title: string; startPage: number }[]>([])
 const currentStart = ref(1)
 const hasMore = ref(false)
 const tocFormRef = ref<InstanceType<typeof TocInputForm> | null>(null)
+const isConfirming = ref(false)
 
 const getLocalDateString = (date: Date): string => {
   const year = date.getFullYear()
@@ -499,16 +503,22 @@ const calculateDays = () => {
 const confirmBook = () => {
   if (!totalPages.value) { toast.error('전체 페이지를 입력해주세요.'); return }
   if (!selectedGenre.value) { toast.error('장르를 선택해주세요.'); return }
-  
-  emit('confirm', { 
-    book: selectedBook.value, 
-    genre: selectedGenre.value, 
-    totalPages: totalPages.value, 
-    toc: chapters.value, // { title, startPage } 구조 그대로 전달
-    startDate: startDate.value, 
-    endDate: endDate.value 
-  })
-  close()
+  if (isConfirming.value) return
+
+  isConfirming.value = true
+  try {
+    emit('confirm', {
+      book: selectedBook.value,
+      genre: selectedGenre.value,
+      totalPages: totalPages.value,
+      toc: chapters.value, // { title, startPage } 구조 그대로 전달
+      startDate: startDate.value,
+      endDate: endDate.value
+    })
+    close()
+  } finally {
+    isConfirming.value = false
+  }
 }
 </script>
 

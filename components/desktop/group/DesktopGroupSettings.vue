@@ -18,10 +18,11 @@
           <button
             v-if="isEditingName"
             @click="saveName"
-            :disabled="!editName.trim() || editName.trim() === groupName"
-            class="px-3 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-medium rounded-full hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="!editName.trim() || editName.trim() === groupName || isSavingName"
+            class="px-3 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-medium rounded-full hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[48px]"
           >
-            저장
+            <div v-if="isSavingName" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+            <span v-else>저장</span>
           </button>
           <button
             v-if="isEditingName"
@@ -105,6 +106,7 @@ const emit = defineEmits(['copy-code', 'copy-link', 'regenerate-code', 'delete-g
 const isEditingName = ref(false)
 const editName = ref('')
 const nameInputRef = ref<HTMLInputElement | null>(null)
+const isSavingName = ref(false)
 
 const startEditName = () => {
   editName.value = props.groupName
@@ -119,8 +121,13 @@ const cancelEditName = () => {
 
 const saveName = () => {
   const trimmed = editName.value.trim()
-  if (!trimmed || trimmed === props.groupName) return
-  emit('save-group-name', trimmed)
-  isEditingName.value = false
+  if (!trimmed || trimmed === props.groupName || isSavingName.value) return
+  isSavingName.value = true
+  try {
+    emit('save-group-name', trimmed)
+    isEditingName.value = false
+  } finally {
+    isSavingName.value = false
+  }
 }
 </script>

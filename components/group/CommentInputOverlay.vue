@@ -65,11 +65,14 @@
         </button>
         <button
           @click="handleSubmit"
-          :disabled="!isValid"
+          :disabled="!isValid || isSubmitting"
           class="flex-1 py-3 bg-lime-400 text-black rounded-xl font-bold hover:bg-lime-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          <Send :size="16" />
-          등록
+          <div v-if="isSubmitting" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+          <template v-else>
+            <Send :size="16" />
+            등록
+          </template>
         </button>
       </div>
     </div>
@@ -106,6 +109,7 @@ const emit = defineEmits<Emits>()
 
 const content = ref('')
 const anchorText = ref(props.initialAnchorText)
+const isSubmitting = ref(false)
 
 watch(() => props.isOpen, (isOpen) => {
   if (isOpen) {
@@ -123,13 +127,18 @@ watch(() => props.initialAnchorText, (newValue) => {
 })
 
 const handleSubmit = () => {
-  if (!isValid.value) return
+  if (!isValid.value || isSubmitting.value) return
 
-  emit('submit', {
-    content: content.value.trim(),
-    anchorText: anchorText.value.trim() || null,
-    position: Math.round(props.position)
-  })
+  isSubmitting.value = true
+  try {
+    emit('submit', {
+      content: content.value.trim(),
+      anchorText: anchorText.value.trim() || null,
+      position: Math.round(props.position)
+    })
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const isValid = computed(() => {

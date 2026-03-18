@@ -39,7 +39,7 @@
               <div class="flex gap-2">
                 <input v-model="editNickname" type="text" class="flex-1 min-w-0 bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 text-zinc-900 dark:text-white transition-all" />
                 <button @click="saveProfile" class="flex-shrink-0 p-3 bg-zinc-900 dark:bg-zinc-700 text-white rounded-xl hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-all active:scale-95 disabled:opacity-50" :disabled="isSaving">
-                  <div v-if="isSaving" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div v-if="isSaving" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                   <Save v-else :size="20" />
                 </button>
               </div>
