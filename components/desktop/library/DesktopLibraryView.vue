@@ -74,8 +74,8 @@
       </div>
 
       <!-- Loading -->
-      <div v-if="isLoading" class="flex items-center justify-center h-full">
-        <LoadingSpinner size="lg" message="불러오는 중..." />
+      <div v-if="isLoading" class="px-8 pt-6">
+        <SkeletonTimeline :count="3" />
       </div>
     </div>
 
@@ -130,7 +130,6 @@ import { ref, inject, computed } from 'vue'
 import { GroupPageKey } from '~/types'
 import { useToastStore } from '~/stores/toast'
 import { useUserStore } from '~/stores/user'
-import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import DesktopRightPanel from '~/components/desktop/core/DesktopRightPanel.vue'
 import DesktopBookListSidebar from './DesktopBookListSidebar.vue'
 import DesktopBookInfoPanel from './DesktopBookInfoPanel.vue'

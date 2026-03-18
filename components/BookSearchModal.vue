@@ -57,8 +57,8 @@
             </div>
 
             <div class="space-y-3 pt-2">
-              <div v-if="loading && searchResults.length === 0" class="flex flex-col items-center justify-center py-12">
-                <LoadingSpinner size="md" message="책을 찾고 있어요" />
+              <div v-if="loading && searchResults.length === 0" class="py-4">
+                <SkeletonBookList :count="4" />
               </div>
 
               <div

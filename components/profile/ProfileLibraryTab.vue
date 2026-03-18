@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6 pb-10">
-    <div v-if="loading" class="flex items-center justify-center py-12">
-      <LoadingSpinner size="md" message="서재 불러오는 중..." />
+    <div v-if="loading" class="py-4">
+      <SkeletonBookCard :count="8" :columns="4" />
     </div>
 
     <div v-else-if="library.length === 0" class="py-16 flex flex-col items-center text-center">
@@ -107,7 +107,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { Star, BookOpen } from 'lucide-vue-next'
-import LoadingSpinner from '~/components/LoadingSpinner.vue'
 
 defineProps<{
   library: any[]

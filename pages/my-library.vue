@@ -18,8 +18,8 @@
 
     <!-- Loading State -->
     <template v-if="isLoading">
-      <div class="flex items-center justify-center min-h-[60vh]">
-        <LoadingSpinner size="lg" message="타임라인 불러오는 중..."/>
+      <div class="px-4 pt-4">
+        <SkeletonTimeline :count="3" />
       </div>
     </template>
 
@@ -326,7 +326,6 @@ import Timeline from '~/components/Timeline.vue'
 import SmartSlider from '~/components/SmartSlider.vue'
 import CommentInputOverlay from '~/components/group/CommentInputOverlay.vue'
 import MyLibraryDrawer from '~/components/my-library/MyLibraryDrawer.vue'
-import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import BookAdminModals from '~/components/group/BookAdminModals.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import TextDisplayModal from '~/components/TextDisplayModal.vue'

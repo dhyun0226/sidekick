@@ -300,8 +300,8 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex items-center justify-center py-16">
-      <LoadingSpinner size="lg" message="그룹 목록 불러오는 중..." />
+    <div v-if="loading" class="px-5">
+      <SkeletonGroupCard :count="3" />
     </div>
 
     <!-- FAB (항상 표시) -->
@@ -338,7 +338,6 @@ import { User, Plus, KeyRound, ChevronRight, MessageCircle, Coffee, BookOpen, Co
 import NotificationCenter from '~/components/NotificationCenter.vue'
 import CreateGroupModal from '~/components/CreateGroupModal.vue'
 import JoinGroupModal from '~/components/JoinGroupModal.vue'
-import LoadingSpinner from '~/components/LoadingSpinner.vue'
 
 const DesktopHomeDashboard = defineAsyncComponent(() => import('~/components/desktop/home/DesktopHomeDashboard.vue'))
 

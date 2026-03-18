@@ -9,8 +9,8 @@
     </div>
 
     <!-- Loading -->
-    <div v-if="loading" class="flex items-center justify-center py-20">
-      <LoadingSpinner size="lg" message="불러오는 중..." />
+    <div v-if="loading">
+      <SkeletonGroupCard :count="3" />
     </div>
 
     <template v-else>
@@ -90,7 +90,6 @@
 import { computed } from 'vue'
 import { Users as UsersIcon } from 'lucide-vue-next'
 import { useUserStore } from '~/stores/user'
-import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import DesktopCurrentBookCard from './DesktopCurrentBookCard.vue'
 import DesktopGroupCard from './DesktopGroupCard.vue'
 

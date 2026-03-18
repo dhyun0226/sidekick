@@ -2,8 +2,8 @@
   <div class="space-y-6 pb-10">
     <!-- 내 위시 목록 -->
     <div>
-      <div v-if="loading" class="flex items-center justify-center py-12">
-        <LoadingSpinner size="md" message="위시리스트 불러오는 중..." />
+      <div v-if="loading" class="py-4">
+        <SkeletonBookCard :count="4" :columns="4" />
       </div>
 
       <div v-else-if="wishlist.length === 0" class="py-16 flex flex-col items-center text-center">
@@ -81,7 +81,6 @@ import { ref } from 'vue'
 import { Plus, X, Heart } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 import { useUserStore } from '~/stores/user'
-import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import WishlistSearchModal from '~/components/WishlistSearchModal.vue'
 
 const props = defineProps<{

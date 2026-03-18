@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-8 pb-10">
-    <div v-if="loading && timeline.length === 0" class="flex items-center justify-center py-12">
-      <LoadingSpinner size="md" message="타임라인 불러오는 중..." />
+    <div v-if="loading && timeline.length === 0" class="py-4">
+      <SkeletonTimeline :count="3" />
     </div>
 
     <div v-else-if="timeline.length === 0 && !loading" class="py-16 flex flex-col items-center text-center">
