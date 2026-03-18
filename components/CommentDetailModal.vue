@@ -110,7 +110,7 @@
               />
               <button 
                 @click="submitReply(comment.id)" 
-                class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-lime-400 text-black rounded-full shadow-sm"
+                class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full shadow-apple-sm"
                 :disabled="!replyContent"
               >
                 <ArrowUp :size="14" />
