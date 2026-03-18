@@ -15,7 +15,7 @@
         >
           <ArrowLeft :size="24" />
         </button>
-        <h1 class="text-xl font-semibold text-zinc-900 dark:text-white">디스커버</h1>
+        <h1 class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-white">디스커버</h1>
       </div>
 
       <!-- Filters -->

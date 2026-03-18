@@ -10,7 +10,7 @@
         <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-lime-400 to-lime-600 mb-4 shadow-lg shadow-lime-400/20">
           <span class="text-4xl">👋</span>
         </div>
-        <h1 class="text-3xl font-semibold text-zinc-900 dark:text-white">환영합니다!</h1>
+        <h1 class="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">환영합니다!</h1>
         <p class="text-zinc-600 dark:text-zinc-400">프로필을 설정하고 독서를 시작해보세요</p>
       </div>
 

@@ -71,11 +71,12 @@ export const useGroupComments = (userIdRef: Ref<string | null | undefined>) => {
         const allItemIds = data.map(c => c.id)
         
         // Get reaction counts for all items (roots + replies)
-        const { data: reactionCounts } = await client
+        const { data: reactionCounts, error: reactionError } = await client
           .from('reactions')
           .select('comment_id')
           .in('comment_id', allItemIds)
           .eq('type', 'like')
+        if (reactionError) console.error('[Comments] Reaction counts fetch failed:', reactionError)
 
         // Get user's likes for all items
         let userLikes: any[] = []

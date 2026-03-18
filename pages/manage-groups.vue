@@ -3,7 +3,7 @@
     <div class="max-w-2xl mx-auto">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-2xl font-semibold text-zinc-900 dark:text-white mb-2">활성 그룹 관리</h1>
+        <h1 class="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">활성 그룹 관리</h1>
         <p class="text-sm text-zinc-500 dark:text-zinc-400">
           무료 플랜은 2개 그룹만 사용할 수 있습니다. 사용할 그룹을 선택해주세요.
         </p>
