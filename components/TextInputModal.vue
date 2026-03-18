@@ -8,7 +8,7 @@
     <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 mx-4 shadow-2xl border border-zinc-300 dark:border-zinc-800 transition-all duration-300">
       <!-- Header -->
       <div class="mb-4">
-        <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">{{ title }}</h3>
+        <h3 class="text-lg font-semibold text-zinc-900 dark:text-white mb-2">{{ title }}</h3>
         <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ message }}</p>
       </div>
 

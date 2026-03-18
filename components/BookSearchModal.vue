@@ -9,7 +9,7 @@
       <!-- Header -->
       <div class="flex justify-between items-center mb-2">
         <div>
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">새 책 시작하기</h2>
+          <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">새 책 시작하기</h2>
           <div class="flex gap-1 mt-1.5">
             <div v-for="i in 3" :key="i" class="h-1 rounded-full transition-all duration-300" :class="i <= step ? 'w-4 bg-lime-400' : 'w-1.5 bg-zinc-200 dark:bg-zinc-800'"></div>
           </div>
@@ -513,10 +513,6 @@ const confirmBook = () => {
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
 @keyframes animate-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .animate-in { animation: animate-in 0.3s ease-out; }
 </style>

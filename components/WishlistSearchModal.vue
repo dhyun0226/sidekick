@@ -242,9 +242,3 @@ const handleAddToWishlist = async (book: any) => {
 }
 </script>
 
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
-</style>

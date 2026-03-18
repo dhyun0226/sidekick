@@ -8,7 +8,7 @@
       <!-- Header -->
       <div class="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-6 py-4 flex justify-between items-center z-10">
         <div>
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-white">그룹 통계</h2>
+          <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">그룹 통계</h2>
           <p class="text-sm text-zinc-500">{{ groupName }}</p>
         </div>
         <button @click="$emit('close')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">

@@ -6,7 +6,7 @@
     <!-- Modal Content -->
     <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 mx-4 shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] transition-all duration-300">
       <div class="mb-4">
-        <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">{{ title }}</h3>
+        <h3 class="text-lg font-semibold text-zinc-900 dark:text-white mb-2">{{ title }}</h3>
         <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ message }}</p>
       </div>
 

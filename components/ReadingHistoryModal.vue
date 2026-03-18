@@ -7,7 +7,7 @@
     <div class="relative w-full max-w-2xl max-h-[90vh] bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-300 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col">
       <!-- Header -->
       <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-300 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur sticky top-0 z-10">
-        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">내가 읽은 책</h2>
+        <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">내가 읽은 책</h2>
         <button @click="closeModal" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <X :size="24" />
         </button>

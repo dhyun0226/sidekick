@@ -8,7 +8,7 @@
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800">
         <div>
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-white">목차 수정</h2>
+          <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">목차 수정</h2>
           <p class="text-sm text-zinc-500 mt-1">
             {{ book?.title }}
             <span v-if="tocType === 'official'" class="ml-2 text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded">

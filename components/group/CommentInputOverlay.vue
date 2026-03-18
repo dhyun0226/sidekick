@@ -5,7 +5,7 @@
       <!-- Header -->
       <div class="flex justify-between items-center mb-4">
         <div>
-          <h3 class="text-lg font-bold text-zinc-900 dark:text-zinc-100">댓글 작성</h3>
+          <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">댓글 작성</h3>
           <p class="text-xs text-zinc-600 dark:text-zinc-500 mt-1">{{ chapterName }} · {{ Math.round(position) }}%</p>
         </div>
         <button @click="emit('close')" class="text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white">

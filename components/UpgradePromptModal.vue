@@ -27,7 +27,7 @@
               <span class="text-[10px] font-black text-lime-700 dark:text-lime-400 uppercase tracking-widest">Premium Membership</span>
             </div>
             
-            <h3 class="text-2xl font-black text-zinc-900 dark:text-white leading-tight mb-2 tracking-tight whitespace-pre-line">
+            <h3 class="text-2xl font-semibold text-zinc-900 dark:text-white leading-tight mb-2 tracking-tight whitespace-pre-line">
               {{ featureTitle }}
             </h3>
             <p class="text-[13px] text-zinc-500 dark:text-zinc-400 leading-relaxed px-2">

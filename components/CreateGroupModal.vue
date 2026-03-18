@@ -7,7 +7,7 @@
     <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-2xl p-6 shadow-apple-lg animate-scale-up">
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-zinc-900 dark:text-white">새 그룹 만들기</h2>
+        <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">새 그룹 만들기</h2>
         <button @click="close" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <X :size="24" />
         </button>

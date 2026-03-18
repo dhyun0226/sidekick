@@ -196,10 +196,6 @@ const handleKickMember = (member: MemberWithProgress) => {
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
 @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 .animate-fade-in { animation: fade-in 0.2s ease-out; }
 </style>

@@ -15,7 +15,7 @@
 
       <!-- Hero Section -->
       <div class="text-center mb-8 pt-4">
-        <h2 class="text-xl font-black text-zinc-900 dark:text-white mb-2">초대 코드로 입장</h2>
+        <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-2">초대 코드로 입장</h2>
         <p class="text-sm text-zinc-500 dark:text-zinc-400">
           친구에게 받은 코드를 아래에 입력하세요
         </p>
@@ -221,7 +221,6 @@ const joinGroup = async (groupId: string, groupName: string) => {
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
 @keyframes animate-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .animate-in { animation: animate-in 0.3s ease-out; }
 </style>

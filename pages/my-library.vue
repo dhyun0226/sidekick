@@ -59,7 +59,7 @@
           <div class="w-24 h-24 bg-gradient-to-br from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner text-5xl">
             📚
           </div>
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+          <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
             읽을 책을 추가해주세요
           </h2>
           <p class="text-sm text-zinc-500 dark:text-zinc-400 text-center mb-8 max-w-xs leading-relaxed">
@@ -68,7 +68,7 @@
 
           <button
             @click="openSearchModal"
-            class="px-8 py-4 bg-lime-400 text-black font-extrabold rounded-2xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center gap-2 active:scale-95"
+            class="px-8 py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center gap-2 active:scale-95"
           >
             <Plus :size="20" stroke-width="3" />
             새 책 추가하기

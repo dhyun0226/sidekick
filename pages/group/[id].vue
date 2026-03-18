@@ -153,7 +153,7 @@
           <button
             v-if="isAdmin"
             @click="openSearchModal"
-            class="px-8 py-4 bg-lime-400 text-black font-extrabold rounded-2xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center gap-2 active:scale-95"
+            class="px-8 py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center gap-2 active:scale-95"
           >
             <Plus :size="20" stroke-width="3" />
             새 책 시작하기
