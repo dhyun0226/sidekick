@@ -3,6 +3,8 @@
     v-if="show"
     class="fixed inset-0 bg-black/50 flex items-center justify-center z-[10000] p-4"
     @click.self="close"
+    @keydown.esc="close"
+    tabindex="-1"
   >
     <div class="bg-white dark:bg-zinc-900 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
       <!-- Header -->

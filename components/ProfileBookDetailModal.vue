@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen && book" class="fixed inset-0 z-50 overflow-y-auto">
+  <div v-if="isOpen && book" class="fixed inset-0 z-50 overflow-y-auto" @keydown.esc="$emit('close')" tabindex="-1">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="$emit('close')"></div>
     <div class="relative min-h-screen flex items-start justify-center p-4">
       <div class="relative w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] my-8 overflow-hidden text-left">

@@ -16,9 +16,11 @@
     <div v-if="isOpen" class="fixed inset-0 z-[100005]" @click="isOpen = false"></div>
 
     <!-- Dropdown Modal -->
-    <div 
-      v-if="isOpen" 
+    <div
+      v-if="isOpen"
       class="absolute right-0 top-12 w-[340px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl z-[100010] overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right"
+      @keydown.esc="isOpen = false"
+      tabindex="-1"
     >
       <!-- Header -->
       <div class="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">

@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center p-6">
+      <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center p-6" @keydown.esc="$emit('close')" tabindex="-1">
         <!-- Backdrop with Deep Blur -->
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="$emit('close')"></div>
 

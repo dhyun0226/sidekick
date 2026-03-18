@@ -6,7 +6,7 @@
       enter-from-class="opacity-0"
       leave-to-class="opacity-0"
     >
-      <div v-if="isOpen" class="fixed inset-0 z-[9999] flex items-center justify-center" @click.self="$emit('close')">
+      <div v-if="isOpen" class="fixed inset-0 z-[9999] flex items-center justify-center" @click.self="$emit('close')" @keydown.esc="$emit('close')" tabindex="-1">
         <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/25 backdrop-blur-md" @click="$emit('close')"></div>
 

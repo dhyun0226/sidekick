@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4" @keydown.esc="$emit('close')" tabindex="-1">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="$emit('close')"></div>
     <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg animate-in fade-in zoom-in-95 duration-200 ring-1 ring-black/[0.04] dark:ring-white/[0.06] max-h-[90vh] overflow-hidden flex flex-col">
       

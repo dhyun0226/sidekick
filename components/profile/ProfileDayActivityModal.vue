@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen && selectedDay" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div v-if="isOpen && selectedDay" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.esc="$emit('close')" tabindex="-1">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="$emit('close')"></div>
     <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] max-h-[85vh] flex flex-col overflow-hidden">
       <!-- Header -->
