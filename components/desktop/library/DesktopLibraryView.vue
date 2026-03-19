@@ -26,12 +26,23 @@
           <div class="pt-1">
             <h1 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-1.5 leading-tight">{{ bookTitle }}</h1>
             <p class="text-desktop-callout text-zinc-500 mb-3 font-light">{{ bookAuthor }}</p>
-            <div class="flex items-center gap-3 text-desktop-caption text-zinc-400">
-              <span v-if="daysRemaining !== null">
+            <div class="flex flex-wrap items-center gap-1.5 mt-1">
+              <GenreBadge v-if="selectedBook.genre" :genre="selectedBook.genre" size="sm" />
+              <Badge v-if="selectedBook.round && selectedBook.round > 1" size="sm">
+                {{ selectedBook.round }}회차
+              </Badge>
+              <Badge v-if="selectedBook.total_pages" size="sm">
+                {{ selectedBook.total_pages }}p
+              </Badge>
+              <Badge v-if="selectedBook.target_start_date && selectedBook.target_end_date" size="sm">
+                {{ formatShortDate(selectedBook.target_start_date) }} - {{ formatShortDate(selectedBook.target_end_date) }}
+              </Badge>
+              <Badge v-if="daysRemaining !== null" :variant="daysRemaining <= 3 ? 'red' : daysRemaining <= 7 ? 'amber' : 'lime'" size="sm">
                 {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
-              </span>
-              <span v-if="selectedBook.total_pages">{{ selectedBook.total_pages }}p</span>
-              <span v-if="selectedBook.genre">{{ selectedBook.genre }}</span>
+              </Badge>
+              <Badge v-if="selectedBook.user_finished_at" variant="lime" size="sm">
+                {{ formatShortDate(selectedBook.user_finished_at) }} 완독
+              </Badge>
             </div>
           </div>
         </div>
@@ -88,6 +99,7 @@
         :toc="toc"
         :is-archived="isArchived"
         :preferred-mode="preferredInputMode"
+        :user-rating="selectedBookId ? userReviewedBooks.get(selectedBookId) : null"
         @progress-change="handleProgressChange"
         @mode-change="handleModeChange"
         @jump-to-chapter="jumpToChapter"
@@ -137,6 +149,8 @@ import DesktopBookInfoPanel from './DesktopBookInfoPanel.vue'
 import DesktopTimelineView from './DesktopTimelineView.vue'
 import DesktopBatchNotesModal from './DesktopBatchNotesModal.vue'
 import CommentDetailModal from '~/components/CommentDetailModal.vue'
+import Badge from '~/components/Badge.vue'
+import GenreBadge from '~/components/GenreBadge.vue'
 
 const ctx = inject(GroupPageKey)!
 const toast = useToastStore()
@@ -177,8 +191,17 @@ const {
   handleUnmarkFinished,
   handleDeleteHistoryBook,
   handleRestartReading,
+  userReviewedBooks,
   modals
 } = ctx
+
+const formatShortDate = (d: string) => {
+  const date = new Date(d)
+  const y = date.getFullYear() % 100
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${y}.${m}.${day}`
+}
 
 const batchModalOpen = ref(false)
 const batchModalRef = ref<InstanceType<typeof DesktopBatchNotesModal> | null>(null)

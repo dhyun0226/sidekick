@@ -79,11 +79,27 @@
               <p class="text-desktop-caption text-zinc-400 mb-1">{{ groupName }}</p>
               <h1 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-1.5 leading-tight">{{ bookTitle }}</h1>
               <p class="text-desktop-callout text-zinc-500 mb-3 font-light">{{ bookAuthor }}</p>
-              <div class="flex items-center gap-3 text-desktop-caption text-zinc-400">
-                <span v-if="daysRemaining !== null">
+              <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                <GenreBadge v-if="selectedBook.genre" :genre="selectedBook.genre" size="sm" />
+                <Badge v-if="selectedBook.round && selectedBook.round > 1" size="sm">
+                  {{ selectedBook.round }}회차
+                </Badge>
+                <Badge v-if="selectedBook.total_pages" size="sm">
+                  {{ selectedBook.total_pages }}p
+                </Badge>
+                <Badge v-if="selectedBook.target_start_date && selectedBook.target_end_date" size="sm">
+                  {{ formatShortDate(selectedBook.target_start_date) }} - {{ formatShortDate(selectedBook.target_end_date) }}
+                </Badge>
+                <Badge v-if="daysRemaining !== null" :variant="daysRemaining <= 3 ? 'red' : daysRemaining <= 7 ? 'amber' : 'lime'" size="sm">
                   {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
-                </span>
-                <span>{{ members.length }}명 참여</span>
+                </Badge>
+                <Badge size="sm">
+                  <template #icon><Users :size="10" /></template>
+                  {{ members.length }}명
+                </Badge>
+                <Badge v-if="selectedBook.user_finished_at" variant="lime" size="sm">
+                  {{ formatShortDate(selectedBook.user_finished_at) }} 완독
+                </Badge>
               </div>
             </div>
           </div>
@@ -164,6 +180,7 @@
         :is-archived="isArchived"
         :preferred-mode="preferredInputMode"
         :show-mark-completed="isAdmin"
+        :user-rating="selectedBookId ? userReviewedBooks.get(selectedBookId) : null"
         @progress-change="handleProgressChange"
         @mode-change="handleModeChange"
         @jump-to-chapter="jumpToChapter"
@@ -219,7 +236,7 @@
 
 <script setup lang="ts">
 import { ref, inject } from 'vue'
-import { AlertCircle, Lock } from 'lucide-vue-next'
+import { AlertCircle, Lock, Users } from 'lucide-vue-next'
 import { GroupPageKey } from '~/types'
 import { useToastStore } from '~/stores/toast'
 import { useUserStore } from '~/stores/user'
@@ -231,6 +248,8 @@ import DesktopMemberPanel from './DesktopMemberPanel.vue'
 import DesktopGroupSettings from './DesktopGroupSettings.vue'
 import DesktopBatchNotesModal from '~/components/desktop/library/DesktopBatchNotesModal.vue'
 import CommentDetailModal from '~/components/CommentDetailModal.vue'
+import Badge from '~/components/Badge.vue'
+import GenreBadge from '~/components/GenreBadge.vue'
 
 const ctx = inject(GroupPageKey)!
 const toast = useToastStore()
@@ -257,6 +276,7 @@ const {
   isPausedGroup,
   isPremium,
   handleBecomeOwner,
+  userReviewedBooks,
   modals
 } = ctx
 
@@ -273,6 +293,14 @@ const rightTabs = [
 const preferredInputMode = ref<'percent' | 'page'>(
   (userStore.profile?.app_settings as any)?.preferred_input_mode || 'percent'
 )
+
+const formatShortDate = (d: string) => {
+  const date = new Date(d)
+  const y = date.getFullYear() % 100
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${y}.${m}.${day}`
+}
 
 const handleModeChange = async (mode: 'percent' | 'page') => {
   preferredInputMode.value = mode

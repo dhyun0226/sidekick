@@ -63,7 +63,7 @@
           <Tag :size="12" />
           장르
         </span>
-        <span class="text-desktop-caption font-medium text-zinc-700 dark:text-zinc-300">{{ book.genre }}</span>
+        <GenreBadge :genre="book.genre" size="sm" />
       </div>
       <div v-if="book.target_start_date" class="flex justify-between items-center">
         <span class="text-desktop-caption text-zinc-400 flex items-center gap-1.5">
@@ -82,6 +82,30 @@
             {{ daysRemaining <= 0 ? '마감일 지남' : `D-${daysRemaining}` }}
           </span>
         </div>
+      </div>
+      <!-- Round -->
+      <div v-if="book.round && book.round > 1" class="flex justify-between items-center">
+        <span class="text-desktop-caption text-zinc-400 flex items-center gap-1.5">
+          <RefreshCw :size="12" />
+          회차
+        </span>
+        <span class="text-desktop-caption font-medium text-zinc-700 dark:text-zinc-300">{{ book.round }}회차</span>
+      </div>
+      <!-- Rating -->
+      <div v-if="userRating" class="flex justify-between items-center">
+        <span class="text-desktop-caption text-zinc-400 flex items-center gap-1.5">
+          <Star :size="12" />
+          내 평점
+        </span>
+        <RatingBadge :rating="userRating" size="sm" />
+      </div>
+      <!-- Finished Date -->
+      <div v-if="book.user_finished_at" class="flex justify-between items-center">
+        <span class="text-desktop-caption text-zinc-400 flex items-center gap-1.5">
+          <CheckCircle :size="12" />
+          완독일
+        </span>
+        <span class="text-desktop-caption font-medium text-lime-600 dark:text-lime-400">{{ formatDate(book.user_finished_at) }}</span>
       </div>
     </div>
 
@@ -204,7 +228,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Calendar, List, CheckCircle, Tag, Trash2, Undo2, BookOpen, Star, MessageSquare } from 'lucide-vue-next'
+import { Calendar, List, CheckCircle, Tag, Trash2, Undo2, BookOpen, Star, MessageSquare, RefreshCw } from 'lucide-vue-next'
+import GenreBadge from '~/components/GenreBadge.vue'
+import RatingBadge from '~/components/RatingBadge.vue'
 import DesktopProgressInput from './DesktopProgressInput.vue'
 import type { TocChapter } from '~/types'
 
@@ -215,6 +241,7 @@ const props = defineProps<{
   isArchived?: boolean
   preferredMode?: 'percent' | 'page'
   showMarkCompleted?: boolean
+  userRating?: number | null
 }>()
 
 defineEmits(['progress-change', 'mode-change', 'jump-to-chapter', 'edit-dates', 'edit-toc', 'mark-finished', 'delete-book', 'edit-genre', 'unmark-finished', 'mark-completed', 'open-review', 'open-reviews'])
