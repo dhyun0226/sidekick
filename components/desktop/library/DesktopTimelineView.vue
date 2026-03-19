@@ -107,50 +107,46 @@
           <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
         </div>
 
-        <!-- Anchor Groups within this position -->
-        <div class="space-y-6">
+        <!-- Anchor Groups -->
+        <div class="space-y-8">
           <div v-for="anchorGroup in posGroup.anchorGroups" :key="anchorGroup.key">
-            <!-- Shared Anchor Text (shown once) -->
-            <div v-if="anchorGroup.anchorText" class="mb-3">
+            <!-- Shared Anchor Text -->
+            <div v-if="anchorGroup.anchorText" class="mb-4">
               <div class="pl-4 border-l-2 border-lime-400 dark:border-lime-500">
                 <p class="text-desktop-body italic text-zinc-500 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap">{{ anchorGroup.anchorText }}</p>
               </div>
             </div>
 
-            <!-- Comments under this anchor -->
-            <div class="space-y-1">
-              <div v-for="(comment, idx) in anchorGroup.comments" :key="comment.id">
-                <div v-if="idx > 0" class="h-px bg-zinc-100 dark:bg-zinc-800/60 ml-8"></div>
+            <!-- Comments -->
+            <div class="space-y-5">
+              <div v-for="comment in anchorGroup.comments" :key="comment.id">
+                <!-- Comment -->
+                <div class="flex gap-3">
+                  <Avatar
+                    :src="comment.user?.avatar_url"
+                    :fallback="(comment.user?.nickname || '나')[0]"
+                    size="xs"
+                    :alt="comment.user?.nickname || '나'"
+                    className="w-7 h-7 shadow-sm flex-shrink-0 mt-0.5"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline gap-2">
+                      <span class="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100">{{ comment.user?.nickname || '나' }}</span>
+                      <span class="text-[11px] text-zinc-300 dark:text-zinc-600">{{ formatTimeAgo(comment.created_at) }}</span>
+                    </div>
 
-                <!-- Comment Entry -->
-                <div class="group/entry relative px-4 py-3 -mx-4 rounded-xl transition-colors duration-200 ease-apple hover:bg-zinc-50 dark:hover:bg-zinc-800/30">
-                  <!-- Author Row -->
-                  <div class="flex items-center gap-2 mb-1.5">
-                    <Avatar
-                      :src="comment.user?.avatar_url"
-                      :fallback="(comment.user?.nickname || '나')[0]"
-                      size="xs"
-                      :alt="comment.user?.nickname || '나'"
-                      className="w-6 h-6 shadow-sm"
-                    />
-                    <span class="text-[13px] font-medium text-zinc-900 dark:text-zinc-100">{{ comment.user?.nickname || '나' }}</span>
-                    <span class="text-[11px] text-zinc-300 dark:text-zinc-600">{{ formatTimeAgo(comment.created_at) }}</span>
-                  </div>
-
-                  <!-- Content (view) -->
-                  <div class="pl-8">
                     <template v-if="editingCommentId !== comment.id">
-                      <p v-if="comment.content" class="text-desktop-body text-zinc-800 dark:text-zinc-200 leading-relaxed whitespace-pre-wrap break-words">{{ comment.content }}</p>
+                      <p v-if="comment.content" class="text-desktop-body text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words mt-1">{{ comment.content }}</p>
 
-                      <!-- Actions -->
-                      <div class="flex items-center gap-1 mt-2 opacity-0 group-hover/entry:opacity-100 transition-opacity duration-200 ease-apple">
+                      <!-- Actions (always visible, very muted) -->
+                      <div class="flex items-center gap-3 mt-1.5">
                         <div class="relative">
                           <button
                             @click="handleLike(comment)"
-                            class="flex items-center gap-1 px-2 py-1 rounded-full text-desktop-caption font-medium transition-all duration-200 ease-apple"
-                            :class="comment.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-600 hover:text-red-400'"
+                            class="flex items-center gap-1 text-[11px] font-medium transition-colors"
+                            :class="comment.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-700 hover:text-red-400'"
                           >
-                            <Heart :size="13" :fill="comment.isLiked ? 'currentColor' : 'none'" :class="likedId === comment.id ? 'animate-like-bounce' : ''" />
+                            <Heart :size="12" :fill="comment.isLiked ? 'currentColor' : 'none'" :class="likedId === comment.id ? 'animate-like-bounce' : ''" />
                             <span v-if="comment.likes" class="tabular-nums">{{ comment.likes }}</span>
                           </button>
                           <div :ref="(el) => setParticleRef(comment.id, el)" class="pointer-events-none absolute inset-0 overflow-visible"></div>
@@ -158,36 +154,63 @@
 
                         <button
                           @click="toggleReplyForm(comment.id)"
-                          class="flex items-center gap-1 px-2 py-1 rounded-full text-desktop-caption font-medium text-zinc-300 dark:text-zinc-600 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all duration-200 ease-apple"
+                          class="flex items-center gap-1 text-[11px] font-medium text-zinc-300 dark:text-zinc-700 hover:text-zinc-500 transition-colors"
                         >
-                          <MessageCircle :size="13" />
+                          <MessageCircle :size="12" />
                           <span v-if="comment.replies?.length" class="tabular-nums">{{ comment.replies.length }}</span>
                         </button>
 
                         <template v-if="currentUserId && comment.user_id === currentUserId">
-                          <button @click="startEdit(comment)" class="p-1.5 rounded-lg text-zinc-300 dark:text-zinc-600 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-                            <Pencil :size="13" />
+                          <button @click="startEdit(comment)" class="text-zinc-300 dark:text-zinc-700 hover:text-zinc-500 transition-colors">
+                            <Pencil :size="11" />
                           </button>
-                          <button @click="$emit('delete', comment)" class="p-1.5 rounded-lg text-zinc-300 dark:text-zinc-600 hover:text-red-500 transition-colors">
-                            <Trash2 :size="13" />
+                          <button @click="$emit('delete', comment)" class="text-zinc-300 dark:text-zinc-700 hover:text-red-400 transition-colors">
+                            <Trash2 :size="11" />
                           </button>
                         </template>
                       </div>
+                    </template>
 
-                      <!-- Replies (collapsed, expand on click) -->
-                      <div v-if="comment.replies?.length && expandedReplies[comment.id]" class="mt-3 pl-2 border-l border-zinc-100 dark:border-zinc-800/60 space-y-2">
-                        <div v-for="reply in comment.replies" :key="reply.id" class="group/reply py-1.5 pl-3">
+                    <!-- Edit Mode -->
+                    <template v-else>
+                      <textarea
+                        ref="editTextareaRef"
+                        v-model="editContent"
+                        rows="3"
+                        class="w-full mt-1 px-3 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-body text-zinc-800 dark:text-zinc-200 resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10"
+                        @keydown.meta.enter="saveEdit(comment)"
+                        @keydown.ctrl.enter="saveEdit(comment)"
+                        @keydown.escape="cancelEdit"
+                      ></textarea>
+                      <div class="flex items-center gap-2 mt-2">
+                        <button @click="saveEdit(comment)" :disabled="!editContent.trim()" class="px-3.5 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50">저장</button>
+                        <button @click="cancelEdit" class="px-3.5 py-1.5 text-zinc-500 text-desktop-caption font-medium hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">취소</button>
+                        <kbd class="ml-auto text-[10px] text-zinc-300 dark:text-zinc-600">⌘↵</kbd>
+                      </div>
+                    </template>
+
+                    <!-- Replies (always visible) -->
+                    <div v-if="comment.replies?.length" class="mt-3 space-y-2.5">
+                      <div v-for="reply in comment.replies" :key="reply.id" class="flex gap-2.5">
+                        <Avatar
+                          :src="reply.user?.avatar_url"
+                          :fallback="(reply.user?.nickname || '탈')[0]"
+                          size="xs"
+                          :alt="reply.user?.nickname || '탈퇴한 사용자'"
+                          className="w-5 h-5 shadow-sm flex-shrink-0 mt-0.5"
+                        />
+                        <div class="flex-1 min-w-0">
                           <div class="flex items-baseline gap-1.5">
-                            <span class="text-[13px] font-medium text-zinc-600 dark:text-zinc-300 flex-shrink-0">{{ reply.user?.nickname || '탈퇴한 사용자' }}</span>
-                            <p class="text-[13px] text-zinc-500 dark:text-zinc-400 whitespace-pre-wrap break-words">{{ reply.content }}</p>
-                          </div>
-                          <div class="flex items-center gap-2 mt-1 opacity-0 group-hover/reply:opacity-100 transition-opacity duration-200 ease-apple">
+                            <span class="text-[12px] font-semibold text-zinc-700 dark:text-zinc-300">{{ reply.user?.nickname || '탈퇴한 사용자' }}</span>
                             <span class="text-[10px] text-zinc-300 dark:text-zinc-600">{{ formatTimeAgo(reply.created_at) }}</span>
+                          </div>
+                          <p class="text-[13px] text-zinc-600 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap break-words mt-0.5">{{ reply.content }}</p>
+                          <div class="flex items-center gap-3 mt-1">
                             <div class="relative">
                               <button
                                 @click="handleLike(reply)"
                                 class="flex items-center gap-1 text-[10px] font-medium transition-colors"
-                                :class="reply.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-600 hover:text-red-400'"
+                                :class="reply.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-700 hover:text-red-400'"
                               >
                                 <Heart :size="10" :fill="reply.isLiked ? 'currentColor' : 'none'" :class="likedId === reply.id ? 'animate-like-bounce' : ''" />
                                 <span v-if="reply.likes" class="tabular-nums">{{ reply.likes }}</span>
@@ -197,48 +220,30 @@
                           </div>
                         </div>
                       </div>
+                    </div>
 
-                      <!-- Reply Input -->
-                      <div v-if="activeReplyId === comment.id" class="mt-3">
-                        <div class="flex items-center gap-2">
-                          <input
-                            ref="replyInputRef"
-                            v-model="replyContent"
-                            type="text"
-                            placeholder="답글을 남겨보세요..."
-                            class="flex-1 bg-zinc-50 dark:bg-zinc-800/50 text-[13px] text-zinc-800 dark:text-zinc-200 rounded-xl pl-3 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all duration-200 ease-apple"
-                            @keyup.enter="submitReply(comment)"
-                            @keydown.escape="cancelReply"
-                          />
-                          <button
-                            @click="submitReply(comment)"
-                            :disabled="!replyContent.trim() || isSubmittingReply"
-                            class="p-2 text-lime-600 hover:bg-lime-100 dark:hover:bg-lime-900/30 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-                          >
-                            <div v-if="isSubmittingReply" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                            <Send v-else :size="16" />
-                          </button>
-                        </div>
+                    <!-- Reply Input -->
+                    <div v-if="activeReplyId === comment.id" class="mt-3">
+                      <div class="flex items-center gap-2">
+                        <input
+                          ref="replyInputRef"
+                          v-model="replyContent"
+                          type="text"
+                          placeholder="답글을 남겨보세요..."
+                          class="flex-1 bg-zinc-50 dark:bg-zinc-800/50 text-[13px] text-zinc-800 dark:text-zinc-200 rounded-xl pl-3 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all duration-200 ease-apple"
+                          @keyup.enter="submitReply(comment)"
+                          @keydown.escape="cancelReply"
+                        />
+                        <button
+                          @click="submitReply(comment)"
+                          :disabled="!replyContent.trim() || isSubmittingReply"
+                          class="p-2 text-lime-600 hover:bg-lime-100 dark:hover:bg-lime-900/30 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                        >
+                          <div v-if="isSubmittingReply" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                          <Send v-else :size="16" />
+                        </button>
                       </div>
-                    </template>
-
-                    <!-- Content (edit mode) -->
-                    <template v-else>
-                      <textarea
-                        ref="editTextareaRef"
-                        v-model="editContent"
-                        rows="3"
-                        class="w-full px-3 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-body text-zinc-800 dark:text-zinc-200 resize-none transition-all duration-200 ease-apple focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 mb-3"
-                        @keydown.meta.enter="saveEdit(comment)"
-                        @keydown.ctrl.enter="saveEdit(comment)"
-                        @keydown.escape="cancelEdit"
-                      ></textarea>
-                      <div class="flex items-center gap-2 mb-2">
-                        <button @click="saveEdit(comment)" :disabled="!editContent.trim()" class="px-3.5 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50">저장</button>
-                        <button @click="cancelEdit" class="px-3.5 py-1.5 text-zinc-500 text-desktop-caption font-medium hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">취소</button>
-                        <kbd class="ml-auto text-[10px] text-zinc-300 dark:text-zinc-600">⌘↵</kbd>
-                      </div>
-                    </template>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -479,13 +484,7 @@ const handleLike = (comment: any) => {
   emit('like', comment)
 }
 
-// ===== Reply Expand State =====
-const expandedReplies = ref<Record<string, boolean>>({})
-
 const toggleReplyForm = (commentId: string) => {
-  // Also expand replies when opening reply form
-  expandedReplies.value[commentId] = true
-
   if (activeReplyId.value === commentId) {
     activeReplyId.value = null
     replyContent.value = ''
