@@ -63,7 +63,10 @@
           <Tag :size="12" />
           장르
         </span>
-        <GenreBadge :genre="book.genre" size="sm" />
+        <span class="text-desktop-caption font-medium text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full flex-shrink-0" :class="genreDotColor"></span>
+          {{ book.genre }}
+        </span>
       </div>
       <div v-if="book.target_start_date" class="flex justify-between items-center">
         <span class="text-desktop-caption text-zinc-400 flex items-center gap-1.5">
@@ -97,7 +100,10 @@
           <Star :size="12" />
           내 평점
         </span>
-        <RatingBadge :rating="userRating" size="sm" />
+        <span class="text-desktop-caption font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1">
+          <Star :size="11" fill="currentColor" />
+          {{ Number(userRating).toFixed(1).replace('.0', '') }}
+        </span>
       </div>
       <!-- Finished Date -->
       <div v-if="book.user_finished_at" class="flex justify-between items-center">
@@ -229,8 +235,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Calendar, List, CheckCircle, Tag, Trash2, Undo2, BookOpen, Star, MessageSquare, RefreshCw } from 'lucide-vue-next'
-import GenreBadge from '~/components/GenreBadge.vue'
-import RatingBadge from '~/components/RatingBadge.vue'
 import DesktopProgressInput from './DesktopProgressInput.vue'
 import type { TocChapter } from '~/types'
 
@@ -256,6 +260,16 @@ const isCurrentChapter = (chapter: TocChapter) => {
 const isPastChapter = (chapter: TocChapter) => {
   return props.viewProgress >= (chapter.end ?? 100)
 }
+
+const genreDotColor = computed(() => {
+  const dotMap: Record<string, string> = {
+    '소설': 'bg-purple-500', '시/시집': 'bg-fuchsia-500', '에세이': 'bg-blue-500',
+    '자기계발': 'bg-orange-500', '경영/경제': 'bg-emerald-500', '인문/철학': 'bg-indigo-500',
+    '사회/정치': 'bg-red-500', '과학/기술': 'bg-cyan-500', '역사': 'bg-amber-500',
+    '예술': 'bg-rose-500', '종교': 'bg-violet-500', '기타': 'bg-teal-500'
+  }
+  return dotMap[props.book?.genre] || 'bg-zinc-400'
+})
 
 const daysRemaining = computed(() => {
   if (!props.book?.target_end_date) return null
