@@ -81,7 +81,7 @@
       <div v-if="daysRemaining !== null && !isArchived" class="pt-2.5 mt-1">
         <div class="flex justify-between items-center">
           <span class="text-desktop-caption text-zinc-400">남은 기간</span>
-          <span class="text-desktop-caption font-semibold" :class="daysRemaining <= 3 ? 'text-red-500' : daysRemaining <= 7 ? 'text-amber-500' : 'text-zinc-700 dark:text-zinc-300'">
+          <span class="text-desktop-caption font-semibold text-zinc-700 dark:text-zinc-300">
             {{ daysRemaining <= 0 ? '마감일 지남' : `D-${daysRemaining}` }}
           </span>
         </div>
@@ -100,8 +100,8 @@
           <Star :size="12" />
           내 평점
         </span>
-        <span class="text-desktop-caption font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1">
-          <Star :size="11" fill="currentColor" />
+        <span class="text-desktop-caption font-medium text-zinc-700 dark:text-zinc-300 flex items-center gap-1">
+          <Star :size="11" fill="currentColor" class="text-amber-400" />
           {{ Number(userRating).toFixed(1).replace('.0', '') }}
         </span>
       </div>
@@ -111,7 +111,7 @@
           <CheckCircle :size="12" />
           완독일
         </span>
-        <span class="text-desktop-caption font-medium text-lime-600 dark:text-lime-400">{{ formatDate(book.user_finished_at) }}</span>
+        <span class="text-desktop-caption font-medium text-zinc-700 dark:text-zinc-300">{{ formatDate(book.user_finished_at) }}</span>
       </div>
     </div>
 

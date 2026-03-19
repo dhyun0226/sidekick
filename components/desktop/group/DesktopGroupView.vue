@@ -79,27 +79,23 @@
               <p class="text-desktop-caption text-zinc-400 mb-1">{{ groupName }}</p>
               <h1 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-1.5 leading-tight">{{ bookTitle }}</h1>
               <p class="text-desktop-callout text-zinc-500 mb-3 font-light">{{ bookAuthor }}</p>
-              <div class="flex items-center gap-2 mt-1">
+              <div class="flex flex-wrap items-center gap-1.5 mt-1">
                 <GenreBadge v-if="selectedBook.genre" :genre="selectedBook.genre" size="sm" />
-                <span class="text-desktop-caption text-zinc-400 flex items-center gap-1">
-                  <template v-if="selectedBook.total_pages">{{ selectedBook.total_pages }}p</template>
-                  <template v-if="selectedBook.total_pages && daysRemaining !== null"> · </template>
-                  <template v-if="daysRemaining !== null">
-                    <span :class="daysRemaining <= 3 ? 'text-red-500' : daysRemaining <= 7 ? 'text-amber-500' : ''">
-                      {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
-                    </span>
-                  </template>
-                  <template v-if="selectedBook.round && selectedBook.round > 1">
-                    · {{ selectedBook.round }}회차
-                  </template>
-                  · {{ members.length }}명 참여
-                  <template v-if="selectedBook.target_start_date && selectedBook.target_end_date">
-                    · {{ formatShortDate(selectedBook.target_start_date) }} - {{ formatShortDate(selectedBook.target_end_date) }}
-                  </template>
-                  <template v-if="selectedBook.user_finished_at">
-                    · <span class="text-lime-600 dark:text-lime-400">{{ formatShortDate(selectedBook.user_finished_at) }} 완독</span>
-                  </template>
-                </span>
+                <Badge v-if="selectedBook.total_pages" size="sm">{{ selectedBook.total_pages }}p</Badge>
+                <Badge v-if="daysRemaining !== null" size="sm">
+                  {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
+                </Badge>
+                <Badge v-if="selectedBook.round && selectedBook.round > 1" size="sm">{{ selectedBook.round }}회차</Badge>
+                <Badge size="sm">
+                  <template #icon><Users :size="10" /></template>
+                  {{ members.length }}명
+                </Badge>
+                <Badge v-if="selectedBook.target_start_date && selectedBook.target_end_date" size="sm">
+                  {{ formatShortDate(selectedBook.target_start_date) }} - {{ formatShortDate(selectedBook.target_end_date) }}
+                </Badge>
+                <Badge v-if="selectedBook.user_finished_at" size="sm">
+                  {{ formatShortDate(selectedBook.user_finished_at) }} 완독
+                </Badge>
               </div>
             </div>
           </div>
