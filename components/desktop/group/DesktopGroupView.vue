@@ -80,20 +80,20 @@
               <h1 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-1.5 leading-tight">{{ bookTitle }}</h1>
               <p class="text-desktop-callout text-zinc-500 mb-3 font-light">{{ bookAuthor }}</p>
               <div class="flex flex-wrap items-center gap-1.5 mt-1">
-                <GenreBadge v-if="selectedBook.genre" :genre="selectedBook.genre" size="sm" />
-                <Badge v-if="selectedBook.total_pages" size="sm">{{ selectedBook.total_pages }}p</Badge>
-                <Badge v-if="daysRemaining !== null" size="sm">
+                <GenreBadge v-if="selectedBook.genre" :genre="selectedBook.genre" />
+                <Badge v-if="selectedBook.total_pages">{{ selectedBook.total_pages }}p</Badge>
+                <Badge v-if="daysRemaining !== null">
                   {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
                 </Badge>
-                <Badge v-if="selectedBook.round && selectedBook.round > 1" size="sm">{{ selectedBook.round }}회차</Badge>
-                <Badge size="sm">
-                  <template #icon><Users :size="10" /></template>
+                <Badge v-if="selectedBook.round && selectedBook.round > 1">{{ selectedBook.round }}회차</Badge>
+                <Badge>
+                  <template #icon><Users :size="12" /></template>
                   {{ members.length }}명
                 </Badge>
-                <Badge v-if="selectedBook.target_start_date && selectedBook.target_end_date" size="sm">
+                <Badge v-if="selectedBook.target_start_date && selectedBook.target_end_date">
                   {{ formatShortDate(selectedBook.target_start_date) }} - {{ formatShortDate(selectedBook.target_end_date) }}
                 </Badge>
-                <Badge v-if="selectedBook.user_finished_at" size="sm">
+                <Badge v-if="selectedBook.user_finished_at">
                   {{ formatShortDate(selectedBook.user_finished_at) }} 완독
                 </Badge>
               </div>
