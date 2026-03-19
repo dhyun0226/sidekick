@@ -2,7 +2,7 @@
   <aside class="w-sidebar h-full flex flex-col shrink-0 bg-white/50 dark:bg-zinc-950/50">
     <!-- Logo -->
     <div class="px-6 pt-7 pb-5">
-      <h1 class="text-[15px] font-medium tracking-[0.02em] text-zinc-400 dark:text-zinc-500 select-none">sidekick</h1>
+      <h1 class="text-[15px] font-medium tracking-[0.02em] text-zinc-400 dark:text-zinc-500 select-none">Sidekick</h1>
     </div>
 
     <!-- Navigation -->

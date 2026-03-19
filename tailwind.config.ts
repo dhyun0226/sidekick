@@ -39,11 +39,11 @@ export default <Partial<Config>>{
                 'apple-lg': '0 0 0 0.5px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.12)',
             },
             fontSize: {
-                'desktop-title': ['30px', { lineHeight: '38px', fontWeight: '700' }],
-                'desktop-headline': ['24px', { lineHeight: '32px', fontWeight: '700' }],
-                'desktop-body': ['16px', { lineHeight: '26px', fontWeight: '400' }],
-                'desktop-callout': ['14px', { lineHeight: '20px', fontWeight: '600' }],
-                'desktop-caption': ['12px', { lineHeight: '16px', fontWeight: '500' }],
+                'desktop-title': ['32px', { lineHeight: '40px', fontWeight: '700' }],
+                'desktop-headline': ['26px', { lineHeight: '34px', fontWeight: '700' }],
+                'desktop-body': ['17px', { lineHeight: '28px', fontWeight: '400' }],
+                'desktop-callout': ['15px', { lineHeight: '22px', fontWeight: '600' }],
+                'desktop-caption': ['13px', { lineHeight: '18px', fontWeight: '500' }],
             },
             spacing: {
                 'sidebar': '240px',
