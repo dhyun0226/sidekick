@@ -18,8 +18,8 @@
           <!-- Header -->
           <div class="flex items-center justify-between px-8 py-5 shrink-0">
             <div>
-              <h2 class="text-[18px] font-semibold tracking-tight text-zinc-900 dark:text-white">일괄 입력</h2>
-              <p class="text-[12px] text-zinc-400 mt-1 font-light">여러 메모를 한번에 작성하세요</p>
+              <h2 class="text-desktop-body font-semibold tracking-tight text-zinc-900 dark:text-white">일괄 입력</h2>
+              <p class="text-desktop-caption text-zinc-400 mt-1 font-light">여러 메모를 한번에 작성하세요</p>
             </div>
             <div class="flex items-center gap-4">
               <!-- Mode Toggle -->
@@ -53,7 +53,7 @@
           <div v-if="!saveCompleted" class="flex-1 overflow-y-auto px-8">
             <table class="w-full">
               <thead class="sticky top-0 bg-white dark:bg-zinc-900 z-10">
-                <tr class="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">
+                <tr class="text-desktop-micro font-medium text-zinc-400 uppercase tracking-widest">
                   <th class="text-left pb-3 w-10">#</th>
                   <th class="text-left pb-3 w-28">{{ inputMode === 'page' ? '페이지' : '위치(%)' }}</th>
                   <th class="text-left pb-3 w-[35%]">인용 구절</th>
@@ -69,7 +69,7 @@
                   class="group"
                 >
                   <td class="py-3 align-top">
-                    <span class="text-[11px] text-zinc-300 dark:text-zinc-600 font-medium">{{ idx + 1 }}</span>
+                    <span class="text-desktop-footnote text-zinc-300 dark:text-zinc-600 font-medium">{{ idx + 1 }}</span>
                   </td>
                   <td class="py-3 pr-3 align-top">
                     <input
@@ -123,7 +123,7 @@
             >
               <Plus :size="14" />
               <span>행 추가</span>
-              <span class="text-[10px] text-zinc-300 dark:text-zinc-600 ml-1">Tab으로 자동 추가</span>
+              <span class="text-desktop-micro text-zinc-300 dark:text-zinc-600 ml-1">Tab으로 자동 추가</span>
             </button>
           </div>
 
@@ -133,10 +133,10 @@
               <div class="w-14 h-14 mx-auto mb-5 rounded-full bg-lime-50 dark:bg-lime-900/20 flex items-center justify-center">
                 <Check :size="24" class="text-lime-500" />
               </div>
-              <h3 class="text-[18px] font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">
+              <h3 class="text-desktop-body font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">
                 {{ totalToSave }}개 노트 저장 완료
               </h3>
-              <p class="text-[13px] text-zinc-400 font-light">타임라인에서 확인할 수 있어요</p>
+              <p class="text-desktop-caption text-zinc-400 font-light">타임라인에서 확인할 수 있어요</p>
             </div>
           </div>
 
@@ -146,7 +146,7 @@
               <div class="flex-1 h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                 <div class="h-full bg-lime-400 rounded-full transition-all duration-300 ease-apple" :style="{ width: `${saveProgress}%` }"></div>
               </div>
-              <span class="text-[11px] text-zinc-400 tabular-nums">{{ savedCount }}/{{ totalToSave }}</span>
+              <span class="text-desktop-footnote text-zinc-400 tabular-nums">{{ savedCount }}/{{ totalToSave }}</span>
             </div>
           </div>
 
@@ -178,7 +178,7 @@
               >
                 <span v-if="!saving">저장하기</span>
                 <span v-else>저장 중...</span>
-                <kbd v-if="!saving" class="text-[10px] text-zinc-500 dark:text-zinc-400">⌘↵</kbd>
+                <kbd v-if="!saving" class="text-desktop-micro text-zinc-500 dark:text-zinc-400">⌘↵</kbd>
               </button>
             </div>
           </div>
@@ -194,18 +194,18 @@
           <div v-if="showDiscardConfirm" class="absolute inset-0 z-10 flex items-center justify-center">
             <div class="absolute inset-0 bg-black/20" @click="showDiscardConfirm = false"></div>
             <div class="relative bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-6 w-[340px] text-center" @click.stop>
-              <h3 class="text-[15px] font-semibold text-zinc-900 dark:text-white mb-1.5">작성 중인 내용이 있어요</h3>
-              <p class="text-[13px] text-zinc-400 font-light mb-5">닫으면 작성한 내용이 사라집니다.</p>
+              <h3 class="text-desktop-callout font-semibold text-zinc-900 dark:text-white mb-1.5">작성 중인 내용이 있어요</h3>
+              <p class="text-desktop-caption text-zinc-400 font-light mb-5">닫으면 작성한 내용이 사라집니다.</p>
               <div class="flex gap-2.5">
                 <button
                   @click="showDiscardConfirm = false"
-                  class="flex-1 px-4 py-2.5 text-[13px] font-medium text-zinc-600 dark:text-zinc-400 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  class="flex-1 px-4 py-2.5 text-desktop-caption font-medium text-zinc-600 dark:text-zinc-400 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   계속 작성
                 </button>
                 <button
                   @click="showDiscardConfirm = false; emit('close')"
-                  class="flex-1 px-4 py-2.5 text-[13px] font-medium text-red-500 bg-red-50 dark:bg-red-900/20 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                  class="flex-1 px-4 py-2.5 text-desktop-caption font-medium text-red-500 bg-red-50 dark:bg-red-900/20 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                 >
                   닫기
                 </button>

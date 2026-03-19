@@ -1,9 +1,9 @@
 <template>
   <div class="space-y-5">
     <div class="flex items-center justify-between">
-      <h4 class="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest font-medium">멤버 {{ members.length }}</h4>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-500 uppercase tracking-widest font-medium">멤버 {{ members.length }}</h4>
       <!-- Leader badge -->
-      <span v-if="leader" class="text-[10px] text-zinc-400 dark:text-zinc-500">
+      <span v-if="leader" class="text-desktop-micro text-zinc-400 dark:text-zinc-500">
         {{ leader.nickname }} 선두
       </span>
     </div>
@@ -33,8 +33,8 @@
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-1.5">
             <span class="text-desktop-caption font-medium text-zinc-900 dark:text-white truncate">{{ member.nickname }}</span>
-            <span v-if="member.id === currentUserId" class="text-[10px] text-zinc-400 dark:text-zinc-500 font-normal">나</span>
-            <span v-if="member.role === 'admin'" class="text-[10px] text-zinc-400 dark:text-zinc-500 font-normal">관리자</span>
+            <span v-if="member.id === currentUserId" class="text-desktop-micro text-zinc-400 dark:text-zinc-500 font-normal">나</span>
+            <span v-if="member.role === 'admin'" class="text-desktop-micro text-zinc-400 dark:text-zinc-500 font-normal">관리자</span>
           </div>
           <div class="flex items-center gap-2 mt-1">
             <div class="flex-1 h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
@@ -44,7 +44,7 @@
                 :style="{ width: `${member.progress}%` }"
               ></div>
             </div>
-            <span class="text-[11px] tabular-nums w-8 text-right" :class="member.isCompleted ? 'text-lime-600 dark:text-lime-400 font-semibold' : 'text-zinc-400'">
+            <span class="text-desktop-footnote tabular-nums w-8 text-right" :class="member.isCompleted ? 'text-lime-600 dark:text-lime-400 font-semibold' : 'text-zinc-400'">
               {{ Math.round(member.progress) }}%
             </span>
           </div>

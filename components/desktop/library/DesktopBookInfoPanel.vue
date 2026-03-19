@@ -22,7 +22,7 @@
     <!-- Progress -->
     <div v-if="book" class="px-1">
       <div class="flex items-center justify-between mb-3">
-        <h4 class="text-[10px] text-zinc-400 uppercase tracking-widest font-medium">진행률</h4>
+        <h4 class="text-desktop-micro text-zinc-400 uppercase tracking-widest font-medium">진행률</h4>
         <span class="text-desktop-callout font-semibold tabular-nums" :class="viewProgress >= 100 ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-900 dark:text-white'">
           {{ Math.round(viewProgress) }}%
         </span>
@@ -43,14 +43,14 @@
         ></div>
       </div>
       <!-- Remaining estimate -->
-      <p v-if="book.total_pages && viewProgress < 100 && viewProgress > 0" class="text-[11px] text-zinc-400 mt-2 text-right">
+      <p v-if="book.total_pages && viewProgress < 100 && viewProgress > 0" class="text-desktop-footnote text-zinc-400 mt-2 text-right">
         {{ Math.round(book.total_pages * (1 - viewProgress / 100)) }}p 남음
       </p>
     </div>
 
     <!-- Book Details -->
     <div v-if="book" class="px-1 space-y-2.5">
-      <h4 class="text-[10px] text-zinc-400 uppercase tracking-widest font-medium mb-1">정보</h4>
+      <h4 class="text-desktop-micro text-zinc-400 uppercase tracking-widest font-medium mb-1">정보</h4>
       <div v-if="book.total_pages" class="flex justify-between items-center">
         <span class="text-desktop-caption text-zinc-400 flex items-center gap-1.5">
           <BookOpen :size="12" />
@@ -87,7 +87,7 @@
 
     <!-- TOC -->
     <div v-if="toc && toc.length > 0" class="px-1">
-      <h4 class="text-[10px] text-zinc-400 uppercase tracking-widest font-medium mb-3">목차</h4>
+      <h4 class="text-desktop-micro text-zinc-400 uppercase tracking-widest font-medium mb-3">목차</h4>
       <div class="space-y-0.5 max-h-64 overflow-y-auto">
         <button
           v-for="(chapter, idx) in toc"

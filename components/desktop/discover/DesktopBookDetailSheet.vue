@@ -9,23 +9,23 @@
 
         <!-- Info -->
         <div class="flex-1 min-w-0 flex flex-col">
-          <h2 class="text-[22px] font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight">{{ book.title }}</h2>
-          <p class="mt-1.5 text-[15px] text-zinc-500 font-light">{{ book.author }}</p>
-          <p v-if="book.publisher" class="mt-0.5 text-[13px] text-zinc-400 font-light">{{ book.publisher }}</p>
+          <h2 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight">{{ book.title }}</h2>
+          <p class="mt-1.5 text-desktop-callout text-zinc-500 font-light">{{ book.author }}</p>
+          <p v-if="book.publisher" class="mt-0.5 text-desktop-caption text-zinc-400 font-light">{{ book.publisher }}</p>
 
           <!-- Stats grid -->
           <div class="mt-auto pt-6 grid grid-cols-3 gap-4">
             <div v-if="book.avgRating" class="text-center">
-              <p class="text-[24px] font-semibold text-zinc-900 dark:text-white tabular-nums leading-none">{{ book.avgRating.toFixed(1) }}</p>
-              <p class="mt-1 text-[10px] text-zinc-400 uppercase tracking-widest font-medium">평점</p>
+              <p class="text-desktop-headline font-semibold text-zinc-900 dark:text-white tabular-nums leading-none">{{ book.avgRating.toFixed(1) }}</p>
+              <p class="mt-1 text-desktop-micro text-zinc-400 uppercase tracking-widest font-medium">평점</p>
             </div>
             <div v-if="book.count" class="text-center">
-              <p class="text-[24px] font-semibold text-zinc-900 dark:text-white tabular-nums leading-none">{{ book.count }}<span class="text-[14px] font-light text-zinc-400 ml-0.5">명</span></p>
-              <p class="mt-1 text-[10px] text-zinc-400 uppercase tracking-widest font-medium">독자 수</p>
+              <p class="text-desktop-headline font-semibold text-zinc-900 dark:text-white tabular-nums leading-none">{{ book.count }}<span class="text-desktop-callout font-light text-zinc-400 ml-0.5">명</span></p>
+              <p class="mt-1 text-desktop-micro text-zinc-400 uppercase tracking-widest font-medium">독자 수</p>
             </div>
             <div v-if="book.completionRate" class="text-center">
-              <p class="text-[24px] font-semibold text-lime-500 tabular-nums leading-none">{{ Math.round(book.completionRate) }}<span class="text-[14px] font-light">%</span></p>
-              <p class="mt-1 text-[10px] text-zinc-400 uppercase tracking-widest font-medium">완독률</p>
+              <p class="text-desktop-headline font-semibold text-lime-500 tabular-nums leading-none">{{ Math.round(book.completionRate) }}<span class="text-desktop-callout font-light">%</span></p>
+              <p class="mt-1 text-desktop-micro text-zinc-400 uppercase tracking-widest font-medium">완독률</p>
             </div>
           </div>
         </div>
@@ -38,26 +38,26 @@
         <button
           @click="handleToggleWishlist"
           :disabled="wishLoading"
-          class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-full transition-all duration-200 ease-apple"
+          class="flex items-center gap-2 px-4 py-2.5 text-desktop-callout font-medium rounded-full transition-all duration-200 ease-apple"
           :class="isInWishlist
             ? 'text-pink-500 bg-pink-50 dark:bg-pink-900/20 hover:bg-pink-100 dark:hover:bg-pink-900/30'
             : 'text-zinc-500 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-pink-900/20'"
         >
           <Heart :size="16" :fill="isInWishlist ? 'currentColor' : 'none'" />
           {{ isInWishlist ? '위시에서 제거' : '위시 담기' }}
-          <span v-if="wishCount > 0" class="text-xs text-zinc-400">{{ wishCount }}</span>
+          <span v-if="wishCount > 0" class="text-desktop-caption text-zinc-400">{{ wishCount }}</span>
         </button>
 
         <div class="flex items-center gap-3">
           <button
             @click="$emit('close')"
-            class="px-5 py-2.5 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+            class="px-5 py-2.5 text-desktop-callout text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
           >
             닫기
           </button>
           <button
             @click="handleStartBook"
-            class="px-6 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-medium rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-200 ease-apple"
+            class="px-6 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-callout font-medium rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-200 ease-apple"
           >
             읽기 시작
           </button>

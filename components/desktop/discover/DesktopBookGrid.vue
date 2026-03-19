@@ -18,7 +18,7 @@
 
     <!-- Empty -->
     <div v-else-if="books.length === 0" class="py-12 text-center">
-      <p class="text-[14px] text-zinc-400 font-light">{{ emptyMessage }}</p>
+      <p class="text-desktop-callout text-zinc-400 font-light">{{ emptyMessage }}</p>
     </div>
 
     <!-- Book Grid: 5 per row, max 2 rows -->
@@ -33,7 +33,7 @@
         <div class="relative mb-3">
           <!-- Rank -->
           <div
-            class="absolute -top-1.5 -left-1.5 z-10 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shadow-sm"
+            class="absolute -top-1.5 -left-1.5 z-10 w-7 h-7 rounded-lg flex items-center justify-center text-desktop-caption font-bold shadow-sm"
             :class="index < 3
               ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
               : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'"
@@ -55,13 +55,13 @@
 
         <!-- Info -->
         <div class="px-0.5">
-          <h3 class="text-[13px] font-semibold text-zinc-900 dark:text-white leading-snug line-clamp-2 mb-0.5">
+          <h3 class="text-desktop-caption font-semibold text-zinc-900 dark:text-white leading-snug line-clamp-2 mb-0.5">
             {{ book.title }}
           </h3>
-          <p class="text-[11px] text-zinc-400 truncate mb-1.5">{{ book.author }}</p>
+          <p class="text-desktop-footnote text-zinc-400 truncate mb-1.5">{{ book.author }}</p>
 
           <!-- Contextual Label -->
-          <p class="text-[11px] leading-tight" :class="labelColor">
+          <p class="text-desktop-footnote leading-tight" :class="labelColor">
             <template v-if="type === 'hot'">{{ book.count }}명이 읽는 중</template>
             <template v-else-if="type === 'wish'">{{ book.count }}명이 담았어요</template>
             <template v-else-if="type === 'rating'">

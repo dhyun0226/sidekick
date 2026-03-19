@@ -16,7 +16,7 @@
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 mb-1">
           <h4 class="text-desktop-callout font-medium text-zinc-900 dark:text-white truncate">{{ group.name }}</h4>
-          <span class="text-[11px] text-zinc-400 dark:text-zinc-500 flex-shrink-0 flex items-center gap-0.5">
+          <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 flex-shrink-0 flex items-center gap-0.5">
             <Users :size="10" />
             {{ group.memberCount }}
           </span>
@@ -39,7 +39,7 @@
             <circle cx="18" cy="18" r="15" fill="none" stroke="currentColor" stroke-width="2" class="text-zinc-100 dark:text-zinc-800" />
             <circle cx="18" cy="18" r="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="text-lime-500 transition-all duration-500 ease-apple" :stroke-dasharray="`${group.currentBook.progress * 0.9425} 94.25`" />
           </svg>
-          <span class="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">
+          <span class="absolute inset-0 flex items-center justify-center text-desktop-micro font-semibold text-zinc-600 dark:text-zinc-400">
             {{ Math.round(group.currentBook.progress) }}
           </span>
         </div>

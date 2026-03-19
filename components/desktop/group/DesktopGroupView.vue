@@ -27,8 +27,8 @@
         <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4">
           <AlertCircle :size="32" class="text-red-500" />
         </div>
-        <h2 class="text-[18px] font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">문제가 발생했습니다</h2>
-        <p class="text-[14px] text-zinc-500 mb-4 font-light">{{ loadError }}</p>
+        <h2 class="text-desktop-body font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">문제가 발생했습니다</h2>
+        <p class="text-desktop-callout text-zinc-500 mb-4 font-light">{{ loadError }}</p>
         <button @click="fetchData" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors duration-200 ease-apple text-desktop-callout">
           다시 시도
         </button>
@@ -77,8 +77,8 @@
             </div>
             <div class="pt-1">
               <p class="text-desktop-caption text-zinc-400 mb-1">{{ groupName }}</p>
-              <h1 class="text-[22px] font-semibold tracking-tight text-zinc-900 dark:text-white mb-1.5 leading-tight">{{ bookTitle }}</h1>
-              <p class="text-[14px] text-zinc-500 mb-3 font-light">{{ bookAuthor }}</p>
+              <h1 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-1.5 leading-tight">{{ bookTitle }}</h1>
+              <p class="text-desktop-callout text-zinc-500 mb-3 font-light">{{ bookAuthor }}</p>
               <div class="flex items-center gap-3 text-desktop-caption text-zinc-400">
                 <span v-if="daysRemaining !== null">
                   {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
@@ -92,7 +92,7 @@
         <!-- Empty State -->
         <div v-else-if="!isLoading" class="flex flex-col items-center justify-center h-full">
           <div class="text-center">
-            <h2 class="text-[18px] font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">
+            <h2 class="text-desktop-body font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">
               {{ isAdmin ? '함께 읽을 책을 정해주세요' : '읽을 책을 기다리고 있어요' }}
             </h2>
             <button

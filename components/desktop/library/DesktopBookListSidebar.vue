@@ -8,7 +8,7 @@
     <!-- Reading Books -->
     <div class="flex-1 overflow-y-auto">
       <div v-if="readingBooks.length > 0" class="px-3 pt-2 pb-1">
-        <p class="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 px-2 mb-1.5 uppercase tracking-widest">읽는 중</p>
+        <p class="text-desktop-micro font-medium text-zinc-400 dark:text-zinc-500 px-2 mb-1.5 uppercase tracking-widest">읽는 중</p>
         <button
           v-for="book in readingBooks"
           :key="book.id"
@@ -24,14 +24,14 @@
           </div>
           <div class="min-w-0 flex-1">
             <p class="text-desktop-caption font-semibold text-zinc-900 dark:text-white truncate">{{ book.book?.title }}</p>
-            <p class="text-[11px] text-zinc-400 truncate">{{ book.book?.author }}</p>
+            <p class="text-desktop-footnote text-zinc-400 truncate">{{ book.book?.author }}</p>
           </div>
         </button>
       </div>
 
       <!-- History Books -->
       <div v-if="historyBooks.length > 0" class="px-3 pt-4 pb-1">
-        <p class="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 px-2 mb-1.5 uppercase tracking-widest">완독</p>
+        <p class="text-desktop-micro font-medium text-zinc-400 dark:text-zinc-500 px-2 mb-1.5 uppercase tracking-widest">완독</p>
         <div
           v-for="book in historyBooks"
           :key="book.id"
@@ -47,7 +47,7 @@
           </div>
           <div class="min-w-0 flex-1">
             <p class="text-desktop-caption font-semibold text-zinc-600 dark:text-zinc-400 truncate">{{ book.title }}</p>
-            <p class="text-[11px] text-zinc-400 truncate">{{ book.author }}</p>
+            <p class="text-desktop-footnote text-zinc-400 truncate">{{ book.author }}</p>
           </div>
           <!-- History menu button -->
           <button

@@ -22,20 +22,20 @@
             <div v-if="totalPages" class="flex bg-zinc-100 dark:bg-zinc-800 rounded-full p-0.5">
               <button
                 @click="setMode('percent')"
-                class="px-2 py-0.5 text-[10px] font-semibold rounded-full transition-all duration-200 ease-apple"
+                class="px-2 py-0.5 text-desktop-micro font-semibold rounded-full transition-all duration-200 ease-apple"
                 :class="positionMode === 'percent'
                   ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm'
                   : 'text-zinc-400'"
               >%</button>
               <button
                 @click="setMode('page')"
-                class="px-2 py-0.5 text-[10px] font-semibold rounded-full transition-all duration-200 ease-apple"
+                class="px-2 py-0.5 text-desktop-micro font-semibold rounded-full transition-all duration-200 ease-apple"
                 :class="positionMode === 'page'
                   ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm'
                   : 'text-zinc-400'"
               >p</button>
             </div>
-            <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-medium">에서</span>
+            <span class="text-desktop-micro text-zinc-300 dark:text-zinc-600 font-medium">에서</span>
           </div>
           <button
             @click="$emit('open-batch')"
@@ -84,7 +84,7 @@
             </span>
           </Transition>
           <div class="flex items-center gap-3 ml-auto">
-            <kbd class="hidden sm:inline text-[10px] text-zinc-300 dark:text-zinc-600">⌘↵</kbd>
+            <kbd class="hidden sm:inline text-desktop-micro text-zinc-300 dark:text-zinc-600">⌘↵</kbd>
             <button
               @click="submitComment"
               :disabled="(!newComment.trim() && !anchorText.trim()) || isSubmitting"
@@ -131,8 +131,8 @@
                   />
                   <div class="flex-1 min-w-0">
                     <div class="flex items-baseline gap-2">
-                      <span class="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100">{{ comment.user?.nickname || '나' }}</span>
-                      <span class="text-[11px] text-zinc-300 dark:text-zinc-600">{{ formatTimeAgo(comment.created_at) }}</span>
+                      <span class="text-desktop-caption font-semibold text-zinc-900 dark:text-zinc-100">{{ comment.user?.nickname || '나' }}</span>
+                      <span class="text-desktop-footnote text-zinc-300 dark:text-zinc-600">{{ formatTimeAgo(comment.created_at) }}</span>
                     </div>
 
                     <template v-if="editingCommentId !== comment.id">
@@ -143,7 +143,7 @@
                         <div class="relative">
                           <button
                             @click="handleLike(comment)"
-                            class="flex items-center gap-1 text-[11px] font-medium transition-colors"
+                            class="flex items-center gap-1 text-desktop-footnote font-medium transition-colors"
                             :class="comment.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-700 hover:text-red-400'"
                           >
                             <Heart :size="12" :fill="comment.isLiked ? 'currentColor' : 'none'" :class="likedId === comment.id ? 'animate-like-bounce' : ''" />
@@ -154,7 +154,7 @@
 
                         <button
                           @click="toggleReplyForm(comment.id)"
-                          class="flex items-center gap-1 text-[11px] font-medium text-zinc-300 dark:text-zinc-700 hover:text-zinc-500 transition-colors"
+                          class="flex items-center gap-1 text-desktop-footnote font-medium text-zinc-300 dark:text-zinc-700 hover:text-zinc-500 transition-colors"
                         >
                           <MessageCircle :size="12" />
                           <span v-if="comment.replies?.length" class="tabular-nums">{{ comment.replies.length }}</span>
@@ -185,7 +185,7 @@
                       <div class="flex items-center gap-2 mt-2">
                         <button @click="saveEdit(comment)" :disabled="!editContent.trim()" class="px-3.5 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50">저장</button>
                         <button @click="cancelEdit" class="px-3.5 py-1.5 text-zinc-500 text-desktop-caption font-medium hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">취소</button>
-                        <kbd class="ml-auto text-[10px] text-zinc-300 dark:text-zinc-600">⌘↵</kbd>
+                        <kbd class="ml-auto text-desktop-micro text-zinc-300 dark:text-zinc-600">⌘↵</kbd>
                       </div>
                     </template>
 
@@ -201,15 +201,15 @@
                         />
                         <div class="flex-1 min-w-0">
                           <div class="flex items-baseline gap-1.5">
-                            <span class="text-[12px] font-semibold text-zinc-700 dark:text-zinc-300">{{ reply.user?.nickname || '탈퇴한 사용자' }}</span>
-                            <span class="text-[10px] text-zinc-300 dark:text-zinc-600">{{ formatTimeAgo(reply.created_at) }}</span>
+                            <span class="text-desktop-caption font-semibold text-zinc-700 dark:text-zinc-300">{{ reply.user?.nickname || '탈퇴한 사용자' }}</span>
+                            <span class="text-desktop-micro text-zinc-300 dark:text-zinc-600">{{ formatTimeAgo(reply.created_at) }}</span>
                           </div>
-                          <p class="text-[13px] text-zinc-600 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap break-words mt-0.5">{{ reply.content }}</p>
+                          <p class="text-desktop-caption text-zinc-600 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap break-words mt-0.5">{{ reply.content }}</p>
                           <div class="flex items-center gap-3 mt-1">
                             <div class="relative">
                               <button
                                 @click="handleLike(reply)"
-                                class="flex items-center gap-1 text-[10px] font-medium transition-colors"
+                                class="flex items-center gap-1 text-desktop-micro font-medium transition-colors"
                                 :class="reply.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-700 hover:text-red-400'"
                               >
                                 <Heart :size="10" :fill="reply.isLiked ? 'currentColor' : 'none'" :class="likedId === reply.id ? 'animate-like-bounce' : ''" />
@@ -230,7 +230,7 @@
                           v-model="replyContent"
                           type="text"
                           placeholder="답글을 남겨보세요..."
-                          class="flex-1 bg-zinc-50 dark:bg-zinc-800/50 text-[13px] text-zinc-800 dark:text-zinc-200 rounded-xl pl-3 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all duration-200 ease-apple"
+                          class="flex-1 bg-zinc-50 dark:bg-zinc-800/50 text-desktop-caption text-zinc-800 dark:text-zinc-200 rounded-xl pl-3 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all duration-200 ease-apple"
                           @keyup.enter="submitReply(comment)"
                           @keydown.escape="cancelReply"
                         />
@@ -268,7 +268,7 @@
     <div v-if="comments.length === 0 && !isLoadingMore" class="text-center py-20">
       <Pencil :size="22" class="mx-auto text-zinc-300 dark:text-zinc-600 mb-4" />
       <h3 class="text-desktop-body font-medium tracking-tight text-zinc-900 dark:text-white mb-1.5">아직 기록이 없어요</h3>
-      <p class="text-[13px] text-zinc-400 font-light">책을 읽으면서 느낀 점을 기록해보세요.</p>
+      <p class="text-desktop-caption text-zinc-400 font-light">책을 읽으면서 느낀 점을 기록해보세요.</p>
     </div>
   </div>
 </template>
