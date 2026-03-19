@@ -30,14 +30,14 @@
         <div class="flex bg-zinc-100 dark:bg-zinc-800 rounded-full p-0.5">
           <button
             @click="$emit('change-input-mode', 'percent')"
-            class="px-3.5 py-1 text-desktop-caption font-medium rounded-full transition-all ease-apple duration-200"
+            class="px-3.5 py-1 text-desktop-callout-regular font-medium rounded-full transition-all ease-apple duration-200"
             :class="inputMode === 'percent'
               ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm'
               : 'text-zinc-400 dark:text-zinc-500'"
           >퍼센트</button>
           <button
             @click="$emit('change-input-mode', 'page')"
-            class="px-3.5 py-1 text-desktop-caption font-medium rounded-full transition-all ease-apple duration-200"
+            class="px-3.5 py-1 text-desktop-callout-regular font-medium rounded-full transition-all ease-apple duration-200"
             :class="inputMode === 'page'
               ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm'
               : 'text-zinc-400 dark:text-zinc-500'"

@@ -24,7 +24,7 @@
           </div>
           <div class="min-w-0 flex-1">
             <p class="text-desktop-caption font-semibold text-zinc-900 dark:text-white truncate">{{ book.book?.title }}</p>
-            <p class="text-desktop-footnote text-zinc-400 truncate">{{ book.book?.author }}</p>
+            <p class="text-desktop-caption-regular text-zinc-400 truncate">{{ book.book?.author }}</p>
           </div>
         </button>
       </div>
@@ -47,7 +47,7 @@
           </div>
           <div class="min-w-0 flex-1">
             <p class="text-desktop-caption font-semibold text-zinc-600 dark:text-zinc-400 truncate">{{ book.title }}</p>
-            <p class="text-desktop-footnote text-zinc-400 truncate">{{ book.author }}</p>
+            <p class="text-desktop-caption-regular text-zinc-400 truncate">{{ book.author }}</p>
           </div>
           <!-- History menu button -->
           <button

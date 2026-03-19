@@ -43,7 +43,7 @@
         ></div>
       </div>
       <!-- Remaining estimate -->
-      <p v-if="book.total_pages && viewProgress < 100 && viewProgress > 0" class="text-desktop-footnote text-zinc-400 mt-2 text-right">
+      <p v-if="book.total_pages && viewProgress < 100 && viewProgress > 0" class="text-desktop-caption-regular text-zinc-400 mt-2 text-right">
         {{ Math.round(book.total_pages * (1 - viewProgress / 100)) }}p 남음
       </p>
     </div>

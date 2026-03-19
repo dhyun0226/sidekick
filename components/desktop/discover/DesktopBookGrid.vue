@@ -55,13 +55,13 @@
 
         <!-- Info -->
         <div class="px-0.5">
-          <h3 class="text-desktop-caption font-semibold text-zinc-900 dark:text-white leading-snug line-clamp-2 mb-0.5">
+          <h3 class="text-desktop-callout font-semibold text-zinc-900 dark:text-white leading-snug line-clamp-2 mb-0.5">
             {{ book.title }}
           </h3>
-          <p class="text-desktop-footnote text-zinc-400 truncate mb-1.5">{{ book.author }}</p>
+          <p class="text-desktop-caption-regular text-zinc-400 truncate mb-1.5">{{ book.author }}</p>
 
           <!-- Contextual Label -->
-          <p class="text-desktop-footnote leading-tight" :class="labelColor">
+          <p class="text-desktop-caption-regular leading-tight" :class="labelColor">
             <template v-if="type === 'hot'">{{ book.count }}명이 읽는 중</template>
             <template v-else-if="type === 'wish'">{{ book.count }}명이 담았어요</template>
             <template v-else-if="type === 'rating'">

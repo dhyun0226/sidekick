@@ -162,10 +162,10 @@
 
                         <template v-if="currentUserId && comment.user_id === currentUserId">
                           <button @click="startEdit(comment)" class="text-zinc-400 dark:text-zinc-500 hover:text-zinc-500 transition-colors">
-                            <Pencil :size="11" />
+                            <Pencil :size="13" />
                           </button>
                           <button @click="$emit('delete', comment)" class="text-zinc-400 dark:text-zinc-500 hover:text-red-400 transition-colors">
-                            <Trash2 :size="11" />
+                            <Trash2 :size="13" />
                           </button>
                         </template>
                       </div>
@@ -202,17 +202,17 @@
                         <div class="flex-1 min-w-0">
                           <div class="flex items-baseline gap-1.5">
                             <span class="text-desktop-caption font-semibold text-zinc-700 dark:text-zinc-300">{{ reply.user?.nickname || '탈퇴한 사용자' }}</span>
-                            <span class="text-desktop-micro text-zinc-400 dark:text-zinc-500">{{ formatTimeAgo(reply.created_at) }}</span>
+                            <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-500">{{ formatTimeAgo(reply.created_at) }}</span>
                           </div>
                           <p class="text-desktop-caption text-zinc-600 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap break-words mt-0.5">{{ reply.content }}</p>
                           <div class="flex items-center gap-3 mt-1">
                             <div class="relative">
                               <button
                                 @click="handleLike(reply)"
-                                class="flex items-center gap-1 text-desktop-micro font-medium transition-colors"
+                                class="flex items-center gap-1 text-desktop-footnote font-medium transition-colors"
                                 :class="reply.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-500 hover:text-red-400'"
                               >
-                                <Heart :size="10" :fill="reply.isLiked ? 'currentColor' : 'none'" :class="likedId === reply.id ? 'animate-like-bounce' : ''" />
+                                <Heart :size="12" :fill="reply.isLiked ? 'currentColor' : 'none'" :class="likedId === reply.id ? 'animate-like-bounce' : ''" />
                                 <span v-if="reply.likes" class="tabular-nums">{{ reply.likes }}</span>
                               </button>
                               <div :ref="(el) => setParticleRef(reply.id, el)" class="pointer-events-none absolute inset-0 overflow-visible"></div>

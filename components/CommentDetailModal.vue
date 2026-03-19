@@ -14,15 +14,15 @@
               <ChevronLeft :size="24" />
             </button>
             <div class="flex items-baseline gap-2">
-              <span class="text-lg font-semibold text-lime-600 dark:text-lime-500">{{ Math.round(position) }}%</span>
-              <span class="text-xs text-zinc-400 font-medium">{{ comments.length }}개의 기록</span>
+              <span class="text-desktop-callout font-semibold text-lime-600 dark:text-lime-500">{{ Math.round(position) }}%</span>
+              <span class="text-desktop-footnote text-zinc-400 font-medium">{{ comments.length }}개의 기록</span>
             </div>
           </div>
         </div>
 
         <!-- Anchor Text (Quote Style) -->
         <div v-if="anchorText" class="pl-4 border-l-2 border-lime-400">
-          <p class="text-[15px] text-zinc-600 dark:text-zinc-400 italic leading-relaxed line-clamp-2">
+          <p class="text-desktop-callout-regular text-zinc-600 dark:text-zinc-400 italic leading-relaxed line-clamp-2">
             {{ anchorText }}
           </p>
         </div>
@@ -44,14 +44,14 @@
               :alt="comment.user?.nickname || '탈퇴한 사용자'"
               className="w-6 h-6 shadow-sm opacity-80"
             />
-            <span class="text-sm font-bold text-zinc-900 dark:text-zinc-100" :class="{ 'text-zinc-400 font-medium italic': !comment.user }">
+            <span class="text-desktop-caption font-bold text-zinc-900 dark:text-zinc-100" :class="{ 'text-zinc-400 font-medium italic': !comment.user }">
               {{ comment.user?.nickname || '탈퇴한 사용자' }}
             </span>
-            <span class="text-[10px] text-zinc-400 dark:text-zinc-500">{{ formatDate(comment.created_at) }}</span>
+            <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-500">{{ formatDate(comment.created_at) }}</span>
           </div>
 
           <!-- Content -->
-          <div class="text-[15px] text-zinc-700 dark:text-zinc-300 leading-relaxed break-words whitespace-pre-wrap">
+          <div class="text-desktop-callout-regular text-zinc-700 dark:text-zinc-300 leading-relaxed break-words whitespace-pre-wrap">
             <div v-if="editingCommentId !== comment.id">
               {{ comment.content }}
             </div>
@@ -60,13 +60,13 @@
             <div v-else class="mt-2">
               <textarea
                 v-model="editContent"
-                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
+                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-desktop-callout-regular rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                 rows="3"
                 @keydown.esc="cancelEdit"
               ></textarea>
               <div class="flex gap-2 mt-2 justify-end">
-                <button @click="cancelEdit" class="px-3 py-1.5 text-zinc-400 text-xs font-bold hover:text-zinc-600">취소</button>
-                <button @click="saveEdit(comment.id)" :disabled="isSavingEdit" class="px-4 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[48px]">
+                <button @click="cancelEdit" class="px-3 py-1.5 text-zinc-400 text-desktop-footnote font-bold hover:text-zinc-600">취소</button>
+                <button @click="saveEdit(comment.id)" :disabled="isSavingEdit" class="px-4 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-footnote font-bold rounded-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[48px]">
                   <div v-if="isSavingEdit" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                   <span v-else>저장</span>
                 </button>
@@ -78,7 +78,7 @@
           <div v-if="editingCommentId !== comment.id" class="flex items-center gap-4 mt-3">
             <button
               @click.stop="toggleLike(comment.id)"
-              class="flex items-center gap-1.5 text-[11px] font-bold transition-colors"
+              class="flex items-center gap-1.5 text-desktop-footnote font-bold transition-colors"
               :class="comment.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-500 hover:text-red-400'"
             >
               <Heart :size="14" :fill="comment.isLiked ? 'currentColor' : 'none'" />
@@ -88,15 +88,15 @@
 
             <button
               @click.stop="toggleReplyForm(comment.id)"
-              class="flex items-center gap-1.5 text-[11px] font-bold text-zinc-400 dark:text-zinc-500 hover:text-lime-500 transition-colors"
+              class="flex items-center gap-1.5 text-desktop-footnote font-bold text-zinc-400 dark:text-zinc-500 hover:text-lime-500 transition-colors"
             >
               <MessageCircle :size="14" />
               답글
             </button>
 
             <div v-if="isOwnComment(comment)" class="flex items-center gap-3 ml-auto">
-              <button @click.stop="startEdit(comment)" class="text-[11px] font-bold text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-200">수정</button>
-              <button @click.stop="confirmDelete(comment.id)" class="text-[11px] font-bold text-zinc-300 hover:text-red-500">삭제</button>
+              <button @click.stop="startEdit(comment)" class="text-desktop-footnote font-bold text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-200">수정</button>
+              <button @click.stop="confirmDelete(comment.id)" class="text-desktop-footnote font-bold text-zinc-300 hover:text-red-500">삭제</button>
             </div>
           </div>
 
@@ -107,7 +107,7 @@
                 v-model="replyContent"
                 type="text"
                 placeholder="답글 남기기..."
-                class="w-full bg-zinc-50 dark:bg-zinc-800/50 text-sm text-zinc-900 dark:text-white rounded-xl pl-4 pr-10 py-3.5 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none transition-all"
+                class="w-full bg-zinc-50 dark:bg-zinc-800/50 text-desktop-callout-regular text-zinc-900 dark:text-white rounded-xl pl-4 pr-10 py-3.5 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none transition-all"
                 @keyup.enter="submitReply(comment.id)"
                 autoFocus
               />
@@ -136,30 +136,30 @@
                     className="w-5 h-5 opacity-80"
                   />
                   <div class="flex flex-col">
-                    <span class="text-xs font-bold text-zinc-600 dark:text-zinc-400" :class="{ 'italic font-medium opacity-70': !reply.user }">
+                    <span class="text-desktop-footnote font-bold text-zinc-600 dark:text-zinc-400" :class="{ 'italic font-medium opacity-70': !reply.user }">
                       {{ reply.user?.nickname || '탈퇴한 사용자' }}
                     </span>
-                    <span class="text-[10px] text-zinc-400">{{ formatDate(reply.created_at) }}</span>
+                    <span class="text-desktop-footnote text-zinc-400">{{ formatDate(reply.created_at) }}</span>
                   </div>
                 </div>
                 
                 <!-- Reply Actions (Edit/Delete) - Always visible for mobile -->
                 <div v-if="(reply.user_id === currentUserId) && editingReplyId !== reply.id" class="flex items-center gap-2.5">
-                  <button @click="startReplyEdit(reply)" class="text-[10px] font-bold text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">수정</button>
-                  <button @click="confirmDeleteReply(reply.id)" class="text-[10px] font-bold text-zinc-300 hover:text-red-500 transition-colors">삭제</button>
+                  <button @click="startReplyEdit(reply)" class="text-desktop-footnote font-bold text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">수정</button>
+                  <button @click="confirmDeleteReply(reply.id)" class="text-desktop-footnote font-bold text-zinc-300 hover:text-red-500 transition-colors">삭제</button>
                 </div>
               </div>
 
               <!-- Reply Content / Edit Mode -->
               <div class="pl-7">
                 <div v-if="editingReplyId !== reply.id">
-                  <p class="text-[14px] text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{{ reply.content }}</p>
+                  <p class="text-desktop-caption-regular text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{{ reply.content }}</p>
                   
                   <!-- Reply Like Button (Ensured visibility) -->
                   <div class="flex items-center gap-3 mt-2">
                     <button
                       @click.stop="toggleLike(reply.id)"
-                      class="flex items-center gap-1.5 text-[10px] font-bold transition-colors"
+                      class="flex items-center gap-1.5 text-desktop-footnote font-bold transition-colors"
                       :class="reply.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-500 hover:text-red-400'"
                     >
                       <Heart :size="12" :fill="reply.isLiked ? 'currentColor' : 'none'" />
@@ -172,12 +172,12 @@
                 <div v-else class="mt-2">
                   <textarea
                     v-model="editReplyContent"
-                    class="w-full bg-zinc-50 dark:bg-zinc-800 text-sm rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
+                    class="w-full bg-zinc-50 dark:bg-zinc-800 text-desktop-callout-regular rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                     rows="2"
                   ></textarea>
                   <div class="flex gap-2 mt-2 justify-end">
-                    <button @click="cancelReplyEdit" class="px-2 py-1 text-zinc-400 text-[10px] font-bold">취소</button>
-                    <button @click="saveReplyEdit(reply.id)" :disabled="isSavingReplyEdit" class="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-[10px] font-bold rounded-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[40px]">
+                    <button @click="cancelReplyEdit" class="px-2 py-1 text-zinc-400 text-desktop-footnote font-bold">취소</button>
+                    <button @click="saveReplyEdit(reply.id)" :disabled="isSavingReplyEdit" class="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-footnote font-bold rounded-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[40px]">
                       <div v-if="isSavingReplyEdit" class="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                       <span v-else>저장</span>
                     </button>
