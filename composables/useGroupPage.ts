@@ -368,6 +368,7 @@ export function useGroupPage(config: GroupPageConfig) {
     if (!userStore.user) return
     isLoading.value = true
     loadError.value = null
+    selectedBookId.value = null  // 이전 그룹 데이터 클리어
 
     try {
       // Solo mode: fetch solo group ID first
@@ -453,6 +454,8 @@ export function useGroupPage(config: GroupPageConfig) {
       console.error('[GroupPage] fetchData error:', err)
       if (config.mode === 'social') {
         loadError.value = err.message || '데이터를 불러오는데 실패했습니다.'
+      } else {
+        toast.error('데이터를 불러오는데 실패했습니다. 새로고침해주세요.')
       }
     } finally {
       isLoading.value = false
@@ -563,9 +566,16 @@ export function useGroupPage(config: GroupPageConfig) {
   const handleCommentSubmit = async (payload: { content: string, anchorText: string | null, position: number }) => {
     if (!selectedBook.value || !currentUserId.value) return
 
-    const validation = validateComment(payload.content)
-    if (!validation.valid) {
-      toast.error(validation.message)
+    // Allow empty content when anchor text is provided (highlight-only)
+    const hasAnchor = payload.anchorText && payload.anchorText.trim().length > 0
+    if (payload.content.trim().length > 0) {
+      const validation = validateComment(payload.content)
+      if (!validation.valid) {
+        toast.error(validation.message)
+        return
+      }
+    } else if (!hasAnchor) {
+      toast.error('내용 또는 인용 구절을 입력해주세요.')
       return
     }
 
@@ -591,6 +601,8 @@ export function useGroupPage(config: GroupPageConfig) {
   const closeReviewModal = () => {
     modals.review = false
     reviewingBookId.value = null
+    reviewInitialData.value = { rating: 0, content: '' }
+    isEditingReview.value = false
   }
 
   const openReviewModalForBook = async (bookId: string) => {
@@ -923,13 +935,15 @@ export function useGroupPage(config: GroupPageConfig) {
     }
     try {
       await deleteBookFromGroup(modals.editingBook.id)
-      modals.deleteBook = false
-      modals.editingBook = null
+      selectedBookId.value = null  // 삭제된 책 선택 해제 → fetchData에서 첫 번째 책 자동 선택
       toast.success('책이 삭제되었습니다.')
       await fetchData()
     } catch (error) {
       console.error('Delete book error:', error)
       toast.error('책 삭제에 실패했습니다.')
+    } finally {
+      modals.deleteBook = false
+      modals.editingBook = null
     }
   }
 

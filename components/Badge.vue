@@ -1,6 +1,6 @@
 <template>
   <div
-    class="inline-flex items-center gap-1 rounded font-bold transition-colors duration-200"
+    class="inline-flex items-center gap-1 rounded-full font-semibold transition-colors duration-200"
     :class="[variantClass, sizeClass]"
   >
     <slot name="icon"></slot>

@@ -216,7 +216,7 @@ create table public.comments (
   user_id uuid references public.users(id) on delete cascade not null,
   group_book_id uuid references public.group_books(id) on delete cascade not null,
   parent_id uuid references public.comments(id) on delete cascade,
-  content text not null check (char_length(trim(both from content)) >= 1 and char_length(trim(both from content)) <= 500),
+  content text not null check (char_length(trim(both from content)) <= 500),
   anchor_text text,
   position_pct integer not null check (position_pct >= 0 and position_pct <= 100),
   created_at timestamptz not null default timezone('utc'::text, now()),

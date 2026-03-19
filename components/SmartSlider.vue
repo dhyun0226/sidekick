@@ -105,7 +105,7 @@
             :style="{ left: `${currentPct}%` }"
           >
             <div 
-              class="w-6 h-6 bg-white dark:bg-zinc-900 border-[1.5px] border-zinc-200 dark:border-zinc-700 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.12)] flex items-center justify-center transform transition-transform"
+              class="w-6 h-6 bg-white dark:bg-zinc-900 border-[1.5px] border-zinc-200 dark:border-zinc-700 rounded-full shadow-apple flex items-center justify-center transform transition-transform"
               :class="{ 'scale-125 border-zinc-900 dark:border-white': isDragging }"
             >
               <div class="w-1.5 h-1.5 bg-zinc-900 dark:bg-white rounded-full"></div>
@@ -118,7 +118,7 @@
             class="absolute -top-16 left-0 -ml-8 bg-zinc-900 dark:bg-white text-white dark:text-black px-4 py-2 rounded-2xl shadow-apple-lg flex flex-col items-center min-w-[64px] animate-in fade-in slide-in-from-bottom-2 duration-200"
             :style="{ left: `${currentPct}%` }"
           >
-            <span class="text-sm font-black leading-none">{{ displayMode === 'page' && currentPage ? `p.${currentPage}` : `${Math.round(currentPct)}%` }}</span>
+            <span class="text-sm font-semibold leading-none">{{ displayMode === 'page' && currentPage ? `p.${currentPage}` : `${Math.round(currentPct)}%` }}</span>
             <span v-if="displayMode === 'page' ? true : currentPage" class="text-[10px] font-medium opacity-80 leading-none mt-1">{{ displayMode === 'page' ? `${Math.round(currentPct)}%` : (currentPage ? `p.${currentPage}` : '') }}</span>
             <!-- Arrow -->
             <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-900 dark:bg-white rotate-45"></div>

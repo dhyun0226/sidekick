@@ -14,14 +14,14 @@
               <ChevronLeft :size="24" />
             </button>
             <div class="flex items-baseline gap-2">
-              <span class="text-lg font-black text-lime-600 dark:text-lime-500">{{ Math.round(position) }}%</span>
-              <span class="text-xs text-zinc-400 font-bold uppercase">{{ comments.length }}개의 기록</span>
+              <span class="text-lg font-semibold text-lime-600 dark:text-lime-500">{{ Math.round(position) }}%</span>
+              <span class="text-xs text-zinc-400 font-medium">{{ comments.length }}개의 기록</span>
             </div>
           </div>
         </div>
 
         <!-- Anchor Text (Quote Style) -->
-        <div v-if="anchorText" class="pl-4 border-l-[3px] border-lime-400">
+        <div v-if="anchorText" class="pl-4 border-l-2 border-lime-400">
           <p class="text-[15px] text-zinc-600 dark:text-zinc-400 italic leading-relaxed line-clamp-2">
             {{ anchorText }}
           </p>
@@ -563,6 +563,15 @@ const executeDeleteComment = async () => {
   if (!deletingCommentId.value) return
 
   try {
+    const comment = props.comments.find(c => c.id === deletingCommentId.value)
+
+    // 답글이 있으면 먼저 삭제
+    if (comment?.replies?.length > 0) {
+      const replyIds = comment.replies.map((r: any) => r.id)
+      const { error: replyError } = await client.from('comments').delete().in('id', replyIds)
+      if (replyError) throw replyError
+    }
+
     const { error } = await client
       .from('comments')
       .delete()

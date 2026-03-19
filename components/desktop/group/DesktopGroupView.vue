@@ -348,19 +348,41 @@ const handleEditComment = async (comment: any) => {
 
 const handleDeleteComment = async (comment: any) => {
   try {
+    // 답글 백업 (undo용)
+    const savedReplies = comment.replies ? [...comment.replies] : []
     const savedContent = comment.content
     const savedAnchor = comment.anchor_text
+
+    // 답글 먼저 삭제, 그 다음 부모 삭제
+    if (savedReplies.length > 0) {
+      const replyIds = savedReplies.map((r: any) => r.id)
+      await client.from('comments').delete().in('id', replyIds)
+    }
     await client.from('comments').delete().eq('id', comment.id)
+
     if (selectedBookId.value) fetchComments(selectedBookId.value)
     toast.success('삭제되었습니다', async () => {
+      // Undo: 부모 먼저 복원, 그 다음 답글 복원
       try {
-        await client.from('comments').insert({
+        const { data: restored } = await client.from('comments').insert({
           content: savedContent,
           anchor_text: savedAnchor,
           position_pct: comment.position_pct,
           user_id: comment.user_id,
           group_book_id: comment.group_book_id
-        })
+        }).select('id').single()
+
+        if (restored && savedReplies.length > 0) {
+          await client.from('comments').insert(
+            savedReplies.map((r: any) => ({
+              content: r.content,
+              position_pct: r.position_pct,
+              user_id: r.user_id,
+              group_book_id: r.group_book_id,
+              parent_id: restored.id
+            }))
+          )
+        }
         if (selectedBookId.value) fetchComments(selectedBookId.value)
         toast.success('복원되었습니다')
       } catch { toast.error('복원에 실패했습니다') }

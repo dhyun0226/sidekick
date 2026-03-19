@@ -124,6 +124,7 @@ export const useGroupComments = (userIdRef: Ref<string | null | undefined>) => {
                 parent.replies.push(item)
               }
             }
+            // 부모가 삭제된 고아 답글은 무시 (부모 삭제 시 답글도 함께 삭제됨)
           } else {
             rootComments.push(item)
           }

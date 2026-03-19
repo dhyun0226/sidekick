@@ -13,9 +13,10 @@ export interface Toast {
 
 export const useToastStore = defineStore('toast', () => {
   const toasts = ref<Toast[]>([])
+  let toastCounter = 0
 
   const add = (message: string, type: ToastType = 'info', duration = 3000, onUndo?: () => void) => {
-    const id = Date.now().toString()
+    const id = `${Date.now()}-${toastCounter++}`
     toasts.value.push({ id, message, type, duration, onUndo })
 
     if (duration > 0) {
