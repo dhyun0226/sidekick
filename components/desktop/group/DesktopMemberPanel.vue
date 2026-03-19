@@ -59,7 +59,7 @@
         <div v-else-if="isAdmin && member.id !== currentUserId" class="relative flex-shrink-0">
           <button
             @click.stop="toggleMenu(member.id)"
-            class="p-1 rounded-lg text-zinc-300 dark:text-zinc-600 opacity-0 group-hover:opacity-100 hover:text-zinc-500 dark:hover:text-zinc-400 transition-all"
+            class="p-1 rounded-lg text-zinc-400 dark:text-zinc-500 opacity-0 group-hover:opacity-100 hover:text-zinc-500 dark:hover:text-zinc-400 transition-all"
           >
             <MoreHorizontal :size="14" />
           </button>

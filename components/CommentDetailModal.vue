@@ -47,7 +47,7 @@
             <span class="text-sm font-bold text-zinc-900 dark:text-zinc-100" :class="{ 'text-zinc-400 font-medium italic': !comment.user }">
               {{ comment.user?.nickname || '탈퇴한 사용자' }}
             </span>
-            <span class="text-[10px] text-zinc-400 dark:text-zinc-600">{{ formatDate(comment.created_at) }}</span>
+            <span class="text-[10px] text-zinc-400 dark:text-zinc-500">{{ formatDate(comment.created_at) }}</span>
           </div>
 
           <!-- Content -->
@@ -79,7 +79,7 @@
             <button
               @click.stop="toggleLike(comment.id)"
               class="flex items-center gap-1.5 text-[11px] font-bold transition-colors"
-              :class="comment.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-600 hover:text-red-400'"
+              :class="comment.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-500 hover:text-red-400'"
             >
               <Heart :size="14" :fill="comment.isLiked ? 'currentColor' : 'none'" />
               <span v-if="comment.likes">{{ comment.likes }}</span>
@@ -88,7 +88,7 @@
 
             <button
               @click.stop="toggleReplyForm(comment.id)"
-              class="flex items-center gap-1.5 text-[11px] font-bold text-zinc-300 dark:text-zinc-600 hover:text-lime-500 transition-colors"
+              class="flex items-center gap-1.5 text-[11px] font-bold text-zinc-400 dark:text-zinc-500 hover:text-lime-500 transition-colors"
             >
               <MessageCircle :size="14" />
               답글
@@ -160,7 +160,7 @@
                     <button
                       @click.stop="toggleLike(reply.id)"
                       class="flex items-center gap-1.5 text-[10px] font-bold transition-colors"
-                      :class="reply.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-600 hover:text-red-400'"
+                      :class="reply.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-500 hover:text-red-400'"
                     >
                       <Heart :size="12" :fill="reply.isLiked ? 'currentColor' : 'none'" />
                       <span>{{ reply.likes || '좋아요' }}</span>

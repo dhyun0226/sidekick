@@ -9,7 +9,7 @@
         <img :src="group.currentBook.cover_url" class="w-full h-full object-cover" />
       </div>
       <div v-else class="w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center flex-shrink-0">
-        <Coffee :size="18" class="text-zinc-300 dark:text-zinc-600" />
+        <Coffee :size="18" class="text-zinc-400 dark:text-zinc-500" />
       </div>
 
       <!-- Info -->
@@ -25,7 +25,7 @@
           <p v-if="group.currentBook" class="text-desktop-caption text-zinc-400 dark:text-zinc-500 truncate">
             {{ group.currentBook.title }}
           </p>
-          <p v-else class="text-desktop-caption text-zinc-300 dark:text-zinc-600">
+          <p v-else class="text-desktop-caption text-zinc-400 dark:text-zinc-500">
             새 책을 기다리고 있어요
           </p>
         </div>
@@ -44,7 +44,7 @@
           </span>
         </div>
       </div>
-      <ChevronRight v-else :size="16" class="text-zinc-200 dark:text-zinc-700 flex-shrink-0" />
+      <ChevronRight v-else :size="16" class="text-zinc-200 dark:text-zinc-500 flex-shrink-0" />
     </div>
   </div>
 </template>

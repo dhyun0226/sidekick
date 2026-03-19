@@ -22,7 +22,7 @@
         <label class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 mb-1.5 block font-medium">닉네임</label>
         <input
           v-model="nickname"
-          class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 border-0 rounded-xl text-desktop-body text-zinc-900 dark:text-white placeholder-zinc-300 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all ease-apple duration-200"
+          class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 border-0 rounded-xl text-desktop-body text-zinc-900 dark:text-white placeholder-zinc-300 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all ease-apple duration-200"
           placeholder="닉네임 입력"
         />
       </div>

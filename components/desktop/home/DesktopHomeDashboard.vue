@@ -63,7 +63,7 @@
       <!-- Empty State -->
       <div v-if="!soloGroup && readingGroups.length === 0 && idleGroups.length === 0" class="text-center py-24">
         <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center">
-          <UsersIcon :size="24" class="text-zinc-300 dark:text-zinc-600" />
+          <UsersIcon :size="24" class="text-zinc-400 dark:text-zinc-500" />
         </div>
         <h3 class="text-desktop-body font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">공유 그룹에 참여해보세요</h3>
         <p class="text-desktop-callout text-zinc-400 dark:text-zinc-500 font-light mb-8">새로운 모임을 만들거나 초대를 받아보세요.</p>

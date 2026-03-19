@@ -5,7 +5,7 @@
       <div class="relative mx-auto w-32 h-[184px] rounded-xl overflow-hidden shadow-apple-lg mb-5 group/cover">
         <img v-if="book.book?.cover_url" :src="book.book.cover_url" class="w-full h-full object-cover" />
         <div v-else class="w-full h-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-          <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-600" />
+          <BookOpen :size="28" class="text-zinc-400 dark:text-zinc-500" />
         </div>
         <!-- Subtle progress overlay -->
         <div class="absolute bottom-0 left-0 right-0 h-1 bg-black/10">

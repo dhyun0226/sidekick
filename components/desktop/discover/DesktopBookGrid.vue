@@ -48,7 +48,7 @@
               class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300 ease-out"
             />
             <div v-else class="w-full h-full flex items-center justify-center">
-              <BookOpen :size="24" class="text-zinc-300 dark:text-zinc-600" />
+              <BookOpen :size="24" class="text-zinc-400 dark:text-zinc-500" />
             </div>
           </div>
         </div>

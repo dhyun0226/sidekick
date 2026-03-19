@@ -69,7 +69,7 @@
                   class="group"
                 >
                   <td class="py-3 align-top">
-                    <span class="text-desktop-footnote text-zinc-300 dark:text-zinc-600 font-medium">{{ idx + 1 }}</span>
+                    <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 font-medium">{{ idx + 1 }}</span>
                   </td>
                   <td class="py-3 pr-3 align-top">
                     <input
@@ -77,7 +77,7 @@
                       type="number"
                       v-model.number="row.position"
                       :placeholder="inputMode === 'page' ? 'p' : '%'"
-                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-body text-zinc-900 dark:text-white text-center transition-all focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-100 dark:focus:bg-zinc-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-zinc-300 dark:placeholder:text-zinc-600"
+                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-body text-zinc-900 dark:text-white text-center transition-all focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-100 dark:focus:bg-zinc-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-zinc-300 dark:placeholder:text-zinc-500"
                       @keydown="handleKeydown($event, idx, 'position')"
                     />
                   </td>
@@ -87,7 +87,7 @@
                       v-model="row.anchor"
                       placeholder="인상 깊은 구절..."
                       rows="1"
-                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-body italic text-zinc-600 dark:text-zinc-400 resize-none transition-all focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-100 dark:focus:bg-zinc-800 placeholder:text-zinc-300 dark:placeholder:text-zinc-600 placeholder:not-italic"
+                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-body italic text-zinc-600 dark:text-zinc-400 resize-none transition-all focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-100 dark:focus:bg-zinc-800 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 placeholder:not-italic"
                       @keydown="handleKeydown($event, idx, 'anchor')"
                       @input="autoResize($event)"
                     ></textarea>
@@ -98,7 +98,7 @@
                       v-model="row.content"
                       placeholder="느낀 점을 적어보세요..."
                       rows="1"
-                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-body text-zinc-900 dark:text-white resize-none transition-all focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-100 dark:focus:bg-zinc-800 placeholder:text-zinc-300 dark:placeholder:text-zinc-600"
+                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-body text-zinc-900 dark:text-white resize-none transition-all focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-100 dark:focus:bg-zinc-800 placeholder:text-zinc-300 dark:placeholder:text-zinc-500"
                       @keydown="handleKeydown($event, idx, 'content')"
                       @input="autoResize($event)"
                     ></textarea>
@@ -123,7 +123,7 @@
             >
               <Plus :size="14" />
               <span>행 추가</span>
-              <span class="text-desktop-micro text-zinc-300 dark:text-zinc-600 ml-1">Tab으로 자동 추가</span>
+              <span class="text-desktop-micro text-zinc-400 dark:text-zinc-500 ml-1">Tab으로 자동 추가</span>
             </button>
           </div>
 

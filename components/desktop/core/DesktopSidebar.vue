@@ -2,7 +2,7 @@
   <aside class="w-sidebar h-full flex flex-col shrink-0 bg-white/50 dark:bg-zinc-950/50">
     <!-- Logo -->
     <div class="px-6 pt-7 pb-5">
-      <h1 class="text-desktop-callout font-medium tracking-[0.02em] text-zinc-400 dark:text-zinc-500 select-none">사이드킥</h1>
+      <h1 class="text-[20px] font-bold tracking-tight text-zinc-900 dark:text-white select-none">사이드킥</h1>
     </div>
 
     <!-- Navigation -->
@@ -54,7 +54,7 @@
 
       <!-- Spacer -->
       <div class="pt-5 pb-1">
-        <p class="px-3 text-desktop-micro font-medium text-zinc-300 dark:text-zinc-600 uppercase tracking-widest">그룹</p>
+        <p class="px-3 text-desktop-micro font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">그룹</p>
       </div>
 
       <NuxtLink
@@ -68,7 +68,7 @@
         <span class="truncate">{{ group.name }}</span>
       </NuxtLink>
 
-      <div v-if="socialGroups.length === 0 && !loading" class="px-3 py-2 text-desktop-caption text-zinc-300 dark:text-zinc-600">
+      <div v-if="socialGroups.length === 0 && !loading" class="px-3 py-2 text-desktop-caption text-zinc-400 dark:text-zinc-500">
         참여 중인 그룹이 없어요
       </div>
     </nav>
@@ -78,7 +78,7 @@
       <NuxtLink to="/profile" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-100/70 dark:hover:bg-zinc-800/50 transition-all duration-200 ease-apple">
         <div class="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0">
           <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
-          <div v-else class="w-full h-full flex items-center justify-center text-zinc-300 dark:text-zinc-600">
+          <div v-else class="w-full h-full flex items-center justify-center text-zinc-400 dark:text-zinc-500">
             <User :size="14" :stroke-width="1.75" />
           </div>
         </div>

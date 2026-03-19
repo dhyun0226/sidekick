@@ -34,6 +34,14 @@
     @apply bg-zinc-100/80 dark:bg-zinc-800/60 text-zinc-900 dark:text-white font-medium;
   }
 
+  /* Action text (interactive icons/buttons) */
+  .text-action {
+    @apply text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors;
+  }
+  .text-action-danger {
+    @apply text-zinc-400 dark:text-zinc-500 hover:text-red-500 transition-colors;
+  }
+
   /* Desktop input field */
   .desktop-input {
     @apply w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-xl text-desktop-body text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all;

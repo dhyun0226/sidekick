@@ -8,7 +8,7 @@
       <div class="w-24 aspect-[2/3] flex-shrink-0 rounded-xl overflow-hidden shadow-apple-lg">
         <img v-if="book.cover_url" :src="book.cover_url" class="w-full h-full object-cover" />
         <div v-else class="w-full h-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-          <BookOpen :size="20" class="text-zinc-300 dark:text-zinc-600" />
+          <BookOpen :size="20" class="text-zinc-400 dark:text-zinc-500" />
         </div>
       </div>
 
@@ -22,7 +22,7 @@
 
         <!-- Date & Progress -->
         <div class="flex justify-between items-center mt-4">
-          <span class="text-desktop-caption text-zinc-300 dark:text-zinc-600">{{ dateRange }}</span>
+          <span class="text-desktop-caption text-zinc-400 dark:text-zinc-500">{{ dateRange }}</span>
           <div class="flex items-center gap-3">
             <span v-if="dday" class="text-desktop-caption font-medium" :class="ddayClass">{{ dday }}</span>
             <span class="text-desktop-callout font-semibold text-lime-500">{{ Math.round(book.progress) }}%</span>
