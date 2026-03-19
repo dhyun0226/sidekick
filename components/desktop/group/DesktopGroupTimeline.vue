@@ -11,6 +11,7 @@
     @submit="$emit('submit', $event)"
     @load-more="$emit('load-more')"
     @reply="$emit('reply', $event)"
+    @reply-submit="$emit('reply-submit', $event)"
     @like="$emit('like', $event)"
     @open-batch="$emit('open-batch')"
     @edit="$emit('edit', $event)"
@@ -33,5 +34,5 @@ defineProps<{
   preferredMode?: 'percent' | 'page'
 }>()
 
-defineEmits(['submit', 'load-more', 'reply', 'like', 'open-batch', 'edit', 'delete', 'progress-change'])
+defineEmits(['submit', 'load-more', 'reply', 'reply-submit', 'like', 'open-batch', 'edit', 'delete', 'progress-change'])
 </script>

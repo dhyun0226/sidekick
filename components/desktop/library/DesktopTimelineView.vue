@@ -182,7 +182,7 @@
 
                   <!-- Reply -->
                   <button
-                    @click="$emit('reply', comment)"
+                    @click="toggleReplyForm(comment.id)"
                     class="flex items-center gap-1 px-2 py-1 rounded-full text-desktop-caption font-medium text-zinc-300 dark:text-zinc-600 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all duration-200 ease-apple"
                   >
                     <MessageCircle :size="13" />
@@ -207,8 +207,8 @@
                 </div>
               </div>
 
-              <!-- Inline Replies (up to 3) -->
-              <div v-if="comment.replies?.length" class="mt-4 pl-6 space-y-3">
+              <!-- Inline Replies -->
+              <div v-if="comment.replies?.length" class="mt-4 pl-6 border-l border-zinc-100 dark:border-zinc-800/60 space-y-3">
                 <div
                   v-for="reply in comment.replies.slice(0, 3)"
                   :key="reply.id"
@@ -220,14 +220,17 @@
                       {{ reply.user?.nickname || '탈퇴한 사용자' }} · {{ formatTimeAgo(reply.created_at) }}
                     </span>
                     <div class="flex items-center gap-1 opacity-0 group-hover/reply:opacity-100 transition-opacity duration-200 ease-apple">
-                      <button
-                        @click="$emit('like', reply)"
-                        class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-medium transition-colors"
-                        :class="reply.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-600 hover:text-red-400'"
-                      >
-                        <Heart :size="11" :fill="reply.isLiked ? 'currentColor' : 'none'" />
-                        <span v-if="reply.likes" class="tabular-nums">{{ reply.likes }}</span>
-                      </button>
+                      <div class="relative">
+                        <button
+                          @click="handleLike(reply)"
+                          class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-medium transition-colors"
+                          :class="reply.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-600 hover:text-red-400'"
+                        >
+                          <Heart :size="11" :fill="reply.isLiked ? 'currentColor' : 'none'" :class="likedId === reply.id ? 'animate-like-bounce' : ''" />
+                          <span v-if="reply.likes" class="tabular-nums">{{ reply.likes }}</span>
+                        </button>
+                        <div :ref="(el) => setParticleRef(reply.id, el)" class="pointer-events-none absolute inset-0 overflow-visible"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -235,11 +238,34 @@
                 <!-- Show more replies -->
                 <button
                   v-if="comment.replies.length > 3"
-                  @click="$emit('reply', comment)"
+                  @click="toggleReplyForm(comment.id)"
                   class="text-desktop-caption font-medium text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
                 >
                   답글 {{ comment.replies.length - 3 }}개 더보기
                 </button>
+              </div>
+
+              <!-- Inline Reply Form -->
+              <div v-if="activeReplyId === comment.id" class="mt-3 pl-6">
+                <div class="relative">
+                  <input
+                    ref="replyInputRef"
+                    v-model="replyContent"
+                    type="text"
+                    placeholder="답글을 남겨보세요..."
+                    class="w-full bg-zinc-50 dark:bg-zinc-800/50 text-[13px] text-zinc-800 dark:text-zinc-200 rounded-xl pl-3 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all duration-200 ease-apple"
+                    @keyup.enter="submitReply(comment)"
+                    @keydown.escape="cancelReply"
+                  />
+                  <button
+                    @click="submitReply(comment)"
+                    :disabled="!replyContent.trim() || isSubmittingReply"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-lime-600 hover:bg-lime-100 dark:hover:bg-lime-900/30 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div v-if="isSubmittingReply" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                    <Send v-else :size="14" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -269,7 +295,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
-import { Pencil, Layers, Check, Heart, MessageCircle, Trash2 } from 'lucide-vue-next'
+import { Pencil, Layers, Check, Heart, MessageCircle, Trash2, Send } from 'lucide-vue-next'
 
 const props = defineProps<{
   comments: any[]
@@ -282,7 +308,7 @@ const props = defineProps<{
   preferredMode?: 'percent' | 'page'
 }>()
 
-const emit = defineEmits(['submit', 'load-more', 'reply', 'like', 'open-batch', 'edit', 'delete', 'progress-change'])
+const emit = defineEmits(['submit', 'load-more', 'reply', 'reply-submit', 'like', 'open-batch', 'edit', 'delete', 'progress-change'])
 
 const { formatTimeAgo } = useDateUtils()
 
@@ -416,6 +442,44 @@ const saveEdit = (comment: any) => {
   emit('edit', { ...comment, content: editContent.value.trim() })
   editingCommentId.value = null
   editContent.value = ''
+}
+
+// ===== Reply State =====
+const activeReplyId = ref<string | null>(null)
+const replyContent = ref('')
+const isSubmittingReply = ref(false)
+const replyInputRef = ref<HTMLInputElement | null>(null)
+
+const toggleReplyForm = (commentId: string) => {
+  if (activeReplyId.value === commentId) {
+    activeReplyId.value = null
+    replyContent.value = ''
+  } else {
+    activeReplyId.value = commentId
+    replyContent.value = ''
+    nextTick(() => {
+      const el = replyInputRef.value
+      if (Array.isArray(el)) el[0]?.focus()
+      else el?.focus()
+    })
+  }
+}
+
+const cancelReply = () => {
+  activeReplyId.value = null
+  replyContent.value = ''
+}
+
+const submitReply = (comment: any) => {
+  if (!replyContent.value.trim() || isSubmittingReply.value) return
+  emit('reply-submit', {
+    parentId: comment.id,
+    content: replyContent.value.trim(),
+    groupBookId: comment.group_book_id,
+    positionPct: comment.position_pct
+  })
+  activeReplyId.value = null
+  replyContent.value = ''
 }
 
 // ===== Like + Heart Particles =====

@@ -119,6 +119,7 @@
             @submit="handleInlineSubmit"
             @load-more="handleLoadMore"
             @reply="handleReply"
+            @reply-submit="handleReplySubmit"
             @like="handleLike"
             @open-batch="batchModalOpen = true"
             @edit="handleEditComment"
@@ -305,6 +306,35 @@ const replyTargetComment = ref<any>(null)
 
 const handleReply = (comment: any) => {
   replyTargetComment.value = comment
+}
+
+const handleReplySubmit = async (data: { parentId: string; content: string; groupBookId: string; positionPct: number }) => {
+  const userId = userStore.profile?.id
+  if (!userId) return
+
+  try {
+    const { data: newReply, error } = await client
+      .from('comments')
+      .insert({
+        group_book_id: data.groupBookId,
+        user_id: userId,
+        parent_id: data.parentId,
+        content: data.content,
+        position_pct: data.positionPct
+      })
+      .select('*, user:users(*)')
+      .single()
+
+    if (error) throw error
+
+    const parent = comments.value.find((c: any) => c.id === data.parentId)
+    if (parent) {
+      if (!parent.replies) parent.replies = []
+      parent.replies.push({ ...newReply, likes: 0, isLiked: false })
+    }
+  } catch (e) {
+    toast.error('답글 작성에 실패했습니다.')
+  }
 }
 
 const handleLike = async (comment: any) => {
