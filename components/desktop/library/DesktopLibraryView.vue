@@ -294,10 +294,11 @@ const handleEditComment = async (comment: any) => {
 
 const handleDeleteComment = async (comment: any) => {
   try {
-    // 답글 백업 (undo용)
+    // 백업 (undo용) — created_at 포함해서 원래 위치 보존
     const savedReplies = comment.replies ? [...comment.replies] : []
     const savedContent = comment.content
     const savedAnchor = comment.anchor_text
+    const savedCreatedAt = comment.created_at
 
     // 답글 먼저 삭제, 그 다음 부모 삭제
     if (savedReplies.length > 0) {
@@ -308,14 +309,15 @@ const handleDeleteComment = async (comment: any) => {
 
     if (selectedBookId.value) fetchComments(selectedBookId.value)
     toast.success('삭제되었습니다', async () => {
-      // Undo: 부모 먼저 복원, 그 다음 답글 복원
+      // Undo: 부모 먼저 복원 (created_at 보존), 그 다음 답글 복원
       try {
         const { data: restored } = await client.from('comments').insert({
           content: savedContent,
           anchor_text: savedAnchor,
           position_pct: comment.position_pct,
           user_id: comment.user_id,
-          group_book_id: comment.group_book_id
+          group_book_id: comment.group_book_id,
+          created_at: savedCreatedAt
         }).select('id').single()
 
         if (restored && savedReplies.length > 0) {
@@ -325,7 +327,8 @@ const handleDeleteComment = async (comment: any) => {
               position_pct: r.position_pct,
               user_id: r.user_id,
               group_book_id: r.group_book_id,
-              parent_id: restored.id
+              parent_id: restored.id,
+              created_at: r.created_at
             }))
           )
         }
