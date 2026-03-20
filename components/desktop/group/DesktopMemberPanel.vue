@@ -1,21 +1,33 @@
 <template>
   <div class="space-y-5">
     <div class="flex items-center justify-between">
-      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-500 uppercase tracking-widest font-medium">멤버 {{ members.length }}</h4>
-      <!-- Leader badge -->
-      <span v-if="leader" class="text-desktop-micro text-zinc-400 dark:text-zinc-500">
-        {{ leader.nickname }} 선두
-      </span>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-500 uppercase tracking-widest font-medium">멤버 ({{ members.length }})</h4>
+      <button
+        @click="showSearch = !showSearch; if (!showSearch) searchQuery = ''"
+        class="p-1 rounded-lg transition-colors"
+        :class="showSearch ? 'text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800' : 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-500 dark:hover:text-zinc-400'"
+      >
+        <Search :size="13" />
+      </button>
+    </div>
+    <div v-if="showSearch" class="mt-2">
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="멤버 검색"
+        class="desktop-input w-full py-1.5 px-3 text-desktop-caption"
+      />
     </div>
 
     <div class="space-y-0.5">
       <div
-        v-for="(member, index) in sortedMembers"
+        v-for="(member, index) in filteredMembers"
         :key="member.id"
         class="group relative flex items-center gap-3 px-2 py-2.5 rounded-xl transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
+        :class="{ 'opacity-60': member.inactive }"
       >
         <!-- Rank -->
-        <div class="w-5 text-center flex-shrink-0">
+        <div class="w-5 text-center flex-shrink-0 tabular-nums">
           <span v-if="index === 0 && members.length > 1" class="text-desktop-caption font-bold text-zinc-900 dark:text-white">1</span>
           <span v-else-if="index === 1 && members.length > 2" class="text-desktop-caption font-semibold text-zinc-600 dark:text-zinc-300">2</span>
           <span v-else-if="index === 2 && members.length > 3" class="text-desktop-caption font-semibold text-zinc-600 dark:text-zinc-300">3</span>
@@ -35,9 +47,11 @@
             <span class="text-desktop-caption font-medium text-zinc-900 dark:text-white truncate">{{ member.nickname }}</span>
             <span v-if="member.id === currentUserId" class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 font-normal">나</span>
             <span v-if="member.role === 'admin'" class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 font-normal">관리자</span>
+            <span v-if="member.isCompleted && member.finishedDate" class="text-desktop-footnote text-zinc-400">{{ member.finishedDate }}</span>
+            <span v-else-if="member.timeAgo" class="text-desktop-footnote text-zinc-400">{{ member.timeAgo }}</span>
           </div>
           <div class="flex items-center gap-2 mt-1">
-            <div class="flex-1 h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+            <div class="flex-1 h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
               <div
                 class="h-full rounded-full transition-all duration-500"
                 :class="member.isCompleted ? 'bg-lime-400' : index === 0 ? 'bg-lime-400' : 'bg-zinc-300 dark:bg-zinc-600'"
@@ -100,7 +114,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { MoreHorizontal, Check } from 'lucide-vue-next'
+import { MoreHorizontal, Check, Search } from 'lucide-vue-next'
 import type { MemberWithProgress } from '~/types'
 
 const props = defineProps<{
@@ -112,9 +126,17 @@ const props = defineProps<{
 const emit = defineEmits(['change-role', 'kick'])
 
 const openMenuId = ref<string | null>(null)
+const showSearch = ref(false)
+const searchQuery = ref('')
 
 const sortedMembers = computed(() => {
   return [...props.members].sort((a, b) => b.progress - a.progress)
+})
+
+const filteredMembers = computed(() => {
+  if (!searchQuery.value.trim()) return sortedMembers.value
+  const q = searchQuery.value.trim().toLowerCase()
+  return sortedMembers.value.filter(m => m.nickname?.toLowerCase().includes(q))
 })
 
 const leader = computed(() => {

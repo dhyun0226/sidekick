@@ -191,6 +191,19 @@
         @open-reviews="selectedBookId && openReviews(selectedBookId)"
       />
 
+      <!-- Bookshelf Tab -->
+      <DesktopBookshelfPanel
+        v-if="activeRightTab === 'bookshelf'"
+        :books="visibleHistoryBooks"
+        :is-admin="isAdmin"
+        :is-archived="isArchived"
+        @select-book="selectBook"
+        @open-reviews="(id: string) => openReviews(id)"
+        @restart-reading="(id: string) => handleRestartReading(id)"
+        @edit-finished-date="(id: string) => handleEditFinishedDate(id)"
+        @delete-history="(id: string) => handleDeleteHistoryBook(id)"
+      />
+
       <!-- Settings Tab -->
       <DesktopGroupSettings
         v-if="activeRightTab === 'settings'"
@@ -203,6 +216,7 @@
         @delete-group="deleteGroup"
         @leave-group="leaveGroup"
         @save-group-name="saveGroupName"
+        @open-search-modal="openSearchModal"
       />
     </DesktopRightPanel>
 
@@ -242,6 +256,7 @@ import DesktopBookInfoPanel from '~/components/desktop/library/DesktopBookInfoPa
 import DesktopGroupTimeline from './DesktopGroupTimeline.vue'
 import DesktopMemberPanel from './DesktopMemberPanel.vue'
 import DesktopGroupSettings from './DesktopGroupSettings.vue'
+import DesktopBookshelfPanel from './DesktopBookshelfPanel.vue'
 import DesktopBatchNotesModal from '~/components/desktop/library/DesktopBatchNotesModal.vue'
 import CommentDetailModal from '~/components/CommentDetailModal.vue'
 import Badge from '~/components/Badge.vue'
@@ -263,7 +278,7 @@ const {
   openMarkCompletedModal, handleMarkFinished, fetchData, fetchComments,
   copyInviteCode, copyInviteLink, deleteGroup, leaveGroup, saveGroupName,
   openReviews, handleOpenReview, handleReviewSubmit,
-  handleDeleteHistoryBook, handleRestartReading,
+  handleDeleteHistoryBook, handleRestartReading, handleEditFinishedDate,
   handleChangeMemberRole, kickMember, executeKickMember,
   executePromoteMember, promoteMember,
   regenerateInviteCode, executeRegenerateInviteCode,
@@ -278,11 +293,12 @@ const {
 
 const batchModalOpen = ref(false)
 const batchModalRef = ref<InstanceType<typeof DesktopBatchNotesModal> | null>(null)
-const activeRightTab = ref<'members' | 'book' | 'settings'>('members')
+const activeRightTab = ref<'members' | 'book' | 'bookshelf' | 'settings'>('members')
 
 const rightTabs = [
   { key: 'members' as const, label: '멤버' },
   { key: 'book' as const, label: '책 정보' },
+  { key: 'bookshelf' as const, label: '책장' },
   { key: 'settings' as const, label: '설정' }
 ]
 
