@@ -31,7 +31,7 @@
         :model-value="viewProgress"
         :total-pages="book.total_pages"
         :preferred-mode="preferredMode"
-        :disabled="isArchived"
+        :disabled="isArchived || isReadOnlyMode"
         @update:model-value="$emit('progress-change', $event)"
         @update:mode="$emit('mode-change', $event)"
       />
@@ -138,7 +138,7 @@
     </div>
 
     <!-- Actions -->
-    <div v-if="!isArchived" class="space-y-0.5 px-1">
+    <div v-if="!isArchived && !isReadOnlyMode" class="space-y-0.5 px-1">
       <button
         @click="$emit('edit-dates')"
         class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5"
@@ -243,6 +243,7 @@ const props = defineProps<{
   viewProgress: number
   toc?: TocChapter[]
   isArchived?: boolean
+  isReadOnlyMode?: boolean
   preferredMode?: 'percent' | 'page'
   showMarkCompleted?: boolean
   userRating?: number | null

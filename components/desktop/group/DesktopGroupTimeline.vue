@@ -5,6 +5,7 @@
     :has-more="hasMore"
     :is-loading-more="isLoadingMore"
     :is-archived="isArchived"
+    :is-read-only-mode="isReadOnlyMode"
     :current-user-id="currentUserId"
     :total-pages="totalPages"
     :preferred-mode="preferredMode"
@@ -29,6 +30,7 @@ defineProps<{
   hasMore: boolean
   isLoadingMore: boolean
   isArchived?: boolean
+  isReadOnlyMode?: boolean
   currentUserId?: string
   totalPages?: number
   preferredMode?: 'percent' | 'page'

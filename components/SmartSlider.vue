@@ -32,7 +32,7 @@
             </div>
 
             <button
-              v-if="!isArchived"
+              v-if="!isArchived && !isReadOnlyMode"
               @click="$emit('write')"
               class="flex items-center gap-2 pl-3 pr-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-apple"
             >

@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Input Form -->
-    <div v-if="!isArchived" class="apple-card overflow-hidden">
+    <div v-if="!isArchived && !isReadOnlyMode" class="apple-card overflow-hidden">
       <div class="p-5">
         <!-- Top row: position + batch -->
         <div class="flex items-center justify-between mb-4">
@@ -153,6 +153,7 @@
                         </div>
 
                         <button
+                          v-if="!isReadOnlyMode"
                           @click="toggleReplyForm(comment.id)"
                           class="flex items-center gap-1 text-desktop-footnote font-medium text-zinc-400 dark:text-zinc-500 hover:text-zinc-500 transition-colors"
                         >
@@ -160,7 +161,7 @@
                           <span v-if="comment.replies?.length" class="tabular-nums">{{ comment.replies.length }}</span>
                         </button>
 
-                        <template v-if="currentUserId && comment.user_id === currentUserId">
+                        <template v-if="!isReadOnlyMode && currentUserId && comment.user_id === currentUserId">
                           <button @click="startEdit(comment)" class="text-zinc-400 dark:text-zinc-500 hover:text-zinc-500 transition-colors">
                             <Pencil :size="13" />
                           </button>
@@ -284,6 +285,7 @@ const props = defineProps<{
   hasMore: boolean
   isLoadingMore: boolean
   isArchived?: boolean
+  isReadOnlyMode?: boolean
   currentUserId?: string
   totalPages?: number
   preferredMode?: 'percent' | 'page'
