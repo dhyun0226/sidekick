@@ -70,15 +70,23 @@
             </div>
             
             <!-- Edit Mode -->
-            <div v-if="editingCommentId === comment.id" class="mt-2">
+            <div v-if="editingCommentId === comment.id" class="mt-2 space-y-2">
+              <textarea
+                v-model="editAnchor"
+                placeholder="인용 구절 (선택)"
+                class="w-full bg-lime-50/60 dark:bg-lime-900/10 text-zinc-700 dark:text-zinc-300 text-sm rounded-xl px-4 py-3 border-l-[3px] border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/20 resize-none"
+                rows="2"
+                @keydown.esc="cancelEdit"
+              ></textarea>
               <textarea
                 v-model="editContent"
+                placeholder="코멘트 (선택)"
                 class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                 rows="4"
                 @keydown.esc="cancelEdit"
               ></textarea>
               <div class="flex gap-2 mt-3">
-                <button @click="saveEdit(comment.id)" :disabled="isSavingEdit" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-bold rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[56px] active:scale-95 transition-all">
+                <button @click="saveEdit(comment.id)" :disabled="isSavingEdit || (!editContent.trim() && !editAnchor.trim())" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-bold rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[56px] active:scale-95 transition-all">
                   <div v-if="isSavingEdit" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                   <span v-else>저장</span>
                 </button>
@@ -568,19 +576,28 @@ const isOwnReply = (reply: Reply) => {
 }
 
 // Comment edit functions
+const editAnchor = ref('')
+
 const startEdit = (comment: Comment) => {
   editingCommentId.value = comment.id
-  editContent.value = comment.content
+  editContent.value = comment.content || ''
+  editAnchor.value = comment.anchor_text || ''
 }
 
 const saveEdit = async (commentId: string) => {
-  if (!editContent.value.trim() || isSavingEdit.value) return
+  const hasContent = editContent.value.trim()
+  const hasAnchor = editAnchor.value.trim()
+  if (!hasContent && !hasAnchor) return
+  if (isSavingEdit.value) return
 
   isSavingEdit.value = true
   try {
     const { error } = await client
       .from('comments')
-      .update({ content: editContent.value })
+      .update({
+        content: editContent.value.trim(),
+        anchor_text: editAnchor.value.trim() || null
+      })
       .eq('id', commentId)
 
     if (error) {
@@ -591,12 +608,14 @@ const saveEdit = async (commentId: string) => {
     // Update local state
     const comment = props.comments.find(c => c.id === commentId)
     if (comment) {
-      comment.content = editContent.value
+      comment.content = editContent.value.trim()
+      comment.anchor_text = editAnchor.value.trim() || null
     }
 
     // Exit edit mode
     editingCommentId.value = null
     editContent.value = ''
+    editAnchor.value = ''
   } catch (error) {
     console.error('Save edit error:', error)
     toast.error('댓글 수정에 실패했습니다.')
@@ -608,6 +627,7 @@ const saveEdit = async (commentId: string) => {
 const cancelEdit = () => {
   editingCommentId.value = null
   editContent.value = ''
+  editAnchor.value = ''
 }
 
 // Reply edit functions

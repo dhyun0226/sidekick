@@ -174,17 +174,27 @@
 
                     <!-- Edit Mode -->
                     <template v-else>
-                      <textarea
-                        ref="editTextareaRef"
-                        v-model="editContent"
-                        rows="3"
-                        class="w-full mt-1 px-3 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-callout-regular text-zinc-800 dark:text-zinc-200 resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10"
-                        @keydown.meta.enter="saveEdit(comment)"
-                        @keydown.ctrl.enter="saveEdit(comment)"
-                        @keydown.escape="cancelEdit"
-                      ></textarea>
+                      <div class="mt-1 space-y-2">
+                        <textarea
+                          v-model="editAnchor"
+                          placeholder="인용 구절 (선택)"
+                          rows="2"
+                          class="w-full px-3 py-2.5 bg-lime-50/60 dark:bg-lime-900/10 border-l-2 border-lime-400 rounded-r-xl text-desktop-callout-regular text-zinc-600 dark:text-zinc-400 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400/20"
+                          @keydown.escape="cancelEdit"
+                        ></textarea>
+                        <textarea
+                          ref="editTextareaRef"
+                          v-model="editContent"
+                          placeholder="코멘트 (선택)"
+                          rows="3"
+                          class="w-full px-3 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-callout-regular text-zinc-800 dark:text-zinc-200 resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10"
+                          @keydown.meta.enter="saveEdit(comment)"
+                          @keydown.ctrl.enter="saveEdit(comment)"
+                          @keydown.escape="cancelEdit"
+                        ></textarea>
+                      </div>
                       <div class="flex items-center gap-2 mt-2">
-                        <button @click="saveEdit(comment)" :disabled="!editContent.trim()" class="px-3.5 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50">저장</button>
+                        <button @click="saveEdit(comment)" :disabled="!editContent.trim() && !editAnchor.trim()" class="px-3.5 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50">저장</button>
                         <button @click="cancelEdit" class="px-3.5 py-1.5 text-zinc-500 text-desktop-caption font-medium hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">취소</button>
                         <kbd class="ml-auto text-desktop-micro text-zinc-400 dark:text-zinc-500">⌘↵</kbd>
                       </div>
@@ -406,8 +416,11 @@ const editingCommentId = ref<string | null>(null)
 const editContent = ref('')
 const editTextareaRef = ref<HTMLTextAreaElement | null>(null)
 
+const editAnchor = ref('')
+
 const startEdit = (comment: any) => {
-  editContent.value = comment.content
+  editContent.value = comment.content || ''
+  editAnchor.value = comment.anchor_text || ''
   editingCommentId.value = comment.id
   nextTick(() => {
     const el = editTextareaRef.value
@@ -422,13 +435,17 @@ const startEdit = (comment: any) => {
 const cancelEdit = () => {
   editingCommentId.value = null
   editContent.value = ''
+  editAnchor.value = ''
 }
 
 const saveEdit = (comment: any) => {
-  if (!editContent.value.trim()) return
-  emit('edit', { ...comment, content: editContent.value.trim() })
+  const hasContent = editContent.value.trim()
+  const hasAnchor = editAnchor.value.trim()
+  if (!hasContent && !hasAnchor) return
+  emit('edit', { ...comment, content: hasContent, anchor_text: hasAnchor || null })
   editingCommentId.value = null
   editContent.value = ''
+  editAnchor.value = ''
 }
 
 // ===== Reply State =====

@@ -366,7 +366,10 @@ const handleDeleteBook = () => {
 
 const handleEditComment = async (comment: any) => {
   try {
-    await client.from('comments').update({ content: comment.content }).eq('id', comment.id)
+    await client.from('comments').update({
+      content: comment.content,
+      anchor_text: comment.anchor_text || null
+    }).eq('id', comment.id)
     if (selectedBookId.value) fetchComments(selectedBookId.value)
     toast.success('수정되었습니다')
   } catch (e) { toast.error('수정에 실패했습니다') }
