@@ -6,7 +6,7 @@
       enter-from-class="opacity-0"
       leave-to-class="opacity-0"
     >
-      <div v-if="isOpen" class="fixed inset-0 z-[99999] flex items-start justify-center pt-[18vh]" @click.self="close">
+      <div v-if="isOpen" class="fixed inset-0 z-[100020] flex items-start justify-center pt-[18vh]" @click.self="close">
         <div class="absolute inset-0 bg-black/25 backdrop-blur-md" @click="close"></div>
 
         <div class="relative w-[600px] bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg overflow-hidden ring-1 ring-black/[0.04] dark:ring-white/[0.06]" @click.stop>

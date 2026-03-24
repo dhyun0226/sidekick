@@ -2,7 +2,7 @@
   <aside class="w-sidebar h-full flex flex-col shrink-0 bg-white/50 dark:bg-zinc-950/50">
     <!-- Logo -->
     <div class="px-6 pt-7 pb-5">
-      <h1 class="text-[20px] font-bold tracking-tight text-zinc-900 dark:text-white select-none">사이드킥</h1>
+      <h1 class="text-[20px] font-bold tracking-tight text-zinc-900 dark:text-white select-none">치어리더스</h1>
     </div>
 
     <!-- Navigation -->

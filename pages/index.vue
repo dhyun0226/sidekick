@@ -24,7 +24,7 @@
           </div>
         </div>
         <div>
-          <h1 class="text-xl font-bold text-zinc-900 dark:text-white tracking-tight text-gradient">Sidekick</h1>
+          <h1 class="text-xl font-bold text-zinc-900 dark:text-white tracking-tight text-gradient">Cheer Readers</h1>
           <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">반가워요, {{ userStore.profile?.nickname }}님!</p>
         </div>
       </div>

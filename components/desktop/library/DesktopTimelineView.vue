@@ -14,26 +14,26 @@
                 @input="handlePositionInput"
                 :min="0"
                 :max="positionMax"
-                class="w-12 px-2 py-1 bg-transparent text-desktop-callout font-semibold text-zinc-900 dark:text-white text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                :placeholder="currentPositionPlaceholder"
+                class="w-20 px-2 py-1 bg-transparent text-desktop-callout font-semibold text-zinc-900 dark:text-white text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-zinc-300 dark:placeholder:text-zinc-600 placeholder:font-normal placeholder:text-desktop-caption"
               />
-              <span class="text-desktop-caption text-zinc-400 pr-2">{{ positionMode === 'page' ? 'p' : '%' }}</span>
             </div>
             <!-- Mode toggle -->
             <div v-if="totalPages" class="flex bg-zinc-100 dark:bg-zinc-800 rounded-full p-0.5">
               <button
                 @click="setMode('percent')"
-                class="px-2 py-0.5 text-desktop-micro font-semibold rounded-full transition-all duration-200 ease-apple"
+                class="px-2.5 py-0.5 text-desktop-micro font-semibold rounded-full transition-all duration-200 ease-apple"
                 :class="positionMode === 'percent'
                   ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm'
                   : 'text-zinc-400'"
-              >%</button>
+              >{{ positionMode === 'percent' ? '퍼센트' : '%' }}</button>
               <button
                 @click="setMode('page')"
-                class="px-2 py-0.5 text-desktop-micro font-semibold rounded-full transition-all duration-200 ease-apple"
+                class="px-2.5 py-0.5 text-desktop-micro font-semibold rounded-full transition-all duration-200 ease-apple"
                 :class="positionMode === 'page'
                   ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm'
                   : 'text-zinc-400'"
-              >p</button>
+              >{{ positionMode === 'page' ? '페이지' : 'p' }}</button>
             </div>
             <span class="text-desktop-micro text-zinc-400 dark:text-zinc-500 font-medium">에서</span>
           </div>
@@ -305,14 +305,15 @@ const anchorInputRef = ref<HTMLTextAreaElement | null>(null)
 const positionInputRef = ref<HTMLInputElement | null>(null)
 
 // ===== Position State =====
-const commentPosition = ref(Math.round(props.viewProgress))
+const commentPosition = ref<number | null>(null)
 const positionMode = ref<'percent' | 'page'>(props.preferredMode || 'percent')
 
-watch(() => props.viewProgress, (newVal) => {
-  const newPct = Math.round(newVal)
-  if (newPct > commentPosition.value) {
-    commentPosition.value = newPct
+const currentPositionPlaceholder = computed(() => {
+  const pct = Math.round(props.viewProgress)
+  if (positionMode.value === 'page' && props.totalPages) {
+    return `현재 ${Math.max(1, Math.round((pct / 100) * props.totalPages))}p`
   }
+  return `현재 ${pct}%`
 })
 
 const positionMax = ref(positionMode.value === 'page' && props.totalPages ? props.totalPages : 100)
@@ -330,24 +331,38 @@ watch(positionMode, (mode) => {
 })
 
 const setMode = (mode: 'percent' | 'page') => {
-  const currentPct = getPositionAsPct()
   positionMode.value = mode
   if (mode === 'page' && props.totalPages) {
     positionMax.value = props.totalPages
-    commentPosition.value = Math.max(1, Math.round((currentPct / 100) * props.totalPages))
   } else {
     positionMax.value = 100
-    commentPosition.value = currentPct
+  }
+  // 값이 입력된 상태면 변환, 비어있으면 그대로 null
+  if (commentPosition.value !== null) {
+    const currentPct = getPositionAsPct()
+    if (mode === 'page' && props.totalPages) {
+      commentPosition.value = Math.max(1, Math.round((currentPct / 100) * props.totalPages))
+    } else {
+      commentPosition.value = currentPct
+    }
   }
 }
 
 const handlePositionInput = (e: Event) => {
-  const raw = Number((e.target as HTMLInputElement).value)
+  const val = (e.target as HTMLInputElement).value
+  if (val === '') {
+    commentPosition.value = null
+    return
+  }
+  const raw = Number(val)
   if (isNaN(raw)) return
   commentPosition.value = Math.min(Math.max(0, raw), positionMax.value)
 }
 
 const getPositionAsPct = (): number => {
+  if (commentPosition.value === null) {
+    return Math.round(props.viewProgress)
+  }
   if (positionMode.value === 'page' && props.totalPages) {
     return Math.round((commentPosition.value / props.totalPages) * 100)
   }
@@ -376,13 +391,7 @@ const submitComment = async () => {
 
     newComment.value = ''
     anchorText.value = ''
-
-    const currentPct = Math.round(props.viewProgress)
-    if (positionMode.value === 'page' && props.totalPages) {
-      commentPosition.value = Math.max(1, Math.round((Math.max(pct, currentPct) / 100) * props.totalPages))
-    } else {
-      commentPosition.value = Math.max(pct, currentPct)
-    }
+    commentPosition.value = null
 
     showSaved.value = true
     setTimeout(() => { showSaved.value = false }, 2000)
@@ -526,7 +535,7 @@ const groupedComments = computed(() => {
     .sort((a, b) => a.position - b.position)
 })
 
-defineExpose({ anchorText, contentInputRef })
+defineExpose({ anchorText, contentInputRef, positionInputRef })
 </script>
 
 <style scoped>

@@ -5,8 +5,8 @@
       <!-- Logo / Brand -->
       <div class="h-16 flex items-center px-6 border-b border-zinc-200 dark:border-zinc-800">
         <NuxtLink to="/" class="flex items-center gap-2 font-bold text-xl text-zinc-900 dark:text-white">
-          <span class="w-8 h-8 bg-lime-400 rounded-lg flex items-center justify-center text-black">S</span>
-          <span>Sidekick Admin</span>
+          <span class="w-8 h-8 bg-lime-400 rounded-lg flex items-center justify-center text-black text-xs font-black">CR</span>
+          <span>Cheer Readers Admin</span>
         </NuxtLink>
       </div>
 

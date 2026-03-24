@@ -17,7 +17,7 @@
         <p class="text-zinc-500 dark:text-zinc-400 text-xs mb-8">최종 수정일: 2024년 2월 4일</p>
 
         <p class="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed mb-8">
-          Sidekick(이하 "서비스")은 이용자의 개인정보를 중요시하며, 「개인정보 보호법」을 준수하고 있습니다.
+          Cheer Readers(이하 "서비스")은 이용자의 개인정보를 중요시하며, 「개인정보 보호법」을 준수하고 있습니다.
           본 개인정보처리방침은 서비스가 수집하는 개인정보의 항목, 수집 목적, 보유 기간 등을 안내합니다.
         </p>
 

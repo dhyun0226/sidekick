@@ -231,10 +231,14 @@ const handleKeydown = (e: KeyboardEvent) => {
   // Skip remaining shortcuts when input focused
   if (isInputFocused()) return
 
-  // / → focus comment input
+  // / → focus position input
   if (e.key === '/') {
     e.preventDefault()
-    timelineRef.value?.contentInputRef?.focus()
+    const input = timelineRef.value?.positionInputRef
+    if (input) {
+      input.focus()
+      input.select()
+    }
     return
   }
 

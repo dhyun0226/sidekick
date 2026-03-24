@@ -8,7 +8,7 @@
       <div class="flex flex-col items-center gap-6">
         <!-- Logo or App Name -->
         <div class="text-4xl font-bold text-lime-400">📚</div>
-        <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Sidekick</h1>
+        <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Cheer Readers</h1>
 
         <!-- Loading Spinner -->
         <div class="w-12 h-12">
