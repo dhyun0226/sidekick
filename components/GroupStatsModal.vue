@@ -24,6 +24,14 @@
           <p class="text-sm text-zinc-500">통계를 불러오는 중...</p>
         </div>
 
+        <!-- Error State -->
+        <div v-else-if="fetchError" class="flex flex-col items-center justify-center py-12">
+          <p class="text-sm text-zinc-500 mb-4">통계를 불러오지 못했습니다.</p>
+          <button @click="fetchStats" class="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-lg text-sm font-medium hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+            다시 시도
+          </button>
+        </div>
+
         <template v-else>
           <!-- Summary Stats -->
           <div class="grid grid-cols-2 gap-4">
@@ -150,6 +158,7 @@ const client = useSupabaseClient()
 const { getBookRound } = useBookRound()
 
 const loading = ref(false)
+const fetchError = ref(false)
 
 const stats = ref({
   completedBooks: 0,
@@ -195,6 +204,7 @@ const fetchStats = async () => {
   if (!props.groupId) return
 
   loading.value = true
+  fetchError.value = false
 
   try {
     // 1. Fetch completed books count
@@ -313,16 +323,22 @@ const fetchStats = async () => {
     if (booksData) {
       const booksWithRatings = await Promise.all(
         booksData.map(async (book: any) => {
-          const { data: reviewsForBook } = await client
-            .from('reviews')
-            .select('rating')
-            .eq('group_book_id', book.id)
+          let avgRating = 0
+          let round = 1
+          try {
+            const { data: reviewsForBook } = await client
+              .from('reviews')
+              .select('rating')
+              .eq('group_book_id', book.id)
 
-          const avgRating = reviewsForBook && reviewsForBook.length > 0
-            ? reviewsForBook.reduce((sum, r) => sum + r.rating, 0) / reviewsForBook.length
-            : 0
+            avgRating = reviewsForBook && reviewsForBook.length > 0
+              ? reviewsForBook.reduce((sum: number, r: any) => sum + r.rating, 0) / reviewsForBook.length
+              : 0
 
-          const round = await getBookRound(props.groupId, book.isbn, book.id)
+            round = await getBookRound(props.groupId, book.isbn, book.id)
+          } catch (e) {
+            console.error('[Stats] Book rating fetch error:', e)
+          }
 
           return {
             id: book.id,
@@ -360,6 +376,7 @@ const fetchStats = async () => {
 
   } catch (error) {
     console.error('Stats fetch error:', error)
+    fetchError.value = true
   } finally {
     loading.value = false
   }

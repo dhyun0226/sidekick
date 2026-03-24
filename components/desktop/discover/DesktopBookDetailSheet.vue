@@ -45,7 +45,6 @@
         >
           <Heart :size="16" :fill="isInWishlist ? 'currentColor' : 'none'" />
           {{ isInWishlist ? '위시에서 제거' : '위시 담기' }}
-          <span v-if="wishCount > 0" class="text-desktop-caption text-zinc-400">{{ wishCount }}</span>
         </button>
 
         <div class="flex items-center gap-3">

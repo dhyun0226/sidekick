@@ -97,7 +97,7 @@
         </button>
         <button
           @click="submitReview"
-          class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-2xl font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           :disabled="rating === 0 || isSubmitting"
         >
           <div v-if="isSubmitting" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>

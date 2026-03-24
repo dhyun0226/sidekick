@@ -53,7 +53,7 @@
             v-model="anchorText"
             placeholder="인용 구절 (선택)"
             rows="1"
-            class="w-full px-4 py-2.5 bg-transparent border-l-2 border-lime-400 dark:border-lime-500 text-desktop-body italic text-zinc-600 dark:text-zinc-400 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 focus:outline-none resize-none transition-all duration-200 ease-apple"
+            class="w-full px-4 py-2.5 bg-transparent border-l-2 border-lime-400 dark:border-lime-500 text-desktop-callout-regular text-zinc-600 dark:text-zinc-400 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 focus:outline-none resize-none transition-all duration-200 ease-apple"
           ></textarea>
         </div>
 
@@ -64,7 +64,7 @@
             v-model="newComment"
             placeholder="느낀 점을 적어보세요 (선택)"
             rows="2"
-            class="w-full px-4 py-2.5 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-xl text-desktop-body text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-50 dark:focus:bg-zinc-800/50 resize-none transition-all duration-200 ease-apple"
+            class="w-full px-4 py-2.5 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-xl text-desktop-callout-regular text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-50 dark:focus:bg-zinc-800/50 resize-none transition-all duration-200 ease-apple"
             @keydown.meta.enter="submitComment"
             @keydown.ctrl.enter="submitComment"
           ></textarea>
@@ -103,7 +103,7 @@
       <div v-for="posGroup in groupedComments" :key="posGroup.position">
         <!-- Position Header -->
         <div class="flex items-center gap-3 mb-4">
-          <span class="text-desktop-body font-semibold text-lime-600 dark:text-lime-500 tabular-nums">{{ posGroup.position }}%</span>
+          <span class="text-desktop-callout font-semibold text-lime-600 dark:text-lime-500 tabular-nums">{{ posGroup.position }}%</span>
           <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
         </div>
 
@@ -112,8 +112,8 @@
           <div v-for="anchorGroup in posGroup.anchorGroups" :key="anchorGroup.key">
             <!-- Shared Anchor Text -->
             <div v-if="anchorGroup.anchorText" class="mb-4">
-              <div class="pl-4 border-l-2 border-lime-400 dark:border-lime-500">
-                <p class="text-desktop-body italic text-zinc-500 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap">{{ anchorGroup.anchorText }}</p>
+              <div class="pl-4 py-2.5 border-l-2 border-lime-400 dark:border-lime-500 bg-lime-50/60 dark:bg-lime-900/10 rounded-r-xl">
+                <p class="text-desktop-callout-regular text-zinc-600 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap">{{ anchorGroup.anchorText }}</p>
               </div>
             </div>
 
@@ -136,7 +136,7 @@
                     </div>
 
                     <template v-if="editingCommentId !== comment.id">
-                      <p v-if="comment.content" class="text-desktop-body text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words mt-1">{{ comment.content }}</p>
+                      <p v-if="comment.content" class="text-desktop-callout-regular text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words mt-1">{{ comment.content }}</p>
 
                       <!-- Actions (always visible, very muted) -->
                       <div class="flex items-center gap-3 mt-1.5">
@@ -178,7 +178,7 @@
                         ref="editTextareaRef"
                         v-model="editContent"
                         rows="3"
-                        class="w-full mt-1 px-3 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-body text-zinc-800 dark:text-zinc-200 resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10"
+                        class="w-full mt-1 px-3 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-callout-regular text-zinc-800 dark:text-zinc-200 resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10"
                         @keydown.meta.enter="saveEdit(comment)"
                         @keydown.ctrl.enter="saveEdit(comment)"
                         @keydown.escape="cancelEdit"
@@ -268,7 +268,7 @@
     <!-- Empty State -->
     <div v-if="comments.length === 0 && !isLoadingMore" class="text-center py-20">
       <Pencil :size="22" class="mx-auto text-zinc-400 dark:text-zinc-500 mb-4" />
-      <h3 class="text-desktop-body font-medium tracking-tight text-zinc-900 dark:text-white mb-1.5">아직 기록이 없어요</h3>
+      <h3 class="text-desktop-callout-regular font-medium tracking-tight text-zinc-900 dark:text-white mb-1.5">아직 기록이 없어요</h3>
       <p class="text-desktop-caption text-zinc-400 font-light">책을 읽으면서 느낀 점을 기록해보세요.</p>
     </div>
   </div>
@@ -345,11 +345,6 @@ const handlePositionInput = (e: Event) => {
   const raw = Number((e.target as HTMLInputElement).value)
   if (isNaN(raw)) return
   commentPosition.value = Math.min(Math.max(0, raw), positionMax.value)
-
-  const pct = getPositionAsPct()
-  if (pct > props.viewProgress) {
-    emit('progress-change', pct)
-  }
 }
 
 const getPositionAsPct = (): number => {
@@ -531,7 +526,7 @@ const groupedComments = computed(() => {
     .sort((a, b) => a.position - b.position)
 })
 
-defineExpose({ anchorText })
+defineExpose({ anchorText, contentInputRef })
 </script>
 
 <style scoped>

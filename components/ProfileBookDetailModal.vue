@@ -45,7 +45,7 @@
                 </Badge>
                 <!-- 완독: 완독일 배지 -->
                 <Badge v-if="book.finished_at" variant="lime">
-                  {{ formatCompletionDate(book.finished_at) }} {{ book.groupType === 'solo' ? '완독' : '완주' }}
+                  {{ formatCompletionDate(book.finished_at) }} {{ book.groupType === 'solo' ? '완독' : '종료' }}
                 </Badge>
               </div>
             </div>

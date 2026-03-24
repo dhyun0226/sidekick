@@ -22,10 +22,10 @@
       <!-- Anchor Text (Clean & Classic) -->
       <div
         v-if="group.anchorText"
-        class="mb-4 pl-4 border-l-[3px] border-lime-400 cursor-pointer hover:opacity-80 transition-opacity"
+        class="mb-4 pl-4 py-2.5 border-l-[3px] border-lime-400 bg-lime-50/60 dark:bg-lime-900/10 rounded-r-xl cursor-pointer hover:opacity-80 transition-opacity"
         :class="{ 'blur-sm opacity-40 select-none': isSpoiler(group.position) }"
       >
-        <p class="text-[15px] text-zinc-700 dark:text-zinc-300 italic leading-relaxed">
+        <p class="text-[15px] text-zinc-700 dark:text-zinc-300 leading-relaxed">
           {{ group.anchorText }}
         </p>
       </div>
@@ -65,24 +65,24 @@
               'blur-sm opacity-40 select-none pointer-events-none': isSpoiler(group.position)
             }"
           >
-            <div v-if="editingCommentId !== comment.id">
+            <div v-if="editingCommentId !== comment.id && comment.content?.trim()">
               {{ comment.content }}
             </div>
             
             <!-- Edit Mode -->
-            <div v-else class="mt-2">
+            <div v-if="editingCommentId === comment.id" class="mt-2">
               <textarea
                 v-model="editContent"
-                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
-                rows="2"
+                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
+                rows="4"
                 @keydown.esc="cancelEdit"
               ></textarea>
-              <div class="flex gap-2 mt-2">
-                <button @click="saveEdit(comment.id)" :disabled="isSavingEdit" class="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[48px]">
-                  <div v-if="isSavingEdit" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+              <div class="flex gap-2 mt-3">
+                <button @click="saveEdit(comment.id)" :disabled="isSavingEdit" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-bold rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[56px] active:scale-95 transition-all">
+                  <div v-if="isSavingEdit" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                   <span v-else>저장</span>
                 </button>
-                <button @click="cancelEdit" class="px-3 py-1 text-zinc-400 text-xs hover:text-zinc-600 dark:hover:text-zinc-200">취소</button>
+                <button @click="cancelEdit" class="px-4 py-2 text-zinc-400 text-sm font-medium hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">취소</button>
               </div>
             </div>
           </div>
@@ -107,16 +107,16 @@
               답글
             </button>
 
-            <div v-if="isOwnComment(comment)" class="flex items-center gap-3 ml-auto">
-              <button @click.stop="startEdit(comment)" class="text-[10px] font-bold text-zinc-300 dark:text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors">수정</button>
-              <button @click.stop="confirmDelete(comment.id)" class="text-[10px] font-bold text-zinc-300 dark:text-zinc-600 hover:text-red-500 transition-colors">삭제</button>
+            <div v-if="isOwnComment(comment)" class="flex items-center gap-1 ml-auto">
+              <button @click.stop="startEdit(comment)" class="text-xs font-bold text-zinc-300 dark:text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-zinc-100 dark:active:bg-zinc-800">수정</button>
+              <button @click.stop="confirmDelete(comment.id)" class="text-xs font-bold text-zinc-300 dark:text-zinc-600 hover:text-red-500 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-red-50 dark:active:bg-red-900/20">삭제</button>
             </div>
           </div>
 
           <!-- Solo mode actions (Edit/Delete only) -->
-          <div v-if="isSolo && !isSpoiler(group.position) && editingCommentId !== comment.id && isOwnComment(comment)" class="flex items-center gap-3 mt-2.5">
-            <button @click.stop="startEdit(comment)" class="text-[10px] font-bold text-zinc-300 dark:text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors">수정</button>
-            <button @click.stop="confirmDelete(comment.id)" class="text-[10px] font-bold text-zinc-300 dark:text-zinc-600 hover:text-red-500 transition-colors">삭제</button>
+          <div v-if="isSolo && !isSpoiler(group.position) && editingCommentId !== comment.id && isOwnComment(comment)" class="flex items-center gap-1 mt-2.5">
+            <button @click.stop="startEdit(comment)" class="text-xs font-bold text-zinc-300 dark:text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-zinc-100 dark:active:bg-zinc-800">수정</button>
+            <button @click.stop="confirmDelete(comment.id)" class="text-xs font-bold text-zinc-300 dark:text-zinc-600 hover:text-red-500 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-red-50 dark:active:bg-red-900/20">삭제</button>
           </div>
 
           <!-- Reply Form (Hidden in Solo mode) -->

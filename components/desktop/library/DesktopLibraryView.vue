@@ -3,6 +3,7 @@
     <!-- Left: Book List Sidebar -->
     <div class="w-56 border-r border-zinc-100 dark:border-zinc-800/60 flex-shrink-0">
       <DesktopBookListSidebar
+        ref="sidebarRef"
         :reading-books="readingBooks"
         :history-books="historyBooks"
         :selected-book-id="selectedBookId"
@@ -59,8 +60,9 @@
       </div>
 
       <!-- Timeline -->
-      <div v-if="selectedBook" class="px-8 pb-8">
+      <div v-if="selectedBook && !isSelectingBook" class="px-8 pb-8">
         <DesktopTimelineView
+          ref="timelineRef"
           :comments="comments"
           :view-progress="viewProgress"
           :has-more="hasMore"
@@ -81,8 +83,8 @@
         />
       </div>
 
-      <!-- Loading -->
-      <div v-if="isLoading" class="px-8 pt-6">
+      <!-- Loading (initial or switching books) -->
+      <div v-if="isLoading || isSelectingBook" class="px-8 pt-6">
         <SkeletonTimeline :count="3" />
       </div>
     </div>
@@ -105,6 +107,7 @@
         @delete-book="handleDeleteBook"
         @edit-genre="selectedBookId && openEditGenreModal(selectedBookId)"
         @unmark-finished="selectedBookId && handleUnmarkFinished(selectedBookId)"
+        @mark-completed="selectedBookId && openMarkCompletedModal(selectedBookId)"
         @open-review="selectedBookId && handleOpenReview(selectedBookId)"
         @open-reviews="selectedBookId && openReviews(selectedBookId)"
       />
@@ -156,6 +159,7 @@ const client = useSupabaseClient()
 // Destructure from context
 const {
   isLoading,
+  isSelectingBook,
   selectedBook,
   selectedBookId,
   viewProgress,
@@ -185,6 +189,7 @@ const {
   deleteBook,
   openEditGenreModal,
   handleUnmarkFinished,
+  openMarkCompletedModal,
   handleDeleteHistoryBook,
   handleRestartReading,
   userReviewedBooks,
@@ -201,6 +206,58 @@ const formatShortDate = (d: string) => {
 
 const batchModalOpen = ref(false)
 const batchModalRef = ref<InstanceType<typeof DesktopBatchNotesModal> | null>(null)
+const timelineRef = ref<any>(null)
+const sidebarRef = ref<any>(null)
+
+// Keyboard shortcuts
+const isInputFocused = () => {
+  const tag = document.activeElement?.tagName
+  return tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement as HTMLElement)?.isContentEditable
+}
+
+const handleKeydown = (e: KeyboardEvent) => {
+  // Skip when modal is open
+  if (batchModalOpen.value) return
+
+  // Ctrl/Cmd + / → batch input
+  if (e.key === '/' && (e.metaKey || e.ctrlKey)) {
+    e.preventDefault()
+    if (selectedBook.value && !isArchived.value) {
+      batchModalOpen.value = true
+    }
+    return
+  }
+
+  // Skip remaining shortcuts when input focused
+  if (isInputFocused()) return
+
+  // / → focus comment input
+  if (e.key === '/') {
+    e.preventDefault()
+    timelineRef.value?.contentInputRef?.focus()
+    return
+  }
+
+  // ↑↓ → navigate books
+  if (e.key === 'ArrowUp') {
+    e.preventDefault()
+    sidebarRef.value?.selectAdjacentBook('up')
+    return
+  }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault()
+    sidebarRef.value?.selectAdjacentBook('down')
+    return
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
 
 // Preferred input mode from app_settings
 const preferredInputMode = ref<'percent' | 'page'>(
@@ -363,7 +420,7 @@ const handleBatchSave = async (notes: Array<{ positionPct: number; anchorText: s
     for (let i = 0; i < notes.length; i++) {
       const note = notes[i]
       await handleCommentSubmit({
-        content: note.content || '(메모)',
+        content: note.content,
         anchorText: note.anchorText,
         position: note.positionPct
       })

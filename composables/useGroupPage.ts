@@ -148,6 +148,7 @@ export function useGroupPage(config: GroupPageConfig) {
 
   // ===== Timer/RAF references =====
   let progressSaveTimeout: NodeJS.Timeout | null = null
+  let progressSaveVersion = 0
   let highlightTimeout: NodeJS.Timeout | null = null
   let scrollRAF: number | null = null
 
@@ -523,9 +524,11 @@ export function useGroupPage(config: GroupPageConfig) {
       updateOptimistic(val)
       if (progressSaveTimeout) clearTimeout(progressSaveTimeout)
       const bookIdAtDrag = selectedBookId.value
+      const saveVersion = ++progressSaveVersion
       progressSaveTimeout = setTimeout(async () => {
-        // 책이 바뀌었으면 저장하지 않음
+        // 책이 바뀌었거나 더 최신 저장이 예약되었으면 무시
         if (!selectedBookId.value || selectedBookId.value !== bookIdAtDrag) return
+        if (saveVersion !== progressSaveVersion) return
         await saveProgress(val)
       }, 2000)
     }
@@ -917,11 +920,11 @@ export function useGroupPage(config: GroupPageConfig) {
       await markBookCompleted(modals.editingBook.id)
       modals.markCompleted = false
       modals.editingBook = null
-      toast.success('완주 처리되었습니다! 🎉 책장으로 이동합니다.')
+      toast.success('종료 처리되었습니다! 🎉 책장으로 이동합니다.')
       await fetchData()
     } catch (error) {
       console.error('Mark completed error:', error)
-      toast.error('완주 처리에 실패했습니다.')
+      toast.error('종료 처리에 실패했습니다.')
     }
   }
 
@@ -1072,8 +1075,19 @@ export function useGroupPage(config: GroupPageConfig) {
         .update({ hidden: true })
         .eq('group_book_id', bookId)
 
+      // 현재 선택된 책이 삭제된 경우 선택 초기화
+      if (selectedBookId.value === bookId) {
+        selectedBookId.value = null
+      }
       toast.success('책이 삭제되었습니다.')
       await fetchBooks()
+      // 선택된 책이 없으면 첫 번째 읽는 중 책 자동 선택
+      if (!selectedBookId.value) {
+        const firstReading = allBooks.value.find((b: any) => b.status === 'reading')
+        if (firstReading) {
+          await selectBook(firstReading.id)
+        }
+      }
     } catch (error: any) {
       console.error('[DeleteHistoryBook] Error:', error)
       toast.error('책 삭제 중 오류가 발생했습니다.')
@@ -1445,10 +1459,14 @@ export function useGroupPage(config: GroupPageConfig) {
     return viewProgress.value >= chapter.start && viewProgress.value < chapter.end
   }
 
+  const isSelectingBook = ref(false)
   const selectBook = async (bookId: string) => {
+    if (isSelectingBook.value) return
+    isSelectingBook.value = true
     selectedBookId.value = bookId
     modals.drawer = false
 
+    try {
     await fetchComments(bookId)
 
     const userId = currentUserId.value
@@ -1469,6 +1487,9 @@ export function useGroupPage(config: GroupPageConfig) {
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' })
+    } finally {
+      isSelectingBook.value = false
+    }
   }
 
   // ===== Lifecycle Hooks =====
@@ -1552,6 +1573,7 @@ export function useGroupPage(config: GroupPageConfig) {
     viewProgress,
     currentUserId,
     isLoading,
+    isSelectingBook,
     loadError,
     groupId: config.groupIdRef,
 

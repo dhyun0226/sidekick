@@ -43,12 +43,14 @@
         </div>
 
         <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-1.5">
-            <span class="text-desktop-caption font-medium text-zinc-900 dark:text-white truncate">{{ member.nickname }}</span>
-            <span v-if="member.id === currentUserId" class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 font-normal">나</span>
-            <span v-if="member.role === 'admin'" class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 font-normal">관리자</span>
-            <span v-if="member.isCompleted && member.finishedDate" class="text-desktop-footnote text-zinc-400">{{ member.finishedDate }}</span>
-            <span v-else-if="member.timeAgo" class="text-desktop-footnote text-zinc-400">{{ member.timeAgo }}</span>
+          <div class="flex items-center justify-between gap-1">
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="text-desktop-caption font-medium text-zinc-900 dark:text-white truncate max-w-[100px]">{{ member.nickname }}</span>
+              <span v-if="member.id === currentUserId" class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 font-normal flex-shrink-0">나</span>
+              <span v-if="member.role === 'admin'" class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 font-normal flex-shrink-0">관리자</span>
+            </div>
+            <span v-if="member.isCompleted && member.finishedDate" class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 flex-shrink-0">{{ member.finishedDate }}</span>
+            <span v-else-if="member.timeAgo" class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 flex-shrink-0">{{ member.timeAgo }}</span>
           </div>
           <div class="flex items-center gap-2 mt-1">
             <div class="flex-1 h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">

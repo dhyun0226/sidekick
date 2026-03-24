@@ -125,6 +125,16 @@
           </div>
         </div>
 
+        <!-- Current Position Label (Always visible) -->
+        <div class="flex items-center justify-between mt-2 px-0.5">
+          <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 tabular-nums">
+            {{ Math.round(currentPct) }}%<template v-if="currentPage"> · {{ currentPage }}p</template>
+          </span>
+          <span v-if="totalPages" class="text-[10px] text-zinc-300 dark:text-zinc-600 tabular-nums">
+            / {{ totalPages }}p
+          </span>
+        </div>
+
       </div>
     </div>
   </div>

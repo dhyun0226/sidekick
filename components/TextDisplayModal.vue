@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 interface Props {
   isOpen: boolean
@@ -55,6 +55,13 @@ interface Props {
 
 const props = defineProps<Props>()
 const emit = defineEmits(['close'])
+
+watch(() => props.isOpen, (open) => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = open ? 'hidden' : ''
+  }
+})
+
 
 const textInput = ref<HTMLInputElement | null>(null)
 const copied = ref(false)

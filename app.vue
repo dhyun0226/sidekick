@@ -50,13 +50,6 @@
       </template>
     </div>
 
-    <!-- Command Palette (Desktop only) -->
-    <DesktopCommandPalette
-      v-if="isDesktop"
-      :is-open="commandPaletteOpen"
-      @close="commandPaletteOpen = false"
-      @navigate="handleCommandNavigate"
-    />
   </div>
 </template>
 
@@ -65,7 +58,6 @@ import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
 import ToastContainer from '~/components/ToastContainer.vue'
 
 const DesktopSidebar = defineAsyncComponent(() => import('~/components/desktop/core/DesktopSidebar.vue'))
-const DesktopCommandPalette = defineAsyncComponent(() => import('~/components/desktop/core/DesktopCommandPalette.vue'))
 
 // Global setup
 const { initTheme } = useTheme()
@@ -77,26 +69,6 @@ const userStore = useUserStore()
 // App loading state
 const appLoading = ref(true)
 
-// Command palette
-const commandPaletteOpen = ref(false)
-
-const handleCommandNavigate = (path: string) => {
-  router.push(path)
-}
-
-// Global keyboard shortcuts (desktop only)
-if (typeof window !== 'undefined') {
-  useKeyboardShortcuts([
-    {
-      key: 'k',
-      meta: true,
-      description: 'Open command palette',
-      handler: () => {
-        if (isDesktop.value) commandPaletteOpen.value = !commandPaletteOpen.value
-      }
-    }
-  ])
-}
 
 // Check if current page is admin page or subscription page (needs full width)
 const isAdminPage = computed(() => {

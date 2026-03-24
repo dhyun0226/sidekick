@@ -66,7 +66,7 @@
           </div>
           <!-- Completed date -->
           <p class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 mt-1">
-            {{ formatDate(book.date || book.user_finished_at) }} 완주
+            {{ formatDate(book.date || book.user_finished_at) }} 종료
           </p>
         </div>
 
@@ -104,14 +104,14 @@
               class="w-full px-3 py-2 text-left text-desktop-caption text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors flex items-center gap-2"
             >
               <RotateCcw :size="13" />
-              완주 취소
+              종료 취소
             </button>
             <button
               @click.stop="handleAction('edit-finished-date', book)"
               class="w-full px-3 py-2 text-left text-desktop-caption text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors flex items-center gap-2"
             >
               <Calendar :size="13" />
-              완주 날짜 수정
+              종료 날짜 수정
             </button>
             <button
               @click.stop="handleAction('delete-history', book)"
@@ -128,7 +128,7 @@
     <!-- Empty state -->
     <div v-else class="py-10 flex flex-col items-center gap-3">
       <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-600" />
-      <p class="text-desktop-caption text-zinc-400 dark:text-zinc-500">아직 완주한 책이 없어요</p>
+      <p class="text-desktop-caption text-zinc-400 dark:text-zinc-500">아직 종료한 책이 없어요</p>
     </div>
   </div>
 </template>

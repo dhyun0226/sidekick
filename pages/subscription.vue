@@ -95,11 +95,11 @@
             </li>
             <li class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-300 font-bold">
               <Check :size="18" class="text-lime-500" />
-              생성 및 참여 가능 그룹 수 (1개)
+              내 서재에서 무제한 책 추가
             </li>
-            <li class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-300 font-bold">
-              <Check :size="18" class="text-lime-500" />
-              열람 가능 도서 (최대 10권)
+            <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-600 font-bold opacity-60 line-through">
+              <X :size="18" class="text-zinc-400" />
+              소셜 그룹에서 책 추가 (읽기전용)
             </li>
             <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-600 font-bold opacity-60 line-through">
               <X :size="18" class="text-zinc-400" />

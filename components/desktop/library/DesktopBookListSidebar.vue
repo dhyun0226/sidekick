@@ -15,7 +15,7 @@
           @click="$emit('select', book.id)"
           class="w-full flex items-center gap-3 px-2 py-2 rounded-xl transition-all duration-200 ease-apple text-left"
           :class="selectedBookId === book.id
-            ? 'bg-zinc-100 dark:bg-zinc-800'
+            ? 'bg-lime-50 dark:bg-lime-900/10 ring-1 ring-lime-200 dark:ring-lime-800/30'
             : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50'"
         >
           <div class="w-8 h-11 rounded overflow-hidden flex-shrink-0">
@@ -37,11 +37,11 @@
           :key="book.id"
           class="group relative flex items-center gap-3 px-2 py-2 rounded-xl transition-all duration-200 ease-apple cursor-pointer"
           :class="selectedBookId === book.id
-            ? 'bg-zinc-100 dark:bg-zinc-800'
+            ? 'bg-lime-50 dark:bg-lime-900/10 ring-1 ring-lime-200 dark:ring-lime-800/30'
             : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50'"
           @click="$emit('select-history', book.id)"
         >
-          <div class="w-8 h-11 rounded overflow-hidden flex-shrink-0 opacity-60">
+          <div class="relative w-8 h-11 rounded overflow-hidden flex-shrink-0 opacity-70">
             <img v-if="book.cover_url" :src="book.cover_url" class="w-full h-full object-cover" />
             <div v-else class="w-full h-full bg-zinc-200 dark:bg-zinc-700"></div>
           </div>
@@ -85,7 +85,7 @@
     </div>
 
     <!-- Add Book Button -->
-    <div v-if="!isArchived" class="px-4 py-4">
+    <div v-if="!isArchived" class="px-4 pt-3 pb-1">
       <button
         @click="$emit('add-book')"
         class="w-full flex items-center justify-center gap-2 px-3 py-2 text-zinc-400 dark:text-zinc-500 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all duration-200 ease-apple text-desktop-caption"
@@ -93,6 +93,13 @@
         <Plus :size="15" />
         새 책 추가
       </button>
+    </div>
+
+    <!-- Keyboard Shortcuts Hint -->
+    <div class="px-5 py-3 border-t border-zinc-100 dark:border-zinc-800/50">
+      <p class="text-desktop-micro text-zinc-300 dark:text-zinc-600 leading-relaxed">
+        <kbd class="font-mono">↑↓</kbd> 이동 · <kbd class="font-mono">/</kbd> 입력 · <kbd class="font-mono">⌘/</kbd> 일괄입력
+      </p>
     </div>
   </div>
 </template>
@@ -108,7 +115,34 @@ defineProps<{
   isArchived?: boolean
 }>()
 
-defineEmits(['select', 'select-history', 'add-book', 'restart-reading', 'delete-history'])
+const emit = defineEmits(['select', 'select-history', 'add-book', 'restart-reading', 'delete-history'])
+
+const selectAdjacentBook = (direction: 'up' | 'down') => {
+  const allBooks = [
+    ...props.readingBooks.map(b => ({ id: b.id, type: 'reading' })),
+    ...props.historyBooks.map(b => ({ id: b.id, type: 'history' }))
+  ]
+  if (allBooks.length === 0) return
+
+  const currentIdx = allBooks.findIndex(b => b.id === props.selectedBookId)
+  let nextIdx: number
+  if (currentIdx === -1) {
+    nextIdx = 0
+  } else if (direction === 'down') {
+    nextIdx = Math.min(currentIdx + 1, allBooks.length - 1)
+  } else {
+    nextIdx = Math.max(currentIdx - 1, 0)
+  }
+
+  const next = allBooks[nextIdx]
+  if (next.type === 'reading') {
+    emit('select', next.id)
+  } else {
+    emit('select-history', next.id)
+  }
+}
+
+defineExpose({ selectAdjacentBook })
 
 const activeHistoryMenu = ref<string | null>(null)
 

@@ -85,10 +85,10 @@
               <!-- Admin Only -->
               <template v-if="isAdmin">
                 <button @click.stop="handleRestartReading(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap border-t border-zinc-100 dark:border-zinc-700/50 font-bold">
-                  <RotateCcw :size="12" /> 완주 취소
+                  <RotateCcw :size="12" /> 종료 취소
                 </button>
                 <button @click.stop="handleEditFinishedDate(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
-                  <Calendar :size="12" /> 완주 날짜 수정
+                  <Calendar :size="12" /> 종료 날짜 수정
                 </button>
                 <button @click.stop="handleDeleteHistoryBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap font-bold">
                   <Trash2 :size="12" /> 책 삭제
@@ -122,7 +122,7 @@
               <GenreBadge v-if="book.genre" :genre="book.genre" size="sm" />
               <RatingBadge :rating="book.averageRating" size="sm" />
               <Badge v-if="formatDateYY(book.date)" variant="lime" size="sm">
-                {{ formatDateYY(book.date) }} 완주
+                {{ formatDateYY(book.date) }} 종료
               </Badge>
               <Badge v-if="book.round && book.round > 1" size="sm">
                 {{ book.round }}회차
@@ -156,7 +156,7 @@
     <!-- Empty State -->
     <div v-if="filteredAndSortedBooks.length === 0" class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
       <component :is="searchQuery ? Search : BookOpen" :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
-      <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 완주한 책이 없습니다' }}</p>
+      <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 종료한 책이 없습니다' }}</p>
     </div>
   </div>
 </template>

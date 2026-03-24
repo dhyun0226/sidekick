@@ -50,6 +50,9 @@
 
     <!-- Loaded Content -->
     <template v-else>
+      <!-- NavBar spacer -->
+      <div class="h-16"></div>
+
       <!-- Read-Only Mode Banner (Free users in Social groups) -->
       <div v-if="isReadOnlyMode" class="bg-blue-500/10 dark:bg-blue-500/20 border-b border-blue-500/30 px-4 py-3 relative z-30">
         <div class="max-w-md mx-auto text-center space-y-2">

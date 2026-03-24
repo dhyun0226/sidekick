@@ -66,7 +66,7 @@
         <button
           @click="handleSubmit"
           :disabled="!isValid || isSubmitting"
-          class="flex-1 py-3 bg-lime-400 text-black rounded-xl font-bold hover:bg-lime-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          class="flex-1 py-3 bg-lime-400 text-black rounded-2xl font-bold hover:bg-lime-300 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <div v-if="isSubmitting" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
           <template v-else>

@@ -470,7 +470,7 @@ const handleBatchSave = async (notes: Array<{ positionPct: number; anchorText: s
     for (let i = 0; i < notes.length; i++) {
       const note = notes[i]
       await handleCommentSubmit({
-        content: note.content || '(메모)',
+        content: note.content,
         anchorText: note.anchorText,
         position: note.positionPct
       })

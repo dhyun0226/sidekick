@@ -25,6 +25,9 @@
 
     <!-- Loaded Content -->
     <template v-else>
+      <!-- NavBar spacer -->
+      <div class="h-16"></div>
+
       <!-- Archived Notice Banner -->
       <div v-if="isArchived" class="bg-amber-500/10 dark:bg-amber-500/20 border-b border-amber-500/30 px-4 py-2 text-center relative z-30">
         <p class="text-[11px] font-black text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1.5 uppercase tracking-tighter">

@@ -154,6 +154,24 @@
           </div>
         </section>
 
+        <!-- Support -->
+        <section>
+          <div class="flex items-center justify-between mb-4 px-1">
+            <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">고객 지원</h4>
+          </div>
+          <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50">
+            <button @click="$emit('open-inquiry')" class="w-full flex items-center justify-between p-4 hover:bg-white/50 dark:hover:bg-zinc-800/50 transition-colors rounded-2xl">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                  <MessageCircle :size="16" />
+                </div>
+                <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">문의하기</span>
+              </div>
+              <ChevronRight :size="16" class="text-zinc-400" />
+            </button>
+          </div>
+        </section>
+
         <!-- Legal -->
         <section class="pb-4">
           <div class="flex items-center justify-between mb-4 px-1">
@@ -187,13 +205,13 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { X, User as UserIcon, Camera, Save, LogOut, Trash2, Moon, Sun, Bell, LayoutGrid, Calendar, FileText, Shield, ChevronRight } from 'lucide-vue-next'
+import { X, User as UserIcon, Camera, Save, LogOut, Trash2, Moon, Sun, Bell, LayoutGrid, Calendar, FileText, Shield, ChevronRight, MessageCircle } from 'lucide-vue-next'
 
 const props = defineProps<{
   isOpen: boolean, profile: any, notificationSettings: any, appSettings: any, isSaving: boolean
 }>()
 
-const emit = defineEmits(['close', 'save-profile', 'handle-file', 'sign-out', 'delete-account', 'toggle-theme'])
+const emit = defineEmits(['close', 'save-profile', 'handle-file', 'sign-out', 'delete-account', 'toggle-theme', 'open-inquiry'])
 
 const { isDark } = useTheme()
 const editNickname = ref(props.profile?.nickname || '')

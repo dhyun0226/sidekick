@@ -183,7 +183,7 @@
           class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5"
         >
           <CheckCircle :size="14" />
-          완주 처리 (책장으로 이동)
+          종료 처리 (책장으로 이동)
         </button>
         <button
           v-if="book.user_finished_at"

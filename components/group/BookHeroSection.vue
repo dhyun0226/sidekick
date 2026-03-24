@@ -56,7 +56,7 @@
 
         <!-- Finished Date Badge -->
         <Badge v-if="book.status === 'done' && book.finishedAt" variant="lime">
-          {{ formatDate(book.finishedAt) }} {{ isSolo ? '완독' : '완주' }}
+          {{ formatDate(book.finishedAt) }} {{ isSolo ? '완독' : '종료' }}
         </Badge>
       </div>
     </div>

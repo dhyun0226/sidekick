@@ -87,7 +87,7 @@
                       v-model="row.anchor"
                       placeholder="인상 깊은 구절..."
                       rows="1"
-                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-body italic text-zinc-600 dark:text-zinc-400 resize-none transition-all focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-100 dark:focus:bg-zinc-800 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 placeholder:not-italic"
+                      class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-body text-zinc-600 dark:text-zinc-400 resize-none transition-all focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-100 dark:focus:bg-zinc-800 placeholder:text-zinc-300 dark:placeholder:text-zinc-500"
                       @keydown="handleKeydown($event, idx, 'anchor')"
                       @input="autoResize($event)"
                     ></textarea>
@@ -256,7 +256,22 @@ const rows = ref<BatchRow[]>([
 const cellRefs = ref<Record<string, HTMLElement | null>>({})
 
 const setCellRef = (el: any, rowIdx: number, col: string) => {
-  if (el) cellRefs.value[`${rowIdx}-${col}`] = el
+  const key = `${rowIdx}-${col}`
+  if (el) {
+    cellRefs.value[key] = el
+  } else {
+    delete cellRefs.value[key]
+  }
+}
+
+const focusCell = (rowIdx: number, col: string, scroll = false) => {
+  nextTick(() => {
+    const el = cellRefs.value[`${rowIdx}-${col}`]
+    if (el) {
+      el.focus()
+      if (scroll) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    }
+  })
 }
 
 const validRows = computed(() =>
@@ -283,10 +298,7 @@ const tryClose = () => {
 
 const addRow = () => {
   rows.value.push({ position: null, anchor: '', content: '' })
-  nextTick(() => {
-    const lastIdx = rows.value.length - 1
-    cellRefs.value[`${lastIdx}-position`]?.focus()
-  })
+  focusCell(rows.value.length - 1, 'position', true)
 }
 
 const removeRow = (idx: number) => {
@@ -317,33 +329,42 @@ const handleKeydown = (e: KeyboardEvent, rowIdx: number, col: string) => {
   if (e.key === 'Tab') {
     e.preventDefault()
     if (e.shiftKey) {
-      // Previous cell
       if (colIdx > 0) {
-        cellRefs.value[`${rowIdx}-${columns[colIdx - 1]}`]?.focus()
+        focusCell(rowIdx, columns[colIdx - 1])
       } else if (rowIdx > 0) {
-        cellRefs.value[`${rowIdx - 1}-${columns[columns.length - 1]}`]?.focus()
+        focusCell(rowIdx - 1, columns[columns.length - 1])
       }
     } else {
-      // Next cell
       if (colIdx < columns.length - 1) {
-        cellRefs.value[`${rowIdx}-${columns[colIdx + 1]}`]?.focus()
+        focusCell(rowIdx, columns[colIdx + 1])
       } else if (rowIdx < rows.value.length - 1) {
-        cellRefs.value[`${rowIdx + 1}-${columns[0]}`]?.focus()
+        focusCell(rowIdx + 1, columns[0], true)
       } else {
-        // Last cell of last row → add new row
         addRow()
       }
     }
     return
   }
 
-  // Enter: same column, next row
-  if (e.key === 'Enter' && !e.shiftKey && col === 'position') {
+  // Enter (without Shift): next row same column (position) or next cell (anchor/content)
+  // Shift+Enter: newline in textarea
+  if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault()
-    if (rowIdx < rows.value.length - 1) {
-      cellRefs.value[`${rowIdx + 1}-${col}`]?.focus()
+    if (col === 'position') {
+      if (rowIdx < rows.value.length - 1) {
+        focusCell(rowIdx + 1, col, true)
+      } else {
+        addRow()
+      }
     } else {
-      addRow()
+      const nextCol = colIdx < columns.length - 1 ? columns[colIdx + 1] : null
+      if (nextCol) {
+        focusCell(rowIdx, nextCol)
+      } else if (rowIdx < rows.value.length - 1) {
+        focusCell(rowIdx + 1, columns[0], true)
+      } else {
+        addRow()
+      }
     }
   }
 }

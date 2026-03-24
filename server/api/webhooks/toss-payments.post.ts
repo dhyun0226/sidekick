@@ -38,8 +38,11 @@ export default defineEventHandler(async (event) => {
       })
     }
   } else {
-    // webhookSecret이 설정되지 않은 경우 경고 로그
-    console.warn('[Webhook] Warning: TOSS_WEBHOOK_SECRET is not configured')
+    console.error('[Webhook] TOSS_WEBHOOK_SECRET is not configured - rejecting request')
+    throw createError({
+      statusCode: 401,
+      message: 'Webhook secret not configured'
+    })
   }
 
   const { orderId, status, paymentKey, transactionKey } = body

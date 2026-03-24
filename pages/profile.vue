@@ -140,6 +140,12 @@
     @sign-out="handleSignOut"
     @delete-account="handleDeleteAccount"
     @toggle-theme="toggleTheme"
+    @open-inquiry="inquiryModalOpen = true"
+  />
+
+  <InquiryModal
+    :is-open="inquiryModalOpen"
+    @close="inquiryModalOpen = false"
   />
 
   <ProfileBookDetailModal
@@ -251,6 +257,7 @@ const fullActivities = ref<any[]>([]) // 🎯 히트맵용 전체 데이터
 
 // Modals UI State
 const settingsModalOpen = ref(false)
+const inquiryModalOpen = ref(false)
 const showBookDetailModal = ref(false)
 const selectedBook = ref<any>(null)
 const showDayActivityModal = ref(false)

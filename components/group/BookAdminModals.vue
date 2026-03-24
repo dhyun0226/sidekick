@@ -3,7 +3,7 @@
     <!-- Edit Dates Modal -->
     <div v-if="editDatesOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditDates')"></div>
-      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">독서 기간 수정</h2>
           <button @click="emit('closeEditDates')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
@@ -75,13 +75,13 @@
         <div class="flex gap-3 mt-8">
           <button
             @click="emit('closeEditDates')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>
           <button
             @click="handleSaveDates"
-            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             :disabled="!localStartDate || !localEndDate || isSavingDates"
           >
             <div v-if="isSavingDates" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
@@ -94,7 +94,7 @@
     <!-- Mark Completed Modal -->
     <div v-if="markCompletedOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeMarkCompleted')"></div>
-      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
         
         <!-- Close Button -->
         <div class="absolute top-4 right-4 z-20">
@@ -104,7 +104,7 @@
         </div>
 
         <div class="text-center mb-8 pt-4">
-          <h2 class="text-xl font-black text-zinc-900 dark:text-white mb-1.5">{{ props.isSolo ? '완독' : '완주' }} 처리하시겠습니까?</h2>
+          <h2 class="text-xl font-black text-zinc-900 dark:text-white mb-1.5">{{ props.isSolo ? '완독' : '종료' }} 처리하시겠습니까?</h2>
           <p class="text-sm text-zinc-500 dark:text-zinc-400">
             {{ props.isSolo ? '다 읽은 이 책을 책장으로 옮깁니다.' : '목표를 달성한 이 책을 서재로 옮깁니다.' }}
           </p>
@@ -145,7 +145,7 @@
             class="flex-[2] py-4 bg-lime-400 text-black font-black rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             <div v-if="isMarkingCompleted" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-            <span v-else>{{ props.isSolo ? '완독 완료' : '완주 완료' }}</span>
+            <span v-else>{{ props.isSolo ? '완독 완료' : '종료 완료' }}</span>
           </button>
         </div>
       </div>
@@ -154,9 +154,9 @@
     <!-- Delete Book Modal -->
     <div v-if="deleteBookOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeDeleteBook')"></div>
-      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-amber-600 dark:text-amber-400">책 삭제</h2>
+          <h2 class="text-xl font-bold text-red-600 dark:text-red-400">책 삭제</h2>
           <button @click="emit('closeDeleteBook')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="24" />
           </button>
@@ -174,9 +174,9 @@
             </div>
           </div>
 
-          <div class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-900/30">
-            <p class="text-sm text-amber-700 dark:text-amber-400 font-bold mb-2">이 책을 삭제하시겠습니까?</p>
-            <ul class="text-xs text-amber-600 dark:text-amber-400/80 space-y-1 opacity-90">
+          <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-900/30">
+            <p class="text-sm text-red-700 dark:text-red-400 font-bold mb-2">이 책을 삭제하시겠습니까?</p>
+            <ul class="text-xs text-red-600 dark:text-red-400/80 space-y-1 opacity-90">
               <li>• 그룹 책장에서 제거됩니다.</li>
               <li>• 멤버들의 프로필 서재에서 숨겨집니다.</li>
               <li>• 기록(댓글, 리뷰)은 보존됩니다.</li>
@@ -187,14 +187,14 @@
         <div class="flex gap-3 mt-8">
           <button
             @click="emit('closeDeleteBook')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>
           <button
             @click="isDeletingBook = true; emit('deleteBook')"
             :disabled="isDeletingBook"
-            class="flex-[2] bg-amber-500 text-white font-bold py-4 rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            class="flex-[2] bg-red-500 text-white font-bold py-4 rounded-2xl hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             <div v-if="isDeletingBook" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
             <span v-else>삭제</span>
@@ -206,9 +206,9 @@
     <!-- Edit Finished Date Modal -->
     <div v-if="editFinishedDateOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditFinishedDate')"></div>
-      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-zinc-300 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">{{ props.isSolo ? '완독' : '완주' }} 날짜 수정</h2>
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">{{ props.isSolo ? '완독' : '종료' }} 날짜 수정</h2>
           <button @click="emit('closeEditFinishedDate')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="24" />
           </button>
@@ -227,7 +227,7 @@
           </div>
 
           <div class="space-y-2">
-            <label class="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 uppercase">{{ props.isSolo ? '완독' : '완주' }} 날짜</label>
+            <label class="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 uppercase">{{ props.isSolo ? '완독' : '종료' }} 날짜</label>
             <input
               v-model="localFinishedDate"
               type="date"
@@ -239,13 +239,13 @@
         <div class="flex gap-3 mt-8">
           <button
             @click="emit('closeEditFinishedDate')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>
           <button
             @click="handleSaveFinishedDate"
-            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             :disabled="!localFinishedDate || isSavingFinishedDate"
           >
             <div v-if="isSavingFinishedDate" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
@@ -258,7 +258,7 @@
     <!-- Edit TOC Modal -->
     <div v-if="editTocOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('closeEditToc')"></div>
-      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-2xl border border-zinc-300 dark:border-zinc-800 max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+      <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
         <div class="sticky top-0 bg-white dark:bg-zinc-900 z-10 flex justify-between items-center p-6 pb-4 border-b border-zinc-100 dark:border-zinc-800">
           <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">목차 수정</h2>
           <button @click="emit('closeEditToc')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
@@ -301,13 +301,13 @@
         <div class="p-6 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 flex gap-3">
           <button
             @click="emit('closeEditToc')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>
           <button
             @click="handleSaveToc"
-            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            class="flex-[2] bg-lime-400 text-black font-bold py-4 rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             :disabled="!localTotalPages || localTotalPages <= 0 || isSavingToc"
           >
             <div v-if="isSavingToc" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
@@ -344,7 +344,7 @@ interface Props {
   editFinishedDateOpen: boolean
   currentBook: any | null
   commentCount: number
-  isSolo?: boolean // 내 서재인 경우 true (완주 → 완독 용어 변경)
+  isSolo?: boolean // 내 서재인 경우 true (종료 → 완독 용어 변경)
 }
 
 interface Emits {

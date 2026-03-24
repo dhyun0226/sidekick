@@ -56,7 +56,7 @@
                   <Settings :size="12" /> 목차 수정
                 </button>
                 <button @click.stop="handleMarkCompleted(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
-                  <UserCheck :size="12" /> 완주 처리
+                  <UserCheck :size="12" /> 종료 처리
                 </button>
                 <button @click.stop="handleDeleteBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap font-bold">
                   <UserX :size="12" /> 책 삭제
@@ -261,7 +261,7 @@ const selectedBook = computed(() => {
   return props.readingBooks.find(book => book.id === props.selectedBookId) || props.readingBooks[0] || null
 })
 
-// 선택된 책이 실제로 읽는 중인 책인지 확인 (완주한 책이 아닌지)
+// 선택된 책이 실제로 읽는 중인 책인지 확인 (종료된 책이 아닌지)
 const isSelectedBookReading = computed(() => {
   return props.readingBooks.some(book => book.id === props.selectedBookId)
 })

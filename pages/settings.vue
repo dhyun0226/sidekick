@@ -18,6 +18,7 @@
       @manage-subscription="router.push('/subscription')"
       @sign-out="handleSignOut"
       @delete-account="handleDeleteAccount"
+      @open-inquiry="inquiryModalOpen = true"
     />
 
     <!-- Mobile: redirect to profile settings -->
@@ -48,6 +49,11 @@
       @confirm="confirmDelete"
       @cancel="showDeleteConfirm = false"
     />
+
+    <InquiryModal
+      :is-open="inquiryModalOpen"
+      @close="inquiryModalOpen = false"
+    />
   </div>
 </template>
 
@@ -72,6 +78,7 @@ const { isPremium } = useSubscription()
 const isSaving = ref(false)
 const showLogoutConfirm = ref(false)
 const showDeleteConfirm = ref(false)
+const inquiryModalOpen = ref(false)
 
 const notificationSettings = ref<Record<string, boolean>>({
   comment_reply: true, reaction: true, member_join: true,

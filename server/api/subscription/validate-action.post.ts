@@ -84,18 +84,7 @@ export default defineEventHandler(async (event) => {
         canPerform = canAdd
 
         if (!canPerform) {
-          // Get user tier to show appropriate message
-          const { data: userData } = await client
-            .from('users')
-            .select('subscription_tier')
-            .eq('id', user.id)
-            .single()
-
-          if (userData && userData.subscription_tier === 'free') {
-            reason = '무료 플랜은 그룹당 최대 10권까지 추가 가능합니다.'
-          } else {
-            reason = '책 추가 제한에 도달했습니다.'
-          }
+          reason = '소셜 그룹에서 책을 추가하려면 프리미엄 구독이 필요합니다.'
         }
         break
       }
