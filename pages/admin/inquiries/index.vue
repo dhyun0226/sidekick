@@ -187,7 +187,7 @@ const fetchInquiries = async () => {
     })
     inquiries.value = data
   } catch {
-    toast.error('문의 목록 로드 실패')
+    toast.error('문의 목록 로드에 실패했습니다')
   } finally {
     loading.value = false
   }
@@ -210,12 +210,12 @@ const submitReply = async (status: string) => {
         status
       }
     })
-    toast.success(status === 'closed' ? '문의가 종료되었습니다.' : '답변이 등록되었습니다.')
+    toast.success(status === 'closed' ? '문의가 종료되었습니다' : '답변이 등록되었습니다')
     replyTarget.value = null
     replyContent.value = ''
     await fetchInquiries()
   } catch {
-    toast.error('답변 등록 실패')
+    toast.error('답변 등록에 실패했습니다')
   } finally {
     replying.value = false
   }

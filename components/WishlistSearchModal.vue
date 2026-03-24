@@ -174,7 +174,7 @@ const searchBooks = async () => {
     searchResults.value = results.books
     hasMore.value = results.hasMore
   } catch (error: any) {
-    toast.error(error.message || '검색 중 오류가 발생했습니다.')
+    toast.error(error.message || '검색에 실패했습니다')
   } finally {
     loading.value = false
   }
@@ -189,7 +189,7 @@ const loadMore = async () => {
     searchResults.value = [...searchResults.value, ...results.books]
     hasMore.value = results.hasMore
   } catch (error: any) {
-    toast.error(error.message || '더보기 중 오류가 발생했습니다.')
+    toast.error(error.message || '더보기에 실패했습니다')
   } finally {
     loading.value = false
   }
@@ -198,7 +198,7 @@ const loadMore = async () => {
 const handleAddToWishlist = async (book: any) => {
   const userId = userStore.profile?.id
   if (!userId) {
-    toast.error('로그인이 필요합니다.')
+    toast.error('로그인이 필요합니다')
     return
   }
 
@@ -222,20 +222,20 @@ const handleAddToWishlist = async (book: any) => {
       })
       if (bookError) {
         console.error('[WishlistSearchModal] Failed to insert book:', bookError)
-        toast.error('책 정보 저장에 실패했습니다.')
+        toast.error('책 정보 저장에 실패했습니다')
         return
       }
     }
 
     const result = await addToWishlist(userId, book.isbn)
     if (result.success) {
-      toast.success('위시리스트에 담았습니다.')
+      toast.success('위시리스트에 담았습니다')
       emit('added')
     } else {
-      toast.error(result.message || '추가에 실패했습니다.')
+      toast.error(result.message || '추가에 실패했습니다')
     }
   } catch (err) {
-    toast.error('위시 추가에 실패했습니다.')
+    toast.error('위시 추가에 실패했습니다')
   } finally {
     addingIsbn.value = null
   }

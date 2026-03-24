@@ -234,7 +234,7 @@ const fetchAllUsers = async () => {
     console.log('[Admin] Total users:', allUsers.value.length)
   } catch (error: any) {
     console.error('[Admin] Fetch error:', error)
-    toast.error('사용자 목록을 불러오는 데 실패했습니다.')
+    toast.error('사용자 목록을 불러오는 데 실패했습니다')
   } finally {
     loading.value = false
   }
@@ -250,10 +250,10 @@ const updateSubscriptionTier = async (user: any) => {
       }
     })
 
-    toast.success(`${user.username}님의 구독 등급이 ${getTierLabel(user.subscription_tier)}(으)로 변경되었습니다.`)
+    toast.success(`${user.username}님의 구독 등급이 ${getTierLabel(user.subscription_tier)}(으)로 변경되었습니다`)
   } catch (error: any) {
     console.error('[Admin] Update tier error:', error)
-    toast.error('구독 등급 변경에 실패했습니다.')
+    toast.error('구독 등급 변경에 실패했습니다')
     // Revert on error
     await fetchAllUsers()
   }

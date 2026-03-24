@@ -109,8 +109,8 @@ const saveProfile = async (nickname: string) => {
   try {
     await client.from('users').update({ nickname: nickname.trim() }).eq('id', userId)
     await userStore.fetchProfile(true)
-    toast.success('닉네임 변경 완료!')
-  } catch { toast.error('저장 실패') }
+    toast.success('닉네임이 변경되었습니다')
+  } catch { toast.error('저장에 실패했습니다') }
   finally { isSaving.value = false }
 }
 
@@ -125,8 +125,8 @@ const handleFileChange = async (file: File) => {
     const { data: { publicUrl } } = client.storage.from('avatars').getPublicUrl(path)
     await client.from('users').update({ avatar_url: publicUrl }).eq('id', userId)
     await userStore.fetchProfile(true)
-    toast.success('프로필 사진 변경 완료!')
-  } catch { toast.error('사진 업로드 실패') }
+    toast.success('프로필 사진이 변경되었습니다')
+  } catch { toast.error('사진 업로드에 실패했습니다') }
   finally { isSaving.value = false }
 }
 
@@ -159,8 +159,8 @@ const confirmDelete = async () => {
   try {
     await client.from('users').delete().eq('id', userStore.user!.id)
     await userStore.signOut()
-    toast.success('계정 삭제 완료')
+    toast.success('계정이 삭제되었습니다')
     router.push('/login')
-  } catch { toast.error('계정 삭제 실패') }
+  } catch { toast.error('계정 삭제에 실패했습니다') }
 }
 </script>

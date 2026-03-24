@@ -382,7 +382,7 @@ const handleAddToWishlist = async (book: any, event: Event) => {
   event.stopPropagation()
   const userId = userStore.profile?.id
   if (!userId) {
-    toast.error('로그인이 필요합니다.')
+    toast.error('로그인이 필요합니다')
     return
   }
 
@@ -404,17 +404,17 @@ const handleAddToWishlist = async (book: any, event: Event) => {
     })
     if (bookError) {
       console.error('[BookSearchModal] Failed to insert book:', bookError)
-      toast.error('책 정보 저장에 실패했습니다.')
+      toast.error('책 정보 저장에 실패했습니다')
       return
     }
   }
 
   const result = await addToWishlist(userId, book.isbn)
   if (result.success) {
-    toast.success('위시리스트에 담았습니다.')
+    toast.success('위시리스트에 담았습니다')
     await fetchWishlist(userId)
   } else {
-    toast.error(result.message || '추가에 실패했습니다.')
+    toast.error(result.message || '추가에 실패했습니다')
   }
 }
 
@@ -439,7 +439,7 @@ const searchBooks = async () => {
     const results = await searchBooksAPI(query.value, currentStart.value)
     searchResults.value = results.books; hasMore.value = results.hasMore
   } catch (error: any) {
-    toast.error(error.message || '책 검색 중 오류가 발생했습니다.')
+    toast.error(error.message || '책 검색에 실패했습니다')
   } finally { loading.value = false }
 }
 
@@ -450,7 +450,7 @@ const loadMore = async () => {
     const results = await searchBooksAPI(query.value, currentStart.value)
     searchResults.value = [...searchResults.value, ...results.books]; hasMore.value = results.hasMore
   } catch (error: any) {
-    toast.error(error.message || '더보기 중 오류가 발생했습니다.')
+    toast.error(error.message || '더보기에 실패했습니다')
   } finally { loading.value = false }
 }
 
@@ -487,10 +487,10 @@ const selectBook = async (book: any) => {
 }
 
 const goToStep3 = () => {
-  if (!selectedGenre.value) { toast.error('장르를 선택해주세요.'); return }
+  if (!selectedGenre.value) { toast.error('장르를 선택해주세요'); return }
   if (!tocFormRef.value) return
   const validation = tocFormRef.value.validate()
-  if (!validation.valid) { toast.error(validation.message || '목차 정보를 확인해주세요.'); return }
+  if (!validation.valid) { toast.error(validation.message || '목차 정보를 확인해주세요'); return }
   step.value = 3
 }
 
@@ -501,8 +501,8 @@ const calculateDays = () => {
 }
 
 const confirmBook = () => {
-  if (!totalPages.value) { toast.error('전체 페이지를 입력해주세요.'); return }
-  if (!selectedGenre.value) { toast.error('장르를 선택해주세요.'); return }
+  if (!totalPages.value) { toast.error('전체 페이지를 입력해주세요'); return }
+  if (!selectedGenre.value) { toast.error('장르를 선택해주세요'); return }
   if (isConfirming.value) return
 
   isConfirming.value = true

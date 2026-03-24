@@ -187,7 +187,7 @@ const removeChapter = (index: number) => {
 const validateTotalPages = () => {
   if (props.totalPages !== null && props.totalPages <= 0) {
     emit('update:totalPages', 1)
-    toast.error('전체 페이지는 1 이상이어야 합니다.')
+    toast.error('전체 페이지는 1 이상이어야 합니다')
   }
 }
 
@@ -196,7 +196,7 @@ const validateChapterPage = (idx: number) => {
 
   if (chapter.startPage <= 0) {
     chapter.startPage = idx === 0 ? 1 : localChapters.value[idx - 1].startPage + 1
-    toast.error('시작 페이지는 1 이상이어야 합니다.')
+    toast.error('시작 페이지는 1 이상이어야 합니다')
     return
   }
 
@@ -204,14 +204,14 @@ const validateChapterPage = (idx: number) => {
     const prevChapter = localChapters.value[idx - 1]
     if (chapter.startPage <= prevChapter.startPage) {
       chapter.startPage = prevChapter.startPage + 1
-      toast.error('다음 챕터는 이전 챕터보다 뒤에 있어야 합니다.')
+      toast.error('다음 챕터는 이전 챕터보다 뒤에 있어야 합니다')
       return
     }
   }
 
   if (props.totalPages && chapter.startPage > props.totalPages) {
     chapter.startPage = props.totalPages
-    toast.error(`전체 페이지(${props.totalPages})를 초과할 수 없습니다.`)
+    toast.error(`전체 페이지(${props.totalPages})를 초과할 수 없습니다`)
   }
 }
 

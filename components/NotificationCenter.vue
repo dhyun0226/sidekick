@@ -204,11 +204,11 @@ const markAllRead = async () => {
     if (error) throw error
     
     notifications.value.forEach(n => n.is_read = true)
-    toast.success('모든 알림을 읽음 처리했습니다.')
+    toast.success('모든 알림을 읽음 처리했습니다')
     isOpen.value = false // Close modal after action
   } catch (err) {
     console.error('Mark all read error:', err)
-    toast.error('알림 읽음 처리에 실패했습니다.')
+    toast.error('알림 읽음 처리에 실패했습니다')
   }
 }
 
@@ -229,7 +229,7 @@ const deleteNotification = async (notiId: string) => {
     if (error) throw error
     notifications.value = notifications.value.filter(n => n.id !== notiId)
   } catch (err) {
-    toast.error('알림 삭제 실패')
+    toast.error('알림 삭제에 실패했습니다')
   }
 }
 
@@ -245,11 +245,11 @@ const executeDeleteAll = async () => {
     const { error } = await client.from('notifications').delete().eq('user_id', user.id)
     if (error) throw error
     notifications.value = []
-    toast.success('모든 알림이 삭제되었습니다.')
+    toast.success('모든 알림이 삭제되었습니다')
     isOpen.value = false // Close modal after action
   } catch (error) {
     console.error('Delete all notifications error:', error)
-    toast.error('알림 삭제에 실패했습니다.')
+    toast.error('알림 삭제에 실패했습니다')
   } finally {
     showDeleteAllModal.value = false
   }

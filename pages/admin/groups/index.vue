@@ -214,7 +214,7 @@ const fetchAllGroups = async () => {
     console.log('[Admin] Total groups:', allGroups.value.length)
   } catch (error: any) {
     console.error('[Admin] Fetch error:', error)
-    toast.error('그룹 목록을 불러오는 데 실패했습니다.')
+    toast.error('그룹 목록을 불러오는 데 실패했습니다')
   } finally {
     loading.value = false
   }

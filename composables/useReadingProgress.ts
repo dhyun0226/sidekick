@@ -99,9 +99,9 @@ export const useReadingProgress = (
         if (index >= 0) {
           memberProgress.value[index].progress_pct = previousProgress
           console.log('[Progress] Rolled back to:', previousProgress)
-          toast.error(`진행도 저장 실패 - 이전 값(${previousProgress}%)으로 되돌렸습니다.`)
+          toast.error(`진행도 저장 실패 - 이전 값(${previousProgress}%)으로 되돌렸습니다`)
         } else {
-          toast.error('진행도 저장에 실패했습니다. 인터넷 연결을 확인해주세요.')
+          toast.error('진행도 저장에 실패했습니다. 인터넷 연결을 확인해주세요')
         }
       } else {
         console.log('[Progress] Saved successfully:', data)
@@ -113,9 +113,9 @@ export const useReadingProgress = (
       if (index >= 0) {
         memberProgress.value[index].progress_pct = previousProgress
         console.log('[Progress] Rolled back to:', previousProgress)
-        toast.error(`진행도 저장 실패 - 이전 값(${previousProgress}%)으로 되돌렸습니다.`)
+        toast.error(`진행도 저장 실패 - 이전 값(${previousProgress}%)으로 되돌렸습니다`)
       } else {
-        toast.error('진행도 저장 중 오류가 발생했습니다.')
+        toast.error('진행도 저장에 실패했습니다')
       }
     }
   }

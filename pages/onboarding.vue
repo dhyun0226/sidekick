@@ -176,13 +176,13 @@ const handleFileSelect = (event: Event) => {
 
   // 파일 크기 체크 (5MB 제한)
   if (file.size > 5 * 1024 * 1024) {
-    toast.error('파일 크기는 5MB 이하여야 합니다.')
+    toast.error('파일 크기는 5MB 이하여야 합니다')
     return
   }
 
   // 이미지 타입 체크
   if (!file.type.startsWith('image/')) {
-    toast.error('이미지 파일만 업로드 가능합니다.')
+    toast.error('이미지 파일만 업로드 가능합니다')
     return
   }
 
@@ -205,7 +205,7 @@ const handleSubmit = async () => {
   const { data: { user } } = await client.auth.getUser()
   if (!user) {
     console.error('User not authenticated')
-    toast.error('로그인 정보가 없습니다. 다시 로그인해주세요.')
+    toast.error('로그인 정보가 없습니다. 다시 로그인해주세요')
     router.push('/login')
     return
   }
@@ -237,7 +237,7 @@ const handleSubmit = async () => {
 
         if (uploadError) {
           console.error('[Onboarding] Avatar upload error:', uploadError)
-          toast.error('사진 업로드에 실패했습니다. 기본 프로필 사진을 사용합니다.')
+          toast.error('사진 업로드에 실패했습니다')
           uploading.value = false
         } else {
           // 업로드 성공: Public URL 생성

@@ -234,7 +234,7 @@ const handleBookConfirm = async (bookData: any) => {
       .single()
 
     if (!memberData) {
-      toast.error('내 서재를 찾을 수 없습니다.')
+      toast.error('내 서재를 찾을 수 없습니다')
       return
     }
 
@@ -274,11 +274,11 @@ const handleBookConfirm = async (bookData: any) => {
       progress_pct: 0
     })
 
-    toast.success('책이 내 서재에 추가되었습니다!')
+    toast.success('책이 내 서재에 추가되었습니다')
     router.push('/my-library')
   } catch (err) {
     console.error('Failed to add book:', err)
-    toast.error('책 추가에 실패했습니다.')
+    toast.error('책 추가에 실패했습니다')
   }
 }
 </script>

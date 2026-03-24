@@ -642,7 +642,7 @@ const saveGoal = async () => {
     const { error } = await client.from('users').update({ yearly_reading_goal: tempGoal.value }).eq('id', userId)
     if (error) throw error
     yearlyGoal.value = tempGoal.value; editingGoal.value = false; toast.success('목표가 저장되었습니다')
-  } catch (err) { toast.error('목표 저장 실패') }
+  } catch (err) { toast.error('목표 저장에 실패했습니다') }
 }
 
 const handleFileChange = async (file: File) => {
@@ -657,8 +657,8 @@ const handleFileChange = async (file: File) => {
     const { data: { publicUrl: url } } = client.storage.from('avatars').getPublicUrl(path)
     const { error: de } = await client.from('users').update({ avatar_url: url }).eq('id', userId)
     if (de) throw de
-    await userStore.fetchProfile(true); toast.success('프로필 사진 변경 완료!')
-  } catch (err) { toast.error('사진 업로드 실패') } finally { isSaving.value = false }
+    await userStore.fetchProfile(true); toast.success('프로필 사진이 변경되었습니다')
+  } catch (err) { toast.error('사진 업로드에 실패했습니다') } finally { isSaving.value = false }
 }
 
 const saveProfile = async (nickname: string) => {
@@ -669,8 +669,8 @@ const saveProfile = async (nickname: string) => {
   try {
     const { error } = await client.from('users').update({ nickname: nickname.trim() }).eq('id', userId)
     if (error) throw error
-    await userStore.fetchProfile(true); toast.success('닉네임 변경 완료!'); settingsModalOpen.value = false
-  } catch (err) { toast.error('저장 실패') } finally { isSaving.value = false }
+    await userStore.fetchProfile(true); toast.success('닉네임이 변경되었습니다'); settingsModalOpen.value = false
+  } catch (err) { toast.error('저장에 실패했습니다') } finally { isSaving.value = false }
 }
 
 const handleSignOut = () => showLogoutConfirm.value = true
@@ -680,8 +680,8 @@ const confirmDeleteAccount = async () => {
   try {
     const { error } = await client.from('users').delete().eq('id', userStore.user!.id)
     if (error) throw error
-    await userStore.signOut(); toast.success('계정 삭제 완료'); router.push('/login')
-  } catch (err) { toast.error('계정 삭제 실패') }
+    await userStore.signOut(); toast.success('계정이 삭제되었습니다'); router.push('/login')
+  } catch (err) { toast.error('계정 삭제에 실패했습니다') }
 }
 
 const fetchWishlistData = async () => {
@@ -716,7 +716,7 @@ const handleBookConfirmFromWishlist = async (bookData: any) => {
       .single()
 
     if (!memberData) {
-      toast.error('내 서재를 찾을 수 없습니다.')
+      toast.error('내 서재를 찾을 수 없습니다')
       return
     }
 
@@ -754,13 +754,13 @@ const handleBookConfirmFromWishlist = async (bookData: any) => {
       progress_pct: 0
     })
 
-    toast.success('책이 내 서재에 추가되었습니다!')
+    toast.success('책이 내 서재에 추가되었습니다')
     bookSearchModalOpen.value = false
     initialBookForModal.value = null
     router.push('/my-library')
   } catch (err) {
     console.error('Failed to add book:', err)
-    toast.error('책 추가에 실패했습니다.')
+    toast.error('책 추가에 실패했습니다')
   }
 }
 
@@ -815,7 +815,7 @@ watch(appSettings, async (s) => {
     const { error } = await client.from('users').update({ app_settings: s }).eq('id', userId)
     if (error) {
       console.error('Failed to save app settings:', error)
-      toast.error('설정 저장 실패')
+      toast.error('설정 저장에 실패했습니다')
     }
   } catch (err) { console.error(err) }
 }, { deep: true })

@@ -375,7 +375,7 @@ const handleReplySubmit = async (data: { parentId: string; content: string; grou
       parent.replies.push({ ...newReply, likes: 0, isLiked: false })
     }
   } catch (e) {
-    toast.error('답글 작성에 실패했습니다.')
+    toast.error('답글 작성에 실패했습니다')
   }
 }
 
@@ -480,11 +480,11 @@ const handleBatchSave = async (notes: Array<{ positionPct: number; anchorText: s
       batchModalRef.value?.incrementSaved()
     }
     batchModalRef.value?.finishSave()
-    toast.success(`${notes.length}개 노트가 저장되었습니다!`)
+    toast.success(`${notes.length}개 노트가 저장되었습니다`)
     batchModalOpen.value = false
   } catch (e) {
     batchModalRef.value?.finishSave()
-    toast.error('일부 노트 저장에 실패했습니다.')
+    toast.error('일부 노트 저장에 실패했습니다')
   }
 }
 </script>

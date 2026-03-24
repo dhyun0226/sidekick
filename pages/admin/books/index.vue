@@ -388,7 +388,7 @@ const approveToc = async (isbn: string, title: string) => {
     const idx = allBooks.value.findIndex(b => b.isbn === isbn)
     if (idx >= 0) allBooks.value[idx].official_toc = allBooks.value[idx].draft_toc
   } catch (e:any) {
-    toast.error(e.data?.message || '실패')
+    toast.error(e.data?.message || '처리에 실패했습니다')
   } finally {
     approvingToc.value = null
   }
@@ -406,7 +406,7 @@ const approveGenre = async (isbn: string, title: string, genre: string) => {
     const idx = allBooks.value.findIndex(b => b.isbn === isbn)
     if (idx >= 0) allBooks.value[idx].official_genre = genre
   } catch (e:any) {
-    toast.error(e.data?.message || '실패')
+    toast.error(e.data?.message || '처리에 실패했습니다')
   } finally {
     approvingGenre.value = null
   }
@@ -433,7 +433,7 @@ const saveTocEdit = async (data: any) => {
     }
     showEditModal.value = false
   } catch (e:any) {
-    toast.error(e.data?.message || '실패')
+    toast.error(e.data?.message || '처리에 실패했습니다')
   }
 }
 

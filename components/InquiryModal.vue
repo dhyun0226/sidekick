@@ -204,7 +204,7 @@ const fetchInquiries = async () => {
     const { inquiries: data } = await $fetch('/api/inquiries/list')
     inquiries.value = data
   } catch {
-    toast.error('문의 목록을 불러오지 못했습니다.')
+    toast.error('문의 목록을 불러오지 못했습니다')
   } finally {
     loading.value = false
   }
@@ -222,12 +222,12 @@ const submitInquiry = async () => {
         content: form.value.content.trim()
       }
     })
-    toast.success('문의가 등록되었습니다.')
+    toast.success('문의가 등록되었습니다')
     form.value = { category: '', title: '', content: '' }
     currentView.value = 'list'
     await fetchInquiries()
   } catch {
-    toast.error('문의 등록에 실패했습니다.')
+    toast.error('문의 등록에 실패했습니다')
   } finally {
     submitting.value = false
   }

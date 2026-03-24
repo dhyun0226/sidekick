@@ -190,7 +190,7 @@ const joinGroup = async () => {
 
   } catch (err: any) {
     console.error('[Join] Error:', err)
-    toast.error(err.message || '그룹 참여 중 오류가 발생했습니다.')
+    toast.error(err.message || '그룹 참여 중 오류가 발생했습니다')
   } finally {
     joining.value = false
   }

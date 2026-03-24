@@ -475,7 +475,7 @@ const handleSaveToc = () => {
   if (!tocFormRef.value || isSavingToc.value) return
   const validation = tocFormRef.value.validate()
   if (!validation.valid) {
-    toast.error(validation.message || '목차 정보를 확인해주세요.')
+    toast.error(validation.message || '목차 정보를 확인해주세요')
     return
   }
   isSavingToc.value = true

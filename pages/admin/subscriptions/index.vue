@@ -669,11 +669,11 @@ const cancelSubscription = async (subscriptionId: string) => {
 
     if (error) throw error
 
-    toast.success('구독이 취소되었습니다.')
+    toast.success('구독이 취소되었습니다')
     await fetchSubscriptions()
   } catch (error) {
     console.error('[Admin] Cancel error:', error)
-    toast.error('구독 취소에 실패했습니다.')
+    toast.error('구독 취소에 실패했습니다')
   }
 }
 
@@ -733,7 +733,7 @@ const fetchUsers = async () => {
     allUsers.value = users || []
   } catch (error) {
     console.error('[Admin] Users fetch error:', error)
-    toast.error('사용자 목록 조회 실패')
+    toast.error('사용자 목록 조회에 실패했습니다')
   }
 }
 
@@ -744,7 +744,7 @@ const fetchLimits = async () => {
     subscriptionLimits.value = limits || []
   } catch (error) {
     console.error('[Admin] Limits fetch error:', error)
-    toast.error('제한 설정 조회 실패')
+    toast.error('제한 설정 조회에 실패했습니다')
   }
 }
 
@@ -756,11 +756,11 @@ const updateUserTier = async (userId: string, newTier: string) => {
       body: { userId, tier: newTier }
     })
 
-    toast.success('사용자 등급이 변경되었습니다.')
+    toast.success('사용자 등급이 변경되었습니다')
     await fetchUsers()
   } catch (error) {
     console.error('[Admin] Update tier error:', error)
-    toast.error('등급 변경에 실패했습니다.')
+    toast.error('등급 변경에 실패했습니다')
   }
 }
 
@@ -777,11 +777,11 @@ const updateLimit = async (limit: any) => {
       }
     })
 
-    toast.success('설정이 저장되었습니다.')
+    toast.success('설정이 저장되었습니다')
     await fetchLimits()
   } catch (error) {
     console.error('[Admin] Update limit error:', error)
-    toast.error('설정 저장에 실패했습니다.')
+    toast.error('설정 저장에 실패했습니다')
   }
 }
 

@@ -199,7 +199,7 @@ const joinGroup = async (groupId: string, groupName: string) => {
         .eq('id', existingMember.id)
       
       if (updateError) throw updateError
-      toast.success(`'${groupName}' 그룹에 다시 참여했습니다! 👋`)
+      toast.success(`'${groupName}' 그룹에 다시 참여했습니다`)
     } else {
       // 4-B. 신규 가입: 새 레코드 삽입
       const { error: joinError } = await client
@@ -207,7 +207,7 @@ const joinGroup = async (groupId: string, groupName: string) => {
         .insert({ group_id: groupId, user_id: user.id, role: 'member' })
 
       if (joinError) throw joinError
-      toast.success(`'${groupName}' 그룹에 참여했습니다! 🎉`)
+      toast.success(`'${groupName}' 그룹에 참여했습니다`)
     }
 
     emit('joined', groupId)

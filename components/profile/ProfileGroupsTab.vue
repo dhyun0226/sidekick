@@ -586,7 +586,7 @@ const handleLeaveGroup = async () => {
 
   const userId = userStore.profile?.id
   if (!userId) {
-    toast.error('사용자 정보를 찾을 수 없습니다.')
+    toast.error('사용자 정보를 찾을 수 없습니다')
     return
   }
 
@@ -600,7 +600,7 @@ const handleLeaveGroup = async () => {
         .eq('user_id', userId)
 
       if (error) throw error
-      toast.success('목록에서 제거되었습니다.')
+      toast.success('목록에서 제거되었습니다')
     } else {
       // Case 3: Leaving active group → set left_at (goes to 지난 그룹)
       const { error } = await client
@@ -610,14 +610,14 @@ const handleLeaveGroup = async () => {
         .eq('user_id', userId)
 
       if (error) throw error
-      toast.success('그룹에서 나갔습니다.')
+      toast.success('그룹에서 나갔습니다')
     }
 
     await fetchGroups()
     emit('refresh-stats')
   } catch (error) {
     console.error('Leave group error:', error)
-    toast.error('처리에 실패했습니다.')
+    toast.error('처리에 실패했습니다')
   } finally {
     leaveModalOpen.value = false
     selectedGroup.value = null

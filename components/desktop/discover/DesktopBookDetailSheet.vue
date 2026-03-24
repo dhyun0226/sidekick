@@ -106,7 +106,7 @@ watch(() => props.isOpen, async (open) => {
 
 const handleToggleWishlist = async () => {
   if (!props.book || !userStore.profile?.id) {
-    toast.error('로그인이 필요합니다.')
+    toast.error('로그인해주세요')
     return
   }
 
@@ -115,12 +115,12 @@ const handleToggleWishlist = async () => {
     if (isInWishlist.value) {
       const result = await removeFromWishlist(userStore.profile.id, props.book.isbn)
       if (result.success) {
-        toast.success('위시리스트에서 제거했습니다.')
+        toast.success('위시리스트에서 제거했습니다')
         wishCount.value = Math.max(0, wishCount.value - 1)
         await fetchWishlist(userStore.profile.id)
         emit('wishlist-updated')
       } else {
-        toast.error(result.message || '제거에 실패했습니다.')
+        toast.error(result.message || '제거에 실패했습니다')
       }
     } else {
       const { data: existingBook } = await client
@@ -141,16 +141,16 @@ const handleToggleWishlist = async () => {
 
       const result = await addToWishlist(userStore.profile.id, props.book.isbn)
       if (result.success) {
-        toast.success('위시리스트에 담았습니다.')
+        toast.success('위시리스트에 담았습니다')
         wishCount.value++
         await fetchWishlist(userStore.profile.id)
         emit('wishlist-updated')
       } else {
-        toast.error(result.message || '추가에 실패했습니다.')
+        toast.error(result.message || '추가에 실패했습니다')
       }
     }
   } catch (err) {
-    toast.error('처리에 실패했습니다.')
+    toast.error('처리에 실패했습니다')
   } finally {
     wishLoading.value = false
   }

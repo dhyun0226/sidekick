@@ -546,7 +546,7 @@ const submitReply = async (parentId: string) => {
 
   } catch (error) {
     console.error('Reply error:', error)
-    toast.error('답글 작성에 실패했습니다.')
+    toast.error('답글 작성에 실패했습니다')
   } finally {
     isSubmittingReply.value = false
   }
@@ -618,7 +618,7 @@ const saveEdit = async (commentId: string) => {
     editAnchor.value = ''
   } catch (error) {
     console.error('Save edit error:', error)
-    toast.error('댓글 수정에 실패했습니다.')
+    toast.error('댓글 수정에 실패했습니다')
   } finally {
     isSavingEdit.value = false
   }
@@ -667,7 +667,7 @@ const saveReplyEdit = async (replyId: string) => {
     editReplyContent.value = ''
   } catch (error) {
     console.error('Save reply edit error:', error)
-    toast.error('답글 수정에 실패했습니다.')
+    toast.error('답글 수정에 실패했습니다')
   } finally {
     isSavingReplyEdit.value = false
   }
@@ -704,10 +704,10 @@ const executeDeleteComment = async () => {
       props.comments.splice(index, 1)
     }
 
-    toast.success('댓글이 삭제되었습니다.')
+    toast.success('댓글이 삭제되었습니다')
   } catch (error) {
     console.error('Delete error:', error)
-    toast.error('댓글 삭제에 실패했습니다.')
+    toast.error('댓글 삭제에 실패했습니다')
   } finally {
     showDeleteCommentModal.value = false
     deletingCommentId.value = null
@@ -749,10 +749,10 @@ const executeDeleteReply = async () => {
       }
     }
 
-    toast.success('답글이 삭제되었습니다.')
+    toast.success('답글이 삭제되었습니다')
   } catch (error) {
     console.error('Delete reply error:', error)
-    toast.error('답글 삭제에 실패했습니다.')
+    toast.error('답글 삭제에 실패했습니다')
   } finally {
     showDeleteReplyModal.value = false
     deletingReplyId.value = null

@@ -289,7 +289,7 @@ const fetchCurrentSubscription = async () => {
 }
 
 const startPayment = async (planName: string) => {
-  if (!userStore.profile) { toast.error('로그인이 필요합니다.'); return }
+  if (!userStore.profile) { toast.error('로그인이 필요합니다'); return }
   
   const isMonthly = planName === 'premium_monthly'
   if (isMonthly) payingMonthly.value = true; else payingYearly.value = true
@@ -311,7 +311,7 @@ const startPayment = async (planName: string) => {
       failUrl: `${window.location.origin}/payment/fail`
     })
   } catch (error: any) {
-    toast.error(error.data?.message || '결제 요청 중 오류가 발생했습니다.')
+    toast.error(error.data?.message || '결제 요청 중 오류가 발생했습니다')
   } finally {
     paying.value = false; payingMonthly.value = false; payingYearly.value = false
   }
@@ -322,10 +322,10 @@ const confirmCancelSubscription = async () => {
   showCancelConfirm.value = false; canceling.value = true
   try {
     await $fetch('/api/payments/cancel-subscription', { method: 'POST' })
-    toast.success('자동갱신이 취소되었습니다. 기간 만료 시까지 프리미엄을 이용할 수 있습니다.')
+    toast.success('자동갱신이 취소되었습니다')
     await fetchCurrentSubscription()
   } catch (error: any) {
-    toast.error('구독 취소 중 오류가 발생했습니다.')
+    toast.error('구독 취소에 실패했습니다')
   } finally { canceling.value = false }
 }
 const cancelCancelSubscription = () => { showCancelConfirm.value = false }
@@ -335,10 +335,10 @@ const confirmReactivateSubscription = async () => {
   showReactivateConfirm.value = false; reactivating.value = true
   try {
     await $fetch('/api/payments/reactivate-subscription', { method: 'POST' })
-    toast.success('자동갱신이 재개되었습니다.')
+    toast.success('자동갱신이 재개되었습니다')
     await fetchCurrentSubscription()
   } catch (error: any) {
-    toast.error('자동갱신 재개 중 오류가 발생했습니다.')
+    toast.error('자동갱신 재개에 실패했습니다')
   } finally { reactivating.value = false }
 }
 const cancelReactivateSubscription = () => { showReactivateConfirm.value = false }

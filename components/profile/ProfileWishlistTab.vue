@@ -106,10 +106,10 @@ const handleRemoveFromWishlist = async (isbn: string) => {
 
   const result = await removeFromWishlist(userId, isbn)
   if (result.success) {
-    toast.success('위시리스트에서 제거했습니다.')
+    toast.success('위시리스트에서 제거했습니다')
     emit('refresh')
   } else {
-    toast.error(result.message || '제거에 실패했습니다.')
+    toast.error(result.message || '제거에 실패했습니다')
   }
 }
 </script>

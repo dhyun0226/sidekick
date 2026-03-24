@@ -126,11 +126,11 @@ const signInWithGoogle = async () => {
   } catch (e: any) {
     console.error('Google OAuth error:', e)
 
-    let errorMessage = '로그인에 실패했습니다.'
+    let errorMessage = '로그인에 실패했습니다'
     if (e.message.includes('popup')) {
-      errorMessage = '팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요.'
+      errorMessage = '팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요'
     } else if (e.message.includes('network')) {
-      errorMessage = '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.'
+      errorMessage = '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요'
     }
 
     toast.error(errorMessage)

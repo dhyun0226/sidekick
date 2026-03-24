@@ -531,7 +531,7 @@ const fetchGroups = async () => {
     }
   } catch (e: any) {
     console.error('Error fetching groups:', e)
-    toast.error('그룹 목록을 불러오는데 실패했습니다.')
+    toast.error('그룹 목록을 불러오는데 실패했습니다')
   } finally {
     loading.value = false
   }
@@ -571,7 +571,7 @@ const formatDateSimple = (dateStr: string) => {
 
 const handleCreateGroupClick = () => {
   if (!isPremium.value) {
-    toast.error('공유 그룹 생성은 프리미엄 구독이 필요합니다.')
+    toast.error('공유 그룹 생성은 프리미엄 구독이 필요합니다')
     router.push('/subscription')
     return
   }
@@ -579,7 +579,7 @@ const handleCreateGroupClick = () => {
 }
 
 const handleGroupCreated = async (newGroup: any) => {
-  toast.success('새 그룹이 생성되었습니다!')
+  toast.success('새 그룹이 생성되었습니다')
   await fetchGroups()
   router.push(`/group/${newGroup.id}`)
 }

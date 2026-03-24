@@ -376,7 +376,7 @@ export function useGroupPage(config: GroupPageConfig) {
       if (config.mode === 'solo') {
         const soloGroupId = await fetchSoloGroupId()
         if (!soloGroupId) {
-          toast.error('내 서재를 찾을 수 없습니다.')
+          toast.error('내 서재를 찾을 수 없습니다')
           router.push('/')
           return
         }
@@ -391,7 +391,7 @@ export function useGroupPage(config: GroupPageConfig) {
         .single()
 
       if (groupError || !groupData) {
-        const errMsg = config.mode === 'solo' ? '내 서재를 찾을 수 없습니다.' : '존재하지 않는 그룹입니다.'
+        const errMsg = config.mode === 'solo' ? '내 서재를 찾을 수 없습니다' : '존재하지 않는 그룹입니다'
         toast.error(errMsg)
         router.push('/')
         return
@@ -420,7 +420,7 @@ export function useGroupPage(config: GroupPageConfig) {
 
         const isMember = members.value.some(m => m.id === currentUserId.value)
         if (!isMember) {
-          toast.error('이 그룹에 접근할 권한이 없습니다.')
+          toast.error('이 그룹에 접근할 권한이 없습니다')
           router.push('/')
           return
         }
@@ -454,9 +454,9 @@ export function useGroupPage(config: GroupPageConfig) {
     } catch (err: any) {
       console.error('[GroupPage] fetchData error:', err)
       if (config.mode === 'social') {
-        loadError.value = err.message || '데이터를 불러오는데 실패했습니다.'
+        loadError.value = err.message || '데이터를 불러오는데 실패했습니다'
       } else {
-        toast.error('데이터를 불러오는데 실패했습니다. 새로고침해주세요.')
+        toast.error('데이터를 불러오는데 실패했습니다. 새로고침해주세요')
       }
     } finally {
       isLoading.value = false
@@ -578,7 +578,7 @@ export function useGroupPage(config: GroupPageConfig) {
         return
       }
     } else if (!hasAnchor) {
-      toast.error('내용 또는 인용 구절을 입력해주세요.')
+      toast.error('내용 또는 인용 구절을 입력해주세요')
       return
     }
 
@@ -644,7 +644,7 @@ export function useGroupPage(config: GroupPageConfig) {
       await fetchBooks()
       await fetchUserReviews()
       closeReviewModal()
-      toast.success('리뷰가 저장되었습니다! 🎉')
+      toast.success('리뷰가 저장되었습니다')
     } catch (error: any) {
       console.error('Review error:', error)
       toast.error('리뷰 저장 실패: ' + (error.message || '알 수 없는 오류'))
@@ -750,11 +750,11 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const handleBookAdd = async (data: any) => {
     if (isArchived.value) {
-      toast.error('종료된 그룹에는 책을 추가할 수 없습니다.')
+      toast.error('종료된 그룹에는 책을 추가할 수 없습니다')
       return
     }
     if (!isAdmin.value) {
-      toast.error('관리자만 책을 추가할 수 있습니다.')
+      toast.error('관리자만 책을 추가할 수 있습니다')
       return
     }
 
@@ -775,10 +775,10 @@ export function useGroupPage(config: GroupPageConfig) {
       }
       await addBook(plainData)
       await fetchData()
-      toast.success('새 책이 추가되었습니다! 🎉')
+      toast.success('새 책이 추가되었습니다')
     } catch (error: any) {
       console.error('[GroupPage] Book add error:', error)
-      toast.error(error.message || '책 추가 중 오류가 발생했습니다.')
+      toast.error(error.message || '책 추가에 실패했습니다')
     }
   }
 
@@ -821,7 +821,7 @@ export function useGroupPage(config: GroupPageConfig) {
   const saveEditedDates = async (dates: { startDate: string, endDate: string }) => {
     if (!modals.editingBook || !dates.startDate || !dates.endDate) return
     if (!isAdmin.value) {
-      toast.error('관리자만 독서 기간을 수정할 수 있습니다.')
+      toast.error('관리자만 독서 기간을 수정할 수 있습니다')
       modals.editDates = false
       modals.editingBook = null
       return
@@ -829,10 +829,10 @@ export function useGroupPage(config: GroupPageConfig) {
     try {
       await updateDates(modals.editingBook.id, dates.startDate, dates.endDate)
       await fetchBooks()
-      toast.success('독서 기간이 수정되었습니다! 📅')
+      toast.success('독서 기간이 수정되었습니다')
     } catch (error) {
       console.error('Edit dates error:', error)
-      toast.error('독서 기간 수정에 실패했습니다.')
+      toast.error('독서 기간 수정에 실패했습니다')
     } finally {
       modals.editDates = false
       modals.editingBook = null
@@ -842,7 +842,7 @@ export function useGroupPage(config: GroupPageConfig) {
   const saveEditedToc = async (tocData: { totalPages: number, chapters: { title: string, startPage: number }[] }) => {
     if (!modals.editingBook || !tocData.totalPages || tocData.totalPages <= 0) return
     if (!isAdmin.value) {
-      toast.error('관리자만 목차를 수정할 수 있습니다.')
+      toast.error('관리자만 목차를 수정할 수 있습니다')
       modals.editToc = false
       modals.editingBook = null
       return
@@ -850,7 +850,7 @@ export function useGroupPage(config: GroupPageConfig) {
     try {
       await updateToc(modals.editingBook.id, modals.editingBook.isbn, tocData.totalPages, tocData.chapters)
       await fetchBooks()
-      toast.success('목차가 수정되었습니다! 📑')
+      toast.success('목차가 수정되었습니다')
     } catch (error: any) {
       console.error('Save TOC error:', error)
       toast.error('수정 실패: ' + error.message)
@@ -863,7 +863,7 @@ export function useGroupPage(config: GroupPageConfig) {
   const saveEditedGenre = async (genre: string) => {
     if (!modals.editingBook || !genre) return
     if (!isAdmin.value) {
-      toast.error('관리자만 장르를 수정할 수 있습니다.')
+      toast.error('관리자만 장르를 수정할 수 있습니다')
       modals.editGenre = false
       modals.editingBook = null
       return
@@ -871,7 +871,7 @@ export function useGroupPage(config: GroupPageConfig) {
     try {
       await updateGenre(modals.editingBook.id, modals.editingBook.isbn, genre)
       await fetchBooks()
-      toast.success('장르가 수정되었습니다! 🏷️')
+      toast.success('장르가 수정되었습니다')
     } catch (error: any) {
       console.error('Save Genre error:', error)
       toast.error('장르 수정 실패: ' + error.message)
@@ -884,7 +884,7 @@ export function useGroupPage(config: GroupPageConfig) {
   const saveEditedFinishedDate = async (finishedDate: string) => {
     if (!modals.editingBook || !finishedDate) return
     if (!isAdmin.value) {
-      toast.error('완독 날짜 수정 권한이 없습니다.')
+      toast.error('완독 날짜 수정 권한이 없습니다')
       modals.editFinishedDate = false
       modals.editingBook = null
       return
@@ -896,12 +896,12 @@ export function useGroupPage(config: GroupPageConfig) {
         .eq('id', modals.editingBook.id)
       if (error) throw error
 
-      toast.success('완독 날짜가 수정되었습니다!')
+      toast.success('완독 날짜가 수정되었습니다')
       modals.editingBook.finished_at = finishedDate
       await fetchBooks()
     } catch (error: any) {
       console.error('[SaveFinishedDate] Error:', error)
-      toast.error('완독 날짜 수정 중 오류가 발생했습니다.')
+      toast.error('완독 날짜 수정에 실패했습니다')
     } finally {
       modals.editFinishedDate = false
       modals.editingBook = null
@@ -911,7 +911,7 @@ export function useGroupPage(config: GroupPageConfig) {
   const markAsCompleted = async () => {
     if (!modals.editingBook) return
     if (!isAdmin.value) {
-      toast.error('완독 처리 권한이 없습니다.')
+      toast.error('완독 처리 권한이 없습니다')
       modals.markCompleted = false
       modals.editingBook = null
       return
@@ -920,18 +920,18 @@ export function useGroupPage(config: GroupPageConfig) {
       await markBookCompleted(modals.editingBook.id)
       modals.markCompleted = false
       modals.editingBook = null
-      toast.success('종료 처리되었습니다! 🎉 책장으로 이동합니다.')
+      toast.success('종료 처리되었습니다. 책장으로 이동합니다')
       await fetchData()
     } catch (error) {
       console.error('Mark completed error:', error)
-      toast.error('종료 처리에 실패했습니다.')
+      toast.error('종료 처리에 실패했습니다')
     }
   }
 
   const deleteBook = async () => {
     if (!modals.editingBook) return
     if (!isAdmin.value) {
-      toast.error('관리자만 책을 삭제할 수 있습니다.')
+      toast.error('관리자만 책을 삭제할 수 있습니다')
       modals.deleteBook = false
       modals.editingBook = null
       return
@@ -939,11 +939,11 @@ export function useGroupPage(config: GroupPageConfig) {
     try {
       await deleteBookFromGroup(modals.editingBook.id)
       selectedBookId.value = null  // 삭제된 책 선택 해제 → fetchData에서 첫 번째 책 자동 선택
-      toast.success('책이 삭제되었습니다.')
+      toast.success('책이 삭제되었습니다')
       await fetchData()
     } catch (error) {
       console.error('Delete book error:', error)
-      toast.error('책 삭제에 실패했습니다.')
+      toast.error('책 삭제에 실패했습니다')
     } finally {
       modals.deleteBook = false
       modals.editingBook = null
@@ -972,14 +972,14 @@ export function useGroupPage(config: GroupPageConfig) {
       await nextTick()
 
       viewProgress.value = 100
-      toast.success('완독 처리되었습니다! 🎉')
+      toast.success('완독 처리되었습니다')
 
       if (openReviewModal) {
         await openReviewModalForBook(bookId)
       }
     } catch (error: any) {
       console.error('[MarkAsFinished] Error:', error)
-      toast.error('완독 처리 중 오류가 발생했습니다.')
+      toast.error('완독 처리에 실패했습니다')
     }
   }
 
@@ -995,7 +995,7 @@ export function useGroupPage(config: GroupPageConfig) {
     if (config.mode === 'solo') {
       try {
         await markBookCompleted(bookId)
-        toast.success('책장으로 이동했습니다! 📚')
+        toast.success('책장으로 이동했습니다')
       } catch (error) {
         console.error('[HandleMarkFinished] Auto-complete error:', error)
       }
@@ -1038,10 +1038,10 @@ export function useGroupPage(config: GroupPageConfig) {
         viewProgress.value = progressData.progress_pct || 100
       }
 
-      toast.success('완독이 취소되었습니다.')
+      toast.success('완독이 취소되었습니다')
     } catch (error: any) {
       console.error('[UnmarkFinished] Error:', error)
-      toast.error('완독 취소 중 오류가 발생했습니다.')
+      toast.error('완독 취소에 실패했습니다')
     }
   }
 
@@ -1050,7 +1050,7 @@ export function useGroupPage(config: GroupPageConfig) {
     const book = allBooks.value.find((b: any) => b.id === bookId)
     if (!book) return
     if (!isAdmin.value) {
-      toast.error('관리자만 책을 삭제할 수 있습니다.')
+      toast.error('관리자만 책을 삭제할 수 있습니다')
       return
     }
     pendingBookToDelete.value = { id: bookId, title: book.book?.title || '이 책' }
@@ -1079,7 +1079,7 @@ export function useGroupPage(config: GroupPageConfig) {
       if (selectedBookId.value === bookId) {
         selectedBookId.value = null
       }
-      toast.success('책이 삭제되었습니다.')
+      toast.success('책이 삭제되었습니다')
       await fetchBooks()
       // 선택된 책이 없으면 첫 번째 읽는 중 책 자동 선택
       if (!selectedBookId.value) {
@@ -1090,7 +1090,7 @@ export function useGroupPage(config: GroupPageConfig) {
       }
     } catch (error: any) {
       console.error('[DeleteHistoryBook] Error:', error)
-      toast.error('책 삭제 중 오류가 발생했습니다.')
+      toast.error('책 삭제에 실패했습니다')
     }
   }
 
@@ -1098,7 +1098,7 @@ export function useGroupPage(config: GroupPageConfig) {
     const book = allBooks.value.find((b: any) => b.id === bookId)
     if (!book) return
     if (!isAdmin.value) {
-      toast.error('관리자만 책 상태를 변경할 수 있습니다.')
+      toast.error('관리자만 책 상태를 변경할 수 있습니다')
       return
     }
     try {
@@ -1108,23 +1108,23 @@ export function useGroupPage(config: GroupPageConfig) {
         .eq('id', bookId)
       if (error) throw error
 
-      toast.success('다시 읽기로 변경되었습니다!')
+      toast.success('다시 읽기로 변경되었습니다')
       await fetchBooks()
     } catch (error: any) {
       console.error('[RestartReading] Error:', error)
-      toast.error('상태 변경 중 오류가 발생했습니다.')
+      toast.error('상태 변경에 실패했습니다')
     }
   }
 
   // ===== Group Management =====
   const saveGroupName = async (newName: string) => {
     if (!isAdmin.value) {
-      toast.error('관리자만 그룹 이름을 변경할 수 있습니다.')
+      toast.error('관리자만 그룹 이름을 변경할 수 있습니다')
       return
     }
     const trimmedName = newName.trim()
-    if (!trimmedName) { toast.warning('그룹 이름을 입력해주세요.'); return }
-    if (trimmedName.length < 2) { toast.warning('그룹 이름은 2글자 이상이어야 합니다.'); return }
+    if (!trimmedName) { toast.warning('그룹 이름을 입력해주세요'); return }
+    if (trimmedName.length < 2) { toast.warning('그룹 이름은 2글자 이상이어야 합니다'); return }
 
     try {
       const { error } = await client
@@ -1136,16 +1136,16 @@ export function useGroupPage(config: GroupPageConfig) {
         return
       }
       group.value!.name = trimmedName
-      toast.success('그룹 이름이 변경되었습니다!')
+      toast.success('그룹 이름이 변경되었습니다')
     } catch (err) {
       console.error('Unexpected error:', err)
-      toast.error('예상치 못한 오류가 발생했습니다.')
+      toast.error('예상치 못한 오류가 발생했습니다')
     }
   }
 
   const deleteGroup = () => {
     if (!isAdmin.value) {
-      toast.error('관리자만 그룹을 삭제할 수 있습니다.')
+      toast.error('관리자만 그룹을 삭제할 수 있습니다')
       return
     }
     modals.deleteGroup = true
@@ -1158,7 +1158,7 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const executeDeleteGroup = async (inputText: string) => {
     if (!isAdmin.value) {
-      toast.error('관리자만 그룹을 삭제할 수 있습니다.')
+      toast.error('관리자만 그룹을 삭제할 수 있습니다')
       modals.deleteGroupConfirm = false
       return
     }
@@ -1171,11 +1171,11 @@ export function useGroupPage(config: GroupPageConfig) {
         toast.error('그룹 삭제에 실패했습니다: ' + error.message)
         return
       }
-      toast.success('그룹이 종료되었습니다. (아카이브 보관)')
+      toast.success('그룹이 종료되었습니다')
       router.push('/')
     } catch (err) {
       console.error('Unexpected error:', err)
-      toast.error('예상치 못한 오류가 발생했습니다.')
+      toast.error('예상치 못한 오류가 발생했습니다')
     } finally {
       modals.deleteGroupConfirm = false
     }
@@ -1196,7 +1196,7 @@ export function useGroupPage(config: GroupPageConfig) {
   const executePromoteMember = async () => {
     if (!pendingMemberAction.value) return
     if (!isAdmin.value) {
-      toast.error('관리자만 권한을 변경할 수 있습니다.')
+      toast.error('관리자만 권한을 변경할 수 있습니다')
       modals.promoteMember = false
       pendingMemberAction.value = null
       return
@@ -1210,10 +1210,10 @@ export function useGroupPage(config: GroupPageConfig) {
       if (error) throw error
 
       await fetchData()
-      toast.success('관리자로 승격되었습니다.')
+      toast.success('관리자로 승격되었습니다')
     } catch (error) {
       console.error('Promote member error:', error)
-      toast.error('권한 변경에 실패했습니다.')
+      toast.error('권한 변경에 실패했습니다')
     } finally {
       modals.promoteMember = false
       pendingMemberAction.value = null
@@ -1231,7 +1231,7 @@ export function useGroupPage(config: GroupPageConfig) {
   const executeKickMember = async () => {
     if (!pendingMemberAction.value) return
     if (!isAdmin.value) {
-      toast.error('관리자만 멤버를 강퇴할 수 있습니다.')
+      toast.error('관리자만 멤버를 강퇴할 수 있습니다')
       modals.kickMember = false
       pendingMemberAction.value = null
       return
@@ -1245,10 +1245,10 @@ export function useGroupPage(config: GroupPageConfig) {
       if (error) throw error
 
       members.value = members.value.filter(m => m.id !== pendingMemberAction.value!.id)
-      toast.success(`${pendingMemberAction.value.nickname}님이 그룹에서 제거되었습니다.`)
+      toast.success(`${pendingMemberAction.value.nickname}님이 그룹에서 제거되었습니다`)
     } catch (error) {
       console.error('Kick member error:', error)
-      toast.error('멤버 강퇴에 실패했습니다.')
+      toast.error('멤버 강퇴에 실패했습니다')
     } finally {
       modals.kickMember = false
       pendingMemberAction.value = null
@@ -1258,7 +1258,7 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const handleChangeMemberRole = async (member: any) => {
     if (!isAdmin.value) {
-      toast.error('관리자만 권한을 변경할 수 있습니다.')
+      toast.error('관리자만 권한을 변경할 수 있습니다')
       return
     }
     const newRole = member.role === 'admin' ? 'member' : 'admin'
@@ -1275,7 +1275,7 @@ export function useGroupPage(config: GroupPageConfig) {
       if (memberIndex >= 0) {
         members.value[memberIndex].role = newRole
       }
-      toast.success(`${member.nickname}님의 권한이 ${roleText}로 변경되었습니다.`)
+      toast.success(`${member.nickname}님의 권한이 ${roleText}로 변경되었습니다`)
     } catch (error: any) {
       console.error('Change role error:', error)
       toast.error('권한 변경 실패: ' + error.message)
@@ -1284,7 +1284,7 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const handleKickMember = (member: any) => {
     if (!isAdmin.value) {
-      toast.error('관리자만 멤버를 강퇴할 수 있습니다.')
+      toast.error('관리자만 멤버를 강퇴할 수 있습니다')
       return
     }
     pendingMemberAction.value = { id: member.id, nickname: member.nickname }
@@ -1295,7 +1295,7 @@ export function useGroupPage(config: GroupPageConfig) {
     if (!currentUserId.value) return
     const admins = members.value.filter(m => m.role === 'admin')
     if (admins.length === 1 && admins[0].id === currentUserId.value && members.value.length > 1) {
-      toast.error('그룹의 유일한 관리자입니다. 다른 멤버를 관리자로 지정한 후 나가주세요.')
+      toast.error('그룹의 유일한 관리자입니다. 다른 멤버를 관리자로 지정한 후 나가주세요')
       return
     }
     modals.leaveGroup = true
@@ -1311,11 +1311,11 @@ export function useGroupPage(config: GroupPageConfig) {
         .eq('user_id', currentUserId.value)
       if (error) throw error
 
-      toast.success('그룹을 보관함으로 이동했습니다. (지난 그룹에서 확인 가능)')
+      toast.success('그룹을 보관함으로 이동했습니다')
       router.push('/')
     } catch (error) {
       console.error('Leave group error:', error)
-      toast.error('그룹 나가기에 실패했습니다.')
+      toast.error('그룹 나가기에 실패했습니다')
     } finally {
       modals.leaveGroup = false
     }
@@ -1323,11 +1323,11 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const handleBecomeOwner = async () => {
     if (!isPremium.value) {
-      toast.error('프리미엄 회원만 방장이 될 수 있습니다.')
+      toast.error('프리미엄 회원만 방장이 될 수 있습니다')
       return
     }
     if (!isPausedGroup.value) {
-      toast.error('일시 정지된 그룹만 방장이 될 수 있습니다.')
+      toast.error('일시 정지된 그룹만 방장이 될 수 있습니다')
       return
     }
     try {
@@ -1336,28 +1336,28 @@ export function useGroupPage(config: GroupPageConfig) {
         body: { groupId: config.groupIdRef.value }
       })
 
-      toast.success('방장이 되었습니다! 그룹이 다시 활성화되었습니다.', 5000)
+      toast.success('방장이 되었습니다. 그룹이 다시 활성화되었습니다', 5000)
       await fetchData()
     } catch (error: any) {
       console.error('Become owner error:', error)
-      toast.error(error.message || '방장 되기에 실패했습니다.')
+      toast.error(error.message || '방장 되기에 실패했습니다')
     }
   }
 
   // ===== Invite Code =====
   const copyInviteLink = async () => {
     if (!group.value?.invite_code) {
-      toast.error('초대 코드를 불러올 수 없습니다.')
+      toast.error('초대 코드를 불러올 수 없습니다')
       return
     }
     const inviteLink = `${window.location.origin}/join/${group.value.invite_code}`
     try {
       await navigator.clipboard.writeText(inviteLink)
-      toast.success('초대 링크가 클립보드에 복사되었습니다!\n친구들에게 공유해보세요.', 5000)
+      toast.success('초대 링크가 클립보드에 복사되었습니다', 5000)
     } catch (err) {
       clipboardFallbackData.value = {
         title: '초대 링크',
-        message: '클립보드 복사에 실패했습니다. 아래 링크를 수동으로 복사해주세요.',
+        message: '클립보드 복사에 실패했습니다. 아래 링크를 수동으로 복사해주세요',
         text: inviteLink
       }
       modals.clipboardFallback = true
@@ -1366,17 +1366,17 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const copyInviteCode = async () => {
     if (!group.value?.invite_code) {
-      toast.error('초대 코드를 불러올 수 없습니다.')
+      toast.error('초대 코드를 불러올 수 없습니다')
       return
     }
     const inviteCode = group.value.invite_code
     try {
       await navigator.clipboard.writeText(inviteCode)
-      toast.success('초대 코드가 클립보드에 복사되었습니다!', 3000)
+      toast.success('초대 코드가 클립보드에 복사되었습니다', 3000)
     } catch (err) {
       clipboardFallbackData.value = {
         title: '초대 코드',
-        message: '클립보드 복사에 실패했습니다. 아래 코드를 수동으로 복사해주세요.',
+        message: '클립보드 복사에 실패했습니다. 아래 코드를 수동으로 복사해주세요',
         text: inviteCode
       }
       modals.clipboardFallback = true
@@ -1385,7 +1385,7 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const regenerateInviteCode = () => {
     if (!isAdmin.value) {
-      toast.error('관리자만 초대 코드를 재생성할 수 있습니다.')
+      toast.error('관리자만 초대 코드를 재생성할 수 있습니다')
       return
     }
     modals.regenerateInviteCode = true
@@ -1413,7 +1413,7 @@ export function useGroupPage(config: GroupPageConfig) {
       }
 
       if (attempts === maxAttempts) {
-        toast.error('초대 코드 생성에 실패했습니다. 다시 시도해주세요.')
+        toast.error('초대 코드 생성에 실패했습니다. 다시 시도해주세요')
         return
       }
 
@@ -1430,7 +1430,7 @@ export function useGroupPage(config: GroupPageConfig) {
       toast.success(`새 초대 코드가 생성되었습니다: ${newCode}`)
     } catch (err) {
       console.error('Unexpected error:', err)
-      toast.error('예상치 못한 오류가 발생했습니다.')
+      toast.error('예상치 못한 오류가 발생했습니다')
     } finally {
       modals.regenerateInviteCode = false
     }

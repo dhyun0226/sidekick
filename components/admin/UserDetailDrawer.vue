@@ -197,7 +197,7 @@ const fetchUserDetails = async (userId: string) => {
 const copyEmail = () => {
    if (props.user?.email) {
       navigator.clipboard.writeText(props.user.email)
-      toast.success('이메일이 복사되었습니다.')
+      toast.success('이메일이 복사되었습니다')
    }
 }
 
