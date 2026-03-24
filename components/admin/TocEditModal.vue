@@ -167,7 +167,7 @@ const saving = ref(false)
 // Initialize when modal opens
 watch(() => props.show, (show) => {
   if (show && props.book) {
-    totalPages.value = props.book.total_pages || 300
+    totalPages.value = props.book.total_pages || props.book.official_pages || props.book.draft_pages || 300
 
     // Parse the appropriate TOC based on tocType
     const tocSource = props.tocType === 'official' ? props.book.official_toc : props.book.draft_toc

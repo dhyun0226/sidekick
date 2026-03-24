@@ -103,7 +103,7 @@
         v-if="selectedBook"
         v-model="viewProgress"
         :toc="toc"
-        :totalPages="selectedBook.book?.total_pages"
+        :totalPages="selectedBook.total_pages"
         :bookTitle="bookTitle"
         :members="selectedBook.status === 'reading' ? sliderMembers : []"
         :is-archived="isArchived"

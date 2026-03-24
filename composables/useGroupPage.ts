@@ -197,7 +197,7 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const toc = computed<TocChapter[]>(() => {
     const snapshot = selectedBook.value?.toc_snapshot
-    const totalPages = selectedBook.value?.book?.total_pages
+    const totalPages = selectedBook.value?.total_pages
     if (!snapshot || !Array.isArray(snapshot)) return []
     if (!totalPages) return []
 

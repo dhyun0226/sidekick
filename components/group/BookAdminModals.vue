@@ -463,7 +463,7 @@ watch([() => props.editTocOpen, () => props.currentBook], ([isOpen, currentBook]
       // 이제 snapshot에 실제 페이지(page)가 저장되어 있으므로 그대로 사용
       localChapters.value = currentBook.toc_snapshot.map((c: any) => ({
         title: c.title,
-        startPage: c.page || 0
+        startPage: c.startPage || c.page || 0
       }))
     } else {
       localChapters.value = []
