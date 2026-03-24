@@ -273,16 +273,24 @@ const formatTimeAgo = (dateStr: string) => {
   return `${y}.${m}.${d}`
 }
 
+let notificationChannel: any = null
+
 onMounted(async () => {
   const { data: { user } } = await client.auth.getUser()
   if (!user) return
   await fetchNotifications()
-  const channel = client.channel('notifications').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, async (payload) => {
+  notificationChannel = client.channel('notifications').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, async (payload) => {
     const newNoti = payload.new as any
     const { data: groupData } = await client.from('groups').select('name').eq('id', newNoti.source_id).maybeSingle()
     notifications.value.unshift({ ...newNoti, groupName: groupData?.name })
   }).subscribe()
-  onUnmounted(() => { client.removeChannel(channel) })
+})
+
+onUnmounted(() => {
+  if (notificationChannel) {
+    client.removeChannel(notificationChannel)
+    notificationChannel = null
+  }
 })
 </script>
 

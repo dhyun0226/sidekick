@@ -35,36 +35,28 @@ export const useRealtimeSubscriptions = (
   /**
    * Setup comment realtime subscription for a specific book
    */
-  const setupCommentSubscription = () => {
-    // 기존 채널 정리 (메모리 누수 방지)
+  const setupCommentSubscription = (bookId?: string) => {
     if (commentChannel) {
       client.removeChannel(commentChannel)
       commentChannel = null
     }
 
-    commentChannel = client.channel('public:comments')
+    const targetBookId = bookId || selectedBookId.value
+    if (!targetBookId) return
+
+    commentChannel = client.channel(`comments:${targetBookId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'comments' },
+        { event: 'INSERT', schema: 'public', table: 'comments', filter: `group_book_id=eq.${targetBookId}` },
         async (payload) => {
-          console.log('New comment received!', payload)
+          const { data: user } = await client
+            .from('users')
+            .select('*')
+            .eq('id', payload.new.user_id)
+            .single()
 
-          if (selectedBookId.value && payload.new.group_book_id === selectedBookId.value) {
-            // Fetch user info for the new comment
-            const { data: user } = await client
-              .from('users')
-              .select('*')
-              .eq('id', payload.new.user_id)
-              .single()
-
-            if (user) {
-              const newComment = {
-                ...payload.new,
-                user: user
-              }
-
-              onCommentAdded(newComment)
-            }
+          if (user) {
+            onCommentAdded({ ...payload.new, user })
           }
         }
       )
@@ -120,15 +112,20 @@ export const useRealtimeSubscriptions = (
   /**
    * Watch drawer and selectedBookId to manage progress subscription
    */
+  // Re-subscribe comments when book changes
+  watch(() => selectedBookId.value, (bookId, oldBookId) => {
+    if (bookId && bookId !== oldBookId) {
+      setupCommentSubscription(bookId)
+    }
+  })
+
   watch([drawerOpen, () => selectedBookId.value], async ([isOpen, bookId], [wasOpen, oldBookId]) => {
-    // Cleanup old subscription when book changes
     if (oldBookId && oldBookId !== bookId && progressChannel) {
       client.removeChannel(progressChannel)
       progressChannel = null
     }
 
     if (isOpen && bookId) {
-      // Only setup if book changed or wasn't subscribed
       if (!progressChannel || oldBookId !== bookId) {
         setupProgressSubscription(bookId)
       }

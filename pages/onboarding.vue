@@ -237,8 +237,7 @@ const handleSubmit = async () => {
 
         if (uploadError) {
           console.error('[Onboarding] Avatar upload error:', uploadError)
-          // Storage 버킷이 없거나 업로드 실패 → OAuth 아바타 사용
-          console.warn('[Onboarding] Using OAuth avatar as fallback')
+          toast.error('사진 업로드에 실패했습니다. 기본 프로필 사진을 사용합니다.')
           uploading.value = false
         } else {
           // 업로드 성공: Public URL 생성
