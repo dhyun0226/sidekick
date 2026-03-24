@@ -17,6 +17,12 @@ export default <Partial<Config>>{
                 // Keep original palette access if needed
                 gray: colors.zinc,
                 lime: colors.lime,
+
+                // Apple-style glass colors
+                'glass-light': 'rgba(255, 255, 255, 0.72)',
+                'glass-dark': 'rgba(24, 24, 27, 0.72)',
+                'separator-light': 'rgba(0, 0, 0, 0.08)',
+                'separator-dark': 'rgba(255, 255, 255, 0.08)',
             },
             fontFamily: {
                 sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
@@ -26,6 +32,30 @@ export default <Partial<Config>>{
             },
             minWidth: {
                 'touch': '44px',
+            },
+            boxShadow: {
+                'apple-sm': '0 0 0 0.5px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06)',
+                'apple': '0 0 0 0.5px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.08)',
+                'apple-lg': '0 0 0 0.5px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.12)',
+            },
+            fontSize: {
+                'desktop-title': ['34px', { lineHeight: '42px', fontWeight: '700' }],
+                'desktop-headline': ['28px', { lineHeight: '36px', fontWeight: '700' }],
+                'desktop-body': ['17px', { lineHeight: '28px', fontWeight: '400' }],
+                'desktop-body-medium': ['17px', { lineHeight: '28px', fontWeight: '500' }],
+                'desktop-callout': ['15px', { lineHeight: '22px', fontWeight: '600' }],
+                'desktop-callout-regular': ['15px', { lineHeight: '22px', fontWeight: '400' }],
+                'desktop-caption': ['13px', { lineHeight: '18px', fontWeight: '500' }],
+                'desktop-caption-regular': ['13px', { lineHeight: '18px', fontWeight: '400' }],
+                'desktop-footnote': ['12px', { lineHeight: '18px', fontWeight: '400' }],
+                'desktop-micro': ['11px', { lineHeight: '16px', fontWeight: '500' }],
+            },
+            spacing: {
+                'sidebar': '240px',
+                'right-panel': '320px',
+            },
+            transitionTimingFunction: {
+                'apple': 'cubic-bezier(0.25, 0.1, 0.25, 1)',
             },
             animation: {
                 'fade-in-up': 'fadeInUp 0.5s ease-out forwards',

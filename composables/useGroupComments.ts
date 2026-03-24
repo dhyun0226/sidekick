@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 
 interface Comment {
   id: string
@@ -12,6 +12,7 @@ interface Comment {
   user?: any
   likes?: number
   isLiked?: boolean
+  replies?: Comment[]
 }
 
 interface CommentPayload {
@@ -20,7 +21,7 @@ interface CommentPayload {
   position: number
 }
 
-export const useGroupComments = (userId: string | null) => {
+export const useGroupComments = (userIdRef: Ref<string | null | undefined>) => {
   const client = useSupabaseClient()
   const comments = ref<Comment[]>([])
   const hasMore = ref(true)
@@ -70,20 +71,21 @@ export const useGroupComments = (userId: string | null) => {
         const allItemIds = data.map(c => c.id)
         
         // Get reaction counts for all items (roots + replies)
-        const { data: reactionCounts } = await client
+        const { data: reactionCounts, error: reactionError } = await client
           .from('reactions')
           .select('comment_id')
           .in('comment_id', allItemIds)
           .eq('type', 'like')
+        if (reactionError) console.error('[Comments] Reaction counts fetch failed:', reactionError)
 
         // Get user's likes for all items
         let userLikes: any[] = []
-        if (userId) {
+        if (userIdRef.value) {
           const { data } = await client
             .from('reactions')
             .select('comment_id')
             .in('comment_id', allItemIds)
-            .eq('user_id', userId)
+            .eq('user_id', userIdRef.value)
             .eq('type', 'like')
           userLikes = data || []
         }
@@ -122,6 +124,7 @@ export const useGroupComments = (userId: string | null) => {
                 parent.replies.push(item)
               }
             }
+            // 부모가 삭제된 고아 답글은 무시 (부모 삭제 시 답글도 함께 삭제됨)
           } else {
             rootComments.push(item)
           }

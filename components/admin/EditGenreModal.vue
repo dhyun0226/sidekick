@@ -1,10 +1,10 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4" @keydown.esc="$emit('close')" tabindex="-1">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="$emit('close')"></div>
 
     <!-- Modal Content -->
-    <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-2xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+    <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-2xl p-6 shadow-apple-lg animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Close Button -->
       <div class="absolute top-4 right-4 z-20">
@@ -43,10 +43,11 @@
       <!-- Save Button -->
       <button
         @click="save"
-        class="w-full py-4 bg-lime-400 text-black rounded-xl font-bold text-sm hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50"
-        :disabled="!selectedGenre || selectedGenre === currentGenre"
+        class="w-full py-4 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full font-bold text-sm hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+        :disabled="!selectedGenre || selectedGenre === currentGenre || isSaving"
       >
-        변경사항 저장
+        <div v-if="isSaving" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+        <span v-else>변경사항 저장</span>
       </button>
     </div>
   </div>
@@ -67,6 +68,7 @@ const emit = defineEmits(['close', 'save'])
 
 const { genres } = useGenres()
 const selectedGenre = ref('')
+const isSaving = ref(false)
 
 watch(() => props.isOpen, (isOpen) => {
   if (isOpen) {
@@ -75,7 +77,12 @@ watch(() => props.isOpen, (isOpen) => {
 })
 
 const save = () => {
-  if (!selectedGenre.value) return
-  emit('save', selectedGenre.value)
+  if (!selectedGenre.value || isSaving.value) return
+  isSaving.value = true
+  try {
+    emit('save', selectedGenre.value)
+  } finally {
+    isSaving.value = false
+  }
 }
 </script>

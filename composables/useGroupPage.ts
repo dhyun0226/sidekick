@@ -72,7 +72,7 @@ export function useGroupPage(config: GroupPageConfig) {
     addComment,
     hasMore,
     isLoadingMore
-  } = useGroupComments(currentUserId.value)
+  } = useGroupComments(currentUserId)
 
   // ===== Modal States =====
   const modals = reactive<GroupPageModals>({
@@ -148,9 +148,10 @@ export function useGroupPage(config: GroupPageConfig) {
 
   // ===== Timer/RAF references =====
   let progressSaveTimeout: NodeJS.Timeout | null = null
+  let progressSaveVersion = 0
   let highlightTimeout: NodeJS.Timeout | null = null
   let scrollRAF: number | null = null
-  let scrollThrottleTimer: NodeJS.Timeout | null = null
+
   let lastScrollTime = 0
 
   // ===== Computed Values =====
@@ -368,6 +369,7 @@ export function useGroupPage(config: GroupPageConfig) {
     if (!userStore.user) return
     isLoading.value = true
     loadError.value = null
+    selectedBookId.value = null  // 이전 그룹 데이터 클리어
 
     try {
       // Solo mode: fetch solo group ID first
@@ -453,6 +455,8 @@ export function useGroupPage(config: GroupPageConfig) {
       console.error('[GroupPage] fetchData error:', err)
       if (config.mode === 'social') {
         loadError.value = err.message || '데이터를 불러오는데 실패했습니다.'
+      } else {
+        toast.error('데이터를 불러오는데 실패했습니다. 새로고침해주세요.')
       }
     } finally {
       isLoading.value = false
@@ -519,8 +523,12 @@ export function useGroupPage(config: GroupPageConfig) {
     } else {
       updateOptimistic(val)
       if (progressSaveTimeout) clearTimeout(progressSaveTimeout)
+      const bookIdAtDrag = selectedBookId.value
+      const saveVersion = ++progressSaveVersion
       progressSaveTimeout = setTimeout(async () => {
-        if (!selectedBookId.value) return
+        // 책이 바뀌었거나 더 최신 저장이 예약되었으면 무시
+        if (!selectedBookId.value || selectedBookId.value !== bookIdAtDrag) return
+        if (saveVersion !== progressSaveVersion) return
         await saveProgress(val)
       }, 2000)
     }
@@ -561,9 +569,16 @@ export function useGroupPage(config: GroupPageConfig) {
   const handleCommentSubmit = async (payload: { content: string, anchorText: string | null, position: number }) => {
     if (!selectedBook.value || !currentUserId.value) return
 
-    const validation = validateComment(payload.content)
-    if (!validation.valid) {
-      toast.error(validation.message)
+    // Allow empty content when anchor text is provided (highlight-only)
+    const hasAnchor = payload.anchorText && payload.anchorText.trim().length > 0
+    if (payload.content.trim().length > 0) {
+      const validation = validateComment(payload.content)
+      if (!validation.valid) {
+        toast.error(validation.message)
+        return
+      }
+    } else if (!hasAnchor) {
+      toast.error('내용 또는 인용 구절을 입력해주세요.')
       return
     }
 
@@ -589,6 +604,8 @@ export function useGroupPage(config: GroupPageConfig) {
   const closeReviewModal = () => {
     modals.review = false
     reviewingBookId.value = null
+    reviewInitialData.value = { rating: 0, content: '' }
+    isEditingReview.value = false
   }
 
   const openReviewModalForBook = async (bookId: string) => {
@@ -652,7 +669,7 @@ export function useGroupPage(config: GroupPageConfig) {
       .maybeSingle()
 
     reviewInitialData.value = existingReview
-      ? { rating: existingReview.rating, content: existingReview.content || '' }
+      ? { rating: parseFloat(existingReview.rating), content: existingReview.content || '' }
       : { rating: 0, content: '' }
     isEditingReview.value = !!existingReview
     modals.review = true
@@ -670,7 +687,7 @@ export function useGroupPage(config: GroupPageConfig) {
       .maybeSingle()
 
     reviewInitialData.value = existingReview
-      ? { rating: existingReview.rating, content: existingReview.content || '' }
+      ? { rating: parseFloat(existingReview.rating), content: existingReview.content || '' }
       : { rating: 0, content: '' }
     isEditingReview.value = !!existingReview
     modals.review = true
@@ -812,12 +829,13 @@ export function useGroupPage(config: GroupPageConfig) {
     try {
       await updateDates(modals.editingBook.id, dates.startDate, dates.endDate)
       await fetchBooks()
-      modals.editDates = false
-      modals.editingBook = null
       toast.success('독서 기간이 수정되었습니다! 📅')
     } catch (error) {
       console.error('Edit dates error:', error)
       toast.error('독서 기간 수정에 실패했습니다.')
+    } finally {
+      modals.editDates = false
+      modals.editingBook = null
     }
   }
 
@@ -832,12 +850,13 @@ export function useGroupPage(config: GroupPageConfig) {
     try {
       await updateToc(modals.editingBook.id, modals.editingBook.isbn, tocData.totalPages, tocData.chapters)
       await fetchBooks()
-      modals.editToc = false
-      modals.editingBook = null
       toast.success('목차가 수정되었습니다! 📑')
     } catch (error: any) {
       console.error('Save TOC error:', error)
       toast.error('수정 실패: ' + error.message)
+    } finally {
+      modals.editToc = false
+      modals.editingBook = null
     }
   }
 
@@ -852,12 +871,13 @@ export function useGroupPage(config: GroupPageConfig) {
     try {
       await updateGenre(modals.editingBook.id, modals.editingBook.isbn, genre)
       await fetchBooks()
-      modals.editGenre = false
-      modals.editingBook = null
       toast.success('장르가 수정되었습니다! 🏷️')
     } catch (error: any) {
       console.error('Save Genre error:', error)
       toast.error('장르 수정 실패: ' + error.message)
+    } finally {
+      modals.editGenre = false
+      modals.editingBook = null
     }
   }
 
@@ -879,11 +899,12 @@ export function useGroupPage(config: GroupPageConfig) {
       toast.success('완독 날짜가 수정되었습니다!')
       modals.editingBook.finished_at = finishedDate
       await fetchBooks()
-      modals.editFinishedDate = false
-      modals.editingBook = null
     } catch (error: any) {
       console.error('[SaveFinishedDate] Error:', error)
       toast.error('완독 날짜 수정 중 오류가 발생했습니다.')
+    } finally {
+      modals.editFinishedDate = false
+      modals.editingBook = null
     }
   }
 
@@ -899,11 +920,11 @@ export function useGroupPage(config: GroupPageConfig) {
       await markBookCompleted(modals.editingBook.id)
       modals.markCompleted = false
       modals.editingBook = null
-      toast.success('완주 처리되었습니다! 🎉 책장으로 이동합니다.')
+      toast.success('종료 처리되었습니다! 🎉 책장으로 이동합니다.')
       await fetchData()
     } catch (error) {
       console.error('Mark completed error:', error)
-      toast.error('완주 처리에 실패했습니다.')
+      toast.error('종료 처리에 실패했습니다.')
     }
   }
 
@@ -917,13 +938,15 @@ export function useGroupPage(config: GroupPageConfig) {
     }
     try {
       await deleteBookFromGroup(modals.editingBook.id)
-      modals.deleteBook = false
-      modals.editingBook = null
+      selectedBookId.value = null  // 삭제된 책 선택 해제 → fetchData에서 첫 번째 책 자동 선택
       toast.success('책이 삭제되었습니다.')
       await fetchData()
     } catch (error) {
       console.error('Delete book error:', error)
       toast.error('책 삭제에 실패했습니다.')
+    } finally {
+      modals.deleteBook = false
+      modals.editingBook = null
     }
   }
 
@@ -1001,9 +1024,7 @@ export function useGroupPage(config: GroupPageConfig) {
           .from('group_books')
           .update({ status: 'reading', finished_at: null })
           .eq('id', bookId)
-        if (statusError) {
-          console.error('[UnmarkFinished] Status update error:', statusError)
-        }
+        if (statusError) throw statusError
       }
 
       await loadMemberProgress(bookId)
@@ -1054,8 +1075,19 @@ export function useGroupPage(config: GroupPageConfig) {
         .update({ hidden: true })
         .eq('group_book_id', bookId)
 
+      // 현재 선택된 책이 삭제된 경우 선택 초기화
+      if (selectedBookId.value === bookId) {
+        selectedBookId.value = null
+      }
       toast.success('책이 삭제되었습니다.')
       await fetchBooks()
+      // 선택된 책이 없으면 첫 번째 읽는 중 책 자동 선택
+      if (!selectedBookId.value) {
+        const firstReading = allBooks.value.find((b: any) => b.status === 'reading')
+        if (firstReading) {
+          await selectBook(firstReading.id)
+        }
+      }
     } catch (error: any) {
       console.error('[DeleteHistoryBook] Error:', error)
       toast.error('책 삭제 중 오류가 발생했습니다.')
@@ -1299,11 +1331,10 @@ export function useGroupPage(config: GroupPageConfig) {
       return
     }
     try {
-      const { data, error } = await $fetch('/api/groups/become-owner', {
+      await $fetch('/api/groups/become-owner', {
         method: 'POST',
         body: { groupId: config.groupIdRef.value }
       })
-      if (error) throw error
 
       toast.success('방장이 되었습니다! 그룹이 다시 활성화되었습니다.', 5000)
       await fetchData()
@@ -1397,10 +1428,11 @@ export function useGroupPage(config: GroupPageConfig) {
 
       if (group.value) group.value.invite_code = newCode
       toast.success(`새 초대 코드가 생성되었습니다: ${newCode}`)
-      modals.regenerateInviteCode = false
     } catch (err) {
       console.error('Unexpected error:', err)
       toast.error('예상치 못한 오류가 발생했습니다.')
+    } finally {
+      modals.regenerateInviteCode = false
     }
   }
 
@@ -1427,10 +1459,14 @@ export function useGroupPage(config: GroupPageConfig) {
     return viewProgress.value >= chapter.start && viewProgress.value < chapter.end
   }
 
+  const isSelectingBook = ref(false)
   const selectBook = async (bookId: string) => {
+    if (isSelectingBook.value) return
+    isSelectingBook.value = true
     selectedBookId.value = bookId
     modals.drawer = false
 
+    try {
     await fetchComments(bookId)
 
     const userId = currentUserId.value
@@ -1444,12 +1480,16 @@ export function useGroupPage(config: GroupPageConfig) {
 
       viewProgress.value = progressData ? progressData.progress_pct : 0
 
-      if (!isArchived.value && !progressData?.finished_at) {
-        await saveProgress(viewProgress.value)
+      // 레코드가 아예 없을 때만 최초 생성 (이미 있으면 불필요한 DB write 방지)
+      if (!progressData && !isArchived.value) {
+        await saveProgress(0)
       }
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' })
+    } finally {
+      isSelectingBook.value = false
+    }
   }
 
   // ===== Lifecycle Hooks =====
@@ -1533,6 +1573,7 @@ export function useGroupPage(config: GroupPageConfig) {
     viewProgress,
     currentUserId,
     isLoading,
+    isSelectingBook,
     loadError,
     groupId: config.groupIdRef,
 

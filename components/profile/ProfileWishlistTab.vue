@@ -2,13 +2,13 @@
   <div class="space-y-6 pb-10">
     <!-- 내 위시 목록 -->
     <div>
-      <div v-if="loading" class="flex items-center justify-center py-12">
-        <LoadingSpinner size="md" message="위시리스트 불러오는 중..." />
+      <div v-if="loading" class="py-4">
+        <SkeletonBookCard :count="4" :columns="4" />
       </div>
 
       <div v-else-if="wishlist.length === 0" class="py-16 flex flex-col items-center text-center">
         <div class="w-20 h-20 bg-gradient-to-tr from-pink-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-5 shadow-inner">
-          <span class="text-4xl">💝</span>
+          <Heart :size="28" class="text-zinc-300 dark:text-zinc-600" />
         </div>
         <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">아직 담은 책이 없어요</h3>
         <p class="text-sm text-zinc-500 dark:text-zinc-400 max-w-xs leading-relaxed mb-6">
@@ -16,7 +16,7 @@
         </p>
         <button
           @click="searchModalOpen = true"
-          class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center gap-2"
+          class="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-lg flex items-center gap-2"
         >
           <Plus :size="20" />
           책 담기
@@ -78,10 +78,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Plus, X } from 'lucide-vue-next'
+import { Plus, X, Heart } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 import { useUserStore } from '~/stores/user'
-import LoadingSpinner from '~/components/LoadingSpinner.vue'
 import WishlistSearchModal from '~/components/WishlistSearchModal.vue'
 
 const props = defineProps<{

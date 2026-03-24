@@ -50,7 +50,7 @@
         v-model="searchQuery"
         type="text"
         placeholder="제목, 저자로 검색..."
-        class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-xs rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
+        class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-xs rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10"
         autofocus
       />
     </div>
@@ -152,7 +152,7 @@
 
     <!-- Empty State -->
     <div v-if="filteredAndSortedBooks.length === 0" class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
-      <div class="text-4xl mb-3">{{ searchQuery ? '🔍' : '📚' }}</div>
+      <component :is="searchQuery ? Search : BookOpen" :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
       <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 완독한 책이 없습니다' }}</p>
     </div>
   </div>
@@ -160,7 +160,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from 'vue'
-import { MessageCircle, Star, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check, Lock, X } from 'lucide-vue-next'
+import { MessageCircle, Star, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check, Lock, X, BookOpen } from 'lucide-vue-next'
 import DropdownMenu from '~/components/DropdownMenu.vue'
 import RatingBadge from '~/components/RatingBadge.vue'
 import GenreBadge from '~/components/GenreBadge.vue'
@@ -281,10 +281,6 @@ const handleUnmarkFinished = (bookId: string) => {
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
 @keyframes fade-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 .animate-fade-in { animation: fade-in 0.2s ease-out; }
 </style>

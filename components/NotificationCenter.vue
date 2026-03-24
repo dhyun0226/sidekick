@@ -16,9 +16,11 @@
     <div v-if="isOpen" class="fixed inset-0 z-[100005]" @click="isOpen = false"></div>
 
     <!-- Dropdown Modal -->
-    <div 
-      v-if="isOpen" 
+    <div
+      v-if="isOpen"
       class="absolute right-0 top-12 w-[340px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl z-[100010] overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right"
+      @keydown.esc="isOpen = false"
+      tabindex="-1"
     >
       <!-- Header -->
       <div class="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
@@ -41,8 +43,8 @@
         </div>
 
         <div v-else-if="notifications.length === 0" class="p-12 text-center flex flex-col items-center">
-          <div class="w-16 h-16 bg-zinc-50 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mb-4 text-3xl">
-            🔔
+          <div class="w-16 h-16 bg-zinc-50 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mb-4">
+            <Bell :size="28" class="text-zinc-300 dark:text-zinc-600" />
           </div>
           <h4 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">새로운 소식이 없어요</h4>
           <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
@@ -284,9 +286,3 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
-</style>

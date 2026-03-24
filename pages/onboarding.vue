@@ -10,7 +10,7 @@
         <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-lime-400 to-lime-600 mb-4 shadow-lg shadow-lime-400/20">
           <span class="text-4xl">👋</span>
         </div>
-        <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">환영합니다!</h1>
+        <h1 class="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">환영합니다!</h1>
         <p class="text-zinc-600 dark:text-zinc-400">프로필을 설정하고 독서를 시작해보세요</p>
       </div>
 
@@ -74,7 +74,7 @@
             type="text"
             placeholder="사용할 닉네임을 입력하세요"
             maxlength="20"
-            class="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-400/20 transition-all placeholder-zinc-600 dark:placeholder-zinc-500"
+            class="w-full bg-zinc-100 dark:bg-zinc-800 ring-1 ring-black/[0.04] dark:ring-white/[0.06] text-zinc-900 dark:text-white rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all placeholder-zinc-600 dark:placeholder-zinc-500"
             @keyup.enter="handleSubmit"
           />
           <div class="flex justify-between items-center text-xs">

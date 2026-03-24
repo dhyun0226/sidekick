@@ -1,19 +1,18 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center">
-...
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center" @keydown.esc="$emit('cancel')" tabindex="-1">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click.self="$emit('cancel')"></div>
 
     <!-- Modal Content -->
-    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 mx-4 shadow-2xl border border-zinc-300 dark:border-zinc-800 transition-all duration-300">
+    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 mx-4 shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] transition-all duration-300">
       <!-- Header -->
       <div class="mb-4">
-        <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">{{ title }}</h3>
+        <h3 class="text-lg font-semibold text-zinc-900 dark:text-white mb-2">{{ title }}</h3>
         <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ message }}</p>
       </div>
 
       <!-- Expected Text Display -->
-      <div v-if="expectedText" class="mb-3 px-3 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-300 dark:border-zinc-700">
+      <div v-if="expectedText" class="mb-3 px-3 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
         <p class="text-xs text-zinc-500 dark:text-zinc-500 mb-1">입력해야 할 텍스트:</p>
         <p class="text-sm font-medium text-zinc-900 dark:text-white">{{ expectedText }}</p>
       </div>
@@ -23,7 +22,7 @@
         <input
           v-model="inputValue"
           :placeholder="placeholder"
-          class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-4 py-3 text-sm border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-red-400"
+          class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
           @keyup.enter="handleConfirm"
           @keyup.esc="$emit('cancel')"
           ref="inputElement"
@@ -35,14 +34,14 @@
       <div class="flex gap-3">
         <button
           @click="$emit('cancel')"
-          class="flex-1 py-3 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium rounded-xl hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors"
+          class="flex-1 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
         >
           {{ cancelText }}
         </button>
         <button
           @click="handleConfirm"
           :disabled="!canConfirm"
-          class="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="flex-1 py-3 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {{ confirmText }}
         </button>

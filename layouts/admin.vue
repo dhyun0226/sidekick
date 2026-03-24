@@ -88,7 +88,8 @@ import {
   Shield,
   LogOut,
   Settings,
-  Search
+  Search,
+  MessageCircle
 } from 'lucide-vue-next'
 import CommandPalette from '~/components/admin/CommandPalette.vue'
 
@@ -123,6 +124,7 @@ const navItems = [
   { label: '그룹 관리', path: '/admin/groups', icon: Users }, 
   { label: '사용자 관리', path: '/admin/users', icon: Shield },
   { label: '구독 관리', path: '/admin/subscriptions', icon: CreditCard },
+  { label: '문의 관리', path: '/admin/inquiries', icon: MessageCircle },
 ]
 
 const currentPageTitle = computed(() => {

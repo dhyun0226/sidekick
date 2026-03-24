@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center p-6">
+      <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center p-6" @keydown.esc="$emit('close')" tabindex="-1">
         <!-- Backdrop with Deep Blur -->
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="$emit('close')"></div>
 
@@ -27,7 +27,7 @@
               <span class="text-[10px] font-black text-lime-700 dark:text-lime-400 uppercase tracking-widest">Premium Membership</span>
             </div>
             
-            <h3 class="text-2xl font-black text-zinc-900 dark:text-white leading-tight mb-2 tracking-tight whitespace-pre-line">
+            <h3 class="text-2xl font-semibold text-zinc-900 dark:text-white leading-tight mb-2 tracking-tight whitespace-pre-line">
               {{ featureTitle }}
             </h3>
             <p class="text-[13px] text-zinc-500 dark:text-zinc-400 leading-relaxed px-2">
@@ -99,9 +99,9 @@ const featureConfig = {
   },
   books: {
     icon: BookOpen,
-    title: '더 많은 책을 읽어볼까요?',
-    message: '무료 플랜은 그룹당 최신 10권까지만 제공됩니다. 프리미엄으로 과거의 기록까지 모두 열어보세요!',
-    benefits: ['그룹 내 모든 책 무제한 열람', '읽고 싶은 책 무제한 추가', '완독 기록 영구 보존']
+    title: '그룹에서 책을 추가하려면\n프리미엄이 필요합니다',
+    message: '프리미엄 회원이 되면 소셜 그룹에서도 자유롭게 책을 추가하고 함께 읽을 수 있어요.',
+    benefits: ['소셜 그룹에서 책 추가 가능', '무제한 책 추가', '완독 기록 영구 보존']
   },
   insights: {
     icon: TrendingUp,

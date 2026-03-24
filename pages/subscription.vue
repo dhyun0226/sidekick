@@ -4,7 +4,7 @@
       <!-- Header -->
       <div class="text-center mb-16 animate-in fade-in slide-in-from-top-4 duration-700">
         <div class="inline-block px-3 py-1 bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 text-xs font-black rounded-full mb-4 uppercase">Premium Membership</div>
-        <h1 class="text-4xl font-black text-zinc-900 dark:text-white mb-4 tracking-tighter">독서의 가치를 더 깊게</h1>
+        <h1 class="text-4xl font-semibold text-zinc-900 dark:text-white mb-4 tracking-tighter">독서의 가치를 더 깊게</h1>
         <p class="text-zinc-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
           Sidekick 프리미엄과 함께 제한 없는 독서 여행을 시작하고<br/>나만의 독서 인사이트를 정교하게 쌓아보세요.
         </p>
@@ -95,11 +95,11 @@
             </li>
             <li class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-300 font-bold">
               <Check :size="18" class="text-lime-500" />
-              생성 및 참여 가능 그룹 수 (1개)
+              내 서재에서 무제한 책 추가
             </li>
-            <li class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-300 font-bold">
-              <Check :size="18" class="text-lime-500" />
-              열람 가능 도서 (최대 10권)
+            <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-600 font-bold opacity-60 line-through">
+              <X :size="18" class="text-zinc-400" />
+              소셜 그룹에서 책 추가 (읽기전용)
             </li>
             <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-600 font-bold opacity-60 line-through">
               <X :size="18" class="text-zinc-400" />
@@ -193,7 +193,7 @@
 
       <!-- Detailed Feature List -->
       <div class="bg-white dark:bg-zinc-900 rounded-[40px] p-10 border border-zinc-200 dark:border-zinc-800 shadow-sm animate-in fade-in slide-in-from-bottom-8 duration-1000">
-        <h3 class="text-2xl font-black text-zinc-900 dark:text-white mb-10 text-center">왜 프리미엄인가요?</h3>
+        <h3 class="text-2xl font-semibold text-zinc-900 dark:text-white mb-10 text-center">왜 프리미엄인가요?</h3>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div v-for="feat in [
@@ -343,7 +343,8 @@ const confirmReactivateSubscription = async () => {
 }
 const cancelReactivateSubscription = () => { showReactivateConfirm.value = false }
 
-const formatDate = (dateStr: string) => {
+const formatDate = (dateStr: string | null | undefined) => {
+  if (!dateStr) return ''
   const date = new Date(dateStr)
   return `${String(date.getFullYear()).slice(-2)}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
 }

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="inline-flex items-center gap-1 rounded font-bold transition-colors duration-200"
+    class="inline-flex items-center gap-1 rounded-full font-semibold transition-colors duration-200"
     :class="[variantClass, sizeClass]"
   >
     <slot name="icon"></slot>
@@ -44,8 +44,8 @@ const variantClass = computed(() => {
 })
 
 const sizeClass = computed(() => {
-  return props.size === 'sm' 
-    ? 'text-[10px] px-1.5 py-0.5' 
+  return props.size === 'sm'
+    ? 'text-[11px] px-2 py-0.5'
     : 'text-xs px-2 py-1'
 })
 </script>

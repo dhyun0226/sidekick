@@ -1,7 +1,7 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
-    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="$emit('close')"></div>
-    <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 border border-zinc-200 dark:border-zinc-800 max-h-[90vh] overflow-hidden flex flex-col">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4" @keydown.esc="$emit('close')" tabindex="-1">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="$emit('close')"></div>
+    <div class="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg animate-in fade-in zoom-in-95 duration-200 ring-1 ring-black/[0.04] dark:ring-white/[0.06] max-h-[90vh] overflow-hidden flex flex-col">
       
       <div class="flex justify-between items-center px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
         <h3 class="text-lg font-black text-zinc-900 dark:text-white">설정</h3>
@@ -37,9 +37,9 @@
             <div class="space-y-2">
               <label class="block text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase ml-1">닉네임</label>
               <div class="flex gap-2">
-                <input v-model="editNickname" type="text" class="flex-1 min-w-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-lime-400 text-zinc-900 dark:text-white transition-all" />
+                <input v-model="editNickname" type="text" class="flex-1 min-w-0 bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 text-zinc-900 dark:text-white transition-all" />
                 <button @click="saveProfile" class="flex-shrink-0 p-3 bg-zinc-900 dark:bg-zinc-700 text-white rounded-xl hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-all active:scale-95 disabled:opacity-50" :disabled="isSaving">
-                  <div v-if="isSaving" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div v-if="isSaving" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                   <Save v-else :size="20" />
                 </button>
               </div>
@@ -154,6 +154,24 @@
           </div>
         </section>
 
+        <!-- Support -->
+        <section>
+          <div class="flex items-center justify-between mb-4 px-1">
+            <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">고객 지원</h4>
+          </div>
+          <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50">
+            <button @click="$emit('open-inquiry')" class="w-full flex items-center justify-between p-4 hover:bg-white/50 dark:hover:bg-zinc-800/50 transition-colors rounded-2xl">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                  <MessageCircle :size="16" />
+                </div>
+                <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">문의하기</span>
+              </div>
+              <ChevronRight :size="16" class="text-zinc-400" />
+            </button>
+          </div>
+        </section>
+
         <!-- Legal -->
         <section class="pb-4">
           <div class="flex items-center justify-between mb-4 px-1">
@@ -187,13 +205,13 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { X, User as UserIcon, Camera, Save, LogOut, Trash2, Moon, Sun, Bell, LayoutGrid, Calendar, FileText, Shield, ChevronRight } from 'lucide-vue-next'
+import { X, User as UserIcon, Camera, Save, LogOut, Trash2, Moon, Sun, Bell, LayoutGrid, Calendar, FileText, Shield, ChevronRight, MessageCircle } from 'lucide-vue-next'
 
 const props = defineProps<{
   isOpen: boolean, profile: any, notificationSettings: any, appSettings: any, isSaving: boolean
 }>()
 
-const emit = defineEmits(['close', 'save-profile', 'handle-file', 'sign-out', 'delete-account', 'toggle-theme'])
+const emit = defineEmits(['close', 'save-profile', 'handle-file', 'sign-out', 'delete-account', 'toggle-theme', 'open-inquiry'])
 
 const { isDark } = useTheme()
 const editNickname = ref(props.profile?.nickname || '')

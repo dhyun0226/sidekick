@@ -1,10 +1,10 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4" @keydown.esc="$emit('close')" tabindex="-1">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="$emit('close')"></div>
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="$emit('close')"></div>
 
     <!-- Modal Content -->
-    <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-2xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+    <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-2xl p-6 shadow-apple-lg animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Close Button -->
       <div class="absolute top-4 right-4 z-20">
@@ -14,7 +14,7 @@
       </div>
 
       <div class="text-center mb-6 pt-4">
-        <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-1.5">
+        <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-1.5">
           {{ isEditing ? '리뷰 수정하기' : '완독을 축하합니다! 🎉' }}
         </h2>
         <p class="text-sm text-zinc-500 dark:text-zinc-400">
@@ -83,7 +83,7 @@
         <textarea
           v-model="content"
           placeholder="책을 읽으며 느낀 점을 자유롭게 기록해보세요."
-          class="w-full h-32 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm border-none transition-all"
+          class="w-full h-32 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 text-sm border-none transition-all"
         ></textarea>
       </div>
 
@@ -97,10 +97,11 @@
         </button>
         <button
           @click="submitReview"
-          class="flex-[2] py-4 bg-lime-400 text-black rounded-2xl font-bold hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50"
-          :disabled="rating === 0"
+          class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-2xl font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          :disabled="rating === 0 || isSubmitting"
         >
-          {{ isEditing ? '리뷰 수정하기' : '리뷰 등록하기' }}
+          <div v-if="isSubmitting" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+          <span v-else>{{ isEditing ? '리뷰 수정하기' : '리뷰 등록하기' }}</span>
         </button>
       </div>
     </div>
@@ -133,6 +134,7 @@ const emit = defineEmits(['close', 'submit'])
 
 const rating = ref(0)
 const content = ref('')
+const isSubmitting = ref(false)
 
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
@@ -156,9 +158,15 @@ onUnmounted(() => {
 })
 
 const submitReview = () => {
-  emit('submit', { rating: rating.value, content: content.value })
-  rating.value = 0
-  content.value = ''
+  if (isSubmitting.value) return
+  isSubmitting.value = true
+  try {
+    emit('submit', { rating: rating.value, content: content.value })
+    rating.value = 0
+    content.value = ''
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const skip = () => {

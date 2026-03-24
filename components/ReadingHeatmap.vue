@@ -73,7 +73,7 @@
                   v-if="!showYearGrid"
                   @click="pickerYear++"
                   :disabled="pickerYear >= now.getFullYear()"
-                  class="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 disabled:opacity-30"
+                  class="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 disabled:opacity-50"
                 >
                   <ChevronRight :size="16" />
                 </button>
@@ -365,9 +365,3 @@ onMounted(() => { document.addEventListener('click', handleClickOutside) })
 onUnmounted(() => { document.removeEventListener('click', handleClickOutside) })
 </script>
 
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
-</style>

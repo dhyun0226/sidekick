@@ -80,3 +80,10 @@ export interface MemberWithProgress extends GroupMember {
   finishedDate: string | null
   isCompleted: boolean
 }
+
+// InjectionKey for provide/inject of useGroupPage return value
+import type { InjectionKey } from 'vue'
+import type { useGroupPage } from '~/composables/useGroupPage'
+
+export type GroupPageContext = ReturnType<typeof useGroupPage>
+export const GroupPageKey: InjectionKey<GroupPageContext> = Symbol('GroupPageKey')

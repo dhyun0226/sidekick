@@ -22,10 +22,10 @@
       <!-- Anchor Text (Clean & Classic) -->
       <div
         v-if="group.anchorText"
-        class="mb-4 pl-4 border-l-[3px] border-lime-400 cursor-pointer hover:opacity-80 transition-opacity"
+        class="mb-4 pl-4 py-2.5 border-l-[3px] border-lime-400 bg-lime-50/60 dark:bg-lime-900/10 rounded-r-xl cursor-pointer hover:opacity-80 transition-opacity"
         :class="{ 'blur-sm opacity-40 select-none': isSpoiler(group.position) }"
       >
-        <p class="text-[15px] text-zinc-700 dark:text-zinc-300 italic leading-relaxed">
+        <p class="text-[15px] text-zinc-700 dark:text-zinc-300 leading-relaxed">
           {{ group.anchorText }}
         </p>
       </div>
@@ -65,21 +65,24 @@
               'blur-sm opacity-40 select-none pointer-events-none': isSpoiler(group.position)
             }"
           >
-            <div v-if="editingCommentId !== comment.id">
+            <div v-if="editingCommentId !== comment.id && comment.content?.trim()">
               {{ comment.content }}
             </div>
             
             <!-- Edit Mode -->
-            <div v-else class="mt-2">
+            <div v-if="editingCommentId === comment.id" class="mt-2">
               <textarea
                 v-model="editContent"
-                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-lime-400 resize-none border border-zinc-200 dark:border-zinc-700"
-                rows="2"
+                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
+                rows="4"
                 @keydown.esc="cancelEdit"
               ></textarea>
-              <div class="flex gap-2 mt-2">
-                <button @click="saveEdit(comment.id)" class="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded hover:opacity-90">저장</button>
-                <button @click="cancelEdit" class="px-3 py-1 text-zinc-400 text-xs hover:text-zinc-600 dark:hover:text-zinc-200">취소</button>
+              <div class="flex gap-2 mt-3">
+                <button @click="saveEdit(comment.id)" :disabled="isSavingEdit" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-bold rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[56px] active:scale-95 transition-all">
+                  <div v-if="isSavingEdit" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                  <span v-else>저장</span>
+                </button>
+                <button @click="cancelEdit" class="px-4 py-2 text-zinc-400 text-sm font-medium hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">취소</button>
               </div>
             </div>
           </div>
@@ -104,16 +107,16 @@
               답글
             </button>
 
-            <div v-if="isOwnComment(comment)" class="flex items-center gap-3 ml-auto">
-              <button @click.stop="startEdit(comment)" class="text-[10px] font-bold text-zinc-300 dark:text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors">수정</button>
-              <button @click.stop="confirmDelete(comment.id)" class="text-[10px] font-bold text-zinc-300 dark:text-zinc-600 hover:text-red-500 transition-colors">삭제</button>
+            <div v-if="isOwnComment(comment)" class="flex items-center gap-1 ml-auto">
+              <button @click.stop="startEdit(comment)" class="text-xs font-bold text-zinc-300 dark:text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-zinc-100 dark:active:bg-zinc-800">수정</button>
+              <button @click.stop="confirmDelete(comment.id)" class="text-xs font-bold text-zinc-300 dark:text-zinc-600 hover:text-red-500 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-red-50 dark:active:bg-red-900/20">삭제</button>
             </div>
           </div>
 
           <!-- Solo mode actions (Edit/Delete only) -->
-          <div v-if="isSolo && !isSpoiler(group.position) && editingCommentId !== comment.id && isOwnComment(comment)" class="flex items-center gap-3 mt-2.5">
-            <button @click.stop="startEdit(comment)" class="text-[10px] font-bold text-zinc-300 dark:text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors">수정</button>
-            <button @click.stop="confirmDelete(comment.id)" class="text-[10px] font-bold text-zinc-300 dark:text-zinc-600 hover:text-red-500 transition-colors">삭제</button>
+          <div v-if="isSolo && !isSpoiler(group.position) && editingCommentId !== comment.id && isOwnComment(comment)" class="flex items-center gap-1 mt-2.5">
+            <button @click.stop="startEdit(comment)" class="text-xs font-bold text-zinc-300 dark:text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-zinc-100 dark:active:bg-zinc-800">수정</button>
+            <button @click.stop="confirmDelete(comment.id)" class="text-xs font-bold text-zinc-300 dark:text-zinc-600 hover:text-red-500 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-red-50 dark:active:bg-red-900/20">삭제</button>
           </div>
 
           <!-- Reply Form (Hidden in Solo mode) -->
@@ -123,16 +126,17 @@
                 v-model="replyContent"
                 type="text"
                 placeholder="답글을 남겨보세요..."
-                class="w-full bg-zinc-50 dark:bg-zinc-800/50 text-xs text-zinc-900 dark:text-white rounded-xl pl-3 pr-10 py-3 focus:outline-none focus:ring-1 focus:ring-lime-400 transition-all border-none"
+                class="w-full bg-zinc-50 dark:bg-zinc-800/50 text-xs text-zinc-900 dark:text-white rounded-xl pl-3 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all border-none"
                 @keyup.enter="submitReply(comment.id)"
                 autoFocus
               />
               <button
                 @click="submitReply(comment.id)"
-                class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-lime-600 hover:bg-lime-100 dark:hover:bg-lime-900/30 rounded-full transition-colors"
-                :disabled="!replyContent"
+                class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-lime-600 hover:bg-lime-100 dark:hover:bg-lime-900/30 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="!replyContent || isSubmittingReply"
               >
-                <Send :size="14" />
+                <div v-if="isSubmittingReply" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                <Send v-else :size="14" />
               </button>
             </div>
           </div>
@@ -191,12 +195,15 @@
                 <div v-else class="mt-2">
                   <textarea
                     v-model="editReplyContent"
-                    class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-[13px] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-lime-400 resize-none border border-zinc-200 dark:border-zinc-700"
+                    class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-[13px] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                     rows="2"
                     @keydown.esc="cancelReplyEdit"
                   ></textarea>
                   <div class="flex gap-2 mt-2">
-                    <button @click="saveReplyEdit(reply.id)" class="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded hover:opacity-90">저장</button>
+                    <button @click="saveReplyEdit(reply.id)" :disabled="isSavingReplyEdit" class="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[48px]">
+                      <div v-if="isSavingReplyEdit" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                      <span v-else>저장</span>
+                    </button>
                     <button @click="cancelReplyEdit" class="px-3 py-1 text-zinc-400 text-xs hover:text-zinc-600 dark:hover:text-zinc-200">취소</button>
                   </div>
                 </div>
@@ -339,6 +346,9 @@ const props = defineProps<{
 
 const activeReplyId = ref<string | null>(null)
 const replyContent = ref('')
+const isSubmittingReply = ref(false)
+const isSavingEdit = ref(false)
+const isSavingReplyEdit = ref(false)
 const selectedGroupKey = ref<string | null>(null)
 const detailModalOpen = computed(() => !!selectedGroupKey.value)
 
@@ -485,12 +495,13 @@ const toggleReplyForm = (id: string) => {
 const emit = defineEmits(['replySubmitted', 'modalOpen', 'modalClose', 'writeComment', 'loadMore'])
 
 const submitReply = async (parentId: string) => {
-  if (!replyContent.value.trim()) return
+  if (!replyContent.value.trim() || isSubmittingReply.value) return
 
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) return
-
+  isSubmittingReply.value = true
   try {
+    const { data: { user } } = await client.auth.getUser()
+    if (!user) return
+
     const parentComment = props.comments.find(c => c.id === parentId)
     if (!parentComment) return
 
@@ -528,6 +539,8 @@ const submitReply = async (parentId: string) => {
   } catch (error) {
     console.error('Reply error:', error)
     toast.error('답글 작성에 실패했습니다.')
+  } finally {
+    isSubmittingReply.value = false
   }
 }
 
@@ -561,8 +574,9 @@ const startEdit = (comment: Comment) => {
 }
 
 const saveEdit = async (commentId: string) => {
-  if (!editContent.value.trim()) return
+  if (!editContent.value.trim() || isSavingEdit.value) return
 
+  isSavingEdit.value = true
   try {
     const { error } = await client
       .from('comments')
@@ -586,6 +600,8 @@ const saveEdit = async (commentId: string) => {
   } catch (error) {
     console.error('Save edit error:', error)
     toast.error('댓글 수정에 실패했습니다.')
+  } finally {
+    isSavingEdit.value = false
   }
 }
 
@@ -601,8 +617,9 @@ const startReplyEdit = (reply: Reply) => {
 }
 
 const saveReplyEdit = async (replyId: string) => {
-  if (!editReplyContent.value.trim()) return
+  if (!editReplyContent.value.trim() || isSavingReplyEdit.value) return
 
+  isSavingReplyEdit.value = true
   try {
     const { error } = await client
       .from('comments')
@@ -631,6 +648,8 @@ const saveReplyEdit = async (replyId: string) => {
   } catch (error) {
     console.error('Save reply edit error:', error)
     toast.error('답글 수정에 실패했습니다.')
+  } finally {
+    isSavingReplyEdit.value = false
   }
 }
 

@@ -1,5 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-[#09090b] pb-20 pb-safe">
+  <!-- Desktop View -->
+  <DesktopDiscoverView
+    v-if="isDesktop"
+    @start-book="handleStartBook"
+  />
+
+  <div v-else class="min-h-screen bg-gray-50 dark:bg-[#09090b] pb-20 pb-safe">
     <!-- Header -->
     <header class="sticky top-0 z-30 bg-gray-50/95 dark:bg-[#09090b]/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
       <div class="flex items-center gap-3 px-4 py-4">
@@ -9,7 +15,7 @@
         >
           <ArrowLeft :size="24" />
         </button>
-        <h1 class="text-xl font-bold text-zinc-900 dark:text-white">디스커버</h1>
+        <h1 class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-white">디스커버</h1>
       </div>
 
       <!-- Filters -->
@@ -119,29 +125,33 @@
       />
     </div>
 
-    <!-- Book Action Sheet -->
-    <DiscoverBookSheet
-      :is-open="bookSheetOpen"
-      :book="selectedBook"
-      @close="bookSheetOpen = false"
-      @start-book="handleStartBook"
-      @wishlist-updated="fetchData"
-    />
-
-    <!-- Book Search Modal (for starting a book) -->
-    <BookSearchModal
-      :is-open="bookSearchModalOpen"
-      :initial-book="initialBookForModal"
-      @close="bookSearchModalOpen = false; pendingBook = null"
-      @confirm="handleBookConfirm"
-    />
   </div>
+
+  <!-- Book Action Sheet (desktop/mobile 공통) -->
+  <DiscoverBookSheet
+    :is-open="bookSheetOpen"
+    :book="selectedBook"
+    @close="bookSheetOpen = false"
+    @start-book="handleStartBook"
+    @wishlist-updated="fetchData"
+  />
+
+  <!-- Book Search Modal (desktop/mobile 공통) -->
+  <BookSearchModal
+    :is-open="bookSearchModalOpen"
+    :initial-book="initialBookForModal"
+    @close="bookSearchModalOpen = false; pendingBook = null"
+    @confirm="handleBookConfirm"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from 'vue'
+import { ref, watch, onMounted, computed, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { ArrowLeft, ChevronDown } from 'lucide-vue-next'
+
+const DesktopDiscoverView = defineAsyncComponent(() => import('~/components/desktop/discover/DesktopDiscoverView.vue'))
+const { isDesktop } = useDevice()
 import { useToastStore } from '~/stores/toast'
 import { useUserStore } from '~/stores/user'
 import type { DiscoverBook, PeriodFilter } from '~/composables/useDiscover'
@@ -194,11 +204,11 @@ const fetchData = async () => {
 
 // Watch filters
 watch([selectedPeriod, selectedGenre], () => {
-  fetchData()
+  if (!isDesktop.value) fetchData()
 })
 
 onMounted(() => {
-  fetchData()
+  if (!isDesktop.value) fetchData()
 })
 
 const openBookSheet = (book: DiscoverBook) => {

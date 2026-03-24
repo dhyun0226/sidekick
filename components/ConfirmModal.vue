@@ -3,11 +3,13 @@
     <Transition name="modal">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-[100010] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+        class="fixed inset-0 z-[100010] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
         @click.self="onCancel"
+        @keydown.esc="onCancel"
+        tabindex="-1"
       >
         <div
-          class="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl overflow-hidden animate-scale-up"
+          class="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden animate-scale-up"
           @click.stop
         >
           <!-- Header -->
@@ -34,7 +36,7 @@
                   }"
                 />
               </div>
-              <h3 class="text-xl font-bold text-zinc-900 dark:text-white">
+              <h3 class="text-xl font-semibold text-zinc-900 dark:text-white">
                 {{ title }}
               </h3>
             </div>

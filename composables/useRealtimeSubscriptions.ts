@@ -118,25 +118,23 @@ export const useRealtimeSubscriptions = (
   }
 
   /**
-   * Watch drawer opening to setup progress subscription
+   * Watch drawer and selectedBookId to manage progress subscription
    */
-  watch([drawerOpen, () => selectedBookId.value], async ([isOpen, bookId]) => {
-    if (isOpen && bookId) {
-      setupProgressSubscription(bookId)
-    }
-  })
-
-  /**
-   * Watch selectedBookId changes to update progress subscription
-   */
-  watch(() => selectedBookId.value, async (newBookId, oldBookId) => {
-    if (oldBookId && progressChannel) {
+  watch([drawerOpen, () => selectedBookId.value], async ([isOpen, bookId], [wasOpen, oldBookId]) => {
+    // Cleanup old subscription when book changes
+    if (oldBookId && oldBookId !== bookId && progressChannel) {
       client.removeChannel(progressChannel)
       progressChannel = null
     }
 
-    if (newBookId && drawerOpen.value) {
-      setupProgressSubscription(newBookId)
+    if (isOpen && bookId) {
+      // Only setup if book changed or wasn't subscribed
+      if (!progressChannel || oldBookId !== bookId) {
+        setupProgressSubscription(bookId)
+      }
+    } else if (!isOpen && progressChannel) {
+      client.removeChannel(progressChannel)
+      progressChannel = null
     }
   })
 

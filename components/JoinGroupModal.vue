@@ -1,10 +1,10 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-end sm:items-center justify-center px-4">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-end sm:items-center justify-center px-4" @keydown.esc="close" tabindex="-1">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="close"></div>
 
     <!-- Modal Content -->
-    <div class="relative w-full max-w-[440px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+    <div class="relative w-full max-w-[440px] bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-t-3xl sm:rounded-2xl p-6 shadow-apple-lg animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Close Button -->
       <div class="absolute top-4 right-4 z-20">
@@ -15,7 +15,7 @@
 
       <!-- Hero Section -->
       <div class="text-center mb-8 pt-4">
-        <h2 class="text-xl font-black text-zinc-900 dark:text-white mb-2">초대 코드로 입장</h2>
+        <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-2">초대 코드로 입장</h2>
         <p class="text-sm text-zinc-500 dark:text-zinc-400">
           친구에게 받은 코드를 아래에 입력하세요
         </p>
@@ -32,7 +32,7 @@
               type="text"
               placeholder="A1B2C3D4"
               maxlength="20"
-              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl px-4 py-5 text-center tracking-[0.5em] text-2xl font-black focus:outline-none focus:ring-2 focus:ring-lime-400 border-none transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700 uppercase shadow-inner"
+              class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl px-4 py-5 text-center tracking-[0.5em] text-2xl font-black focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700 uppercase shadow-inner"
               @keyup.enter="handleJoin"
               @input="handleInput"
             />
@@ -56,9 +56,9 @@
           <button
             @click="handleJoin"
             :disabled="!canSubmit || loading"
-            class="flex-[2] py-4 bg-lime-400 text-black rounded-2xl font-black hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full font-black hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            <div v-if="loading" class="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+            <div v-if="loading" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
             <span v-else>참여하기</span>
           </button>
         </div>
@@ -221,7 +221,6 @@ const joinGroup = async (groupId: string, groupName: string) => {
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
 @keyframes animate-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .animate-in { animation: animate-in 0.3s ease-out; }
 </style>

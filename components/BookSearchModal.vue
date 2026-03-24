@@ -1,15 +1,15 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-end sm:items-center justify-center pointer-events-none">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-end sm:items-center justify-center pointer-events-none" @keydown.esc="close" tabindex="-1">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" @click="close"></div>
 
     <!-- Modal Content -->
-    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-[480px] rounded-t-3xl sm:rounded-2xl p-6 pointer-events-auto max-h-[90dvh] overflow-hidden flex flex-col shadow-2xl border border-zinc-300 dark:border-zinc-800">
+    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-[480px] rounded-t-3xl sm:rounded-2xl p-6 pointer-events-auto max-h-[90dvh] overflow-hidden flex flex-col shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
 
       <!-- Header -->
       <div class="flex justify-between items-center mb-2">
         <div>
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">새 책 시작하기</h2>
+          <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">새 책 시작하기</h2>
           <div class="flex gap-1 mt-1.5">
             <div v-for="i in 3" :key="i" class="h-1 rounded-full transition-all duration-300" :class="i <= step ? 'w-4 bg-lime-400' : 'w-1.5 bg-zinc-200 dark:bg-zinc-800'"></div>
           </div>
@@ -51,14 +51,14 @@
                 @keyup.enter="searchBooks"
                 type="text"
                 placeholder="책 제목이나 저자를 검색하세요"
-                class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl px-4 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-lime-400 border-none transition-all shadow-sm"
+                class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl px-4 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none transition-all shadow-sm"
               />
-              <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-lime-500 transition-colors" :size="20" />
+              <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-zinc-900 dark:group-focus-within:text-white transition-colors" :size="20" />
             </div>
 
             <div class="space-y-3 pt-2">
-              <div v-if="loading && searchResults.length === 0" class="flex flex-col items-center justify-center py-12">
-                <LoadingSpinner size="md" message="책을 찾고 있어요" />
+              <div v-if="loading && searchResults.length === 0" class="py-4">
+                <SkeletonBookList :count="4" />
               </div>
 
               <div
@@ -102,7 +102,7 @@
               </div>
 
               <div v-if="!loading && query && searchResults.length === 0" class="py-12 text-center">
-                <div class="text-4xl mb-3">🔍</div>
+                <Search :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
                 <p class="text-sm text-zinc-500 font-medium">검색 결과가 없습니다</p>
               </div>
 
@@ -125,7 +125,7 @@
             </div>
 
             <div v-else-if="wishlist.length === 0" class="py-12 text-center">
-              <div class="text-4xl mb-3">💝</div>
+              <Heart :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
               <p class="text-sm text-zinc-500 font-medium mb-1">위시리스트가 비어있어요</p>
               <p class="text-xs text-zinc-400">검색 탭에서 책을 위시에 담아보세요</p>
             </div>
@@ -243,7 +243,7 @@
                 <input 
                   v-model="startDate" 
                   type="date" 
-                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark] transition-all" 
+                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none [color-scheme:light] dark:[color-scheme:dark] transition-all" 
                 />
               </div>
               <div class="space-y-1.5">
@@ -252,7 +252,7 @@
                   v-model="endDate" 
                   type="date" 
                   :min="startDate" 
-                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 border-none [color-scheme:light] dark:[color-scheme:dark] transition-all" 
+                  class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none [color-scheme:light] dark:[color-scheme:dark] transition-all" 
                 />
               </div>
             </div>
@@ -276,8 +276,11 @@
       <!-- Footer Buttons -->
       <div v-if="step > 1" class="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex gap-3">
         <button @click="step--" class="flex-1 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all">이전</button>
-        <button v-if="step === 2" @click="goToStep3" class="flex-[2] py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20">다음 단계</button>
-        <button v-else @click="confirmBook" class="flex-[2] py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-all shadow-lg shadow-lime-400/20" :disabled="!startDate || !endDate">지금 시작하기</button>
+        <button v-if="step === 2" @click="goToStep3" class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm">다음 단계</button>
+        <button v-else @click="confirmBook" class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center" :disabled="!startDate || !endDate || isConfirming">
+          <div v-if="isConfirming" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+          <span v-else>지금 시작하기</span>
+        </button>
       </div>
     </div>
   </div>
@@ -345,6 +348,7 @@ const chapters = ref<{ title: string; startPage: number }[]>([])
 const currentStart = ref(1)
 const hasMore = ref(false)
 const tocFormRef = ref<InstanceType<typeof TocInputForm> | null>(null)
+const isConfirming = ref(false)
 
 const getLocalDateString = (date: Date): string => {
   const year = date.getFullYear()
@@ -499,24 +503,26 @@ const calculateDays = () => {
 const confirmBook = () => {
   if (!totalPages.value) { toast.error('전체 페이지를 입력해주세요.'); return }
   if (!selectedGenre.value) { toast.error('장르를 선택해주세요.'); return }
-  
-  emit('confirm', { 
-    book: selectedBook.value, 
-    genre: selectedGenre.value, 
-    totalPages: totalPages.value, 
-    toc: chapters.value, // { title, startPage } 구조 그대로 전달
-    startDate: startDate.value, 
-    endDate: endDate.value 
-  })
-  close()
+  if (isConfirming.value) return
+
+  isConfirming.value = true
+  try {
+    emit('confirm', {
+      book: selectedBook.value,
+      genre: selectedGenre.value,
+      totalPages: totalPages.value,
+      toc: chapters.value, // { title, startPage } 구조 그대로 전달
+      startDate: startDate.value,
+      endDate: endDate.value
+    })
+    close()
+  } finally {
+    isConfirming.value = false
+  }
 }
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
 @keyframes animate-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .animate-in { animation: animate-in 0.3s ease-out; }
 </style>

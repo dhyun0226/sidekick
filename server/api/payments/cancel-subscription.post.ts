@@ -38,11 +38,32 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 자동 갱신 중지
+    // 빌링키가 있으면 토스에서 해지
+    if (subscription.billing_key) {
+      const config = useRuntimeConfig()
+      const secretKey = config.tossSecretKey
+      if (secretKey) {
+        try {
+          await $fetch(`https://api.tosspayments.com/v1/billing/authorizations/${subscription.billing_key}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Basic ${Buffer.from(secretKey + ':').toString('base64')}`
+            }
+          })
+          console.log('[CancelSubscription] Billing key revoked:', subscription.billing_key)
+        } catch (billingError: any) {
+          // 빌링키 해지 실패해도 자동갱신은 끄기 (cron에서 결제 시도 시 실패할 것)
+          console.error('[CancelSubscription] Billing key revoke failed:', billingError.message)
+        }
+      }
+    }
+
+    // 자동 갱신 중지 + 빌링키 제거
     const { error: updateError } = await client
       .from('subscriptions')
       .update({
         auto_renew: false,
+        billing_key: null,
         updated_at: new Date().toISOString()
       })
       .eq('id', subscription.id)

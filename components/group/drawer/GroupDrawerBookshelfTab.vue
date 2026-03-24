@@ -50,7 +50,7 @@
         v-model="searchQuery"
         type="text"
         placeholder="제목, 저자로 검색..."
-        class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-xs rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
+        class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-xs rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10"
         autofocus
       />
     </div>
@@ -85,10 +85,10 @@
               <!-- Admin Only -->
               <template v-if="isAdmin">
                 <button @click.stop="handleRestartReading(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap border-t border-zinc-100 dark:border-zinc-700/50 font-bold">
-                  <RotateCcw :size="12" /> 완주 취소
+                  <RotateCcw :size="12" /> 종료 취소
                 </button>
                 <button @click.stop="handleEditFinishedDate(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
-                  <Calendar :size="12" /> 완주 날짜 수정
+                  <Calendar :size="12" /> 종료 날짜 수정
                 </button>
                 <button @click.stop="handleDeleteHistoryBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap font-bold">
                   <Trash2 :size="12" /> 책 삭제
@@ -122,7 +122,7 @@
               <GenreBadge v-if="book.genre" :genre="book.genre" size="sm" />
               <RatingBadge :rating="book.averageRating" size="sm" />
               <Badge v-if="formatDateYY(book.date)" variant="lime" size="sm">
-                {{ formatDateYY(book.date) }} 완주
+                {{ formatDateYY(book.date) }} 종료
               </Badge>
               <Badge v-if="book.round && book.round > 1" size="sm">
                 {{ book.round }}회차
@@ -155,15 +155,15 @@
 
     <!-- Empty State -->
     <div v-if="filteredAndSortedBooks.length === 0" class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
-      <div class="text-4xl mb-3">{{ searchQuery ? '🔍' : '📚' }}</div>
-      <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 완주한 책이 없습니다' }}</p>
+      <component :is="searchQuery ? Search : BookOpen" :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+      <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 종료한 책이 없습니다' }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from 'vue'
-import { MessageCircle, Star, RotateCcw, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check, Lock, X } from 'lucide-vue-next'
+import { MessageCircle, Star, RotateCcw, Calendar, Trash2, Edit3, ArrowUpDown, Search, Check, Lock, X, BookOpen } from 'lucide-vue-next'
 import DropdownMenu from '~/components/DropdownMenu.vue'
 import RatingBadge from '~/components/RatingBadge.vue'
 import GenreBadge from '~/components/GenreBadge.vue'
@@ -291,10 +291,6 @@ const handleUnmarkFinished = (bookId: string) => {
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
 @keyframes fade-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 .animate-fade-in { animation: fade-in 0.2s ease-out; }
 </style>

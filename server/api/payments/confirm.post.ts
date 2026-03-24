@@ -182,6 +182,15 @@ export default defineEventHandler(async (event) => {
 
     console.log('[Payment Confirm] Plan found:', plan)
 
+    // 4-1. 금액 검증 (클라이언트가 보낸 amount와 플랜 가격 일치 확인)
+    if (Number(amount) !== Number(plan.price)) {
+      console.error('[Payment Confirm] Amount mismatch:', { clientAmount: amount, planPrice: plan.price })
+      throw createError({
+        statusCode: 400,
+        message: '결제 금액이 플랜 가격과 일치하지 않습니다.'
+      })
+    }
+
     // 5. 구독 처리 (신규 또는 연장)
 
     // 현재 활성 구독 확인

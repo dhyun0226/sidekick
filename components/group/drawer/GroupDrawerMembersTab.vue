@@ -26,13 +26,19 @@
         v-model="searchQuery"
         type="text"
         placeholder="닉네임으로 검색..."
-        class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-xs rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400 border-none"
+        class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-xs rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none"
         autofocus
       />
     </div>
 
+    <!-- Empty State (no members at all) -->
+    <div v-if="sortedMembersWithProgress.length === 0" class="text-center py-8">
+      <Users :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
+      <p class="text-sm font-medium text-zinc-500">아직 멤버가 없어요</p>
+    </div>
+
     <!-- Members List (Slim Style) -->
-    <div v-if="filteredMembers.length > 0" class="space-y-1.5">
+    <div v-else-if="filteredMembers.length > 0" class="space-y-1.5">
       <div 
         v-for="member in filteredMembers" 
         :key="member.id" 
@@ -127,7 +133,7 @@
 
     <!-- Empty Search State -->
     <div v-else class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
-      <div class="text-4xl mb-3">🔍</div>
+      <Search :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
       <p>검색 결과와 일치하는 멤버가 없습니다</p>
     </div>
   </div>
@@ -196,10 +202,6 @@ const handleKickMember = (member: MemberWithProgress) => {
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
 @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 .animate-fade-in { animation: fade-in 0.2s ease-out; }
 </style>

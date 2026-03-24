@@ -1,14 +1,14 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4" @keydown.esc="$emit('close')" tabindex="-1">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="$emit('close')"></div>
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="$emit('close')"></div>
 
     <!-- Modal Content -->
-    <div class="relative w-full max-w-2xl max-h-[90vh] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden">
+    <div class="relative w-full max-w-2xl max-h-[90vh] bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-2xl shadow-apple-lg overflow-hidden">
       <!-- Header -->
       <div class="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-6 py-4 flex justify-between items-center z-10">
         <div>
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-white">그룹 통계</h2>
+          <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">그룹 통계</h2>
           <p class="text-sm text-zinc-500">{{ groupName }}</p>
         </div>
         <button @click="$emit('close')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
@@ -22,6 +22,14 @@
         <div v-if="loading" class="flex flex-col items-center justify-center py-12">
           <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mb-4"></div>
           <p class="text-sm text-zinc-500">통계를 불러오는 중...</p>
+        </div>
+
+        <!-- Error State -->
+        <div v-else-if="fetchError" class="flex flex-col items-center justify-center py-12">
+          <p class="text-sm text-zinc-500 mb-4">통계를 불러오지 못했습니다.</p>
+          <button @click="fetchStats" class="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-lg text-sm font-medium hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+            다시 시도
+          </button>
         </div>
 
         <template v-else>
@@ -150,6 +158,7 @@ const client = useSupabaseClient()
 const { getBookRound } = useBookRound()
 
 const loading = ref(false)
+const fetchError = ref(false)
 
 const stats = ref({
   completedBooks: 0,
@@ -195,6 +204,7 @@ const fetchStats = async () => {
   if (!props.groupId) return
 
   loading.value = true
+  fetchError.value = false
 
   try {
     // 1. Fetch completed books count
@@ -304,14 +314,6 @@ const fetchStats = async () => {
           official_genre,
           draft_genre
         )
-...
-            author: book.books?.author || '저자 미상',
-            cover: book.books?.cover_url,
-            publisher: book.books?.publisher,
-            total_pages: book.books?.total_pages,
-            genre: book.books?.official_genre || book.books?.draft_genre,
-            finishedAt: book.finished_at,
-
       `)
       .eq('group_id', props.groupId)
       .eq('status', 'done')
@@ -321,16 +323,22 @@ const fetchStats = async () => {
     if (booksData) {
       const booksWithRatings = await Promise.all(
         booksData.map(async (book: any) => {
-          const { data: reviewsForBook } = await client
-            .from('reviews')
-            .select('rating')
-            .eq('group_book_id', book.id)
+          let avgRating = 0
+          let round = 1
+          try {
+            const { data: reviewsForBook } = await client
+              .from('reviews')
+              .select('rating')
+              .eq('group_book_id', book.id)
 
-          const avgRating = reviewsForBook && reviewsForBook.length > 0
-            ? reviewsForBook.reduce((sum, r) => sum + r.rating, 0) / reviewsForBook.length
-            : 0
+            avgRating = reviewsForBook && reviewsForBook.length > 0
+              ? reviewsForBook.reduce((sum: number, r: any) => sum + r.rating, 0) / reviewsForBook.length
+              : 0
 
-          const round = await getBookRound(props.groupId, book.isbn, book.id)
+            round = await getBookRound(props.groupId, book.isbn, book.id)
+          } catch (e) {
+            console.error('[Stats] Book rating fetch error:', e)
+          }
 
           return {
             id: book.id,
@@ -368,6 +376,7 @@ const fetchStats = async () => {
 
   } catch (error) {
     console.error('Stats fetch error:', error)
+    fetchError.value = true
   } finally {
     loading.value = false
   }

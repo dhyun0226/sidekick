@@ -1,10 +1,10 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center p-4">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center p-4" @keydown.esc="emit('close')" tabindex="-1">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/70 backdrop-blur-md" @click="emit('close')"></div>
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="emit('close')"></div>
 
     <!-- Modal Content -->
-    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Header -->
       <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 sticky top-0 z-20">
@@ -99,8 +99,8 @@
 
           <!-- Empty State -->
           <div v-if="reviews.length === 0" class="text-center py-16 flex flex-col items-center">
-            <div class="w-20 h-20 bg-zinc-50 dark:bg-zinc-800 rounded-3xl flex items-center justify-center mb-4 text-4xl shadow-inner">
-              ⭐
+            <div class="w-20 h-20 bg-zinc-50 dark:bg-zinc-800 rounded-3xl flex items-center justify-center mb-4 shadow-inner">
+              <Star :size="28" class="text-zinc-300 dark:text-zinc-600" />
             </div>
             <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">아직 리뷰가 없어요</h3>
             <p class="text-xs text-zinc-500">이 책의 첫 번째 리뷰어가 되어보세요!</p>
@@ -170,9 +170,3 @@ const getStarType = (index: number, rating: number) => {
 }
 </script>
 
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
-</style>
