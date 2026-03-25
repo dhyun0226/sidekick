@@ -54,7 +54,7 @@
         <div class="flex items-center gap-4">
           <!-- Command Palette Trigger -->
           <button
-            @click="isCommandPaletteOpen = true"
+            @click="commandPaletteRef?.open()"
             class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-md text-sm text-zinc-500 transition-colors"
           >
             <Search :size="14" />
@@ -94,29 +94,7 @@ import {
 import CommandPalette from '~/components/admin/CommandPalette.vue'
 
 const route = useRoute()
-const commandPaletteRef = ref()
-// We use a ref on the component to call its open method, 
-// OR we can pass a prop. But the component handles its own state mostly via expose or v-model.
-// Let's assume we can call a method on the ref or bind to a visible prop.
-// For simplicity in the component created above, it listens to window events, 
-// but for the button click we need a way to open it.
-// Let's verify the CommandPalette implementation.
-// It has `open` method but not exposed. I will update the button click to dispatch the event or use a global bus?
-// Simpler: Just simulate the keypress or use a prop if I could edit it again.
-// Actually, I can just dispatch the keyboard event for simplicity since the component listens to it globally.
-
-const isCommandPaletteOpen = ref(false)
-
-// Use a watcher or define expose in CommandPalette? 
-// The simplified approach: Just trigger the keydown event manually or 
-// since I can edit the layout, I'll just use a small hack to simulate the event for the button 
-// OR better, rely on the user knowing the shortcut for now, 
-// BUT the prompt asked for the button.
-// Let's modify the button to dispatch the event.
-
-const openPalette = () => {
-   window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))
-}
+const commandPaletteRef = ref<InstanceType<typeof CommandPalette> | null>(null)
 
 const navItems = [
   { label: '대시보드', path: '/admin', icon: LayoutDashboard },

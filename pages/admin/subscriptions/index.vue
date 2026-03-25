@@ -688,10 +688,11 @@ const getStatusLabel = (status: string) => {
 
 const getPaymentStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
-    done: '완료',
+    completed: '완료',
     pending: '대기',
     failed: '실패',
-    cancelled: '취소'
+    cancelled: '취소',
+    refunded: '환불'
   }
   return labels[status] || status
 }

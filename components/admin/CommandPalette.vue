@@ -185,4 +185,6 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('keydown', onKeydown)
 })
+
+defineExpose({ open })
 </script>
