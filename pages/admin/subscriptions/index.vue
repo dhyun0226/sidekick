@@ -278,7 +278,7 @@
     <div v-else-if="activeTab === 'limits'">
       <div class="mb-6">
         <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 flex items-start gap-3">
-          <div class="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5">ℹ️</div>
+          <Info :size="18" class="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
           <div class="text-sm text-blue-700 dark:text-blue-300">
             <p class="font-bold mb-1">구독 제한 설정</p>
             <p class="text-xs">여기서 변경한 값은 즉시 모든 사용자에게 적용됩니다. <strong>-1은 무제한</strong>을 의미합니다.</p>
@@ -417,7 +417,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { ArrowLeft, Search, Users, DollarSign, TrendingUp, Calendar, Check, X } from 'lucide-vue-next'
+import { ArrowLeft, Search, Users, DollarSign, TrendingUp, Calendar, Check, X, Info } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 
 definePageMeta({
