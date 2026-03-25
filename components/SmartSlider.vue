@@ -17,20 +17,6 @@
           </div>
 
           <div class="flex items-center gap-2 shrink-0">
-            <!-- Percent/Page Toggle -->
-            <div v-if="totalPages" class="flex bg-zinc-100 dark:bg-zinc-800 rounded-full p-0.5">
-              <button
-                @click="displayMode = 'percent'"
-                class="px-2 py-1 text-[10px] font-bold rounded-full transition-all"
-                :class="displayMode === 'percent' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-400'"
-              >%</button>
-              <button
-                @click="displayMode = 'page'"
-                class="px-2 py-1 text-[10px] font-bold rounded-full transition-all"
-                :class="displayMode === 'page' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-400'"
-              >p</button>
-            </div>
-
             <button
               v-if="!isArchived && !isReadOnlyMode"
               @click="$emit('write')"

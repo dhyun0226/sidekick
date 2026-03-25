@@ -142,7 +142,10 @@ const handleSubmit = () => {
 }
 
 const isValid = computed(() => {
-  return content.value.trim().length > 0 && content.value.length <= 500
+  const hasContent = content.value.trim().length > 0
+  const hasAnchor = anchorText.value.trim().length > 0
+  const withinLimit = content.value.length <= 500
+  return (hasContent || hasAnchor) && withinLimit
 })
 </script>
 

@@ -19,9 +19,9 @@
         </span>
       </div>
 
-      <!-- Anchor Text (Clean & Classic) -->
+      <!-- Anchor Text (Clean & Classic) - Hide when editing a comment in this group -->
       <div
-        v-if="group.anchorText"
+        v-if="group.anchorText && !group.previewComments.some(c => c.id === editingCommentId)"
         class="mb-4 pl-4 py-2.5 border-l-[3px] border-lime-400 bg-lime-50/60 dark:bg-lime-900/10 rounded-r-xl cursor-pointer hover:opacity-80 transition-opacity"
         :class="{ 'blur-sm opacity-40 select-none': isSpoiler(group.position) }"
       >
