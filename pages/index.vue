@@ -397,133 +397,13 @@ const readingSocialGroups = computed(() => socialGroups.value.filter(g => g.curr
 const idleSocialGroups = computed(() => socialGroups.value.filter(g => !g.currentBook))
 
 const fetchGroups = async () => {
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) return
-
   loading.value = true
   try {
-    const { data: memberData, error } = await client
-      .from('group_members')
-      .select(`
-        group_id,
-        left_at,
-        groups (
-          id,
-          name,
-          group_type,
-          status,
-          deleted_at
-        )
-      `)
-      .eq('user_id', user.id)
-
-    if (error) throw error
-
-    if (memberData) {
-      const groupIds = memberData.map((item: any) => item.groups.id)
-      
-      const { data: allBooks } = await client
-        .from('group_books')
-        .select(`
-          id,
-          group_id,
-          created_at,
-          target_start_date,
-          target_end_date,
-          pages_snapshot,
-          genre_snapshot,
-          books (
-            title,
-            author,
-            publisher,
-            official_pages,
-            draft_pages,
-            cover_url,
-            official_genre,
-            draft_genre
-          ),
-          user_reading_progress!left (
-            last_read_at,
-            progress_pct
-          )
-        `)
-        .in('group_id', groupIds)
-        .eq('status', 'reading')
-        .is('deleted_at', null)
-        .eq('user_reading_progress.user_id', user.id)
-
-      const { data: allMembers } = await client
-        .from('group_members')
-        .select('group_id')
-        .in('group_id', groupIds)
-
-      // 완독한 책 수 조회
-      const { data: doneBooks } = await client
-        .from('group_books')
-        .select('group_id')
-        .in('group_id', groupIds)
-        .eq('status', 'done')
-
-      const doneCountByGroup = new Map<string, number>()
-      doneBooks?.forEach(book => {
-        const count = doneCountByGroup.get(book.group_id) || 0
-        doneCountByGroup.set(book.group_id, count + 1)
-      })
-
-      const booksByGroup = new Map<string, any[]>()
-      allBooks?.forEach(book => {
-        if (!booksByGroup.has(book.group_id)) {
-          booksByGroup.set(book.group_id, [])
-        }
-        booksByGroup.get(book.group_id)!.push(book)
-      })
-
-      const memberCountByGroup = new Map<string, number>()
-      allMembers?.forEach(member => {
-        const count = memberCountByGroup.get(member.group_id) || 0
-        memberCountByGroup.set(member.group_id, count + 1)
-      })
-
-      groups.value = memberData.map((item: any) => {
-        const group = item.groups
-        const bookDataList = booksByGroup.get(group.id) || []
-
-        const sortedBooks = bookDataList.sort((a: any, b: any) => {
-          const aLastRead = a.user_reading_progress?.[0]?.last_read_at
-          const bLastRead = b.user_reading_progress?.[0]?.last_read_at
-
-          if (!aLastRead && !bLastRead) {
-            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          }
-          if (!aLastRead) return 1
-          if (!bLastRead) return -1
-          return new Date(bLastRead).getTime() - new Date(aLastRead).getTime()
-        })
-
-        const bookData = sortedBooks[0]
-
-        return {
-          id: group.id,
-          name: group.name,
-          group_type: group.group_type,
-          status: group.status,
-          deleted_at: group.deleted_at,
-          left_at: item.left_at,
-          members: { length: memberCountByGroup.get(group.id) || 0 },
-          doneCount: doneCountByGroup.get(group.id) || 0,
-          currentBook: bookData ? {
-            ...bookData.books,
-            created_at: bookData.created_at,
-            target_start_date: bookData.target_start_date,
-            target_end_date: bookData.target_end_date,
-            genre: bookData.genre_snapshot || bookData.books?.official_genre || bookData.books?.draft_genre,
-            total_pages: bookData.pages_snapshot || bookData.books?.official_pages || bookData.books?.draft_pages,
-            progress: bookData.user_reading_progress?.[0]?.progress_pct || 0
-          } : null
-        }
-      })
-      
-    }
+    const { groups: data } = await $fetch('/api/pages/home')
+    groups.value = data.map((g: any) => ({
+      ...g,
+      members: { length: g.memberCount }
+    }))
   } catch (e: any) {
     console.error('Error fetching groups:', e)
     toast.error('그룹 목록을 불러오는데 실패했습니다')
