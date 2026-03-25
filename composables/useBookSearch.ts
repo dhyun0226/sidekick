@@ -22,8 +22,6 @@ export const useBookSearch = () => {
     }
 
     try {
-      console.log('[BookSearch] Searching for:', query, 'start:', start)
-
       // 자체 서버 API를 통해 네이버 API 호출 (CORS 해결)
       const response = await $fetch('/api/books/search', {
         method: 'GET',
@@ -50,7 +48,6 @@ export const useBookSearch = () => {
       // 네이버 API는 최대 1000개까지만 제공
       const hasMore = (start + 20) <= Math.min(response.total, 1000) && books.length === 20
 
-      console.log('[BookSearch] Found:', books.length, 'books, hasMore:', hasMore)
       return { books, hasMore }
 
     } catch (error: any) {

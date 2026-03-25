@@ -288,7 +288,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
-import { X, Search, Check, Calendar, ListTree, Plus, Sparkles, Heart } from 'lucide-vue-next'
+import { X, Search, Calendar, Plus, Heart } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 import { useUserStore } from '~/stores/user'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
@@ -403,7 +403,6 @@ const handleAddToWishlist = async (book: any, event: Event) => {
       cover_url: book.cover
     })
     if (bookError) {
-      console.error('[BookSearchModal] Failed to insert book:', bookError)
       toast.error('책 정보 저장에 실패했습니다')
       return
     }

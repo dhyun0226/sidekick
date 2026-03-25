@@ -48,15 +48,12 @@ const redirectToLogin = () => {
 
 onMounted(async () => {
   try {
-    console.log('[OAuth Callback] Starting authentication...')
-
     // 1. URL에서 에러 파라미터 확인
     const urlParams = new URLSearchParams(window.location.search)
     const errorFromUrl = urlParams.get('error')
     const errorDescription = urlParams.get('error_description')
 
     if (errorFromUrl) {
-      console.error('[OAuth Callback] Error from URL:', errorFromUrl, errorDescription)
       error.value = errorDescription || '인증 중 오류가 발생했습니다.'
       return
     }
@@ -64,16 +61,12 @@ onMounted(async () => {
     // 2. Supabase가 OAuth 콜백을 자동으로 처리하고 세션 확인
     const { data: { user } } = await client.auth.getUser()
     if (!user) {
-      console.error('[OAuth Callback] No user found')
       error.value = '사용자 정보를 찾을 수 없습니다.'
       setTimeout(redirectToLogin, 3000)
       return
     }
 
-    console.log('[OAuth Callback] User authenticated:', user.id)
-
     // 3. 모든 사용자를 홈으로 리다이렉트 (트리거가 프로필 자동 생성)
-    console.log('[OAuth Callback] → Redirecting to home')
     router.push('/')
 
   } catch (err: any) {

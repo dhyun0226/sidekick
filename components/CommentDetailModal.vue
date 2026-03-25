@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center" @keydown.esc="$emit('close')" tabindex="-1">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-end sm:items-center justify-center" @keydown.esc="$emit('close')" tabindex="-1">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="$emit('close')"></div>
 
@@ -60,6 +60,7 @@
             <div v-else class="mt-2">
               <textarea
                 v-model="editContent"
+                maxlength="2000"
                 class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-desktop-callout-regular rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                 rows="3"
                 @keydown.esc="cancelEdit"
@@ -172,6 +173,7 @@
                 <div v-else class="mt-2">
                   <textarea
                     v-model="editReplyContent"
+                    maxlength="2000"
                     class="w-full bg-zinc-50 dark:bg-zinc-800 text-desktop-callout-regular rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                     rows="2"
                   ></textarea>
@@ -410,7 +412,6 @@ const submitReply = async (parentId: string) => {
       .single()
 
     if (error) {
-      console.error('Reply submit error:', error)
       throw error
     }
 
@@ -479,7 +480,6 @@ const saveEdit = async (commentId: string) => {
       .eq('id', commentId)
 
     if (error) {
-      console.error('Comment update error:', error)
       throw error
     }
 
@@ -522,7 +522,6 @@ const saveReplyEdit = async (replyId: string) => {
       .eq('id', replyId)
 
     if (error) {
-      console.error('Reply update error:', error)
       throw error
     }
 
@@ -578,7 +577,6 @@ const executeDeleteComment = async () => {
       .eq('id', deletingCommentId.value)
 
     if (error) {
-      console.error('Comment delete error:', error)
       throw error
     }
 
@@ -618,7 +616,6 @@ const executeDeleteReply = async () => {
       .eq('id', deletingReplyId.value)
 
     if (error) {
-      console.error('Reply delete error:', error)
       throw error
     }
 

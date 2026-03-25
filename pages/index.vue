@@ -525,9 +525,6 @@ const fetchGroups = async () => {
         }
       })
       
-      console.log('[Index] Fetched groups:', groups.value)
-      console.log('[Index] Solo:', soloGroup.value ? 1 : 0, 'Social:', socialGroups.value.length)
-      console.log('[Index] Reading Social:', readingSocialGroups.value.length, 'Idle Social:', idleSocialGroups.value.length)
     }
   } catch (e: any) {
     console.error('Error fetching groups:', e)
@@ -543,7 +540,6 @@ onMounted(async () => {
     fetchGroups(),
     fetchLimits(true) // Force refresh limits
   ])
-  console.log('[Index] Loaded limits:', limits.value)
 })
 
 const getDaysRemaining = (targetDateStr: string) => {

@@ -97,7 +97,6 @@ export const useGroupBooks = (groupId: MaybeRef<string>) => {
       .eq('user_reading_progress.user_id', userId)
 
     if (fetchError) {
-      console.error('[useGroupBooks] Failed to fetch books:', fetchError)
       throw new Error('책 목록을 불러오는데 실패했습니다.')
     }
 
@@ -218,15 +217,11 @@ export const useGroupBooks = (groupId: MaybeRef<string>) => {
   }
 
   const addBook = async (data: BookAddData) => {
-    console.log('[Group] Adding book:', data)
-
     const { data: existingBook, error: bookCheckError } = await client
       .from('books')
       .select('*')
       .eq('isbn', data.book.isbn)
       .maybeSingle()
-
-    if (bookCheckError) console.error('Book check error:', bookCheckError)
 
     if (!existingBook) {
       // ✅ 새 책 추가 시: draft만 저장
@@ -395,7 +390,7 @@ export const useGroupBooks = (groupId: MaybeRef<string>) => {
       .update({ draft_genre: genre })
       .eq('isbn', isbn)
 
-    if (publicError) console.warn('Failed to update public draft genre:', publicError)
+    // publicError is intentionally ignored (best-effort contribution)
 
     // Update local state immediately
     const book = allBooks.value.find(b => b.id === bookId)

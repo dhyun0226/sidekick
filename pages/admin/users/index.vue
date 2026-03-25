@@ -230,8 +230,6 @@ const fetchAllUsers = async () => {
     const { users } = await $fetch('/api/admin/users/list')
 
     allUsers.value = users || []
-
-    console.log('[Admin] Total users:', allUsers.value.length)
   } catch (error: any) {
     console.error('[Admin] Fetch error:', error)
     toast.error('사용자 목록을 불러오는 데 실패했습니다')

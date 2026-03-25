@@ -50,10 +50,6 @@ export const useReadingProgress = (
    */
   const saveProgress = async (progress: number) => {
     if (!groupBookId.value || !userId.value) {
-      console.log('Cannot save progress:', {
-        hasBook: !!groupBookId.value,
-        hasUser: !!userId.value
-      })
       return
     }
 
@@ -62,7 +58,6 @@ export const useReadingProgress = (
       p => p.user_id === userId.value && p.group_book_id === groupBookId.value
     )
     if (existing?.finished_at) {
-      console.log('[Progress] 완독한 책은 업데이트하지 않음 (finished_at:', existing.finished_at, ')')
       return
     }
 
@@ -73,12 +68,6 @@ export const useReadingProgress = (
     const previousProgress = index >= 0 ? memberProgress.value[index].progress_pct : 0
 
     try {
-      console.log('[Progress] Saving to DB:', {
-        user_id: userId.value,
-        group_book_id: groupBookId.value,
-        progress_pct: roundedProgress
-      })
-
       const { data, error } = await client
         .from('user_reading_progress')
         .upsert({
@@ -93,18 +82,13 @@ export const useReadingProgress = (
         .select()
 
       if (error) {
-        console.error('[Progress] Save failed:', error)
-
         // Rollback on error
         if (index >= 0) {
           memberProgress.value[index].progress_pct = previousProgress
-          console.log('[Progress] Rolled back to:', previousProgress)
           toast.error(`진행도 저장 실패 - 이전 값(${previousProgress}%)으로 되돌렸습니다`)
         } else {
           toast.error('진행도 저장에 실패했습니다. 인터넷 연결을 확인해주세요')
         }
-      } else {
-        console.log('[Progress] Saved successfully:', data)
       }
     } catch (error) {
       console.error('[Progress] Save error:', error)
@@ -112,7 +96,6 @@ export const useReadingProgress = (
       // Rollback on exception
       if (index >= 0) {
         memberProgress.value[index].progress_pct = previousProgress
-        console.log('[Progress] Rolled back to:', previousProgress)
         toast.error(`진행도 저장 실패 - 이전 값(${previousProgress}%)으로 되돌렸습니다`)
       } else {
         toast.error('진행도 저장에 실패했습니다')

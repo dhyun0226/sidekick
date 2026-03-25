@@ -337,7 +337,6 @@ export function useGroupPage(config: GroupPageConfig) {
       .single()
 
     if (error || !data) {
-      console.error('[GroupPage] Failed to fetch solo group:', error)
       return null
     }
     return data.group_id

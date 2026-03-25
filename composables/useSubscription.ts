@@ -71,10 +71,8 @@ export const useSubscription = () => {
     if (!force && limitsLoaded.value) return 
     
     const currentTier = userStore.profile?.subscription_tier
-    console.log('[fetchLimits] User Tier:', currentTier)
-    
+
     if (!currentTier) {
-      console.warn('[fetchLimits] No tier found for user')
       return
     }
 
@@ -86,10 +84,7 @@ export const useSubscription = () => {
         .eq('tier', currentTier)
         .single()
 
-      console.log('[fetchLimits] DB Query Result:', { data, error })
-
       if (error) {
-        console.error('[fetchLimits] Error:', error)
         return
       }
 
@@ -99,7 +94,6 @@ export const useSubscription = () => {
           has_statistics_access: data.has_statistics_access
         }
         limitsLoaded.value = true
-        console.log('[fetchLimits] Limits updated:', limits.value)
       }
     } catch (err) {
       console.error('[fetchLimits] Exception:', err)
@@ -133,7 +127,6 @@ export const useSubscription = () => {
       .single()
 
     if (error) {
-      console.error('[canAddBookToGroup] Error:', error)
       return { allowed: false, reason: '오류가 발생했습니다.' }
     }
 
@@ -234,9 +227,7 @@ export const useSubscription = () => {
         .eq('status', 'active')
         .maybeSingle()
 
-      if (error) {
-        console.error('[fetchSubscription] Error:', error)
-      } else {
+      if (!error) {
         subscription.value = data
       }
     } catch (err) {

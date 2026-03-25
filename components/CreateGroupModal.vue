@@ -165,8 +165,6 @@ const handleCreate = async () => {
       return
     }
 
-    console.log('[CreateGroup] Creating group:', groupName.value)
-
     // 1. 그룹 생성 (invite_code는 DB 기본값으로 자동 생성)
     const { data: newGroup, error: groupError } = await client
       .from('groups')
@@ -179,11 +177,8 @@ const handleCreate = async () => {
       .single()
 
     if (groupError) {
-      console.error('[CreateGroup] Group creation error:', groupError)
       throw new Error('그룹 생성에 실패했습니다.')
     }
-
-    console.log('[CreateGroup] Group created:', newGroup)
 
     // 2. 생성자를 admin으로 자동 추가
     const { error: memberError } = await client
@@ -195,12 +190,8 @@ const handleCreate = async () => {
       })
 
     if (memberError) {
-      console.error('[CreateGroup] Member insert error:', memberError)
       // 그룹은 생성되었지만 멤버 추가 실패 → 일단 계속 진행
-      console.warn('[CreateGroup] Group created but member insert failed')
     }
-
-    console.log('[CreateGroup] Creator added as admin')
 
     // 3. 성공 - 모달 닫고 상위 컴포넌트에 알림
     emit('created', newGroup)

@@ -74,6 +74,7 @@
               <textarea
                 v-model="editAnchor"
                 placeholder="인용 구절 (선택)"
+                maxlength="500"
                 class="w-full bg-lime-50/60 dark:bg-lime-900/10 text-zinc-700 dark:text-zinc-300 text-sm rounded-xl px-4 py-3 border-l-[3px] border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/20 resize-none"
                 rows="2"
                 @keydown.esc="cancelEdit"
@@ -81,6 +82,7 @@
               <textarea
                 v-model="editContent"
                 placeholder="코멘트 (선택)"
+                maxlength="2000"
                 class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                 rows="4"
                 @keydown.esc="cancelEdit"
@@ -203,6 +205,7 @@
                 <div v-else class="mt-2">
                   <textarea
                     v-model="editReplyContent"
+                    maxlength="2000"
                     class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-[13px] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                     rows="2"
                     @keydown.esc="cancelReplyEdit"
@@ -526,7 +529,6 @@ const submitReply = async (parentId: string) => {
       .single()
 
     if (error) {
-      console.error('Reply submit error:', error)
       throw error
     }
 
@@ -601,7 +603,6 @@ const saveEdit = async (commentId: string) => {
       .eq('id', commentId)
 
     if (error) {
-      console.error('Comment update error:', error)
       throw error
     }
 
@@ -647,7 +648,6 @@ const saveReplyEdit = async (replyId: string) => {
       .eq('id', replyId)
 
     if (error) {
-      console.error('Reply update error:', error)
       throw error
     }
 
@@ -694,7 +694,6 @@ const executeDeleteComment = async () => {
       .eq('id', deletingCommentId.value)
 
     if (error) {
-      console.error('Comment delete error:', error)
       throw error
     }
 
@@ -734,7 +733,6 @@ const executeDeleteReply = async () => {
       .eq('id', deletingReplyId.value)
 
     if (error) {
-      console.error('Reply delete error:', error)
       throw error
     }
 

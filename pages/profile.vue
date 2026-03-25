@@ -778,9 +778,6 @@ onMounted(async () => {
     return
   }
 
-  console.log('[Profile] Limits loaded:', limits.value)
-  console.log('[Profile] User Tier:', userStore.profile?.subscription_tier)
-
   if (userStore.profile?.notification_settings) {
     // 🎯 기존 설정과 DB 설정을 병합 (새로 추가된 항목 누락 방지)
     notificationSettings.value = { ...notificationSettings.value, ...userStore.profile.notification_settings }
@@ -814,7 +811,6 @@ watch(appSettings, async (s) => {
   try {
     const { error } = await client.from('users').update({ app_settings: s }).eq('id', userId)
     if (error) {
-      console.error('Failed to save app settings:', error)
       toast.error('설정 저장에 실패했습니다')
     }
   } catch (err) { console.error(err) }

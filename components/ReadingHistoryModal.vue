@@ -234,7 +234,6 @@ const fetchReadingHistory = async () => {
       .order('created_at', { ascending: false })
 
     if (reviewsError) {
-      console.error('Reviews fetch error:', reviewsError)
       return
     }
 

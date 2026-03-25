@@ -221,7 +221,6 @@ const handleAddToWishlist = async (book: any) => {
         cover_url: book.cover
       })
       if (bookError) {
-        console.error('[WishlistSearchModal] Failed to insert book:', bookError)
         toast.error('책 정보 저장에 실패했습니다')
         return
       }

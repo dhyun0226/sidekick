@@ -310,29 +310,14 @@ const handleEditToc = (bookId: string) => {
 }
 
 const handleMarkFinished = (bookId: string) => {
-  console.log('[InfoTab] Mark Finished clicked:', bookId)
   activeBookMenu.value = null
   emit('markFinished', bookId)
 }
 
 const handleUnmarkFinished = (bookId: string) => {
-  console.log('[InfoTab] Unmark Finished clicked:', bookId)
   activeBookMenu.value = null
   emit('unmarkFinished', bookId)
 }
-
-// Watch for changes to readingBooks to debug reactivity
-watch(() => props.readingBooks, (newBooks) => {
-  console.log('[InfoTab] readingBooks updated:', newBooks.map(b => ({
-    id: b.id,
-    title: b.book?.title,
-    user_finished_at: b.user_finished_at
-  })))
-}, { deep: true })
-
-watch(() => props.userReviewedBooks, (newMap) => {
-  console.log('[InfoTab] userReviewedBooks map updated:', newMap)
-}, { deep: true, immediate: true })
 
 const handleDeleteBook = (bookId: string) => {
   activeBookMenu.value = null

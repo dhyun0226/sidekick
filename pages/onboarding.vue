@@ -147,7 +147,6 @@ onMounted(async () => {
     .maybeSingle()
 
   if (existingProfile && existingProfile.nickname) {
-    console.log('Profile already complete, redirecting to home')
     router.push('/')
     return
   }
@@ -204,7 +203,6 @@ const handleSubmit = async () => {
 
   const { data: { user } } = await client.auth.getUser()
   if (!user) {
-    console.error('User not authenticated')
     toast.error('로그인 정보가 없습니다. 다시 로그인해주세요')
     router.push('/login')
     return
@@ -226,8 +224,6 @@ const handleSubmit = async () => {
         // RLS 정책에 맞게 사용자 ID 폴더 안에 저장
         const filePath = `${user.id}/${fileName}`
 
-        console.log('[Onboarding] Uploading avatar to:', filePath)
-
         const { data: uploadData, error: uploadError } = await client.storage
           .from('avatars')
           .upload(filePath, avatarFile.value, {
@@ -236,7 +232,6 @@ const handleSubmit = async () => {
           })
 
         if (uploadError) {
-          console.error('[Onboarding] Avatar upload error:', uploadError)
           toast.error('사진 업로드에 실패했습니다')
           uploading.value = false
         } else {
@@ -246,7 +241,6 @@ const handleSubmit = async () => {
             .getPublicUrl(filePath)
 
           finalAvatarUrl = publicUrl
-          console.log('[Onboarding] Avatar uploaded successfully:', publicUrl)
           uploading.value = false
         }
       } catch (err) {
@@ -256,7 +250,6 @@ const handleSubmit = async () => {
     }
 
     // 2. users 테이블의 프로필 UPDATE (트리거가 이미 row 생성함)
-    console.log('Updating profile for user:', user.id)
     const { error: updateError } = await client
       .from('users')
       .update({
@@ -270,7 +263,6 @@ const handleSubmit = async () => {
     }
 
     // 3. 성공 - 홈으로 이동
-    console.log('Profile updated successfully')
     router.push('/')
 
   } catch (error: any) {

@@ -83,6 +83,7 @@
         <textarea
           v-model="content"
           placeholder="책을 읽으며 느낀 점을 자유롭게 기록해보세요."
+          maxlength="500"
           class="w-full h-32 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 text-sm border-none transition-all"
         ></textarea>
       </div>

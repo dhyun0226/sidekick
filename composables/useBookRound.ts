@@ -34,7 +34,6 @@ export const useBookRound = () => {
         .order('created_at', { ascending: true })
 
       if (error) {
-        console.error('Error fetching book instances:', error)
         return null
       }
 
@@ -51,7 +50,6 @@ export const useBookRound = () => {
       const index = instances.findIndex(b => b.id === groupBookId)
 
       if (index === -1) {
-        console.warn('Group book ID not found in instances')
         return null
       }
 
@@ -82,7 +80,6 @@ export const useBookRound = () => {
         .eq('isbn', isbn)
 
       if (error) {
-        console.error('Error counting book instances:', error)
         return 0
       }
 
@@ -137,7 +134,6 @@ export const useBookRound = () => {
         .order('created_at', { ascending: true })
 
       if (error) {
-        console.error('Error fetching book instances:', error)
         // Return null for all books on error
         books.forEach(b => result.set(b.id, null))
         return result

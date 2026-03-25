@@ -57,7 +57,6 @@ export const useGroupComments = (userIdRef: Ref<string | null | undefined>) => {
         .range(currentOffset, currentOffset + COMMENTS_PER_PAGE - 1)
 
       if (error) {
-        console.error('Error loading comments:', error)
         return
       }
 
@@ -76,7 +75,7 @@ export const useGroupComments = (userIdRef: Ref<string | null | undefined>) => {
           .select('comment_id')
           .in('comment_id', allItemIds)
           .eq('type', 'like')
-        if (reactionError) console.error('[Comments] Reaction counts fetch failed:', reactionError)
+        // reactionError intentionally ignored (non-critical)
 
         // Get user's likes for all items
         let userLikes: any[] = []

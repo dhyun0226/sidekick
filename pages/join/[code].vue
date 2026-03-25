@@ -103,7 +103,6 @@ onMounted(async () => {
   try {
     // DB stores codes in UPPERCASE, so normalize the input
     const normalizedCode = code.toUpperCase()
-    console.log('[Join] Fetching group with code:', normalizedCode)
 
     // 1. 초대 코드로 그룹 찾기
     const { data: groupData, error: groupError } = await client
@@ -113,7 +112,6 @@ onMounted(async () => {
       .single()
 
     if (groupError || !groupData) {
-      console.error('[Join] Group not found:', groupError)
       error.value = '유효하지 않은 초대 코드입니다.'
       loading.value = false
       return
@@ -138,7 +136,6 @@ onMounted(async () => {
       .maybeSingle()
 
     if (existingMember) {
-      console.log('[Join] Already a member, redirecting to group')
       router.push(`/group/${groupData.id}`)
       return
     }
@@ -159,8 +156,6 @@ const joinGroup = async () => {
   joining.value = true
 
   try {
-    console.log('[Join] Joining group:', group.value.id)
-
     // 구독 제한 체크
     const limitCheck = await canJoinGroup()
     if (!limitCheck.allowed) {
@@ -179,11 +174,8 @@ const joinGroup = async () => {
       })
 
     if (joinError) {
-      console.error('[Join] Join error:', joinError)
       throw new Error('그룹 참여에 실패했습니다.')
     }
-
-    console.log('[Join] Successfully joined group')
 
     // 그룹 페이지로 이동
     router.push(`/group/${group.value.id}`)

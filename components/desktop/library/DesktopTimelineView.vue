@@ -53,6 +53,7 @@
             v-model="anchorText"
             placeholder="인용 구절 (선택)"
             rows="1"
+            maxlength="500"
             class="w-full px-4 py-2.5 bg-transparent border-l-2 border-lime-400 dark:border-lime-500 text-desktop-callout-regular text-zinc-600 dark:text-zinc-400 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 focus:outline-none resize-none transition-all duration-200 ease-apple"
           ></textarea>
         </div>
@@ -64,6 +65,7 @@
             v-model="newComment"
             placeholder="느낀 점을 적어보세요 (선택)"
             rows="2"
+            maxlength="2000"
             class="w-full px-4 py-2.5 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-xl text-desktop-callout-regular text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-50 dark:focus:bg-zinc-800/50 resize-none transition-all duration-200 ease-apple"
             @keydown.meta.enter="submitComment"
             @keydown.ctrl.enter="submitComment"
@@ -179,6 +181,7 @@
                           v-model="editAnchor"
                           placeholder="인용 구절 (선택)"
                           rows="2"
+                          maxlength="500"
                           class="w-full px-3 py-2.5 bg-lime-50/60 dark:bg-lime-900/10 border-l-2 border-lime-400 rounded-r-xl text-desktop-callout-regular text-zinc-600 dark:text-zinc-400 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400/20"
                           @keydown.escape="cancelEdit"
                         ></textarea>
@@ -187,6 +190,7 @@
                           v-model="editContent"
                           placeholder="코멘트 (선택)"
                           rows="3"
+                          maxlength="2000"
                           class="w-full px-3 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-callout-regular text-zinc-800 dark:text-zinc-200 resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10"
                           @keydown.meta.enter="saveEdit(comment)"
                           @keydown.ctrl.enter="saveEdit(comment)"
