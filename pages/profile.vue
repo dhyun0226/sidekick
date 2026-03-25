@@ -236,7 +236,6 @@ const toast = useToastStore()
 const client = useSupabaseClient()
 const { toggleTheme } = useTheme()
 const { isPremium, subscription: subscriptionDetails, fetchLimits, fetchSubscription, limits } = useSubscription()
-const { getBatchBookRounds } = useBookRound()
 const { wishlist, loading: wishlistLoading, fetchWishlist } = useWishlist()
 
 // Core State
@@ -350,50 +349,6 @@ const lastYearBooks = computed(() => {
 })
 const yearOverYearGrowth = computed(() => lastYearBooks.value === 0 ? (thisYearBooks.value > 0 ? 100 : 0) : Math.round(((thisYearBooks.value - lastYearBooks.value) / lastYearBooks.value) * 100))
 
-// Helpers
-const getLocalDateString = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-const calculateStreakFromData = (cd: any[], rd: any[]) => {
-  const ds = [...new Set([...cd, ...rd].map(i => getLocalDateString(new Date(i.created_at))))].sort().reverse() // 내림차순 (최신 -> 과거)
-  if (ds.length === 0) return { current: 0, longest: 0 }
-
-  // 1. 현재 연속 (Current Streak)
-  let current = 0
-  const t = getLocalDateString(new Date())
-  const y = getLocalDateString(new Date(new Date().setDate(new Date().getDate() - 1)))
-  
-  if (ds[0] === t || ds[0] === y) {
-    current = 1
-    for (let i = 1; i < ds.length; i++) {
-      const prev = new Date(ds[i-1])
-      const curr = new Date(ds[i])
-      const diff = Math.floor((prev.getTime() - curr.getTime()) / 86400000)
-      if (diff === 1) current++
-      else break
-    }
-  }
-
-  // 2. 최장 연속 (Longest Streak)
-  let longest = 0
-  let temp = 1
-  if (ds.length > 0) longest = 1
-  
-  for (let i = 1; i < ds.length; i++) {
-    const prev = new Date(ds[i-1])
-    const curr = new Date(ds[i])
-    const diff = Math.floor((prev.getTime() - curr.getTime()) / 86400000)
-    
-    if (diff === 1) {
-      temp++
-    } else {
-      longest = Math.max(longest, temp)
-      temp = 1
-    }
-  }
-  longest = Math.max(longest, temp)
-
-  return { current, longest }
-}
-
 // Data Fetching
 const loadedYears = ref(new Set<number>())
 const isFetchingInsight = ref(false)
@@ -405,100 +360,14 @@ const fetchData = async () => {
   timeline.value = []; timelineOffset.value = 0; hasMoreTimeline.value = true
 
   try {
-    // 1. Fetch lightweight data for initial load & stats
-    // TODO: 최적화 가능 - 일부 쿼리는 나중에 lazy loading으로 처리
-    const [ { data: pd }, { data: rd }, { count: gc }, { data: ud }, { data: allDatesC }, { data: allDatesR }, { data: membershipData } ] = await Promise.all([
-      client.from('user_reading_progress').select('finished_at, progress_pct, last_read_at, hidden, group_book:group_books (id, isbn, genre_snapshot, pages_snapshot, group_id, target_end_date, deleted_at, book:books (*), group:groups (id, name, group_type, deleted_at))').eq('user_id', userId).order('last_read_at', { ascending: false }),
-      client.from('reviews').select('group_book_id, rating').eq('user_id', userId),
-      // 🎯 활성 그룹만 카운트 (deleted_at이 null인 그룹, left_at이 null인 멤버)
-      client.from('group_members').select('groups!inner(deleted_at)', { count: 'exact', head: true }).eq('user_id', userId).is('groups.deleted_at', null).is('left_at', null),
-      client.from('users').select('yearly_reading_goal').eq('id', userId).single(),
-      client.from('comments').select('created_at').eq('user_id', userId),
-      client.from('reviews').select('created_at').eq('user_id', userId),
-      // 🎯 사용자의 모든 그룹 멤버십 (목록에서 제거된 그룹 필터링용)
-      client.from('group_members').select('group_id').eq('user_id', userId)
-    ])
+    const data = await $fetch('/api/pages/profile')
 
-    // 멤버십이 있는 그룹 ID Set (목록에서 제거되지 않은 그룹)
-    const memberGroupIds = new Set((membershipData || []).map((m: any) => m.group_id))
-
-    const rm = new Map(rd?.map(r => [r.group_book_id, r.rating]) || [])
-
-    // 기본 매핑 (그룹 정보 포함) - 멤버십이 있는 그룹만 포함
-    const libraryData = (pd || [])
-      .filter((p: any) => memberGroupIds.has(p.group_book?.group?.id))
-      .map((p: any) => ({
-        id: p.group_book?.book?.isbn,
-        isbn: p.group_book?.isbn,
-        groupBookId: p.group_book?.id,
-        groupId: p.group_book?.group?.id,
-        groupName: p.group_book?.group?.name,
-        groupType: p.group_book?.group?.group_type,
-        title: p.group_book?.book?.title,
-        author: p.group_book?.book?.author,
-        publisher: p.group_book?.book?.publisher,
-        total_pages: p.group_book?.pages_snapshot || p.group_book?.book?.official_pages || p.group_book?.book?.draft_pages,
-        cover_url: p.group_book?.book?.cover_url,
-        genre: p.group_book?.genre_snapshot || p.group_book?.book?.official_genre || p.group_book?.book?.draft_genre,
-        finished_at: p.finished_at,
-        progress_pct: p.progress_pct,
-        last_read_at: p.last_read_at,
-        target_end_date: p.group_book?.target_end_date,
-        myRating: rm.get(p.group_book?.id) || null,
-        isArchived: p.group_book?.group?.deleted_at != null,
-        isBookDeleted: p.group_book?.deleted_at != null,  // 그룹에서 책이 삭제됨
-        hidden: p.hidden || false,  // 프로필 서재에서 숨김
-        // 중단된 책: 종료된 그룹 + 완독 안 함
-        isDiscontinued: p.group_book?.group?.deleted_at != null && !p.finished_at
-      }))
-
-    // 회차 계산 (그룹별로 배치 처리)
-    const groupedByGroup = new Map<string, any[]>()
-    libraryData.forEach(book => {
-      if (book.groupId) {
-        if (!groupedByGroup.has(book.groupId)) {
-          groupedByGroup.set(book.groupId, [])
-        }
-        groupedByGroup.get(book.groupId)!.push(book)
-      }
-    })
-
-    // 각 그룹별로 회차 계산
-    for (const [groupId, books] of groupedByGroup) {
-      const roundsMap = await getBatchBookRounds(groupId, books.map(b => ({ isbn: b.isbn, id: b.groupBookId })))
-      books.forEach(book => {
-        book.round = roundsMap.get(book.groupBookId) || null
-      })
-    }
-
-    library.value = libraryData
-    stats.value.books = library.value.filter(b => b.finished_at && !b.isBookDeleted).length
-    stats.value.groups = gc || 0
-    yearlyGoal.value = ud?.yearly_reading_goal || 50
-    
-    // Calculate Monthly Totals & Stats (using lightweight data)
-    const totals: Record<string, number> = {}
-    const allDates = [...(allDatesC || []), ...(allDatesR || [])]
-    
-    // ⚡️ Pre-fill fullActivities with lightweight data so Heatmap works immediately
-    const lightweightActivities = [
-      ...(allDatesC || []).map(c => ({ created_at: c.created_at, type: 'comment', isLightweight: true })),
-      ...(allDatesR || []).map(r => ({ created_at: r.created_at, type: 'review', isLightweight: true }))
-    ]
-    fullActivities.value = lightweightActivities
-
-    allDates.forEach(d => {
-      const date = new Date(d.created_at)
-      const key = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}`
-      totals[key] = (totals[key] || 0) + 1
-    })
-    monthlyTotals.value = totals
-    stats.value.comments = allDates.length
-    
-    // 🎯 Calculate Streak using ALL dates (Not paginated)
-    const streakData = calculateStreakFromData(allDatesC || [], allDatesR || [])
-    stats.value.streak = streakData.current
-    longestStreak.value = streakData.longest
+    library.value = data.library
+    stats.value = data.stats
+    yearlyGoal.value = data.yearlyGoal
+    longestStreak.value = data.longestStreak
+    monthlyTotals.value = data.monthlyTotals
+    fullActivities.value = data.lightweightActivities
 
     await loadMoreTimeline()
   } catch (err) { console.error(err) } finally { loading.value = false }

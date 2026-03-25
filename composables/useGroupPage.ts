@@ -364,6 +364,77 @@ export function useGroupPage(config: GroupPageConfig) {
     }
   }
 
+  /**
+   * Hydrate all sub-composable refs from consolidated API response
+   */
+  const hydrateFromApiResponse = (data: any) => {
+    // Hydrate group
+    group.value = data.group
+    editingGroupName.value = data.group.name
+
+    // Hydrate groupId (solo mode gets resolved ID from server)
+    if (data.groupId) {
+      config.groupIdRef.value = data.groupId
+    }
+
+    // Hydrate members
+    members.value = data.members || []
+
+    // Hydrate allBooks and derived lists
+    const booksData = data.allBooks || []
+    allBooks.value = booksData
+
+    const rawReadingBooks = booksData.filter((b: any) => b.status === 'reading')
+    readingBooks.value = rawReadingBooks
+    currentBook.value = rawReadingBooks[0] || null
+
+    // Build historyBooks from done books (same format as useGroupBooks)
+    const doneBooks = booksData.filter((b: any) => b.status === 'done')
+    historyBooks.value = doneBooks.map((gb: any) => ({
+      id: gb.id,
+      isbn: gb.isbn,
+      title: gb.book?.title || '제목 없음',
+      author: gb.book?.author || '저자 미상',
+      cover_url: gb.book?.cover_url || '',
+      publisher: gb.book?.publisher,
+      total_pages: gb.total_pages,
+      genre: gb.genre,
+      official_genre: gb.book?.official_genre,
+      draft_genre: gb.book?.draft_genre,
+      date: gb.finished_at || gb.created_at,
+      round: gb.round,
+      reviewCount: 0, // Review counts loaded separately when needed
+      user_finished_at: gb.user_finished_at
+    })).sort((a: any, b: any) =>
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    )
+
+    // Hydrate userReviewedBooks
+    const reviewMap = new Map<string, number>()
+    if (data.userReviewedBooks) {
+      Object.entries(data.userReviewedBooks).forEach(([bookId, rating]) => {
+        reviewMap.set(bookId, Number(rating))
+      })
+    }
+    userReviewedBooks.value = reviewMap
+
+    // Set selectedBookId
+    if (!selectedBookId.value && currentBook.value) {
+      selectedBookId.value = currentBook.value.id
+    }
+
+    // Hydrate selectedBook data (comments, progress)
+    if (data.selectedBookData) {
+      comments.value = data.selectedBookData.comments || []
+      hasMore.value = data.selectedBookData.hasMore ?? true
+      viewProgress.value = data.selectedBookData.userProgress || 0
+      memberProgress.value = data.selectedBookData.memberProgress || []
+    }
+  }
+
+  /**
+   * Consolidated fetchData — calls server API first, falls back to legacy
+   */
   const fetchData = async () => {
     if (!userStore.user) return
     isLoading.value = true
@@ -371,94 +442,151 @@ export function useGroupPage(config: GroupPageConfig) {
     selectedBookId.value = null  // 이전 그룹 데이터 클리어
 
     try {
-      // Solo mode: fetch solo group ID first
-      if (config.mode === 'solo') {
-        const soloGroupId = await fetchSoloGroupId()
-        if (!soloGroupId) {
-          toast.error('내 서재를 찾을 수 없습니다')
-          router.push('/')
-          return
-        }
-        config.groupIdRef.value = soloGroupId
-      }
-
-      // Fetch group info
-      const { data: groupData, error: groupError } = await client
-        .from('groups')
-        .select('*')
-        .eq('id', config.groupIdRef.value)
-        .single()
-
-      if (groupError || !groupData) {
-        const errMsg = config.mode === 'solo' ? '내 서재를 찾을 수 없습니다' : '존재하지 않는 그룹입니다'
-        toast.error(errMsg)
-        router.push('/')
-        return
-      }
-
-      group.value = groupData
-      editingGroupName.value = groupData.name
-
-      // Social mode: fetch members and check access
+      // Try consolidated API first
+      const queryParams: Record<string, string> = { mode: config.mode }
       if (config.mode === 'social') {
-        const { data: memberData } = await client
-          .from('group_members')
-          .select('*, user:users(*)')
-          .eq('group_id', config.groupIdRef.value)
-
-        if (memberData) {
-          members.value = memberData.map((m: any) => ({
-            id: m.user.id,
-            nickname: m.user.nickname,
-            avatar_url: m.user.avatar_url,
-            role: m.role,
-            left_at: m.left_at,
-            subscription_tier: m.user.subscription_tier || 'free'
-          }))
-        }
-
-        const isMember = members.value.some(m => m.id === currentUserId.value)
-        if (!isMember) {
-          toast.error('이 그룹에 접근할 권한이 없습니다')
-          router.push('/')
-          return
-        }
+        queryParams.id = config.groupIdRef.value
       }
 
-      // Fetch books, then reviews
-      await fetchBooks()
-      await fetchUserReviews()
+      const apiData = await $fetch('/api/pages/group', { query: queryParams })
 
-      // Handle bookId from query parameter
+      // Hydrate all refs from API response
+      hydrateFromApiResponse(apiData)
+
+      // Handle bookId from query parameter (override default selection)
       if (route.query.bookId) {
         const bookIdFromQuery = route.query.bookId as string
         const bookExists = allBooks.value.some((b: any) => b.id === bookIdFromQuery)
         if (bookExists) {
           selectedBookId.value = bookIdFromQuery
+          // Need to fetch book-specific data for the overridden selection
+          if (bookIdFromQuery !== (apiData as any).allBooks?.find((b: any) => b.status === 'reading')?.id) {
+            try {
+              const bookData = await $fetch('/api/pages/group/book', {
+                query: { bookId: bookIdFromQuery }
+              })
+              comments.value = (bookData as any).comments || []
+              hasMore.value = (bookData as any).hasMore ?? true
+              viewProgress.value = (bookData as any).userProgress || 0
+              memberProgress.value = (bookData as any).memberProgress || []
+            } catch (bookErr) {
+              console.warn('[GroupPage] Failed to fetch query bookId data, using default')
+            }
+          }
         }
+      }
+    } catch (apiErr: any) {
+      // API failed — check if it's an auth/access error that should not be retried
+      if (apiErr?.statusCode === 401 || apiErr?.statusCode === 403 || apiErr?.statusCode === 404) {
+        const message = apiErr?.data?.message || apiErr?.message || '데이터를 불러오는데 실패했습니다'
+        if (config.mode === 'social') {
+          loadError.value = message
+        } else {
+          toast.error(message)
+        }
+        router.push('/')
+        return
       }
 
-      // Fetch comments and progress
-      if (selectedBookId.value) {
-        if (currentUserId.value) {
-          const [_, progress] = await Promise.all([
-            fetchComments(selectedBookId.value),
-            loadProgress(selectedBookId.value, currentUserId.value)
-          ])
-          viewProgress.value = progress
+      // Fall back to legacy fetching
+      console.warn('[GroupPage] Consolidated API failed, falling back to legacy:', apiErr?.message)
+      try {
+        await fetchDataLegacy()
+      } catch (legacyErr: any) {
+        console.error('[GroupPage] fetchDataLegacy error:', legacyErr)
+        if (config.mode === 'social') {
+          loadError.value = legacyErr.message || '데이터를 불러오는데 실패했습니다'
         } else {
-          await fetchComments(selectedBookId.value)
+          toast.error('데이터를 불러오는데 실패했습니다. 새로고침해주세요')
         }
-      }
-    } catch (err: any) {
-      console.error('[GroupPage] fetchData error:', err)
-      if (config.mode === 'social') {
-        loadError.value = err.message || '데이터를 불러오는데 실패했습니다'
-      } else {
-        toast.error('데이터를 불러오는데 실패했습니다. 새로고침해주세요')
       }
     } finally {
       isLoading.value = false
+    }
+  }
+
+  /**
+   * Legacy fetchData — original multi-query approach (fallback)
+   */
+  const fetchDataLegacy = async () => {
+    // Solo mode: fetch solo group ID first
+    if (config.mode === 'solo') {
+      const soloGroupId = await fetchSoloGroupId()
+      if (!soloGroupId) {
+        toast.error('내 서재를 찾을 수 없습니다')
+        router.push('/')
+        return
+      }
+      config.groupIdRef.value = soloGroupId
+    }
+
+    // Fetch group info
+    const { data: groupData, error: groupError } = await client
+      .from('groups')
+      .select('*')
+      .eq('id', config.groupIdRef.value)
+      .single()
+
+    if (groupError || !groupData) {
+      const errMsg = config.mode === 'solo' ? '내 서재를 찾을 수 없습니다' : '존재하지 않는 그룹입니다'
+      toast.error(errMsg)
+      router.push('/')
+      return
+    }
+
+    group.value = groupData
+    editingGroupName.value = groupData.name
+
+    // Social mode: fetch members and check access
+    if (config.mode === 'social') {
+      const { data: memberData } = await client
+        .from('group_members')
+        .select('*, user:users(*)')
+        .eq('group_id', config.groupIdRef.value)
+
+      if (memberData) {
+        members.value = memberData.map((m: any) => ({
+          id: m.user.id,
+          nickname: m.user.nickname,
+          avatar_url: m.user.avatar_url,
+          role: m.role,
+          left_at: m.left_at,
+          subscription_tier: m.user.subscription_tier || 'free'
+        }))
+      }
+
+      const isMember = members.value.some(m => m.id === currentUserId.value)
+      if (!isMember) {
+        toast.error('이 그룹에 접근할 권한이 없습니다')
+        router.push('/')
+        return
+      }
+    }
+
+    // Fetch books, then reviews
+    await fetchBooks()
+    await fetchUserReviews()
+
+    // Handle bookId from query parameter
+    if (route.query.bookId) {
+      const bookIdFromQuery = route.query.bookId as string
+      const bookExists = allBooks.value.some((b: any) => b.id === bookIdFromQuery)
+      if (bookExists) {
+        selectedBookId.value = bookIdFromQuery
+      }
+    }
+
+    // Fetch comments and progress
+    if (selectedBookId.value) {
+      if (currentUserId.value) {
+        const [_, progress] = await Promise.all([
+          fetchComments(selectedBookId.value),
+          loadProgress(selectedBookId.value, currentUserId.value)
+        ])
+        viewProgress.value = progress
+      } else {
+        await fetchComments(selectedBookId.value)
+      }
     }
   }
 
@@ -1466,26 +1594,50 @@ export function useGroupPage(config: GroupPageConfig) {
     modals.drawer = false
 
     try {
-    await fetchComments(bookId)
+      // Try consolidated book API first
+      try {
+        const bookData = await $fetch('/api/pages/group/book', {
+          query: { bookId }
+        }) as any
 
-    const userId = currentUserId.value
-    if (userId) {
-      const { data: progressData } = await client
-        .from('user_reading_progress')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('group_book_id', bookId)
-        .maybeSingle()
+        comments.value = bookData.comments || []
+        hasMore.value = bookData.hasMore ?? true
+        viewProgress.value = bookData.userProgress || 0
+        memberProgress.value = bookData.memberProgress || []
 
-      viewProgress.value = progressData ? progressData.progress_pct : 0
+        // 레코드가 아예 없을 때만 최초 생성 (이미 있으면 불필요한 DB write 방지)
+        const userId = currentUserId.value
+        if (userId) {
+          const hasExistingProgress = (bookData.memberProgress || []).some(
+            (p: any) => p.user_id === userId
+          )
+          if (!hasExistingProgress && !isArchived.value) {
+            await saveProgress(0)
+          }
+        }
+      } catch (apiErr) {
+        // Fall back to legacy approach
+        console.warn('[GroupPage] Book API failed, falling back to legacy:', apiErr)
+        await fetchComments(bookId)
 
-      // 레코드가 아예 없을 때만 최초 생성 (이미 있으면 불필요한 DB write 방지)
-      if (!progressData && !isArchived.value) {
-        await saveProgress(0)
+        const userId = currentUserId.value
+        if (userId) {
+          const { data: progressData } = await client
+            .from('user_reading_progress')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('group_book_id', bookId)
+            .maybeSingle()
+
+          viewProgress.value = progressData ? progressData.progress_pct : 0
+
+          if (!progressData && !isArchived.value) {
+            await saveProgress(0)
+          }
+        }
       }
-    }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
       isSelectingBook.value = false
     }

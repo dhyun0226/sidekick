@@ -366,16 +366,30 @@ export const useDiscover = () => {
     }
   }
 
-  // 모든 데이터 fetch
+  // 서버 API를 통한 통합 fetch
+  const fetchAllFromServer = async (period: PeriodFilter, genre: string | null) => {
+    const params: Record<string, string> = { period }
+    if (genre) params.genre = genre
+
+    const data = await $fetch('/api/pages/discover', { params })
+
+    hotBooks.value = data.hotBooks || []
+    wishBooks.value = data.wishBooks || []
+    topRatedBooks.value = data.topRatedBooks || []
+    completionBooks.value = data.completionBooks || []
+  }
+
+  // 모든 데이터 fetch (서버 API 사용)
   const fetchAll = async (period: PeriodFilter, genre: string | null) => {
     loading.value = true
     try {
-      await Promise.all([
-        fetchHotBooks(period, genre),
-        fetchWishBooks(period, genre),
-        fetchTopRatedBooks(period, genre),
-        fetchCompletionBooks(period, genre)
-      ])
+      await fetchAllFromServer(period, genre)
+    } catch (err) {
+      console.error('[useDiscover] fetchAll server error:', err)
+      hotBooks.value = []
+      wishBooks.value = []
+      topRatedBooks.value = []
+      completionBooks.value = []
     } finally {
       loading.value = false
     }
@@ -388,6 +402,7 @@ export const useDiscover = () => {
     topRatedBooks,
     completionBooks,
     fetchAll,
+    fetchAllFromServer,
     fetchHotBooks,
     fetchWishBooks,
     fetchTopRatedBooks,
