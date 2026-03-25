@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
 
   if (error) {
     console.error('[Inquiry] List error:', error)
-    throw createError({ statusCode: 500, message: '문의 목록 조회에 실패했습니다.' })
+    throw createError({ statusCode: 500, message: `문의 목록 조회에 실패했습니다: ${error.message}` })
   }
 
   return { inquiries: data || [] }

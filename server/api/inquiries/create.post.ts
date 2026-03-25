@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
 
   if (error) {
     console.error('[Inquiry] Create error:', error)
-    throw createError({ statusCode: 500, message: '문의 등록에 실패했습니다.' })
+    throw createError({ statusCode: 500, message: `문의 등록에 실패했습니다: ${error.message}` })
   }
 
   return { success: true, inquiry: data }
