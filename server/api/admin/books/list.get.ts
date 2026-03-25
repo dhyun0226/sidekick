@@ -2,7 +2,7 @@
  * 관리자 전용 - 모든 도서 목록 조회 API
  */
 
-import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   try {
