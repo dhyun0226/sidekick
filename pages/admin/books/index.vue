@@ -154,84 +154,108 @@
 
             <!-- 페이지수 탭 -->
             <div v-if="detailTab === 'pages'">
-              <div class="mb-6">
-                <p class="text-xs text-zinc-400 mb-2">사용자 입력값</p>
-                <p class="text-3xl font-semibold text-zinc-900 dark:text-white">
-                  {{ detailBook.draft_pages ? `${detailBook.draft_pages}p` : '없음' }}
-                </p>
-              </div>
-              <div v-if="detailBook.official_pages" class="mb-6">
-                <p class="text-xs text-zinc-400 mb-2">승인된 값</p>
-                <p class="text-xl text-blue-600 font-medium">{{ detailBook.official_pages }}p</p>
-              </div>
-              <button
-                v-if="detailBook.draft_pages && !detailBook.official_pages"
-                @click="approvePages(detailBook)"
-                :disabled="approving !== null"
-                class="w-full py-3 text-sm font-semibold text-white bg-lime-600 hover:bg-lime-700 rounded-xl transition-colors disabled:opacity-50"
-              >
-                {{ approving === `pages-${detailBook.isbn}` ? '처리 중...' : '페이지수 승인' }}
-              </button>
-              <p v-else-if="detailBook.official_pages" class="text-sm text-blue-600 text-center py-3">승인 완료</p>
-              <p v-else class="text-sm text-zinc-400 text-center py-3">입력된 페이지수가 없습니다</p>
+              <template v-if="detailBook.official_pages">
+                <div class="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-5 text-center mb-4">
+                  <p class="text-xs text-blue-500 mb-1">승인됨</p>
+                  <p class="text-3xl font-semibold text-blue-600">{{ detailBook.official_pages }}p</p>
+                </div>
+              </template>
+              <template v-else-if="detailBook.draft_pages">
+                <p class="text-xs text-zinc-400 mb-1">사용자가 입력한 값</p>
+                <p class="text-sm text-zinc-500 mb-4">{{ detailBook.draft_pages }}p</p>
+                <div class="mb-5">
+                  <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">승인할 페이지수</label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="number"
+                      v-model.number="editPages"
+                      min="1"
+                      class="flex-1 px-4 py-3 text-lg font-semibold bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-lime-500 focus:border-transparent outline-none text-zinc-900 dark:text-white"
+                    />
+                    <span class="text-lg text-zinc-400">p</span>
+                  </div>
+                </div>
+                <button
+                  @click="approvePagesWithValue(detailBook)"
+                  :disabled="approving !== null || !editPages"
+                  class="w-full py-3 text-sm font-semibold text-white bg-lime-600 hover:bg-lime-700 rounded-xl transition-colors disabled:opacity-50"
+                >
+                  {{ approving === `pages-${detailBook.isbn}` ? '처리 중...' : '페이지수 승인' }}
+                </button>
+              </template>
+              <template v-else>
+                <div class="text-center py-8">
+                  <p class="text-sm text-zinc-400">입력된 페이지수가 없습니다</p>
+                </div>
+              </template>
             </div>
 
             <!-- 장르 탭 -->
             <div v-if="detailTab === 'genre'">
-              <div class="mb-6">
-                <p class="text-xs text-zinc-400 mb-2">사용자 입력값</p>
-                <p class="text-2xl font-semibold text-zinc-900 dark:text-white">
-                  {{ detailBook.draft_genre || '없음' }}
-                </p>
-              </div>
-              <div v-if="detailBook.official_genre" class="mb-6">
-                <p class="text-xs text-zinc-400 mb-2">승인된 값</p>
-                <p class="text-xl text-blue-600 font-medium">{{ detailBook.official_genre }}</p>
-              </div>
-              <div v-if="detailBook.draft_genre && !detailBook.official_genre" class="flex gap-3">
+              <template v-if="detailBook.official_genre">
+                <div class="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-5 text-center mb-4">
+                  <p class="text-xs text-blue-500 mb-1">승인됨</p>
+                  <p class="text-2xl font-semibold text-blue-600">{{ detailBook.official_genre }}</p>
+                </div>
+              </template>
+              <template v-else-if="detailBook.draft_genre">
+                <p class="text-xs text-zinc-400 mb-1">사용자가 입력한 값</p>
+                <p class="text-sm text-zinc-500 mb-4">{{ detailBook.draft_genre }}</p>
+                <div class="mb-5">
+                  <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">승인할 장르</label>
+                  <input
+                    type="text"
+                    v-model="editGenre"
+                    class="w-full px-4 py-3 text-lg font-semibold bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-lime-500 focus:border-transparent outline-none text-zinc-900 dark:text-white"
+                  />
+                </div>
                 <button
-                  @click="openEditGenre(detailBook)"
-                  class="flex-1 py-3 text-sm font-medium text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-                >
-                  수정 후 승인
-                </button>
-                <button
-                  @click="approveGenre(detailBook)"
-                  :disabled="approving !== null"
-                  class="flex-1 py-3 text-sm font-semibold text-white bg-lime-600 hover:bg-lime-700 rounded-xl transition-colors disabled:opacity-50"
+                  @click="approveGenreWithValue(detailBook)"
+                  :disabled="approving !== null || !editGenre?.trim()"
+                  class="w-full py-3 text-sm font-semibold text-white bg-lime-600 hover:bg-lime-700 rounded-xl transition-colors disabled:opacity-50"
                 >
                   {{ approving === `genre-${detailBook.isbn}` ? '처리 중...' : '장르 승인' }}
                 </button>
-              </div>
-              <p v-else-if="detailBook.official_genre" class="text-sm text-blue-600 text-center py-3">승인 완료</p>
-              <p v-else class="text-sm text-zinc-400 text-center py-3">입력된 장르가 없습니다</p>
+              </template>
+              <template v-else>
+                <div class="text-center py-8">
+                  <p class="text-sm text-zinc-400">입력된 장르가 없습니다</p>
+                </div>
+              </template>
             </div>
 
             <!-- 목차 탭 -->
             <div v-if="detailTab === 'toc'">
-              <div v-if="detailTocData.length > 0" class="mb-4">
-                <p class="text-xs text-zinc-400 mb-3">{{ detailBook.official_toc ? '승인된 목차' : '사용자 입력 목차' }} ({{ detailTocData.length }}장)</p>
-                <div class="space-y-0.5">
+              <template v-if="detailTocData.length > 0">
+                <p class="text-xs text-zinc-400 mb-3">
+                  {{ detailBook.official_toc ? '승인된 목차' : '사용자 입력 목차' }}
+                  <span class="text-zinc-500 font-medium ml-1">{{ detailTocData.length }}장</span>
+                </p>
+                <div class="space-y-0">
                   <div
                     v-for="(ch, idx) in detailTocData"
                     :key="idx"
-                    class="flex items-baseline gap-3 py-2 border-b border-zinc-50 dark:border-zinc-800 last:border-0"
+                    class="py-2.5 border-b border-zinc-100 dark:border-zinc-800 last:border-0"
                   >
-                    <span class="text-zinc-400 text-sm w-6 text-right shrink-0">{{ idx + 1 }}</span>
-                    <span class="text-sm text-zinc-900 dark:text-white flex-1">{{ ch.title }}</span>
-                    <span class="text-sm text-zinc-400 tabular-nums shrink-0">{{ ch.startPage ? `${ch.startPage}p` : '-' }}</span>
+                    <div class="flex items-start gap-3">
+                      <span class="text-zinc-300 dark:text-zinc-600 text-sm w-6 text-right shrink-0 pt-0.5">{{ idx + 1 }}</span>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm text-zinc-900 dark:text-white leading-relaxed">{{ ch.title }}</p>
+                        <p class="text-xs text-zinc-400 mt-0.5">{{ ch.startPage ? `${ch.startPage}페이지부터` : '' }}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </template>
               <div v-else class="text-center py-8">
                 <p class="text-sm text-zinc-400">입력된 목차가 없습니다</p>
               </div>
-              <div v-if="detailBook.draft_toc && !detailBook.official_toc" class="flex gap-3 mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+              <div v-if="detailBook.draft_toc && !detailBook.official_toc" class="flex gap-3 mt-5 pt-4 border-t border-zinc-100 dark:border-zinc-800">
                 <button
                   @click="editToc(detailBook)"
                   class="flex-1 py-3 text-sm font-medium text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
                 >
-                  수정 후 승인
+                  수정
                 </button>
                 <button
                   @click="approveToc(detailBook)"
@@ -241,7 +265,9 @@
                   {{ approving === `toc-${detailBook.isbn}` ? '처리 중...' : '목차 승인' }}
                 </button>
               </div>
-              <p v-else-if="detailBook.official_toc" class="text-sm text-blue-600 text-center py-3 mt-4 border-t border-zinc-100 dark:border-zinc-800">승인 완료</p>
+              <div v-else-if="detailBook.official_toc" class="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                <p class="text-sm text-blue-600 text-center">승인 완료</p>
+              </div>
             </div>
           </div>
         </div>
@@ -303,9 +329,14 @@ const detailTocData = computed(() => {
   return parseToc(detailBook.value.official_toc || detailBook.value.draft_toc)
 })
 
+// 수정 가능 값
+const editPages = ref<number | null>(null)
+const editGenre = ref('')
+
 const openDetail = (book: any) => {
   detailBook.value = book
-  // 첫 번째 대기 탭으로 자동 이동
+  editPages.value = book.draft_pages || book.official_pages || null
+  editGenre.value = book.draft_genre || book.official_genre || ''
   if (book.draft_pages && !book.official_pages) detailTab.value = 'pages'
   else if (book.draft_genre && !book.official_genre) detailTab.value = 'genre'
   else if (book.draft_toc && !book.official_toc) detailTab.value = 'toc'
@@ -381,6 +412,34 @@ const approvePages = async (book: any) => {
     const res = await $fetch('/api/admin/books/approve-pages', { method: 'POST', body: { isbn: book.isbn } })
     toast.success(res.message)
     book.official_pages = book.draft_pages
+  } catch (e: any) { toast.error(e.data?.message || '승인에 실패했습니다') }
+  finally { approving.value = null }
+}
+
+const approvePagesWithValue = async (book: any) => {
+  if (!editPages.value) return
+  approving.value = `pages-${book.isbn}`
+  try {
+    // draft_pages를 수정된 값으로 업데이트 후 승인
+    const serviceRes = await $fetch('/api/admin/books/update-toc', {
+      method: 'POST',
+      body: { isbn: book.isbn, totalPages: editPages.value, toc: parseToc(book.draft_toc || book.official_toc), tocType: 'draft' }
+    })
+    book.draft_pages = editPages.value
+    const res = await $fetch('/api/admin/books/approve-pages', { method: 'POST', body: { isbn: book.isbn } })
+    toast.success(`${editPages.value}p로 승인되었습니다`)
+    book.official_pages = editPages.value
+  } catch (e: any) { toast.error(e.data?.message || '승인에 실패했습니다') }
+  finally { approving.value = null }
+}
+
+const approveGenreWithValue = async (book: any) => {
+  if (!editGenre.value?.trim()) return
+  approving.value = `genre-${book.isbn}`
+  try {
+    await $fetch('/api/admin/books/approve-genre', { method: 'POST', body: { isbn: book.isbn, genre: editGenre.value.trim() } })
+    toast.success(`"${editGenre.value.trim()}" 장르로 승인되었습니다`)
+    book.official_genre = editGenre.value.trim()
   } catch (e: any) { toast.error(e.data?.message || '승인에 실패했습니다') }
   finally { approving.value = null }
 }
