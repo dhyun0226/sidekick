@@ -5,42 +5,55 @@
 import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  const user = await serverSupabaseUser(event)
+  try {
+    const user = await serverSupabaseUser(event)
 
-  if (!user) {
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        message: '인증이 필요합니다'
+      })
+    }
+
+    const serviceClient = serverSupabaseServiceRole(event)
+
+    const { data: userData, error: userError } = await serviceClient
+      .from('users')
+      .select('subscription_tier')
+      .eq('id', user.sub)
+      .single()
+
+    if (userError) {
+      throw createError({
+        statusCode: 500,
+        message: `유저 조회 실패: ${userError.message}`
+      })
+    }
+
+    if (userData?.subscription_tier !== 'admin') {
+      throw createError({
+        statusCode: 403,
+        message: '관리자 권한이 필요합니다'
+      })
+    }
+
+    const { data, error } = await serviceClient
+      .from('books')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      throw createError({
+        statusCode: 500,
+        message: `도서 조회 실패: ${error.message}`
+      })
+    }
+
+    return { books: data || [] }
+  } catch (err: any) {
     throw createError({
-      statusCode: 401,
-      message: '인증이 필요합니다.'
+      statusCode: err.statusCode || 500,
+      message: err.message || '알 수 없는 에러'
     })
-  }
-
-  // Service Role 클라이언트로 RLS 우회
-  const serviceClient = serverSupabaseServiceRole(event)
-
-  // 관리자 권한 체크 (Service Role로 조회)
-  const { data: userData, error: userError } = await serviceClient
-    .from('users')
-    .select('subscription_tier')
-    .eq('id', user.sub)
-    .single()
-
-  if (userError || userData?.subscription_tier !== 'admin') {
-    throw createError({
-      statusCode: 403,
-      message: '관리자 권한이 필요합니다.'
-    })
-  }
-
-  // 모든 책 조회
-
-  const { data, error } = await serviceClient
-    .from('books')
-    .select('*')
-    .order('created_at', { ascending: false })
-
-  if (error) throw error
-
-  return {
-    books: data || []
   }
 })
