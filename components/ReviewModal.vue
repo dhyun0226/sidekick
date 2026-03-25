@@ -15,7 +15,7 @@
 
       <div class="text-center mb-6 pt-4">
         <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-1.5">
-          {{ isEditing ? '리뷰 수정하기' : '완독을 축하합니다! 🎉' }}
+          {{ isEditing ? '리뷰 수정하기' : '완독을 축하합니다' }}
         </h2>
         <p class="text-sm text-zinc-500 dark:text-zinc-400">
           이 책에 대한 소중한 감상을 남겨주세요

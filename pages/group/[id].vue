@@ -29,18 +29,18 @@
         <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4">
           <AlertCircle :size="32" class="text-red-500" />
         </div>
-        <h2 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">문제가 발생했습니다</h2>
+        <h2 class="text-lg font-semibold text-zinc-900 dark:text-white mb-2">문제가 발생했습니다</h2>
         <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">{{ loadError }}</p>
         <div class="flex gap-3">
           <button
             @click="fetchData"
-            class="px-6 py-3 bg-lime-400 text-black font-bold rounded-xl hover:bg-lime-300 transition-all"
+            class="px-6 py-3 bg-lime-400 text-black font-semibold rounded-2xl hover:bg-lime-300 transition-all"
           >
             다시 시도
           </button>
           <button
             @click="router.push('/')"
-            class="px-6 py-3 bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-all"
+            class="px-6 py-3 bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-semibold rounded-2xl hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-all"
           >
             홈으로
           </button>
@@ -56,7 +56,7 @@
       <!-- Read-Only Mode Banner (Free users in Social groups) -->
       <div v-if="isReadOnlyMode" class="bg-blue-500/10 dark:bg-blue-500/20 border-b border-blue-500/30 px-4 py-3 relative z-30">
         <div class="max-w-md mx-auto text-center space-y-2">
-          <p class="text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center justify-center gap-2">
+          <p class="text-sm font-semibold text-blue-600 dark:text-blue-400 flex items-center justify-center gap-2">
             <Lock :size="16" /> 읽기 전용 모드
           </p>
           <p class="text-xs text-blue-600/80 dark:text-blue-400/80">
@@ -64,7 +64,7 @@
           </p>
           <button
             @click="modals.upgradeReadOnly = true"
-            class="w-full max-w-xs mx-auto py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 flex items-center justify-center gap-2 text-sm"
+            class="w-full max-w-xs mx-auto py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all shadow-apple hover:shadow-apple-lg flex items-center justify-center gap-2 text-sm"
           >
             <Lock :size="16" />
             프리미엄으로 참여하기
@@ -74,7 +74,7 @@
 
       <!-- Archived Notice Banner -->
       <div v-if="isArchived" class="bg-amber-500/10 dark:bg-amber-500/20 border-b border-amber-500/30 px-4 py-2 text-center relative z-30">
-        <p class="text-[11px] font-black text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1.5 uppercase tracking-tighter">
+        <p class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1.5 uppercase tracking-tighter">
           <Archive :size="12" /> 이 그룹은 종료되었습니다. (과거의 기록만 열람 가능)
         </p>
       </div>
@@ -82,7 +82,7 @@
       <!-- Paused Notice Banner -->
       <div v-if="isPausedGroup && !isArchived" class="bg-orange-500/10 dark:bg-orange-500/20 border-b border-orange-500/30 px-4 py-3 relative z-30">
         <div class="max-w-md mx-auto text-center space-y-3">
-          <p class="text-sm font-bold text-orange-600 dark:text-orange-400 flex items-center justify-center gap-2">
+          <p class="text-sm font-semibold text-orange-600 dark:text-orange-400 flex items-center justify-center gap-2">
             <Pause :size="16" /> 그룹이 일시 정지되었습니다
           </p>
           <p class="text-xs text-orange-600/80 dark:text-orange-400/80">
@@ -93,7 +93,7 @@
           <button
             v-if="isPremium"
             @click="handleBecomeOwner"
-            class="w-full max-w-xs mx-auto py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-orange-500/30 flex items-center justify-center gap-2"
+            class="w-full max-w-xs mx-auto py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-2xl transition-all shadow-apple hover:shadow-apple-lg flex items-center justify-center gap-2"
           >
             <User :size="18" />
             방장 되기 (그룹 활성화)
@@ -106,9 +106,9 @@
             </p>
             <button
               @click="router.push('/subscription')"
-              class="w-full max-w-xs mx-auto py-2.5 bg-white dark:bg-zinc-800 border-2 border-orange-500 text-orange-600 dark:text-orange-400 font-bold rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all flex items-center justify-center gap-2"
+              class="w-full max-w-xs mx-auto py-2.5 bg-white dark:bg-zinc-800 ring-2 ring-orange-500 text-orange-600 dark:text-orange-400 font-semibold rounded-2xl hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all flex items-center justify-center gap-2"
             >
-              ⭐ 프리미엄 가입하기
+              프리미엄 가입하기
             </button>
           </div>
         </div>
@@ -138,10 +138,10 @@
       <div class="px-safe max-w-[480px] mx-auto min-h-[50vh] pb-[200px]">
         <!-- 책이 없을 때 Empty State (개선된 온보딩) -->
         <div v-if="!selectedBook" class="flex flex-col items-center justify-center pt-32 px-4">
-          <div class="w-24 h-24 bg-gradient-to-br from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner text-5xl">
-            📚
+          <div class="w-24 h-24 bg-gradient-to-br from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner">
+            <BookOpen :size="32" class="text-zinc-300 dark:text-zinc-600" />
           </div>
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+          <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
             {{ isAdmin ? '함께 읽을 책을 정해주세요' : '읽을 책을 기다리고 있어요' }}
           </h2>
           <p class="text-sm text-zinc-500 dark:text-zinc-400 text-center mb-8 max-w-xs leading-relaxed">
@@ -156,7 +156,7 @@
           <button
             v-if="isAdmin"
             @click="openSearchModal"
-            class="px-8 py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center gap-2 active:scale-95"
+            class="px-8 py-4 bg-lime-400 text-black font-semibold rounded-2xl hover:bg-lime-300 transition-all shadow-apple hover:shadow-apple-lg flex items-center gap-2 active:scale-95"
           >
             <Plus :size="20" stroke-width="3" />
             새 책 시작하기
@@ -165,7 +165,7 @@
           <button
             v-else
             @click="modals.drawer = true"
-            class="px-6 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-xl hover:bg-zinc-200 transition-all flex items-center gap-2"
+            class="px-6 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-semibold rounded-2xl hover:bg-zinc-200 transition-all flex items-center gap-2"
           >
             <Menu :size="18" />
             그룹 메뉴 보기
@@ -447,7 +447,7 @@ import BookAdminModals from '~/components/group/BookAdminModals.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import TextDisplayModal from '~/components/TextDisplayModal.vue'
 import TextInputModal from '~/components/TextInputModal.vue'
-import { AlertCircle, Lock, Archive, Pause, User, Plus, Menu } from 'lucide-vue-next'
+import { AlertCircle, Lock, Archive, Pause, User, Plus, Menu, BookOpen } from 'lucide-vue-next'
 import { GroupPageKey } from '~/types'
 
 const DesktopGroupView = defineAsyncComponent(() => import('~/components/desktop/group/DesktopGroupView.vue'))

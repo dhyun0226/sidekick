@@ -32,11 +32,11 @@
     <!-- Stats Badge -->
     <div class="flex items-center gap-1 text-[10px] font-bold">
       <template v-if="type === 'hot'">
-        <span class="text-orange-500">🔥</span>
+        <Flame :size="10" class="text-orange-500" />
         <span class="text-zinc-600 dark:text-zinc-400">{{ book.count }}명</span>
       </template>
       <template v-else-if="type === 'wish'">
-        <span class="text-pink-500">💝</span>
+        <Heart :size="10" class="text-pink-500" />
         <span class="text-zinc-600 dark:text-zinc-400">{{ book.count }}명</span>
       </template>
       <template v-else-if="type === 'rating'">
@@ -45,7 +45,7 @@
         <span class="text-zinc-400 dark:text-zinc-500">({{ book.reviewCount }})</span>
       </template>
       <template v-else-if="type === 'completion'">
-        <span class="text-green-500">✅</span>
+        <CheckCircle :size="10" class="text-green-500" />
         <span class="text-zinc-600 dark:text-zinc-400">{{ book.completionRate }}%</span>
       </template>
     </div>
@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Star } from 'lucide-vue-next'
+import { Star, Flame, Heart, CheckCircle } from 'lucide-vue-next'
 import type { DiscoverBook } from '~/composables/useDiscover'
 
 const props = defineProps<{

@@ -16,7 +16,7 @@
       <div class="flex items-center gap-3">
         <div
           @click="router.push('/profile')"
-          class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:ring-2 hover:ring-lime-400 transition-all shadow-sm"
+          class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden ring-1 ring-black/[0.04] dark:ring-white/[0.06] cursor-pointer hover:ring-2 hover:ring-lime-400 transition-all shadow-apple"
         >
           <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
           <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
@@ -24,21 +24,21 @@
           </div>
         </div>
         <div>
-          <h1 class="text-xl font-bold text-zinc-900 dark:text-white tracking-tight text-gradient">Cheer Readers</h1>
+          <h1 class="text-xl font-semibold text-zinc-900 dark:text-white tracking-tight text-gradient">치어리더스</h1>
           <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">반가워요, {{ userStore.profile?.nickname }}님!</p>
         </div>
       </div>
       <div class="flex gap-2 items-center">
         <button
           @click="router.push('/discover')"
-          class="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-lime-500 dark:hover:text-lime-400 hover:border-lime-200 transition-colors shadow-sm"
+          class="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 ring-1 ring-black/[0.04] dark:ring-white/[0.06] flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-lime-500 dark:hover:text-lime-400 transition-colors shadow-apple"
           title="디스커버"
         >
           <Compass :size="20" />
         </button>
         <button
           @click="joinGroupModalOpen = true"
-          class="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-lime-500 dark:hover:text-lime-400 hover:border-lime-200 transition-colors shadow-sm"
+          class="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 ring-1 ring-black/[0.04] dark:ring-white/[0.06] flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-lime-500 dark:hover:text-lime-400 transition-colors shadow-apple"
           title="초대 코드 입력"
         >
           <KeyRound :size="20" />
@@ -53,7 +53,7 @@
     <div v-if="soloGroup" class="mb-6">
       <div
         @click="router.push('/my-library')"
-        class="relative w-full rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 flex gap-4 items-stretch shadow-sm cursor-pointer group transition-all hover:border-lime-400 dark:hover:border-lime-500 active:scale-[0.98] min-h-[140px]"
+        class="relative w-full rounded-2xl bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-4 flex gap-4 items-stretch shadow-apple cursor-pointer group transition-all hover:ring-lime-400 dark:hover:ring-lime-500 active:scale-[0.98] min-h-[140px]"
       >
         <div v-if="soloGroup.currentBook" class="flex gap-4 w-full">
           <!-- Book Cover -->
@@ -67,7 +67,7 @@
           <div class="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5">
             <!-- Top: Group Name & D-Day Badge -->
             <div class="flex justify-between items-start mb-1 gap-2">
-              <h4 class="text-[13px] font-bold text-zinc-500 dark:text-zinc-400 truncate min-w-0">
+              <h4 class="text-[13px] font-semibold text-zinc-500 dark:text-zinc-400 truncate min-w-0">
                 {{ soloGroup.name }}
               </h4>
               <div class="flex items-center gap-1.5 flex-shrink-0">
@@ -85,7 +85,7 @@
 
             <!-- Middle: Title & Author -->
             <div class="flex-1 flex flex-col justify-center min-h-0 overflow-hidden">
-              <h3 class="text-base font-bold text-zinc-900 dark:text-white leading-tight line-clamp-2 mb-1 min-h-0">
+              <h3 class="text-base font-semibold text-zinc-900 dark:text-white leading-tight line-clamp-2 mb-1 min-h-0">
                 {{ soloGroup.currentBook.title }}
               </h3>
               <div class="flex items-center h-4 gap-1 mt-1 whitespace-nowrap overflow-hidden leading-none text-[11px] text-zinc-600 dark:text-zinc-300">
@@ -121,11 +121,11 @@
 
         <!-- Empty State -->
         <div v-else class="flex items-center justify-center w-full gap-3">
-          <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" :class="soloGroup.doneCount > 0 ? 'bg-amber-100 dark:bg-amber-900/20' : 'bg-lime-100 dark:bg-lime-900/20'">
-            {{ soloGroup.doneCount > 0 ? '🎉' : '📚' }}
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center" :class="soloGroup.doneCount > 0 ? 'bg-amber-100 dark:bg-amber-900/20' : 'bg-lime-100 dark:bg-lime-900/20'">
+            <BookOpen :size="20" :class="soloGroup.doneCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-lime-600 dark:text-lime-400'" />
           </div>
           <div>
-            <p class="text-sm font-bold text-zinc-900 dark:text-white">
+            <p class="text-sm font-semibold text-zinc-900 dark:text-white">
               {{ soloGroup.doneCount > 0 ? `${soloGroup.doneCount}권의 책을 완독했어요!` : '읽을 책을 추가해보세요' }}
             </p>
             <p class="text-xs text-zinc-500 dark:text-zinc-400">
@@ -139,8 +139,7 @@
     <!-- 2. Reading Social Groups Section -->
     <div v-if="readingSocialGroups.length > 0" class="space-y-1 mb-4">
       <div class="flex items-center gap-2 px-1">
-        <span class="text-lg">🔥</span>
-        <h2 class="text-xs font-bold text-zinc-900 dark:text-white">함께 읽고 있어요</h2>
+        <h2 class="text-xs font-semibold text-zinc-900 dark:text-white">함께 읽고 있어요</h2>
       </div>
       
       <div class="grid gap-4">
@@ -148,7 +147,7 @@
           v-for="group in readingSocialGroups"
           :key="group.id"
           @click="router.push(`/group/${group.id}`)"
-          class="relative w-full rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 flex gap-4 items-stretch shadow-sm cursor-pointer group transition-all hover:border-lime-400 dark:hover:border-lime-500 active:scale-[0.98] min-h-[140px]"
+          class="relative w-full rounded-2xl bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-4 flex gap-4 items-stretch shadow-apple cursor-pointer group transition-all hover:ring-lime-400 dark:hover:ring-lime-500 active:scale-[0.98] min-h-[140px]"
         >
           <!-- Left: Book Cover (Fixed Aspect Ratio) -->
           <div class="w-16 sm:w-20 aspect-[2/3] flex-shrink-0 self-center">
@@ -165,7 +164,7 @@
 
                         <!-- Top: Group Name & Badges -->
                         <div class="flex justify-between items-start mb-1 gap-2">
-                          <h4 class="text-[13px] font-bold text-zinc-500 dark:text-zinc-400 truncate min-w-0">
+                          <h4 class="text-[13px] font-semibold text-zinc-500 dark:text-zinc-400 truncate min-w-0">
                             {{ group.name }}
                           </h4>
                 <div class="flex items-center gap-1.5 flex-shrink-0">
@@ -188,7 +187,7 @@
                         </div>
                       <!-- Middle: Title & Author -->
             <div class="flex-1 flex flex-col justify-center min-h-0 overflow-hidden">
-              <h3 class="text-base font-bold text-zinc-900 dark:text-white leading-tight line-clamp-2 mb-1 min-h-0">
+              <h3 class="text-base font-semibold text-zinc-900 dark:text-white leading-tight line-clamp-2 mb-1 min-h-0">
                 {{ group.currentBook.title }}
               </h3>
               <div class="flex items-center h-4 gap-1 mt-1 whitespace-nowrap overflow-hidden leading-none text-[11px] text-zinc-600 dark:text-zinc-300">
@@ -228,8 +227,7 @@
     <!-- 3. Idle Social Groups Section -->
     <div v-if="idleSocialGroups.length > 0" class="space-y-1 mb-4">
       <div class="flex items-center gap-2 px-1">
-        <span class="text-lg">💤</span>
-        <h2 class="text-xs font-bold text-zinc-900 dark:text-white">잠시 쉬고 있어요</h2>
+        <h2 class="text-xs font-semibold text-zinc-900 dark:text-white">잠시 쉬고 있어요</h2>
       </div>
 
       <div class="grid gap-3">
@@ -237,10 +235,10 @@
           v-for="group in idleSocialGroups"
           :key="group.id"
           @click="router.push(`/group/${group.id}`)"
-          class="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-200 dark:border-zinc-800 flex items-center gap-4 shadow-sm active:scale-[0.99] transition-all cursor-pointer group hover:border-lime-400 dark:hover:border-lime-500"
+          class="bg-white dark:bg-zinc-900 rounded-2xl p-4 ring-1 ring-black/[0.04] dark:ring-white/[0.06] flex items-center gap-4 shadow-apple active:scale-[0.99] transition-all cursor-pointer group hover:ring-lime-400 dark:hover:ring-lime-500"
         >
           <!-- Left Icon Box -->
-          <div class="w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 border border-zinc-100 dark:border-zinc-700 transition-colors group-hover:bg-lime-50 dark:group-hover:bg-lime-900/20 group-hover:border-lime-200 group-hover:text-lime-500 flex-shrink-0">
+          <div class="w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 ring-1 ring-black/[0.04] dark:ring-white/[0.06] transition-colors group-hover:bg-lime-50 dark:group-hover:bg-lime-900/20 group-hover:ring-lime-200 group-hover:text-lime-500 flex-shrink-0">
             <Coffee :size="20" />
           </div>
 
@@ -248,7 +246,7 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-1">
               <!-- Group Name -->
-              <h3 class="font-bold text-zinc-900 dark:text-zinc-200 text-sm truncate">{{ group.name }}</h3>
+              <h3 class="font-semibold text-zinc-900 dark:text-zinc-200 text-sm truncate">{{ group.name }}</h3>
               <!-- Member Badge -->
               <div class="flex items-center gap-1 text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded flex-shrink-0">
                  <User :size="10" />
@@ -273,9 +271,9 @@
     <!-- Empty State (Social 그룹이 없을 때) -->
     <div v-if="socialGroups.length === 0 && !loading" class="flex flex-col items-center justify-center min-h-[40vh] px-4 text-center">
       <div class="w-24 h-24 bg-gradient-to-tr from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner">
-        <span class="text-5xl">👋</span>
+        <User :size="36" class="text-zinc-300 dark:text-zinc-600" />
       </div>
-      <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">반가워요, {{ userStore.profile?.nickname }}님!</h2>
+      <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-2">반가워요, {{ userStore.profile?.nickname }}님!</h2>
       <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-8 max-w-xs leading-relaxed">
         아직 참여 중인 공유 그룹이 없네요.<br />
         새로운 모임을 만들거나 초대를 받아보세요.
@@ -284,14 +282,14 @@
       <div class="w-full max-w-xs space-y-3">
         <button
           @click="handleCreateGroupClick"
-          class="w-full py-4 bg-lime-400 text-black font-bold rounded-2xl hover:bg-lime-300 transition-all shadow-lg hover:shadow-lime-400/30 flex items-center justify-center gap-2"
+          class="w-full py-4 bg-lime-400 text-black font-semibold rounded-2xl hover:bg-lime-300 transition-all shadow-apple hover:shadow-apple-lg flex items-center justify-center gap-2"
         >
           <Plus :size="20" />
           공유 그룹 만들기
         </button>
         <button
           @click="joinGroupModalOpen = true"
-          class="w-full py-4 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
+          class="w-full py-4 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white font-semibold rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
         >
           <KeyRound :size="20" class="text-zinc-400" />
           초대 코드로 입장
@@ -307,7 +305,7 @@
     <!-- FAB (항상 표시) -->
     <button
       @click="handleCreateGroupClick"
-      class="fixed bottom-6 right-6 w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-transform z-40"
+      class="fixed bottom-6 right-6 w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center shadow-apple-lg hover:scale-105 transition-transform z-40"
       title="공유 그룹 만들기"
     >
       <Plus :size="24" />

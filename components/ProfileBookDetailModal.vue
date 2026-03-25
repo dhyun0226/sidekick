@@ -14,7 +14,7 @@
           </div>
 
           <div class="px-4 pb-6 flex gap-4">
-            <div class="w-20 h-28 overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-700 flex-shrink-0">
+            <div class="w-20 h-28 overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-800 flex-shrink-0">
               <img :src="book.cover_url" class="w-full h-full object-cover" />
             </div>
             <div class="flex-1 min-w-0 flex flex-col pt-0.5">
@@ -119,7 +119,7 @@
                 </div>
 
                 <!-- Reply Context -->
-                <div v-if="item.isReply && item.parentData" class="mb-3 overflow-hidden rounded-lg border border-zinc-100 dark:border-zinc-800">
+                <div v-if="item.isReply && item.parentData" class="mb-3 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
                   <div class="bg-zinc-50 dark:bg-zinc-800/50 px-3.5 py-3 text-left">
                     <div class="flex items-center gap-2 mb-2">
                       <Avatar
@@ -143,7 +143,7 @@
                 </div>
 
                 <!-- Quote -->
-                <div v-if="item.anchor_text" class="mb-3 pl-3 border-l-2 border-zinc-200 dark:border-zinc-700 text-left">
+                <div v-if="item.anchor_text" class="mb-3 pl-3 border-l-2 border-zinc-200 dark:border-zinc-800 text-left">
                   <p class="text-xs text-zinc-500 dark:text-zinc-400 italic leading-relaxed ">
                     {{ item.anchor_text }}
                   </p>
@@ -157,7 +157,7 @@
 
               <!-- Empty State -->
               <div v-if="filteredTimeline.length === 0" class="py-12 text-center">
-                <div class="text-3xl mb-3 opacity-20">📝</div>
+                <PenLine :size="24" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
                 <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">기록이 없습니다</h3>
                 <p class="text-xs text-zinc-500">이 책에 대한 생각을 확인해보세요</p>
               </div>
@@ -192,7 +192,7 @@
                 </p>
               </div>
               <div v-if="bookReviews.length === 0" class="py-12 text-center">
-                <div class="text-3xl mb-3 opacity-20">⭐</div>
+                <Star :size="24" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
                 <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">리뷰가 없습니다</h3>
               </div>
             </div>
@@ -205,7 +205,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { X, User, CornerDownRight, Star } from 'lucide-vue-next'
+import { X, User, CornerDownRight, Star, PenLine } from 'lucide-vue-next'
 import { useUserStore } from '~/stores/user'
 import GenreBadge from './GenreBadge.vue'
 import RatingBadge from './RatingBadge.vue'

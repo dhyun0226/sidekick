@@ -32,11 +32,11 @@
           <!-- Stats -->
           <div class="flex flex-wrap gap-2">
             <div v-if="book?.count" class="flex items-center gap-1 text-xs font-bold text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full">
-              <span>🔥</span>
+              <Flame :size="12" class="text-orange-500" />
               <span>{{ book.count }}명이 읽는 중</span>
             </div>
             <div v-if="wishCount > 0" class="flex items-center gap-1 text-xs font-bold text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full">
-              <span>💝</span>
+              <Heart :size="12" class="text-pink-500" />
               <span>{{ wishCount }}명이 위시</span>
             </div>
             <div v-if="book?.avgRating" class="flex items-center gap-1 text-xs font-bold text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full">
@@ -44,7 +44,7 @@
               <span>{{ book.avgRating }}</span>
             </div>
             <div v-if="book?.completionRate" class="flex items-center gap-1 text-xs font-bold text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full">
-              <span>✅</span>
+              <CheckCircle :size="12" class="text-green-500" />
               <span>완독률 {{ book.completionRate }}%</span>
             </div>
           </div>
@@ -78,7 +78,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onUnmounted } from 'vue'
-import { Heart, BookOpen, Star } from 'lucide-vue-next'
+import { Heart, BookOpen, Star, Flame, CheckCircle } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 import { useUserStore } from '~/stores/user'
 import type { DiscoverBook } from '~/composables/useDiscover'

@@ -93,13 +93,13 @@
 
         <!-- Empty State -->
         <div v-else-if="query && !loading" class="py-12 text-center">
-          <div class="text-4xl mb-3">🔍</div>
+          <Search :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
           <p class="text-sm text-zinc-500 font-medium">검색 결과가 없습니다</p>
         </div>
 
         <!-- Initial State -->
         <div v-else class="py-12 text-center">
-          <div class="text-4xl mb-3">📚</div>
+          <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
           <p class="text-sm text-zinc-500 font-medium">책 제목이나 저자를 검색해보세요</p>
         </div>
       </div>
@@ -109,7 +109,7 @@
 
 <script setup lang="ts">
 import { ref, watch, nextTick, onUnmounted } from 'vue'
-import { X, Search, Heart } from 'lucide-vue-next'
+import { X, Search, Heart, BookOpen } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 import { useUserStore } from '~/stores/user'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'

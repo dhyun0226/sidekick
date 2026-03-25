@@ -7,7 +7,7 @@
     <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 sticky top-0 z-20">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 sticky top-0 z-20">
         <div class="min-w-0">
           <h2 class="text-lg font-black text-zinc-900 dark:text-white truncate mb-0.5">{{ bookTitle }}</h2>
           <p class="text-[10px] text-zinc-400 font-bold uppercase">리뷰 {{ reviews.length }}개</p>
@@ -20,7 +20,7 @@
       <!-- Scrollable Content -->
       <div class="flex-1 overflow-y-auto custom-scrollbar">
         <!-- Average Rating Hero -->
-        <div v-if="reviews.length > 0" class="px-6 py-6 bg-zinc-50/50 dark:bg-zinc-800/30 border-b border-zinc-100 dark:border-zinc-800">
+        <div v-if="reviews.length > 0" class="px-6 py-6 bg-zinc-50/50 dark:bg-zinc-800/30 border-b border-zinc-200 dark:border-zinc-800">
           <div class="flex items-center justify-center gap-8">
             <div class="text-center">
               <div class="text-5xl font-black text-zinc-900 dark:text-white mb-2 tracking-tighter">{{ averageRating.toFixed(1) }}</div>
@@ -47,11 +47,11 @@
                 </template>
               </div>
             </div>
-            <div class="h-12 w-px bg-zinc-200 dark:bg-zinc-700"></div>
+            <div class="h-12 w-px bg-zinc-200 dark:bg-zinc-800"></div>
             <div class="flex flex-col gap-1">
               <div v-for="i in [5, 4, 3, 2, 1]" :key="i" class="flex items-center gap-2">
                 <span class="text-[10px] font-bold text-zinc-400 w-2">{{ i }}</span>
-                <div class="w-24 h-1 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden">
+                <div class="w-24 h-1 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
                   <div 
                     class="h-full bg-yellow-400 transition-all duration-500"
                     :style="{ width: `${getRatingPercentage(i)}%` }"
@@ -67,12 +67,12 @@
           <div
             v-for="review in sortedReviews"
             :key="review.id"
-            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 p-5 shadow-sm hover:border-lime-200 dark:hover:border-lime-900/50 transition-all"
+            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm hover:border-lime-200 dark:hover:border-lime-900/50 transition-all"
           >
             <!-- Review Header -->
             <div class="flex items-start justify-between mb-4">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-200 dark:border-zinc-700 opacity-80 shadow-inner">
+                <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-200 dark:border-zinc-800 opacity-80 shadow-inner">
                   <img v-if="review.user?.avatar_url" :src="review.user.avatar_url" class="w-full h-full object-cover" />
                   <div v-else class="w-full h-full flex items-center justify-center text-zinc-400 text-sm font-bold">
                     {{ (review.user?.display_name || '탈').charAt(0).toUpperCase() }}

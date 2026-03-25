@@ -48,7 +48,7 @@
           <!-- Dropdown -->
           <div
             v-if="genreDropdownOpen"
-            class="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-2 z-50"
+            class="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-800 py-2 z-50"
           >
             <button
               @click="selectedGenre = null; genreDropdownOpen = false"
@@ -83,7 +83,7 @@
       <!-- HOT 도서 -->
       <DiscoverSection
         title="HOT 도서"
-        icon="🔥"
+        icon="flame"
         :books="hotBooks"
         type="hot"
         :loading="loading"
@@ -94,7 +94,7 @@
       <!-- 위시 인기 -->
       <DiscoverSection
         title="위시 인기"
-        icon="💝"
+        icon="heart"
         :books="wishBooks"
         type="wish"
         :loading="loading"
@@ -105,7 +105,7 @@
       <!-- 평점 TOP -->
       <DiscoverSection
         title="평점 TOP"
-        icon="⭐"
+        icon="star"
         :books="topRatedBooks"
         type="rating"
         :loading="loading"
@@ -116,7 +116,7 @@
       <!-- 완독률 TOP -->
       <DiscoverSection
         title="완독률 TOP"
-        icon="✅"
+        icon="check-circle"
         :books="completionBooks"
         type="completion"
         :loading="loading"

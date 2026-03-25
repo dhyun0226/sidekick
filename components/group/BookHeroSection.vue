@@ -1,9 +1,9 @@
 <template>
-  <div v-if="book" class="relative w-full pt-16 pb-8 bg-white dark:bg-[#09090b] border-b border-zinc-200 dark:border-zinc-800">
+  <div v-if="book" class="relative w-full pt-16 pb-8 bg-white dark:bg-[#09090b] ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
     <!-- Content -->
     <div class="relative z-10 flex flex-col items-center px-6 text-center">
       <!-- Book Cover -->
-      <div class="w-28 aspect-[2/3] shadow-2xl mb-5 transform transition-transform hover:scale-105 hover:-rotate-2 duration-500 relative">
+      <div class="w-28 aspect-[2/3] shadow-apple-lg mb-5 transform transition-transform hover:scale-105 hover:-rotate-2 duration-500 relative">
         <img
           v-if="!hasError"
           :src="book.coverUrl"
@@ -18,7 +18,7 @@
         </div>
       </div>
 
-      <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-3 drop-shadow-sm line-clamp-2 px-4 leading-tight">
+      <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-3 drop-shadow-sm line-clamp-2 px-4 leading-tight">
         {{ book.title }}
       </h2>
       <div class="flex flex-wrap items-center justify-center gap-1.5 mb-3 text-sm text-zinc-600 dark:text-zinc-400 font-medium leading-none">

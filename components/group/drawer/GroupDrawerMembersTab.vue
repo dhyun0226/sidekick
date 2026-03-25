@@ -42,12 +42,12 @@
       <div 
         v-for="member in filteredMembers" 
         :key="member.id" 
-        class="relative bg-white dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800 p-2.5 shadow-sm transition-all group hover:border-lime-200 dark:hover:border-lime-900/50 active:scale-[0.99] flex items-center gap-3"
-        :class="{ 'z-20 border-lime-300 dark:border-lime-700': activeMemberMenu === member.id }"
+        class="relative bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-2.5 shadow-apple transition-all group hover:ring-lime-200 dark:hover:ring-lime-900/50 active:scale-[0.99] flex items-center gap-3"
+        :class="{ 'z-20 ring-lime-300 dark:ring-lime-700': activeMemberMenu === member.id }"
       >
         <!-- Avatar Section -->
         <div class="relative flex-shrink-0">
-          <div class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-200 dark:border-zinc-700 shadow-inner">
+          <div class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
             <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
             <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
               <User :size="16" />
@@ -58,7 +58,7 @@
             class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-zinc-900 flex items-center justify-center"
             :class="member.inactive ? 'bg-zinc-300 dark:bg-zinc-600' : 'bg-lime-500'"
           >
-            <span v-if="member.inactive" class="text-[5px]">😴</span>
+            <span v-if="member.inactive" class="text-[5px] text-zinc-500">z</span>
           </div>
         </div>
 
@@ -132,7 +132,7 @@
     </div>
 
     <!-- Empty Search State -->
-    <div v-else class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
+    <div v-else class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-dashed ring-black/[0.04] dark:ring-white/[0.06]">
       <Search :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
       <p>검색 결과와 일치하는 멤버가 없습니다</p>
     </div>

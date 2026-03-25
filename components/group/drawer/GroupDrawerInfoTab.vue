@@ -11,18 +11,18 @@
       </div>
 
       <!-- Card -->
-      <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
 
       <!-- Reading Books List (목표일 임박 순) -->
       <div class="p-3 space-y-2">
         <div
           v-for="book in sortedReadingBooks"
           :key="book.id"
-          class="p-4 cursor-pointer transition-all relative rounded-xl"
+          class="p-4 cursor-pointer transition-all relative rounded-2xl"
           :class="[
             selectedBookId === book.id
-              ? 'border-2 border-lime-500 dark:border-lime-400 bg-lime-50/30 dark:bg-lime-900/10 shadow-lime-200 dark:shadow-lime-900/30'
-              : 'border border-zinc-200 dark:border-zinc-800 hover:border-lime-300 dark:hover:border-lime-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/30',
+              ? 'ring-2 ring-lime-500 dark:ring-lime-400 bg-lime-50/30 dark:bg-lime-900/10'
+              : 'ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:ring-lime-300 dark:hover:ring-lime-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/30',
             activeBookMenu === book.id ? 'z-[10001]' : 'z-0'
           ]"
           @click="emit('selectBook', book.id)"
@@ -66,10 +66,10 @@
           </div>
 
           <div class="flex gap-3">
-            <img :src="book.book?.cover_url" class="w-14 h-20 object-cover rounded shadow-sm bg-zinc-200 dark:bg-zinc-800 flex-shrink-0" />
+            <img :src="book.book?.cover_url" class="w-14 h-20 object-cover rounded shadow-apple bg-zinc-200 dark:bg-zinc-800 flex-shrink-0" />
             <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
               <div>
-                <h3 class="font-bold text-zinc-900 dark:text-white line-clamp-1 text-sm mb-1 pr-8">{{ book.book?.title }}</h3>
+                <h3 class="font-semibold text-zinc-900 dark:text-white line-clamp-1 text-sm mb-1 pr-8">{{ book.book?.title }}</h3>
                 <div class="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
                   <span class="truncate max-w-[80px]">{{ book.book?.author }}</span>
                   <template v-if="book.book?.publisher || book.total_pages">
@@ -112,7 +112,7 @@
           <span class="text-[10px] font-bold text-zinc-400 opacity-60">{{ toc.length }}개</span>
         </div>
         
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden shadow-apple">
           <div class="divide-y divide-zinc-100 dark:divide-zinc-800/50">
             <button
               v-for="(chapter, index) in toc"

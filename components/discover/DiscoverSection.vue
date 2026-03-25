@@ -2,8 +2,8 @@
   <div class="mb-6">
     <!-- Section Header -->
     <div class="flex items-center gap-2 mb-3 px-1">
-      <span class="text-lg">{{ icon }}</span>
-      <h2 class="text-sm font-bold text-zinc-900 dark:text-white">{{ title }}</h2>
+      <component :is="iconComponent" :size="16" :class="iconColor" />
+      <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">{{ title }}</h2>
       <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
     </div>
 
@@ -36,10 +36,12 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { Flame, Heart, Star, CheckCircle } from 'lucide-vue-next'
 import type { DiscoverBook } from '~/composables/useDiscover'
 import DiscoverBookCard from './DiscoverBookCard.vue'
 
-defineProps<{
+const props = defineProps<{
   title: string
   icon: string
   books: DiscoverBook[]
@@ -47,6 +49,23 @@ defineProps<{
   loading?: boolean
   emptyMessage?: string
 }>()
+
+const iconMap: Record<string, any> = {
+  flame: Flame,
+  heart: Heart,
+  star: Star,
+  'check-circle': CheckCircle
+}
+
+const iconColorMap: Record<string, string> = {
+  flame: 'text-orange-500',
+  heart: 'text-pink-500',
+  star: 'text-yellow-500',
+  'check-circle': 'text-green-500'
+}
+
+const iconComponent = computed(() => iconMap[props.icon] || Flame)
+const iconColor = computed(() => iconColorMap[props.icon] || 'text-zinc-400')
 
 defineEmits(['book-click'])
 </script>

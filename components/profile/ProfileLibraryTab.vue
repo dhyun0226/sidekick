@@ -8,18 +8,18 @@
       <div class="w-20 h-20 bg-gradient-to-tr from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-5 shadow-inner">
         <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-600" />
       </div>
-      <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">아직 완독한 책이 없어요</h3>
+      <h3 class="text-lg font-semibold text-zinc-900 dark:text-white mb-2">아직 완독한 책이 없어요</h3>
       <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-8 max-w-xs leading-relaxed">
         그룹에서 책을 읽고 완독하면<br />이곳에 서재가 만들어집니다.
       </p>
-      <button @click="router.push('/')" class="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-lg">책 읽으러 가기</button>
+      <button @click="router.push('/')" class="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple">책 읽으러 가기</button>
     </div>
 
     <div v-else class="space-y-6">
       <!-- Reading -->
       <div v-if="readingBooks.length > 0">
         <div class="flex items-center gap-3 mb-4">
-          <h3 class="text-sm font-bold text-zinc-900 dark:text-white">읽고 있는 책</h3>
+          <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">읽고 있는 책</h3>
           <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
           <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ readingBooks.length }}권</span>
         </div>
@@ -33,24 +33,24 @@
               (book.isBookDeleted || book.isDiscontinued) ? 'opacity-40 cursor-not-allowed' : 'opacity-60 cursor-pointer active:opacity-70'
             ]"
           >
-            <div class="aspect-[1/1.5] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800 relative">
+            <div class="aspect-[1/1.5] overflow-hidden shadow-apple ring-1 ring-black/[0.04] dark:ring-white/[0.06] relative">
               <img :src="book.cover_url" class="w-full h-full object-cover" />
               <!-- 삭제됨 배지 -->
               <div v-if="book.isBookDeleted" class="absolute inset-0 bg-black/30 flex items-center justify-center">
-                <span class="text-[8px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded">삭제됨</span>
+                <span class="text-[8px] font-semibold text-white bg-red-500 px-1.5 py-0.5 rounded">삭제됨</span>
               </div>
               <!-- 중단됨 배지 -->
               <div v-else-if="book.isDiscontinued" class="absolute inset-0 bg-black/30 flex items-center justify-center">
-                <span class="text-[8px] font-bold text-white bg-orange-500 px-1.5 py-0.5 rounded">중단됨</span>
+                <span class="text-[8px] font-semibold text-white bg-orange-500 px-1.5 py-0.5 rounded">중단됨</span>
               </div>
               <!-- 회차 배지 (2회차 이상일 때만) -->
-              <div v-else-if="book.round && book.round > 1" class="absolute top-1 right-1 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+              <div v-else-if="book.round && book.round > 1" class="absolute top-1 right-1 bg-black/70 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded">
                 {{ book.round }}회
               </div>
             </div>
             <div class="mt-1 flex items-center justify-center gap-1 text-[10px] text-zinc-400">
               <template v-if="book.target_end_date && !book.isBookDeleted && !book.isDiscontinued">
-                <span class="font-bold" :class="getDaysRemaining(book.target_end_date) < 0 ? 'text-red-500' : 'text-lime-600 dark:text-lime-400'">
+                <span class="font-semibold" :class="getDaysRemaining(book.target_end_date) < 0 ? 'text-red-500' : 'text-lime-600 dark:text-lime-400'">
                   {{ formatDday(book.target_end_date) }}
                 </span>
                 <span>·</span>
@@ -64,7 +64,7 @@
       <!-- Finished -->
       <div v-for="group in libraryGroups" :key="group.label">
         <div class="flex items-center gap-3 mb-4">
-          <h3 class="text-sm font-bold text-zinc-900 dark:text-white">{{ formatGroupLabel(group.label) }}</h3>
+          <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">{{ formatGroupLabel(group.label) }}</h3>
           <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
           <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ group.books.length }}권</span>
         </div>
@@ -78,21 +78,21 @@
               book.isBookDeleted ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer active:opacity-70'
             ]"
           >
-            <div class="aspect-[1/1.5] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800 relative">
+            <div class="aspect-[1/1.5] overflow-hidden shadow-apple ring-1 ring-black/[0.04] dark:ring-white/[0.06] relative">
               <img :src="book.cover_url" class="w-full h-full object-cover" />
               <!-- 삭제됨 배지 -->
               <div v-if="book.isBookDeleted" class="absolute inset-0 bg-black/30 flex items-center justify-center">
-                <span class="text-[8px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded">삭제됨</span>
+                <span class="text-[8px] font-semibold text-white bg-red-500 px-1.5 py-0.5 rounded">삭제됨</span>
               </div>
               <!-- 회차 배지 (2회차 이상일 때만) -->
-              <div v-else-if="book.round && book.round > 1" class="absolute top-1 right-1 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+              <div v-else-if="book.round && book.round > 1" class="absolute top-1 right-1 bg-black/70 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded">
                 {{ book.round }}회
               </div>
             </div>
             <div class="mt-1 flex items-center justify-center gap-1 text-[10px]">
               <template v-if="book.myRating && !book.isBookDeleted">
                 <Star :size="10" fill="#EAB308" class="text-yellow-500" />
-                <span class="font-bold text-zinc-900 dark:text-white">{{ book.myRating }}</span>
+                <span class="font-semibold text-zinc-900 dark:text-white">{{ book.myRating }}</span>
                 <span class="text-zinc-300 dark:text-zinc-600">·</span>
               </template>
               <span class="text-zinc-500">{{ formatMonthOnly(book.finished_at) }}</span>

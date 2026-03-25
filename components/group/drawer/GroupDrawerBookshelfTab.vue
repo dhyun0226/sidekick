@@ -60,7 +60,7 @@
       <div
         v-for="book in filteredAndSortedBooks"
         :key="book.id"
-        class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 transition-all hover:border-lime-300 dark:hover:border-lime-600 relative"
+        class="bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] transition-all hover:ring-lime-300 dark:hover:ring-lime-600 relative"
         :class="activeBookMenu === book.id ? 'z-[250] overflow-visible' : 'overflow-hidden'"
       >
         <!-- Book Info -->
@@ -100,12 +100,12 @@
           <img
             :src="book.cover_url"
             :alt="book.title"
-            class="w-14 h-20 object-cover shadow-sm bg-zinc-200 dark:bg-zinc-800 flex-shrink-0"
+            class="w-14 h-20 object-cover shadow-apple bg-zinc-200 dark:bg-zinc-800 flex-shrink-0"
             @error="(e) => (e.target as HTMLImageElement).src = '/placeholder-book.png'"
           />
           <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
             <div>
-              <h4 class="font-bold text-sm text-zinc-800 dark:text-zinc-200 line-clamp-1 mb-1 pr-6">{{ book.title }}</h4>
+              <h4 class="font-semibold text-sm text-zinc-800 dark:text-zinc-200 line-clamp-1 mb-1 pr-6">{{ book.title }}</h4>
               <div class="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
                 <span class="truncate max-w-[80px]">{{ book.author }}</span>
                 <template v-if="book.publisher || book.total_pages">
@@ -154,7 +154,7 @@
     </div>
 
     <!-- Empty State -->
-    <div v-if="filteredAndSortedBooks.length === 0" class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
+    <div v-if="filteredAndSortedBooks.length === 0" class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-dashed ring-black/[0.04] dark:ring-white/[0.06]">
       <component :is="searchQuery ? Search : BookOpen" :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
       <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 종료한 책이 없습니다' }}</p>
     </div>

@@ -30,8 +30,8 @@
 
       <!-- Success State -->
       <div v-else-if="group" class="space-y-6">
-        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 shadow-xl">
-          <span class="text-4xl">📚</span>
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-lime-400 shadow-apple">
+          <span class="text-black text-xl font-black">CR</span>
         </div>
 
         <div>

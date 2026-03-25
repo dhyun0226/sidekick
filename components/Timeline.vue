@@ -4,17 +4,17 @@
       v-for="group in groupedComments"
       :key="group.key"
       :data-position="Math.round(group.position)"
-      class="relative pl-6 border-l border-zinc-200 dark:border-zinc-800 ml-2"
+      class="relative pl-6 border-l border-zinc-200/80 dark:border-zinc-800/80 ml-2"
     >
       <!-- Timeline Dot -->
-      <div class="absolute -left-[5px] top-0 w-2.5 h-2.5 rounded-full bg-white dark:bg-zinc-900 border-2 border-zinc-300 dark:border-zinc-700 z-10"></div>
+      <div class="absolute -left-[5px] top-0 w-2.5 h-2.5 rounded-full bg-white dark:bg-zinc-900 ring-2 ring-zinc-300 dark:ring-zinc-700 z-10"></div>
 
       <!-- Minimal Header -->
       <div class="flex items-baseline gap-2 mb-3 -mt-1.5">
-        <span class="text-sm font-black text-lime-600 dark:text-lime-500">
+        <span class="text-sm font-semibold text-lime-600 dark:text-lime-500">
           {{ Math.round(group.position) }}%
         </span>
-        <span class="text-[10px] text-zinc-400 dark:text-zinc-600 font-bold">
+        <span class="text-[10px] text-zinc-400 dark:text-zinc-600 font-medium">
           {{ group.totalCount }}개의 기록
         </span>
       </div>
@@ -22,7 +22,7 @@
       <!-- Anchor Text (Clean & Classic) - Hide when editing a comment in this group -->
       <div
         v-if="group.anchorText && !group.previewComments.some(c => c.id === editingCommentId)"
-        class="mb-4 pl-4 py-2.5 border-l-[3px] border-lime-400 bg-lime-50/60 dark:bg-lime-900/10 rounded-r-xl cursor-pointer hover:opacity-80 transition-opacity"
+        class="mb-4 pl-4 py-2.5 border-l-[3px] border-lime-400 bg-lime-50/60 dark:bg-lime-900/10 rounded-r-2xl cursor-pointer hover:opacity-80 transition-opacity"
         :class="{ 'blur-sm opacity-40 select-none': isSpoiler(group.position) }"
       >
         <p class="text-[15px] text-zinc-700 dark:text-zinc-300 leading-relaxed">
@@ -75,7 +75,7 @@
                 v-model="editAnchor"
                 placeholder="인용 구절 (선택)"
                 maxlength="500"
-                class="w-full bg-lime-50/60 dark:bg-lime-900/10 text-zinc-700 dark:text-zinc-300 text-sm rounded-xl px-4 py-3 border-l-[3px] border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/20 resize-none"
+                class="w-full bg-lime-50/60 dark:bg-lime-900/10 text-zinc-700 dark:text-zinc-300 text-sm rounded-2xl px-4 py-3 border-l-[3px] border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/20 resize-none"
                 rows="2"
                 @keydown.esc="cancelEdit"
               ></textarea>
@@ -83,12 +83,12 @@
                 v-model="editContent"
                 placeholder="코멘트 (선택)"
                 maxlength="2000"
-                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
+                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                 rows="4"
                 @keydown.esc="cancelEdit"
               ></textarea>
               <div class="flex gap-2 mt-3">
-                <button @click="saveEdit(comment.id)" :disabled="isSavingEdit || (!editContent.trim() && !editAnchor.trim())" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-bold rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[56px] active:scale-95 transition-all">
+                <button @click="saveEdit(comment.id)" :disabled="isSavingEdit || (!editContent.trim() && !editAnchor.trim())" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[56px] active:scale-95 transition-all">
                   <div v-if="isSavingEdit" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                   <span v-else>저장</span>
                 </button>
@@ -136,7 +136,7 @@
                 v-model="replyContent"
                 type="text"
                 placeholder="답글을 남겨보세요..."
-                class="w-full bg-zinc-50 dark:bg-zinc-800/50 text-xs text-zinc-900 dark:text-white rounded-xl pl-3 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all border-none"
+                class="w-full bg-zinc-50 dark:bg-zinc-800/50 text-xs text-zinc-900 dark:text-white rounded-2xl pl-3 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all border-none"
                 @keyup.enter="submitReply(comment.id)"
                 autoFocus
               />
@@ -206,7 +206,7 @@
                   <textarea
                     v-model="editReplyContent"
                     maxlength="2000"
-                    class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-[13px] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
+                    class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-[13px] rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                     rows="2"
                     @keydown.esc="cancelReplyEdit"
                   ></textarea>
@@ -237,7 +237,7 @@
       <button
         v-if="group.hasMore"
         @click="openDetailModal(group)"
-        class="mt-4 w-full py-2.5 bg-zinc-50 dark:bg-zinc-800/50 text-[11px] font-bold text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded-xl transition-all border border-zinc-100 dark:border-zinc-800/50 flex items-center justify-center gap-1"
+        class="mt-4 w-full py-2.5 bg-zinc-50 dark:bg-zinc-800/50 text-[11px] font-semibold text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded-2xl transition-all ring-1 ring-black/[0.04] dark:ring-white/[0.06] flex items-center justify-center gap-1"
       >
         <span>{{ group.remainingCount }}개의 기록 더보기</span>
       </button>
@@ -261,8 +261,7 @@
 
     <!-- Empty State -->
     <div v-if="comments.length === 0 && !isLoadingMore" class="flex flex-col items-center justify-center py-20 px-4 text-center">
-      <div class="text-4xl mb-3">✍️</div>
-      <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">아직 댓글이 없어요</h3>
+      <h3 class="text-sm font-semibold text-zinc-900 dark:text-white mb-1">아직 댓글이 없어요</h3>
       <p class="text-xs text-zinc-600 dark:text-zinc-500">첫 댓글을 남겨보세요!</p>
     </div>
 

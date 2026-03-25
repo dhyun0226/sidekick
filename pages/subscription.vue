@@ -6,7 +6,7 @@
         <div class="inline-block px-3 py-1 bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 text-xs font-black rounded-full mb-4 uppercase">Premium Membership</div>
         <h1 class="text-4xl font-semibold text-zinc-900 dark:text-white mb-4 tracking-tighter">독서의 가치를 더 깊게</h1>
         <p class="text-zinc-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
-          Cheer Readers 프리미엄과 함께 제한 없는 독서 여행을 시작하고<br/>나만의 독서 인사이트를 정교하게 쌓아보세요.
+          치어리더스 프리미엄과 함께 제한 없는 독서 여행을 시작하고<br/>나만의 독서 인사이트를 정교하게 쌓아보세요.
         </p>
       </div>
 
@@ -200,7 +200,7 @@
             { title: '무제한 독서 모임', desc: '참여 및 생성 그룹 수에 제한이 없습니다. 다양한 모임에서 여러 권의 책을 동시에 즐기세요.', icon: Users, color: 'blue' },
             { title: '심도 있는 데이터 분석', desc: '독서 히트맵, 월별 패턴, 연간 목표 달성률 등 나만의 독서 데이터를 시각화해 드립니다.', icon: TrendingUp, color: 'lime' },
             { title: '무제한 도서 추가', desc: '모든 그룹에서 제한 없이 새로운 책을 추가하고 목차를 관리할 수 있습니다.', icon: BookOpen, color: 'purple' },
-            { title: '신규 기능 우선 체험', desc: '앞으로 추가될 Cheer Readers의 다양한 신규 기능들을 누구보다 먼저 경험하고 제안할 수 있습니다.', icon: Sparkles, color: 'amber' }
+            { title: '신규 기능 우선 체험', desc: '앞으로 추가될 치어리더스의 다양한 신규 기능들을 누구보다 먼저 경험하고 제안할 수 있습니다.', icon: Sparkles, color: 'amber' }
           ]" :key="feat.title" class="flex gap-5">
             <div :class="`w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center bg-${feat.color}-50 dark:bg-${feat.color}-900/20 text-${feat.color}-500 shadow-sm`">
               <component :is="feat.icon" :size="28" />
@@ -300,7 +300,7 @@ const startPayment = async (planName: string) => {
     const orderResponse = await $fetch('/api/payments/create-order', { method: 'POST', body: { planId: plan.id, amount: plan.price } })
     const clientKey = useRuntimeConfig().public.tossClientKey
     const tossPayments = await loadTossPayments(clientKey)
-    const orderName = plan.billing_period === 'yearly' ? 'Cheer Readers 프리미엄 (연간)' : 'Cheer Readers 프리미엄 (월간)'
+    const orderName = plan.billing_period === 'yearly' ? '치어리더스 프리미엄 (연간)' : '치어리더스 프리미엄 (월간)'
     await tossPayments.requestPayment('카드', {
       amount: plan.price,
       orderId: orderResponse.orderId,

@@ -43,8 +43,8 @@ export default defineNuxtConfig({
   // PWA 설정
   pwa: {
     manifest: {
-      name: 'Cheer Readers',
-      short_name: 'Cheer Readers',
+      name: '치어리더스',
+      short_name: '치어리더스',
       description: 'Mobile-first shared reading companion',
       theme_color: '#09090b',
       background_color: '#09090b',
@@ -62,7 +62,7 @@ export default defineNuxtConfig({
     head: {
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-      title: 'Cheer Readers'
+      title: '치어리더스'
     }
   },
 

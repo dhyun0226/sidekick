@@ -3,7 +3,7 @@
     class="fixed top-0 left-0 right-0 z-[1000] h-16 transition-all duration-500 pt-safe"
     :class="[
       isScrolled 
-        ? 'bg-white/90 dark:bg-[#09090b]/90 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800 shadow-sm' 
+        ? 'bg-white/90 dark:bg-[#09090b]/90 backdrop-blur-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] shadow-apple'
         : 'bg-transparent'
     ]"
   >
@@ -11,7 +11,7 @@
       <!-- Back Button -->
       <button 
         @click="emit('back')" 
-        class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl transition-all active:scale-90 group"
+        class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-2xl transition-all active:scale-90 group"
         :class="[
           isScrolled
             ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white'
@@ -22,15 +22,15 @@
       </button>
 
       <!-- Central Title -->
-      <div 
+      <div
         class="flex-1 min-w-0 transition-all duration-500 transform"
         :class="[
-          isScrolled 
-            ? 'opacity-100 translate-y-0 scale-100' 
+          isScrolled
+            ? 'opacity-100 translate-y-0 scale-100'
             : 'opacity-0 -translate-y-2 scale-95 pointer-events-none'
         ]"
       >
-        <h1 class="text-sm font-black text-zinc-900 dark:text-white text-center truncate tracking-tight">
+        <h1 class="text-sm font-semibold text-zinc-900 dark:text-white text-center truncate tracking-tight">
           {{ title }}
         </h1>
       </div>
@@ -38,7 +38,7 @@
       <!-- Menu Button -->
       <button 
         @click="emit('openDrawer')" 
-        class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl transition-all active:scale-90 group"
+        class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-2xl transition-all active:scale-90 group"
         :class="[
           isScrolled
             ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white'

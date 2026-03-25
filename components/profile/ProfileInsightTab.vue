@@ -25,7 +25,7 @@
           type="number" 
           pattern="\d*"
           inputmode="numeric"
-          class="flex-1 min-w-0 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white text-zinc-900 dark:text-white" 
+          class="flex-1 min-w-0 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white text-zinc-900 dark:text-white" 
         />
         <button @click="$emit('save-goal')" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-xl text-xs font-bold active:scale-95 transition-transform">저장</button>
         <button @click="$emit('cancel-edit-goal')" class="px-4 py-2 bg-zinc-200 dark:bg-zinc-800 text-zinc-500 rounded-xl text-xs font-bold active:scale-95 transition-transform">취소</button>
@@ -64,7 +64,7 @@
               <span>{{ booksNeededPerMonth }}권</span>
             </div>
           </div>
-          <span :class="onTrack ? 'text-zinc-900 dark:text-zinc-100' : 'text-orange-600 dark:text-orange-400'">{{ isGoalAchieved ? '🎉 달성 완료' : onTrack ? '✓ 순항 중' : '⚡️ 힘내요' }}</span>
+          <span :class="onTrack ? 'text-zinc-900 dark:text-zinc-100' : 'text-orange-600 dark:text-orange-400'">{{ isGoalAchieved ? '달성 완료' : onTrack ? '순항 중' : '힘내요' }}</span>
         </div>
       </template>
     </div>

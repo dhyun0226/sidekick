@@ -8,8 +8,8 @@
     <template v-else>
       <!-- Active Groups -->
       <div v-if="activeGroups.length > 0">
-        <h3 class="text-[11px] font-bold text-zinc-400 uppercase tracking-wider mb-2 px-1">활성 그룹</h3>
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-800">
+        <h3 class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-2 px-1">활성 그룹</h3>
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] shadow-apple divide-y divide-zinc-100 dark:divide-zinc-800">
           <div
             v-for="group in activeGroups"
             :key="group.id"
@@ -87,8 +87,8 @@
 
       <!-- Archived Groups -->
       <div v-if="archivedGroups.length > 0">
-        <h3 class="text-[11px] font-bold text-zinc-400 uppercase tracking-wider mb-2 px-1">지난 그룹</h3>
-        <div class="bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-800">
+        <h3 class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-2 px-1">지난 그룹</h3>
+        <div class="bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] shadow-apple divide-y divide-zinc-200 dark:divide-zinc-800">
           <div
             v-for="group in archivedGroups"
             :key="group.id"
@@ -186,9 +186,9 @@
           <!-- Modal Content -->
           <div class="relative bg-white dark:bg-zinc-900 rounded-t-2xl w-full max-w-lg max-h-[80vh] overflow-hidden animate-slide-up">
             <!-- Header -->
-            <div class="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between">
+            <div class="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800 px-4 py-3 flex items-center justify-between">
               <div>
-                <h3 class="font-bold text-zinc-900 dark:text-white">책 관리</h3>
+                <h3 class="font-semibold text-zinc-900 dark:text-white">책 관리</h3>
                 <p class="text-xs text-zinc-500">{{ bookManageGroup?.name }}</p>
               </div>
               <button @click="closeBookManageModal" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
@@ -213,19 +213,19 @@
                 <div
                   v-for="book in bookManageBooks"
                   :key="book.id"
-                  class="flex items-center gap-3 p-3 rounded-xl border transition-colors"
+                  class="flex items-center gap-3 p-3 rounded-2xl transition-colors"
                   :class="[
                     book.hidden
-                      ? 'bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 opacity-60'
-                      : 'bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700',
+                      ? 'bg-zinc-50 dark:bg-zinc-800/50 ring-1 ring-black/[0.04] dark:ring-white/[0.06] opacity-60'
+                      : 'bg-white dark:bg-zinc-800 ring-1 ring-black/[0.04] dark:ring-white/[0.06]',
                     book.isDeleted ? 'ring-1 ring-red-200 dark:ring-red-900' : ''
                   ]"
                 >
                   <!-- Cover -->
-                  <div class="w-12 h-16 flex-shrink-0 overflow-hidden rounded shadow-sm relative">
+                  <div class="w-12 h-16 flex-shrink-0 overflow-hidden rounded shadow-apple relative">
                     <img :src="book.cover_url" class="w-full h-full object-cover" />
                     <div v-if="book.isDeleted" class="absolute inset-0 bg-black/40 flex items-center justify-center">
-                      <span class="text-[8px] font-bold text-white bg-red-500 px-1 rounded">삭제됨</span>
+                      <span class="text-[8px] font-semibold text-white bg-red-500 px-1 rounded">삭제됨</span>
                     </div>
                   </div>
 
@@ -278,7 +278,7 @@
             </div>
 
             <!-- Footer -->
-            <div class="sticky bottom-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 p-4">
+            <div class="sticky bottom-0 bg-white dark:bg-zinc-900 border-t border-zinc-100 dark:border-zinc-800 p-4">
               <p class="text-[11px] text-zinc-400 text-center">
                 숨긴 책은 프로필 서재에서 보이지 않습니다
               </p>

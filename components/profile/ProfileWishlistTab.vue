@@ -10,13 +10,13 @@
         <div class="w-20 h-20 bg-gradient-to-tr from-pink-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-5 shadow-inner">
           <Heart :size="28" class="text-zinc-300 dark:text-zinc-600" />
         </div>
-        <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">아직 담은 책이 없어요</h3>
+        <h3 class="text-lg font-semibold text-zinc-900 dark:text-white mb-2">아직 담은 책이 없어요</h3>
         <p class="text-sm text-zinc-500 dark:text-zinc-400 max-w-xs leading-relaxed mb-6">
           읽고 싶은 책을 검색해서<br />위시리스트에 담아보세요.
         </p>
         <button
           @click="searchModalOpen = true"
-          class="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-lg flex items-center gap-2"
+          class="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple flex items-center gap-2"
         >
           <Plus :size="20" />
           책 담기
@@ -25,7 +25,7 @@
 
       <div v-else>
         <div class="flex items-center gap-3 mb-4">
-          <h3 class="text-sm font-bold text-zinc-900 dark:text-white">내 위시</h3>
+          <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">내 위시</h3>
           <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
           <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ wishlist.length }}권</span>
           <button
@@ -46,11 +46,11 @@
               @click="$emit('start-book', item)"
               class="cursor-pointer active:opacity-70 transition-opacity"
             >
-              <div class="aspect-[2/3] overflow-hidden shadow-sm border border-zinc-100 dark:border-zinc-800 rounded-lg">
+              <div class="aspect-[2/3] overflow-hidden shadow-apple ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-lg">
                 <img :src="item.book.cover_url" class="w-full h-full object-cover" />
               </div>
               <div class="mt-2">
-                <p class="text-xs font-bold text-zinc-800 dark:text-zinc-200 line-clamp-2 leading-tight">{{ item.book.title }}</p>
+                <p class="text-xs font-semibold text-zinc-800 dark:text-zinc-200 line-clamp-2 leading-tight">{{ item.book.title }}</p>
                 <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">{{ item.book.author }}</p>
               </div>
             </div>

@@ -5,7 +5,7 @@
       <div class="flex items-center justify-between px-1 mb-3">
         <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">내 서재 관리</h3>
       </div>
-      <div class="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800">
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl p-4 ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
 
       <div class="flex items-center gap-2 mb-3">
         <input
@@ -22,7 +22,7 @@
       <button
         v-if="!isArchived"
         @click="emit('openSearchModal')"
-        class="w-full py-2.5 border border-lime-300 dark:border-lime-700 text-lime-600 dark:text-lime-400 rounded-lg text-xs font-bold hover:bg-lime-50 dark:hover:bg-lime-900/20 transition-colors flex items-center justify-center gap-2"
+        class="w-full py-2.5 ring-1 ring-lime-300/60 dark:ring-lime-700/60 text-lime-600 dark:text-lime-400 rounded-xl text-xs font-semibold hover:bg-lime-50 dark:hover:bg-lime-900/20 transition-colors flex items-center justify-center gap-2"
       >
         <Plus :size="14" />
         새 책 시작하기

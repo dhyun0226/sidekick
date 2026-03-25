@@ -6,16 +6,12 @@
       class="fixed inset-0 z-[9999] bg-white dark:bg-[#09090b] flex items-center justify-center"
     >
       <div class="flex flex-col items-center gap-6">
-        <!-- Logo or App Name -->
-        <div class="text-4xl font-bold text-lime-400">📚</div>
-        <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Cheer Readers</h1>
-
-        <!-- Loading Spinner -->
-        <div class="w-12 h-12">
-          <div class="w-full h-full border-3 border-lime-400/20 border-t-lime-400 rounded-full animate-spin"></div>
+        <BookOpen :size="32" class="text-lime-400" />
+        <div class="text-center space-y-1.5">
+          <h1 class="text-xl font-semibold text-zinc-900 dark:text-white tracking-tight">치어리더스</h1>
+          <p class="text-[13px] text-zinc-400 dark:text-zinc-500">당신의 독서를 응원합니다</p>
         </div>
-
-        <p class="text-sm text-zinc-500 dark:text-zinc-400">로딩 중...</p>
+        <div class="w-5 h-5 border-2 border-lime-400/30 border-t-lime-400 rounded-full animate-spin"></div>
       </div>
     </div>
 
@@ -55,7 +51,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
+import { BookOpen } from 'lucide-vue-next'
 import ToastContainer from '~/components/ToastContainer.vue'
+
 
 const DesktopSidebar = defineAsyncComponent(() => import('~/components/desktop/core/DesktopSidebar.vue'))
 

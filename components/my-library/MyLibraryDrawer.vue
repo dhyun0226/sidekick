@@ -4,18 +4,18 @@
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('close')"></div>
 
     <!-- Drawer Content -->
-    <div class="relative w-[85%] max-w-[360px] h-full bg-white dark:bg-zinc-900 border-l border-zinc-200 dark:border-zinc-800 flex flex-col shadow-2xl animate-slide-left">
+    <div class="relative w-[85%] max-w-[360px] h-full bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] flex flex-col shadow-apple-lg animate-slide-left">
 
       <!-- Drawer Header -->
-      <div class="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md">
-        <h2 class="text-lg font-bold text-zinc-900 dark:text-white truncate pr-2">{{ groupName }}</h2>
+      <div class="flex items-center justify-between p-4 ring-1 ring-black/[0.04] dark:ring-white/[0.06] bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md">
+        <h2 class="text-lg font-semibold text-zinc-900 dark:text-white truncate pr-2">{{ groupName }}</h2>
         <button @click="emit('close')" class="text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <X :size="24" />
         </button>
       </div>
 
       <!-- Tabs (멤버 탭 없음) -->
-      <div class="flex border-b border-zinc-200 dark:border-zinc-800">
+      <div class="flex ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
         <button
           @click="activeTab = 'info'"
           class="flex-1 py-3 text-sm font-medium transition-colors relative"

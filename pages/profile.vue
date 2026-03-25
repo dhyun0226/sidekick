@@ -45,7 +45,7 @@
           v-for="t in (['library', 'wishlist', 'timeline', 'insight', 'groups'] as const)"
           :key="t"
           @click="t === 'insight' ? handleInsightTabClick() : activeTab = t"
-          class="flex-1 py-3 text-sm font-bold transition-colors relative text-center"
+          class="flex-1 py-3 text-sm font-semibold transition-colors relative text-center"
           :class="activeTab === t ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
         >
           <span class="flex items-center justify-center gap-1">

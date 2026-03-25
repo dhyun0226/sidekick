@@ -7,11 +7,11 @@
     <div class="w-full max-w-sm space-y-8 relative z-10">
       <!-- Logo & Title -->
       <div class="text-center space-y-2">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-lime-400 to-lime-600 mb-4 shadow-lg shadow-lime-400/20">
-          <span class="text-3xl">📚</span>
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-lime-400 mb-4 shadow-apple">
+          <span class="text-black text-lg font-black">CR</span>
         </div>
-        <h1 class="text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Cheer Readers</h1>
-        <p class="text-zinc-600 dark:text-zinc-400">함께 읽는 즐거움, 치어리더스</p>
+        <h1 class="text-3xl font-semibold text-zinc-900 dark:text-white tracking-tight">치어리더스</h1>
+        <p class="text-zinc-500 dark:text-zinc-400">당신의 독서를 응원합니다</p>
       </div>
 
       <!-- Social Login Buttons -->

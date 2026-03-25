@@ -101,7 +101,7 @@
 
           <!-- Completed Books History -->
           <div>
-            <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-4">📚 완독 기록</h3>
+            <h3 class="text-sm font-semibold text-zinc-900 dark:text-white mb-4">완독 기록</h3>
             <div v-if="completedBooks.length > 0" class="space-y-3 max-h-96 overflow-y-auto">
               <div
                 v-for="book in completedBooks"
@@ -132,7 +132,7 @@
               </div>
             </div>
             <div v-else class="text-center py-8">
-              <div class="text-4xl mb-2">📖</div>
+              <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
               <p class="text-sm text-zinc-500">아직 완독한 책이 없습니다</p>
             </div>
           </div>
@@ -144,7 +144,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted } from 'vue'
-import { X, Star } from 'lucide-vue-next'
+import { X, Star, BookOpen } from 'lucide-vue-next'
 
 const props = defineProps<{
   isOpen: boolean

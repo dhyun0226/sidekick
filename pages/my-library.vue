@@ -30,7 +30,7 @@
 
       <!-- Archived Notice Banner -->
       <div v-if="isArchived" class="bg-amber-500/10 dark:bg-amber-500/20 border-b border-amber-500/30 px-4 py-2 text-center relative z-30">
-        <p class="text-[11px] font-black text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1.5 uppercase tracking-tighter">
+        <p class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1.5 uppercase tracking-tighter">
           <Archive :size="12" /> 이 그룹은 종료되었습니다. (과거의 기록만 열람 가능)
         </p>
       </div>
@@ -71,7 +71,7 @@
 
           <button
             @click="openSearchModal"
-            class="px-8 py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-lg flex items-center gap-2 active:scale-95"
+            class="px-8 py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple flex items-center gap-2 active:scale-95"
           >
             <Plus :size="20" stroke-width="3" />
             새 책 추가하기

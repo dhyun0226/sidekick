@@ -41,7 +41,7 @@
 
         <!-- Empty State -->
         <div v-if="maxCount === 0" class="text-center py-8">
-          <div class="text-4xl mb-2">📚</div>
+          <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
           <p class="text-sm text-zinc-500">아직 완독한 책이 없습니다</p>
         </div>
 
@@ -51,7 +51,7 @@
             <h4 class="text-sm font-bold text-zinc-700 dark:text-zinc-300">
               {{ selectedMonth.label }} ({{ selectedMonth.books.length }}권)
             </h4>
-            <button @click="selectedMonth = null" class="text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">
+            <button @click="selectedMonth = null" class="text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">
               닫기
             </button>
           </div>
@@ -77,6 +77,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { BookOpen } from 'lucide-vue-next'
 
 const client = useSupabaseClient()
 const loading = ref(false)

@@ -7,20 +7,20 @@
     <div class="w-full max-w-md space-y-8 relative z-10">
       <!-- Welcome Message -->
       <div class="text-center space-y-3">
-        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-lime-400 to-lime-600 mb-4 shadow-lg shadow-lime-400/20">
-          <span class="text-4xl">👋</span>
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-lime-400 to-lime-600 mb-4 shadow-apple">
+          <User :size="36" class="text-white" />
         </div>
         <h1 class="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">환영합니다!</h1>
         <p class="text-zinc-600 dark:text-zinc-400">프로필을 설정하고 독서를 시작해보세요</p>
       </div>
 
       <!-- Profile Setup Form -->
-      <div class="space-y-6 bg-white dark:bg-zinc-900/50 backdrop-blur-sm border border-zinc-300 dark:border-zinc-800 rounded-2xl p-8">
+      <div class="space-y-6 bg-white dark:bg-zinc-900/50 backdrop-blur-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-2xl p-8">
 
         <!-- Avatar Section -->
         <div class="flex flex-col items-center space-y-4">
           <div class="relative group cursor-pointer" @click="handleAvatarClick">
-            <div class="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border-2 border-zinc-300 dark:border-zinc-700 group-hover:border-lime-400 transition-colors">
+            <div class="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden ring-1 ring-black/[0.04] dark:ring-white/[0.06] group-hover:ring-2 group-hover:ring-lime-400 transition-colors">
               <!-- Preview Image -->
               <img
                 v-if="avatarPreview"
@@ -64,11 +64,11 @@
         </div>
 
         <!-- Divider -->
-        <div class="border-t border-zinc-300 dark:border-zinc-800"></div>
+        <div class="border-t border-zinc-200/60 dark:border-zinc-800"></div>
 
         <!-- Nickname Input -->
         <div class="space-y-2">
-          <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300">닉네임 *</label>
+          <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">닉네임 *</label>
           <input
             v-model="nickname"
             type="text"
@@ -86,7 +86,7 @@
         <!-- Submit Button -->
         <button
           @click="handleSubmit"
-          class="w-full bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          class="w-full bg-lime-400 text-black font-semibold py-4 rounded-2xl hover:bg-lime-300 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           :disabled="!canSubmit || loading"
         >
           <span v-if="loading" class="flex items-center justify-center gap-2">
