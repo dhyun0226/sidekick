@@ -76,97 +76,100 @@
           class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden"
         >
           <!-- 책 헤더 -->
-          <div class="flex gap-4 p-5 border-b border-zinc-100 dark:border-zinc-800">
-            <img v-if="book.cover_url" :src="book.cover_url" class="w-14 h-20 object-cover rounded shadow-sm flex-shrink-0" />
-            <div v-else class="w-14 h-20 bg-zinc-200 dark:bg-zinc-800 rounded flex items-center justify-center flex-shrink-0">
-              <BookOpen :size="20" class="text-zinc-400" />
+          <div class="flex gap-5 p-6">
+            <img v-if="book.cover_url" :src="book.cover_url" class="w-20 h-28 object-cover rounded-lg shadow-md flex-shrink-0" />
+            <div v-else class="w-20 h-28 bg-zinc-200 dark:bg-zinc-800 rounded-lg flex items-center justify-center flex-shrink-0">
+              <BookOpen :size="24" class="text-zinc-400" />
             </div>
             <div class="min-w-0 flex-1">
-              <h3 class="font-semibold text-zinc-900 dark:text-white truncate">{{ book.title }}</h3>
-              <p class="text-xs text-zinc-500 mt-0.5">{{ book.author }} · {{ book.publisher || '-' }}</p>
-              <p class="text-[10px] text-zinc-400 mt-1">ISBN: {{ book.isbn }}</p>
+              <h3 class="text-lg font-semibold text-zinc-900 dark:text-white mb-1">{{ book.title }}</h3>
+              <p class="text-sm text-zinc-500">{{ book.author }}</p>
+              <p v-if="book.publisher" class="text-sm text-zinc-400">{{ book.publisher }}</p>
             </div>
           </div>
 
           <!-- 승인 항목 3개 -->
-          <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
-            <!-- 1. 목차 -->
-            <div class="p-5">
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <List :size="16" class="text-zinc-400" />
-                  <span class="text-sm font-semibold text-zinc-900 dark:text-white">목차</span>
-                  <span v-if="book.official_toc" class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">승인됨</span>
-                  <span v-else-if="book.draft_toc" class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">대기</span>
-                  <span v-else class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-400">없음</span>
-                </div>
-                <div class="flex gap-2" v-if="book.draft_toc && !book.official_toc">
-                  <button @click="editToc(book)" class="px-3 py-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
-                    수정
-                  </button>
-                  <button
-                    @click="approveToc(book)"
-                    :disabled="approving === `toc-${book.isbn}`"
-                    class="px-3 py-1.5 text-xs font-semibold text-white bg-lime-600 hover:bg-lime-700 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-1"
-                  >
-                    <Check :size="12" />
-                    {{ approving === `toc-${book.isbn}` ? '처리 중' : '승인' }}
-                  </button>
-                </div>
-              </div>
-              <!-- 목차 전체 (스크롤) -->
-              <div v-if="book.draft_toc || book.official_toc" class="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3 text-xs space-y-1 max-h-[300px] overflow-y-auto">
-                <div v-for="(ch, idx) in parseToc(book.official_toc || book.draft_toc)" :key="idx" class="flex justify-between py-0.5">
-                  <span class="text-zinc-600 dark:text-zinc-400 truncate pr-4">{{ idx + 1 }}. {{ ch.title }}</span>
-                  <span class="text-zinc-400 whitespace-nowrap font-mono">{{ ch.startPage ? `${ch.startPage}p` : `${ch.start}%` }}</span>
-                </div>
-              </div>
-              <p v-if="book.draft_toc || book.official_toc" class="text-[10px] text-zinc-400 mt-1.5">
-                총 {{ parseToc(book.official_toc || book.draft_toc).length }}개 챕터
-              </p>
-            </div>
+          <div class="px-6 pb-6 space-y-5">
 
-            <!-- 2. 페이지수 -->
-            <div class="p-5 flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <FileText :size="16" class="text-zinc-400" />
-                <span class="text-sm font-semibold text-zinc-900 dark:text-white">페이지수</span>
-                <span v-if="book.official_pages" class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">{{ book.official_pages }}p 승인됨</span>
-                <span v-else-if="book.draft_pages" class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">{{ book.draft_pages }}p 대기</span>
-                <span v-else class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-400">없음</span>
+            <!-- 1. 페이지수 -->
+            <div class="flex items-center justify-between py-3 border-t border-zinc-100 dark:border-zinc-800">
+              <div>
+                <p class="text-xs text-zinc-400 mb-1">페이지수</p>
+                <p class="text-lg font-semibold text-zinc-900 dark:text-white">
+                  <template v-if="book.official_pages">{{ book.official_pages }}p <span class="text-xs font-normal text-blue-500 ml-1">승인됨</span></template>
+                  <template v-else-if="book.draft_pages">{{ book.draft_pages }}p <span class="text-xs font-normal text-amber-500 ml-1">대기</span></template>
+                  <template v-else><span class="text-zinc-300">-</span></template>
+                </p>
               </div>
               <button
                 v-if="book.draft_pages && !book.official_pages"
                 @click="approvePages(book)"
                 :disabled="approving === `pages-${book.isbn}`"
-                class="px-3 py-1.5 text-xs font-semibold text-white bg-lime-600 hover:bg-lime-700 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-1"
+                class="px-4 py-2 text-sm font-semibold text-white bg-lime-600 hover:bg-lime-700 rounded-lg transition-colors disabled:opacity-50"
               >
-                <Check :size="12" />
-                {{ approving === `pages-${book.isbn}` ? '처리 중' : '승인' }}
+                {{ approving === `pages-${book.isbn}` ? '처리 중...' : '승인' }}
               </button>
             </div>
 
-            <!-- 3. 장르 -->
-            <div class="p-5 flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <Tag :size="16" class="text-zinc-400" />
-                <span class="text-sm font-semibold text-zinc-900 dark:text-white">장르</span>
-                <span v-if="book.official_genre" class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">{{ book.official_genre }} 승인됨</span>
-                <span v-else-if="book.draft_genre" class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">{{ book.draft_genre }} 대기</span>
-                <span v-else class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-400">없음</span>
+            <!-- 2. 장르 -->
+            <div class="flex items-center justify-between py-3 border-t border-zinc-100 dark:border-zinc-800">
+              <div>
+                <p class="text-xs text-zinc-400 mb-1">장르</p>
+                <p class="text-lg font-semibold text-zinc-900 dark:text-white">
+                  <template v-if="book.official_genre">{{ book.official_genre }} <span class="text-xs font-normal text-blue-500 ml-1">승인됨</span></template>
+                  <template v-else-if="book.draft_genre">{{ book.draft_genre }} <span class="text-xs font-normal text-amber-500 ml-1">대기</span></template>
+                  <template v-else><span class="text-zinc-300">-</span></template>
+                </p>
               </div>
               <div class="flex gap-2" v-if="book.draft_genre && !book.official_genre">
-                <button @click="openEditGenre(book)" class="px-3 py-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+                <button @click="openEditGenre(book)" class="px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
                   수정
                 </button>
                 <button
                   @click="approveGenre(book)"
                   :disabled="approving === `genre-${book.isbn}`"
-                  class="px-3 py-1.5 text-xs font-semibold text-white bg-lime-600 hover:bg-lime-700 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-1"
+                  class="px-4 py-2 text-sm font-semibold text-white bg-lime-600 hover:bg-lime-700 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  <Check :size="12" />
-                  {{ approving === `genre-${book.isbn}` ? '처리 중' : '승인' }}
+                  {{ approving === `genre-${book.isbn}` ? '처리 중...' : '승인' }}
                 </button>
+              </div>
+            </div>
+
+            <!-- 3. 목차 -->
+            <div class="py-3 border-t border-zinc-100 dark:border-zinc-800">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <p class="text-xs text-zinc-400 mb-1">목차</p>
+                  <p class="text-sm font-semibold text-zinc-900 dark:text-white">
+                    <template v-if="book.official_toc">{{ parseToc(book.official_toc).length }}개 챕터 <span class="text-xs font-normal text-blue-500 ml-1">승인됨</span></template>
+                    <template v-else-if="book.draft_toc">{{ parseToc(book.draft_toc).length }}개 챕터 <span class="text-xs font-normal text-amber-500 ml-1">대기</span></template>
+                    <template v-else><span class="text-zinc-300">없음</span></template>
+                  </p>
+                </div>
+                <div class="flex gap-2" v-if="book.draft_toc && !book.official_toc">
+                  <button @click="editToc(book)" class="px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+                    수정
+                  </button>
+                  <button
+                    @click="approveToc(book)"
+                    :disabled="approving === `toc-${book.isbn}`"
+                    class="px-4 py-2 text-sm font-semibold text-white bg-lime-600 hover:bg-lime-700 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {{ approving === `toc-${book.isbn}` ? '처리 중...' : '승인' }}
+                  </button>
+                </div>
+              </div>
+              <!-- 목차 전체 -->
+              <div v-if="book.draft_toc || book.official_toc" class="bg-zinc-50 dark:bg-zinc-800/30 rounded-xl p-4 max-h-[400px] overflow-y-auto">
+                <table class="w-full">
+                  <tbody>
+                    <tr v-for="(ch, idx) in parseToc(book.official_toc || book.draft_toc)" :key="idx" class="border-b border-zinc-100 dark:border-zinc-800 last:border-0">
+                      <td class="py-2 pr-4 text-sm text-zinc-400 w-8 text-right">{{ idx + 1 }}</td>
+                      <td class="py-2 text-sm text-zinc-700 dark:text-zinc-300">{{ ch.title }}</td>
+                      <td class="py-2 pl-4 text-sm text-zinc-500 text-right tabular-nums whitespace-nowrap">{{ ch.startPage ? `${ch.startPage}p` : `${ch.start}%` }}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
