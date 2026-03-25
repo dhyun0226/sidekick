@@ -324,6 +324,7 @@ const confirmCancelSubscription = async () => {
     await $fetch('/api/payments/cancel-subscription', { method: 'POST' })
     toast.success('자동갱신이 취소되었습니다')
     await fetchCurrentSubscription()
+    await userStore.fetchProfile(true)
   } catch (error: any) {
     toast.error('구독 취소에 실패했습니다')
   } finally { canceling.value = false }
@@ -337,6 +338,7 @@ const confirmReactivateSubscription = async () => {
     await $fetch('/api/payments/reactivate-subscription', { method: 'POST' })
     toast.success('자동갱신이 재개되었습니다')
     await fetchCurrentSubscription()
+    await userStore.fetchProfile(true)
   } catch (error: any) {
     toast.error('자동갱신 재개에 실패했습니다')
   } finally { reactivating.value = false }

@@ -605,11 +605,14 @@ const saveEdit = async (commentId: string) => {
       throw error
     }
 
-    // Update local state
-    const comment = props.comments.find(c => c.id === commentId)
-    if (comment) {
-      comment.content = editContent.value.trim()
-      comment.anchor_text = editAnchor.value.trim() || null
+    // Update local state — replace object to trigger Vue reactivity for re-grouping
+    const idx = props.comments.findIndex(c => c.id === commentId)
+    if (idx !== -1) {
+      props.comments[idx] = {
+        ...props.comments[idx],
+        content: editContent.value.trim(),
+        anchor_text: editAnchor.value.trim() || null
+      }
     }
 
     // Exit edit mode
