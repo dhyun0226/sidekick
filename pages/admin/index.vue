@@ -18,7 +18,7 @@
             처리 필요
           </span>
           <span class="text-zinc-400 mx-2">•</span>
-          <span class="text-zinc-500">draft_toc → official_toc</span>
+          <span class="text-zinc-500">임시 목차 → 공식 목차</span>
         </div>
       </div>
 
@@ -38,7 +38,7 @@
             등록됨
           </span>
           <span class="text-zinc-400 mx-2">•</span>
-          <span class="text-zinc-500">books 테이블 전체</span>
+          <span class="text-zinc-500">등록된 전체 도서 수</span>
         </div>
       </div>
 
@@ -67,7 +67,7 @@
       <!-- Recent Activity -->
       <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden h-fit">
         <div class="p-6 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-          <h2 class="font-bold text-zinc-900 dark:text-white">최근 등록된 책</h2>
+          <h2 class="font-semibold text-zinc-900 dark:text-white">최근 등록된 책</h2>
           <NuxtLink to="/admin/books" class="text-sm text-lime-600 hover:text-lime-700 font-medium">전체 보기</NuxtLink>
         </div>
         
@@ -119,7 +119,7 @@
       <!-- Quick Links / Guide (Optional Placeholder) -->
       <div class="space-y-6">
         <div class="bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-xl p-6 text-white">
-          <h3 class="font-bold text-lg mb-2">관리자 가이드</h3>
+          <h3 class="font-semibold text-lg mb-2">관리자 가이드</h3>
           <p class="text-zinc-400 text-sm mb-4">
             관리자 페이지에서는 도서 승인, 사용자 권한 관리, 그룹 모니터링을 수행할 수 있습니다.
             새로운 기능 요청이나 버그 제보는 GitHub 이슈를 이용해주세요.

@@ -72,7 +72,7 @@
       <!-- 1. Genre Approvals -->
       <section>
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
             <Tag :size="20" />
             장르 승인 대기
             <span class="text-sm font-normal text-zinc-500">({{ pendingGenreCount }})</span>
@@ -127,7 +127,7 @@
       <!-- 2. TOC Approvals -->
       <section>
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
             <List :size="20" />
             목차 승인 대기
             <span class="text-sm font-normal text-zinc-500">({{ pendingTocCount }})</span>
@@ -215,11 +215,11 @@
         <table class="w-full">
           <thead class="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
             <tr>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">책 정보</th>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">저자</th>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">장르</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">상태</th>
-              <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">작업</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">책 정보</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">저자</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">장르</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">상태</th>
+              <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500">작업</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">

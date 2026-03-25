@@ -6,7 +6,7 @@
       <div class="h-16 flex items-center px-6 border-b border-zinc-200 dark:border-zinc-800">
         <NuxtLink to="/" class="flex items-center gap-2 font-bold text-xl text-zinc-900 dark:text-white">
           <span class="w-8 h-8 bg-lime-400 rounded-lg flex items-center justify-center text-black text-xs font-black">CR</span>
-          <span>Cheer Readers Admin</span>
+          <span>응원 독서 관리자</span>
         </NuxtLink>
       </div>
 
@@ -35,10 +35,10 @@
              <Shield :size="16" class="text-zinc-500" />
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-zinc-900 dark:text-white truncate">Administrator</p>
-            <p class="text-xs text-zinc-500 truncate">Super Admin</p>
+            <p class="text-sm font-semibold text-zinc-900 dark:text-white truncate">관리자</p>
+            <p class="text-xs text-zinc-500 truncate">최고 관리자</p>
           </div>
-          <NuxtLink to="/" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" title="Exit Admin">
+          <NuxtLink to="/" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" title="관리자 나가기">
             <LogOut :size="16" />
           </NuxtLink>
         </div>
@@ -48,7 +48,7 @@
     <!-- Main Content -->
     <main class="flex-1 ml-64 min-w-0">
       <div class="h-16 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-40 px-8 flex items-center justify-between">
-        <h1 class="text-lg font-bold text-zinc-900 dark:text-white capitalize">
+        <h1 class="text-lg font-semibold text-zinc-900 dark:text-white">
           {{ currentPageTitle }}
         </h1>
         <div class="flex items-center gap-4">
@@ -111,7 +111,7 @@ const currentPageTitle = computed(() => {
       ? route.path === '/admin'
       : route.path.startsWith(item.path)
   )
-  return currentItem ? currentItem.label : 'Admin'
+  return currentItem ? currentItem.label : '관리자'
 })
 
 const currentDate = new Date().toLocaleDateString('ko-KR', {

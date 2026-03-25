@@ -79,13 +79,13 @@
         <table class="w-full">
           <thead class="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
             <tr>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">사용자</th>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">플랜</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">상태</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">시작일</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">만료일</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">자동갱신</th>
-              <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">작업</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">사용자</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">플랜</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">상태</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">시작일</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">만료일</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">자동갱신</th>
+              <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500">작업</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -146,12 +146,12 @@
         <table class="w-full">
           <thead class="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
             <tr>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">주문ID</th>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">사용자</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">금액</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">결제수단</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">상태</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">결제일</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">주문ID</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">사용자</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">금액</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">결제수단</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">상태</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">결제일</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -214,11 +214,11 @@
         <table class="w-full">
           <thead class="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
             <tr>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">사용자</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">현재 등급</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">가입일</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">참여 그룹</th>
-              <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">등급 변경</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">사용자</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">현재 등급</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">가입일</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">참여 그룹</th>
+              <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500">등급 변경</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -280,7 +280,7 @@
         <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 flex items-start gap-3">
           <Info :size="18" class="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
           <div class="text-sm text-blue-700 dark:text-blue-300">
-            <p class="font-bold mb-1">구독 제한 설정</p>
+            <p class="font-semibold mb-1">구독 제한 설정</p>
             <p class="text-xs">여기서 변경한 값은 즉시 모든 사용자에게 적용됩니다. <strong>-1은 무제한</strong>을 의미합니다.</p>
           </div>
         </div>
@@ -293,8 +293,8 @@
           class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6"
         >
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-zinc-900 dark:text-white">{{ getTierLabel(limit.tier) }}</h3>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
+            <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">{{ getTierLabel(limit.tier) }}</h3>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
               {{ limit.tier }}
             </span>
           </div>
@@ -354,15 +354,15 @@
           <div class="text-xl font-bold text-zinc-900 dark:text-white">{{ avgSubscriptionDuration.toFixed(1) }}개월</div>
         </div>
         <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4">
-          <div class="text-xs text-zinc-500 mb-1">MRR</div>
+          <div class="text-xs text-zinc-500 mb-1">월간 반복 수익(MRR)</div>
           <div class="text-xl font-bold text-zinc-900 dark:text-white">₩{{ Math.floor(mrr).toLocaleString() }}</div>
         </div>
         <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4">
-          <div class="text-xs text-zinc-500 mb-1">ARR</div>
+          <div class="text-xs text-zinc-500 mb-1">연간 반복 수익(ARR)</div>
           <div class="text-xl font-bold text-zinc-900 dark:text-white">₩{{ Math.floor(arr).toLocaleString() }}</div>
         </div>
         <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4">
-          <div class="text-xs text-zinc-500 mb-1">ARPU</div>
+          <div class="text-xs text-zinc-500 mb-1">유저당 평균 수익(ARPU)</div>
           <div class="text-xl font-bold text-zinc-900 dark:text-white">₩{{ Math.floor(arpu).toLocaleString() }}</div>
         </div>
       </div>
@@ -370,7 +370,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Monthly Revenue Chart -->
         <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6">
-          <h3 class="text-base font-bold text-zinc-900 dark:text-white mb-4">월별 수익</h3>
+          <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-4">월별 수익</h3>
           <div class="space-y-4">
             <div v-for="month in monthlyRevenueData" :key="month.label">
               <div class="flex items-center justify-between text-xs mb-1">
@@ -389,7 +389,7 @@
 
         <!-- Monthly Churn Chart -->
         <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6">
-          <h3 class="text-base font-bold text-zinc-900 dark:text-white mb-4">신규 vs 해지</h3>
+          <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-4">신규 vs 해지</h3>
           <div class="space-y-4">
             <div v-for="month in monthlyChurnData" :key="month.label">
               <div class="flex items-center justify-between text-xs mb-1">

@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-2xl font-bold text-zinc-900 dark:text-white">문의 관리</h2>
+        <h2 class="text-2xl font-semibold text-zinc-900 dark:text-white">문의 관리</h2>
         <p class="text-sm text-zinc-500 mt-1">고객 문의를 확인하고 답변합니다</p>
       </div>
       <div class="flex gap-2">
@@ -45,7 +45,7 @@
         <div class="flex items-start justify-between gap-4">
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-1">
-              <span class="text-[10px] font-bold uppercase tracking-wider" :class="statusColor(inq.status)">
+              <span class="text-[10px] font-bold" :class="statusColor(inq.status)">
                 {{ statusLabel(inq.status) }}
               </span>
               <span class="text-[10px] font-medium text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">
@@ -60,7 +60,7 @@
           <div class="flex items-center gap-3 flex-shrink-0">
             <div v-if="inq.user" class="text-right">
               <p class="text-xs font-bold text-zinc-700 dark:text-zinc-300">{{ inq.user.nickname || '알 수 없음' }}</p>
-              <p class="text-[10px] text-zinc-400">{{ inq.user.subscription_tier }}</p>
+              <p class="text-[10px] text-zinc-400">{{ tierLabel(inq.user.subscription_tier) }}</p>
             </div>
             <button
               @click="openReply(inq)"
@@ -88,7 +88,7 @@
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="replyTarget = null"></div>
         <div class="relative w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden">
           <div class="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center">
-            <h3 class="text-lg font-bold text-zinc-900 dark:text-white">문의 답변</h3>
+            <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">문의 답변</h3>
             <button @click="replyTarget = null" class="text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
               <X :size="20" />
             </button>
@@ -96,7 +96,7 @@
 
           <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
             <div>
-              <p class="text-[10px] font-bold text-zinc-400 uppercase mb-1">{{ categoryLabel(replyTarget.category) }} · {{ formatDate(replyTarget.created_at) }}</p>
+              <p class="text-[10px] font-bold text-zinc-400 mb-1">{{ categoryLabel(replyTarget.category) }} · {{ formatDate(replyTarget.created_at) }}</p>
               <p class="text-sm font-bold text-zinc-900 dark:text-white">{{ replyTarget.title }}</p>
             </div>
 
@@ -109,11 +109,11 @@
               <span>·</span>
               <span>{{ replyTarget.user.email }}</span>
               <span>·</span>
-              <span class="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[10px]">{{ replyTarget.user.subscription_tier }}</span>
+              <span class="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[10px]">{{ tierLabel(replyTarget.user.subscription_tier) }}</span>
             </div>
 
             <div>
-              <label class="block text-[11px] font-bold text-zinc-400 uppercase mb-2">답변</label>
+              <label class="block text-[11px] font-bold text-zinc-400 mb-2">답변</label>
               <textarea
                 v-model="replyContent"
                 rows="5"
@@ -221,6 +221,7 @@ const submitReply = async (status: string) => {
   }
 }
 
+const tierLabel = (t: string) => ({ free: '무료', premium: '프리미엄', admin: '관리자' }[t] || t)
 const statusLabel = (s: string) => ({ pending: '대기 중', replied: '답변 완료', closed: '종료' }[s] || s)
 const statusColor = (s: string) => ({
   pending: 'text-amber-500',
