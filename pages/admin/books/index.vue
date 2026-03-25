@@ -114,16 +114,16 @@
                   </button>
                 </div>
               </div>
-              <!-- 목차 미리보기 (바로 보임) -->
-              <div v-if="book.draft_toc || book.official_toc" class="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3 text-xs space-y-1.5">
-                <div v-for="(ch, idx) in parseToc(book.official_toc || book.draft_toc).slice(0, 5)" :key="idx" class="flex justify-between">
-                  <span class="text-zinc-600 dark:text-zinc-400 truncate pr-2">{{ idx + 1 }}. {{ ch.title }}</span>
-                  <span class="text-zinc-400 whitespace-nowrap">{{ ch.startPage ? `${ch.startPage}p` : `${ch.start}%` }}</span>
+              <!-- 목차 전체 (스크롤) -->
+              <div v-if="book.draft_toc || book.official_toc" class="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3 text-xs space-y-1 max-h-[300px] overflow-y-auto">
+                <div v-for="(ch, idx) in parseToc(book.official_toc || book.draft_toc)" :key="idx" class="flex justify-between py-0.5">
+                  <span class="text-zinc-600 dark:text-zinc-400 truncate pr-4">{{ idx + 1 }}. {{ ch.title }}</span>
+                  <span class="text-zinc-400 whitespace-nowrap font-mono">{{ ch.startPage ? `${ch.startPage}p` : `${ch.start}%` }}</span>
                 </div>
-                <p v-if="parseToc(book.official_toc || book.draft_toc).length > 5" class="text-center text-zinc-400 pt-1">
-                  외 {{ parseToc(book.official_toc || book.draft_toc).length - 5 }}개
-                </p>
               </div>
+              <p v-if="book.draft_toc || book.official_toc" class="text-[10px] text-zinc-400 mt-1.5">
+                총 {{ parseToc(book.official_toc || book.draft_toc).length }}개 챕터
+              </p>
             </div>
 
             <!-- 2. 페이지수 -->
