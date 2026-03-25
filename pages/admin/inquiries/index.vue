@@ -36,7 +36,7 @@
     </div>
 
     <!-- List -->
-    <div v-else class="space-y-3">
+    <div v-else class="max-h-[600px] overflow-y-auto space-y-3">
       <div
         v-for="inq in inquiries"
         :key="inq.id"

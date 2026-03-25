@@ -76,123 +76,127 @@
           </div>
         </div>
 
-        <table class="w-full">
-          <thead class="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
-            <tr>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">사용자</th>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">플랜</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">상태</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">시작일</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">만료일</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">자동갱신</th>
-              <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500">작업</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
-            <tr
-              v-for="sub in filteredSubscriptions"
-              :key="sub.id"
-              class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
-            >
-              <td class="px-6 py-4">
-                <div>
-                  <p class="font-medium text-sm text-zinc-900 dark:text-white">{{ sub.user?.username }}</p>
-                  <p class="text-xs text-zinc-500">{{ sub.user?.email }}</p>
-                </div>
-              </td>
-              <td class="px-6 py-4">
-                <span class="text-sm text-zinc-700 dark:text-zinc-300">{{ sub.plan?.display_name }}</span>
-              </td>
-              <td class="px-6 py-4 text-center">
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  :class="{
-                    'bg-lime-100 dark:bg-lime-900/20 text-lime-700 dark:text-lime-400': sub.status === 'active',
-                    'bg-zinc-100 dark:bg-zinc-800 text-zinc-500': sub.status === 'cancelled',
-                    'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400': sub.status === 'expired'
-                  }"
-                >
-                  {{ getStatusLabel(sub.status) }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-center text-xs text-zinc-500">
-                {{ formatDate(sub.start_date) }}
-              </td>
-              <td class="px-6 py-4 text-center text-xs text-zinc-500">
-                {{ formatDate(sub.end_date) }}
-              </td>
-              <td class="px-6 py-4 text-center">
-                <Check v-if="sub.auto_renew" :size="16" class="inline text-lime-600 dark:text-lime-400" />
-                <X v-else :size="16" class="inline text-zinc-400" />
-              </td>
-              <td class="px-6 py-4 text-right">
-                <button
-                  v-if="sub.status === 'active'"
-                  @click="cancelSubscription(sub.id)"
-                  class="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-                >
-                  취소
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="max-h-[600px] overflow-y-auto">
+          <table class="w-full">
+            <thead class="sticky top-0 bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 z-10">
+              <tr>
+                <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">사용자</th>
+                <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">플랜</th>
+                <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">상태</th>
+                <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">시작일</th>
+                <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">만료일</th>
+                <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">자동갱신</th>
+                <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500">작업</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
+              <tr
+                v-for="sub in filteredSubscriptions"
+                :key="sub.id"
+                class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+              >
+                <td class="px-6 py-4">
+                  <div>
+                    <p class="font-medium text-sm text-zinc-900 dark:text-white">{{ sub.user?.username }}</p>
+                    <p class="text-xs text-zinc-500">{{ sub.user?.email }}</p>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="text-sm text-zinc-700 dark:text-zinc-300">{{ sub.plan?.display_name }}</span>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    :class="{
+                      'bg-lime-100 dark:bg-lime-900/20 text-lime-700 dark:text-lime-400': sub.status === 'active',
+                      'bg-zinc-100 dark:bg-zinc-800 text-zinc-500': sub.status === 'cancelled',
+                      'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400': sub.status === 'expired'
+                    }"
+                  >
+                    {{ getStatusLabel(sub.status) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-center text-xs text-zinc-500">
+                  {{ formatDate(sub.start_date) }}
+                </td>
+                <td class="px-6 py-4 text-center text-xs text-zinc-500">
+                  {{ formatDate(sub.end_date) }}
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <Check v-if="sub.auto_renew" :size="16" class="inline text-lime-600 dark:text-lime-400" />
+                  <X v-else :size="16" class="inline text-zinc-400" />
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <button
+                    v-if="sub.status === 'active'"
+                    @click="cancelSubscription(sub.id)"
+                    class="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                  >
+                    취소
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
     <!-- Payments Tab -->
     <div v-else-if="activeTab === 'payments'">
       <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-        <table class="w-full">
-          <thead class="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
-            <tr>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">주문ID</th>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">사용자</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">금액</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">결제수단</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">상태</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">결제일</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
-            <tr
-              v-for="payment in allPayments"
-              :key="payment.id"
-              class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
-            >
-              <td class="px-6 py-4">
-                <span class="text-xs font-mono text-zinc-600 dark:text-zinc-400">{{ payment.order_id.substring(0, 12) }}...</span>
-              </td>
-              <td class="px-6 py-4">
-                <div>
-                  <p class="text-sm font-medium text-zinc-900 dark:text-white">{{ payment.user?.username }}</p>
-                  <p class="text-xs text-zinc-500">{{ payment.user?.email }}</p>
-                </div>
-              </td>
-              <td class="px-6 py-4 text-center">
-                <span class="text-sm font-bold text-zinc-900 dark:text-white">₩{{ payment.amount.toLocaleString() }}</span>
-              </td>
-              <td class="px-6 py-4 text-center">
-                <span class="text-xs text-zinc-600 dark:text-zinc-400">{{ getMethodLabel(payment.method) }}</span>
-              </td>
-              <td class="px-6 py-4 text-center">
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  :class="{
-                    'bg-lime-100 dark:bg-lime-900/20 text-lime-700 dark:text-lime-400': payment.status === 'completed',
-                    'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400': payment.status === 'pending',
-                    'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400': payment.status === 'failed'
-                  }"
-                >
-                  {{ getPaymentStatusLabel(payment.status) }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-center">
-                <span class="text-xs text-zinc-500">{{ formatDateTime(payment.approved_at || payment.created_at) }}</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="max-h-[600px] overflow-y-auto">
+          <table class="w-full">
+            <thead class="sticky top-0 bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 z-10">
+              <tr>
+                <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">주문ID</th>
+                <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">사용자</th>
+                <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">금액</th>
+                <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">결제수단</th>
+                <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">상태</th>
+                <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">결제일</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
+              <tr
+                v-for="payment in allPayments"
+                :key="payment.id"
+                class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+              >
+                <td class="px-6 py-4">
+                  <span class="text-xs font-mono text-zinc-600 dark:text-zinc-400">{{ payment.order_id.substring(0, 12) }}...</span>
+                </td>
+                <td class="px-6 py-4">
+                  <div>
+                    <p class="text-sm font-medium text-zinc-900 dark:text-white">{{ payment.user?.username }}</p>
+                    <p class="text-xs text-zinc-500">{{ payment.user?.email }}</p>
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <span class="text-sm font-bold text-zinc-900 dark:text-white">₩{{ payment.amount.toLocaleString() }}</span>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <span class="text-xs text-zinc-600 dark:text-zinc-400">{{ getMethodLabel(payment.method) }}</span>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    :class="{
+                      'bg-lime-100 dark:bg-lime-900/20 text-lime-700 dark:text-lime-400': payment.status === 'completed',
+                      'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400': payment.status === 'pending',
+                      'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400': payment.status === 'failed'
+                    }"
+                  >
+                    {{ getPaymentStatusLabel(payment.status) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <span class="text-xs text-zinc-500">{{ formatDateTime(payment.approved_at || payment.created_at) }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -211,17 +215,18 @@
           </div>
         </div>
 
-        <table class="w-full">
-          <thead class="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
-            <tr>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">사용자</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">현재 등급</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">가입일</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">참여 그룹</th>
-              <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500">등급 변경</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
+        <div class="max-h-[600px] overflow-y-auto">
+          <table class="w-full">
+            <thead class="sticky top-0 bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 z-10">
+              <tr>
+                <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">사용자</th>
+                <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">현재 등급</th>
+                <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">가입일</th>
+                <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">참여 그룹</th>
+                <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500">등급 변경</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
             <tr
               v-for="user in filteredUsers"
               :key="user.id"
@@ -268,9 +273,10 @@
                   <option value="admin">관리자</option>
                 </select>
               </td>
-            </tr>
-          </tbody>
-        </table>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 

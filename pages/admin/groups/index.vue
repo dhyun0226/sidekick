@@ -66,18 +66,19 @@
         <p class="text-zinc-900 dark:text-white font-medium">검색 결과가 없습니다</p>
       </div>
 
-      <table v-else class="w-full">
-        <thead class="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
-          <tr>
-            <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">그룹명</th>
-            <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">소유자</th>
-            <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">멤버</th>
-            <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">현재 읽는 책</th>
-            <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">생성일</th>
-            <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500">작업</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
+      <div v-else class="max-h-[600px] overflow-y-auto">
+        <table class="w-full">
+          <thead class="sticky top-0 bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 z-10">
+            <tr>
+              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">그룹명</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">소유자</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">멤버</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">현재 읽는 책</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">생성일</th>
+              <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500">작업</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
           <tr
             v-for="group in filteredGroups"
             :key="group.id"
@@ -139,8 +140,9 @@
                 </NuxtLink>
             </td>
           </tr>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>

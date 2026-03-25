@@ -212,51 +212,53 @@
         </div>
 
         <!-- Table -->
-        <table class="w-full">
-          <thead class="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
-            <tr>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">책 정보</th>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">저자</th>
-              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">장르</th>
-              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">상태</th>
-              <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500">작업</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
-            <template v-for="book in filteredBooks" :key="book.isbn">
-              <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-3">
-                    <img v-if="book.cover_url" :src="book.cover_url" class="w-8 h-12 object-cover rounded shadow-sm flex-shrink-0" />
-                    <div class="min-w-0">
-                      <p class="font-medium text-sm text-zinc-900 dark:text-white truncate max-w-[200px]" :title="book.title">{{ book.title }}</p>
-                      <p class="text-xs text-zinc-500 truncate">ISBN: {{ book.isbn }}</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4 text-sm text-zinc-500">{{ book.author }}</td>
-                <td class="px-6 py-4">
-                  <GenreBadge 
-                    v-if="book.official_genre" 
-                    :genre="book.official_genre" 
-                    size="sm" 
-                  />
-                  <span v-else class="text-xs text-zinc-400">-</span>
-                </td>
-                <td class="px-6 py-4 text-center">
-                  <span v-if="book.official_toc" class="text-blue-600 text-xs font-bold">승인됨</span>
-                  <span v-else-if="book.draft_toc" class="text-lime-600 text-xs font-bold">대기 중</span>
-                  <span v-else class="text-zinc-400 text-xs">-</span>
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <button @click="editToc(book)" class="text-zinc-400 hover:text-zinc-600">
-                    <Edit :size="16" />
-                  </button>
-                </td>
+        <div class="max-h-[600px] overflow-y-auto">
+          <table class="w-full">
+            <thead class="sticky top-0 bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 z-10">
+              <tr>
+                <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">책 정보</th>
+                <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">저자</th>
+                <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">장르</th>
+                <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">상태</th>
+                <th class="text-right px-6 py-3 text-xs font-medium text-zinc-500">작업</th>
               </tr>
-            </template>
-          </tbody>
-        </table>
+            </thead>
+            <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
+              <template v-for="book in filteredBooks" :key="book.isbn">
+                <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <img v-if="book.cover_url" :src="book.cover_url" class="w-8 h-12 object-cover rounded shadow-sm flex-shrink-0" />
+                      <div class="min-w-0">
+                        <p class="font-medium text-sm text-zinc-900 dark:text-white truncate max-w-[200px]" :title="book.title">{{ book.title }}</p>
+                        <p class="text-xs text-zinc-500 truncate">ISBN: {{ book.isbn }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-zinc-500">{{ book.author }}</td>
+                  <td class="px-6 py-4">
+                    <GenreBadge
+                      v-if="book.official_genre"
+                      :genre="book.official_genre"
+                      size="sm"
+                    />
+                    <span v-else class="text-xs text-zinc-400">-</span>
+                  </td>
+                  <td class="px-6 py-4 text-center">
+                    <span v-if="book.official_toc" class="text-blue-600 text-xs font-bold">승인됨</span>
+                    <span v-else-if="book.draft_toc" class="text-lime-600 text-xs font-bold">대기 중</span>
+                    <span v-else class="text-zinc-400 text-xs">-</span>
+                  </td>
+                  <td class="px-6 py-4 text-right">
+                    <button @click="editToc(book)" class="text-zinc-400 hover:text-zinc-600">
+                      <Edit :size="16" />
+                    </button>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
     </div>
 
     <!-- Modals -->

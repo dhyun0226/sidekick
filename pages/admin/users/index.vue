@@ -75,17 +75,18 @@
       </div>
 
       <!-- Table Content -->
-      <table v-else class="w-full">
-        <thead class="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
-          <tr>
-            <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">사용자</th>
-            <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">이메일</th>
-            <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">등급</th>
-            <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">활동</th>
-            <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">가입일</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
+      <div v-else class="max-h-[600px] overflow-y-auto">
+        <table class="w-full">
+          <thead class="sticky top-0 bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 z-10">
+            <tr>
+              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">사용자</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-zinc-500">이메일</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">등급</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">활동</th>
+              <th class="text-center px-6 py-3 text-xs font-medium text-zinc-500">가입일</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
           <tr
             v-for="user in filteredUsers"
             :key="user.id"
@@ -135,8 +136,9 @@
               {{ formatDate(user.created_at) }}
             </td>
           </tr>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- User Detail Drawer -->
