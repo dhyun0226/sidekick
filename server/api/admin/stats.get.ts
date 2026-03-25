@@ -30,33 +30,40 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // 통계 데이터 수집
-  const [
-    { count: pendingTocCount },
-    { count: totalBooksCount },
-    { count: totalUsersCount }
-  ] = await Promise.all([
-    // 승인 대기 목차
-    serviceClient
-      .from('books')
-      .select('*', { count: 'exact', head: true })
-      .not('draft_toc', 'is', null)
-      .is('official_toc', null),
+  try {
+    // 통계 데이터 수집
+    const [pendingRes, booksRes, usersRes] = await Promise.all([
+      serviceClient
+        .from('books')
+        .select('*', { count: 'exact', head: true })
+        .not('draft_toc', 'is', null)
+        .is('official_toc', null),
 
-    // 전체 도서
-    serviceClient
-      .from('books')
-      .select('*', { count: 'exact', head: true }),
+      serviceClient
+        .from('books')
+        .select('*', { count: 'exact', head: true }),
 
-    // 전체 사용자
-    serviceClient
-      .from('users')
-      .select('*', { count: 'exact', head: true })
-  ])
+      serviceClient
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+    ])
 
-  return {
-    pendingToc: pendingTocCount || 0,
-    totalBooks: totalBooksCount || 0,
-    totalUsers: totalUsersCount || 0
+    if (pendingRes.error || booksRes.error || usersRes.error) {
+      throw createError({
+        statusCode: 500,
+        message: `DB 조회 실패: ${pendingRes.error?.message || booksRes.error?.message || usersRes.error?.message}`
+      })
+    }
+
+    return {
+      pendingToc: pendingRes.count || 0,
+      totalBooks: booksRes.count || 0,
+      totalUsers: usersRes.count || 0
+    }
+  } catch (err: any) {
+    throw createError({
+      statusCode: err.statusCode || 500,
+      message: err.message || '통계 조회에 실패했습니다'
+    })
   }
 })
