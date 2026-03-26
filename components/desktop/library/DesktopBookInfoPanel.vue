@@ -1,10 +1,5 @@
 <template>
   <div class="space-y-6">
-    <!-- Progress Bar (compact) -->
-    <div v-if="book" class="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-      <div class="h-full bg-lime-400 transition-all duration-500 rounded-full" :style="{ width: `${viewProgress}%` }"></div>
-    </div>
-
     <!-- Progress -->
     <div v-if="book" class="px-1">
       <div class="flex items-center justify-between mb-3">
