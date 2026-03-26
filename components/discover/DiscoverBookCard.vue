@@ -42,7 +42,7 @@
       <template v-else-if="type === 'rating'">
         <Star :size="10" fill="#EAB308" class="text-yellow-500" />
         <span class="text-zinc-600 dark:text-zinc-400">{{ book.avgRating }}</span>
-        <span class="text-zinc-400 dark:text-zinc-500">({{ book.reviewCount }})</span>
+        <span class="text-zinc-400 dark:text-zinc-400">({{ book.reviewCount }})</span>
       </template>
       <template v-else-if="type === 'completion'">
         <CheckCircle :size="10" class="text-green-500" />
@@ -70,6 +70,6 @@ const rankBadgeClass = computed(() => {
   if (props.rank === 1) return 'bg-yellow-400 text-yellow-900'
   if (props.rank === 2) return 'bg-zinc-300 text-zinc-700'
   if (props.rank === 3) return 'bg-amber-600 text-amber-100'
-  return 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
+  return 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400'
 })
 </script>

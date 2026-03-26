@@ -8,7 +8,7 @@
     <template v-else>
       <!-- Active Groups -->
       <div v-if="activeGroups.length > 0">
-        <h3 class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-2 px-1">활성 그룹</h3>
+        <h3 class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-2 px-1">활성 그룹</h3>
         <div class="bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] shadow-apple divide-y divide-zinc-100 dark:divide-zinc-800">
           <div
             v-for="group in activeGroups"
@@ -87,7 +87,7 @@
 
       <!-- Archived Groups -->
       <div v-if="archivedGroups.length > 0">
-        <h3 class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-2 px-1">지난 그룹</h3>
+        <h3 class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-2 px-1">지난 그룹</h3>
         <div class="bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] shadow-apple divide-y divide-zinc-200 dark:divide-zinc-800">
           <div
             v-for="group in archivedGroups"
@@ -135,7 +135,7 @@
       <div v-if="groups.length === 0" class="text-center py-12">
         <Users :size="32" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
         <p class="text-[15px] font-medium text-zinc-900 dark:text-white mb-1">참여 중인 그룹이 없어요</p>
-        <p class="text-[13px] text-zinc-400">그룹에 참여하거나 새로운 그룹을 만들어보세요</p>
+        <p class="text-[13px] text-zinc-400 dark:text-zinc-300">그룹에 참여하거나 새로운 그룹을 만들어보세요</p>
       </div>
     </template>
 
@@ -189,10 +189,10 @@
             <div class="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800 px-4 py-3 flex items-center justify-between">
               <div>
                 <h3 class="font-semibold text-zinc-900 dark:text-white">책 관리</h3>
-                <p class="text-xs text-zinc-500">{{ bookManageGroup?.name }}</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ bookManageGroup?.name }}</p>
               </div>
               <button @click="closeBookManageModal" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
-                <X :size="20" class="text-zinc-500" />
+                <X :size="20" class="text-zinc-500 dark:text-zinc-400" />
               </button>
             </div>
 
@@ -205,7 +205,7 @@
 
               <!-- Empty -->
               <div v-else-if="bookManageBooks.length === 0" class="text-center py-12">
-                <p class="text-zinc-400 text-sm">이 그룹에서 읽은 책이 없습니다</p>
+                <p class="text-zinc-400 dark:text-zinc-300 text-sm">이 그룹에서 읽은 책이 없습니다</p>
               </div>
 
               <!-- Books -->
@@ -232,7 +232,7 @@
                   <!-- Info -->
                   <div class="flex-1 min-w-0">
                     <p class="font-medium text-sm text-zinc-900 dark:text-white truncate">{{ book.title }}</p>
-                    <p class="text-[11px] text-zinc-500 truncate">
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
                       {{ book.author }}
                       <template v-if="book.publisher">
                         <span class="text-zinc-300 dark:text-zinc-500"> · </span>{{ book.publisher }}
@@ -265,7 +265,7 @@
                       @click="toggleBookHidden(book)"
                       class="p-2 rounded-lg transition-colors"
                       :class="book.hidden
-                        ? 'text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                        ? 'text-zinc-400 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                         : 'text-lime-600 hover:bg-lime-50 dark:hover:bg-lime-900/20'"
                       :title="book.hidden ? '서재에 표시' : '서재에서 숨기기'"
                     >
@@ -279,7 +279,7 @@
 
             <!-- Footer -->
             <div class="sticky bottom-0 bg-white dark:bg-zinc-900 border-t border-zinc-100 dark:border-zinc-800 p-4">
-              <p class="text-[11px] text-zinc-400 text-center">
+              <p class="text-[11px] text-zinc-400 dark:text-zinc-300 text-center">
                 숨긴 책은 프로필 서재에서 보이지 않습니다
               </p>
             </div>

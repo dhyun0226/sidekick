@@ -6,7 +6,7 @@
       <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">독서 기간 수정</h2>
-          <button @click="emit('closeEditDates')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+          <button @click="emit('closeEditDates')" class="p-2 text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="24" />
           </button>
         </div>
@@ -66,7 +66,7 @@
               </div>
               <div class="flex items-center gap-1">
                 <span class="text-lg font-black text-lime-600 dark:text-lime-400">{{ calculateDays() }}</span>
-                <span class="text-sm font-bold text-zinc-400">일</span>
+                <span class="text-sm font-bold text-zinc-400 dark:text-zinc-300">일</span>
               </div>
             </div>
           </div>
@@ -75,7 +75,7 @@
         <div class="flex gap-3 mt-8">
           <button
             @click="emit('closeEditDates')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold py-4 rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>
@@ -98,7 +98,7 @@
         
         <!-- Close Button -->
         <div class="absolute top-4 right-4 z-20">
-          <button @click="emit('closeMarkCompleted')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+          <button @click="emit('closeMarkCompleted')" class="p-2 text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="20" />
           </button>
         </div>
@@ -135,7 +135,7 @@
         <div class="flex gap-3 mt-8">
           <button
             @click="emit('closeMarkCompleted')"
-            class="flex-1 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+            class="flex-1 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>
@@ -157,7 +157,7 @@
       <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-red-600 dark:text-red-400">책 삭제</h2>
-          <button @click="emit('closeDeleteBook')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+          <button @click="emit('closeDeleteBook')" class="p-2 text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="24" />
           </button>
         </div>
@@ -187,7 +187,7 @@
         <div class="flex gap-3 mt-8">
           <button
             @click="emit('closeDeleteBook')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold py-4 rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>
@@ -209,7 +209,7 @@
       <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">{{ props.isSolo ? '완독' : '종료' }} 날짜 수정</h2>
-          <button @click="emit('closeEditFinishedDate')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+          <button @click="emit('closeEditFinishedDate')" class="p-2 text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="24" />
           </button>
         </div>
@@ -239,7 +239,7 @@
         <div class="flex gap-3 mt-8">
           <button
             @click="emit('closeEditFinishedDate')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold py-4 rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>
@@ -261,7 +261,7 @@
       <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
         <div class="sticky top-0 bg-white dark:bg-zinc-900 z-10 flex justify-between items-center p-6 pb-4 border-b border-zinc-100 dark:border-zinc-800">
           <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">목차 수정</h2>
-          <button @click="emit('closeEditToc')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+          <button @click="emit('closeEditToc')" class="p-2 text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <X :size="24" />
           </button>
         </div>
@@ -301,7 +301,7 @@
         <div class="p-6 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 flex gap-3">
           <button
             @click="emit('closeEditToc')"
-            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold py-4 rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+            class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold py-4 rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>

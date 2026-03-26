@@ -24,7 +24,7 @@
           </div>
           <div class="pt-1">
             <h1 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-1.5 leading-tight">{{ bookTitle }}</h1>
-            <div class="flex flex-wrap items-center gap-1.5 mb-3 text-[16px] text-zinc-500 dark:text-zinc-400">
+            <div class="flex flex-wrap items-center gap-1.5 mb-3 text-[16px] text-zinc-500 dark:text-zinc-300">
               <span>{{ bookAuthor }}</span>
               <template v-if="selectedBook.book?.publisher || selectedBook.total_pages">
                 <span class="text-zinc-300 dark:text-zinc-500">·</span>
@@ -54,7 +54,7 @@
       <div v-else-if="!isLoading" class="flex flex-col items-center justify-center h-full">
         <div class="text-center">
           <h2 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">읽을 책을 추가해주세요</h2>
-          <p class="text-desktop-callout text-zinc-500 mb-6 font-light">독서 여정을 시작하세요</p>
+          <p class="text-desktop-callout text-zinc-500 dark:text-zinc-400 mb-6 font-light">독서 여정을 시작하세요</p>
           <button
             @click="openSearchModal"
             class="px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors duration-200 ease-apple text-desktop-callout"

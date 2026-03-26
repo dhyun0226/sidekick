@@ -46,11 +46,11 @@
           :key="t"
           @click="t === 'insight' ? handleInsightTabClick() : activeTab = t"
           class="flex-1 py-3 text-sm font-semibold transition-colors relative text-center"
-          :class="activeTab === t ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
+          :class="activeTab === t ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-400'"
         >
           <span class="flex items-center justify-center gap-1">
             {{ t === 'library' ? '서재' : t === 'wishlist' ? '위시' : t === 'timeline' ? '기록' : t === 'insight' ? '분석' : '그룹' }}
-            <Lock v-if="t === 'insight' && !isPremium" :size="12" class="text-zinc-400" />
+            <Lock v-if="t === 'insight' && !isPremium" :size="12" class="text-zinc-400 dark:text-zinc-300" />
           </span>
           <div v-if="activeTab === t" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
         </button>

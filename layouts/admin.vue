@@ -32,13 +32,13 @@
       <div class="p-4 border-t border-zinc-200 dark:border-zinc-800">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
-             <Shield :size="16" class="text-zinc-500" />
+             <Shield :size="16" class="text-zinc-500 dark:text-zinc-400" />
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-sm font-semibold text-zinc-900 dark:text-white truncate">관리자</p>
-            <p class="text-xs text-zinc-500 truncate">최고 관리자</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 truncate">최고 관리자</p>
           </div>
-          <NuxtLink to="/" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" title="관리자 나가기">
+          <NuxtLink to="/" class="p-2 text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors" title="관리자 나가기">
             <LogOut :size="16" />
           </NuxtLink>
         </div>
@@ -55,14 +55,14 @@
           <!-- Command Palette Trigger -->
           <button
             @click="commandPaletteRef?.open()"
-            class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-md text-sm text-zinc-500 transition-colors"
+            class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-md text-sm text-zinc-500 dark:text-zinc-400 transition-colors"
           >
             <Search :size="14" />
             <span>검색...</span>
             <span class="ml-2 text-xs border border-zinc-300 dark:border-zinc-600 rounded px-1.5 py-0.5">{{ isMac ? '⌘' : 'Ctrl+' }}K</span>
           </button>
           
-          <div class="text-xs text-zinc-400">
+          <div class="text-xs text-zinc-400 dark:text-zinc-300">
             {{ currentDate }}
           </div>
         </div>

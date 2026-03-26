@@ -29,7 +29,7 @@
                 alt="Avatar Preview"
               />
               <!-- Default Icon -->
-              <div v-else class="w-full h-full flex items-center justify-center text-zinc-600 dark:text-zinc-500">
+              <div v-else class="w-full h-full flex items-center justify-center text-zinc-600 dark:text-zinc-400">
                 <User :size="40" />
               </div>
             </div>
@@ -51,7 +51,7 @@
 
           <div class="text-center space-y-1">
             <p class="text-sm text-zinc-600 dark:text-zinc-400">프로필 사진 선택 (선택 사항)</p>
-            <p class="text-xs text-zinc-600">클릭하여 이미지 업로드</p>
+            <p class="text-xs text-zinc-600 dark:text-zinc-400">클릭하여 이미지 업로드</p>
           </div>
 
           <!-- Upload Progress -->
@@ -78,8 +78,8 @@
             @keyup.enter="handleSubmit"
           />
           <div class="flex justify-between items-center text-xs">
-            <span class="text-zinc-600">2-20자 사이로 입력해주세요</span>
-            <span class="text-zinc-600 dark:text-zinc-500">{{ nickname.length }}/20</span>
+            <span class="text-zinc-600 dark:text-zinc-400">2-20자 사이로 입력해주세요</span>
+            <span class="text-zinc-600 dark:text-zinc-400">{{ nickname.length }}/20</span>
           </div>
         </div>
 
@@ -99,7 +99,7 @@
       </div>
 
       <!-- Skip Option (Optional) -->
-      <p class="text-center text-xs text-zinc-600">
+      <p class="text-center text-xs text-zinc-600 dark:text-zinc-400">
         나중에 프로필 페이지에서 수정할 수 있습니다
       </p>
     </div>

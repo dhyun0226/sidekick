@@ -5,7 +5,7 @@
 
     <div class="w-full max-w-sm space-y-8 relative z-10 text-center">
       <!-- Loading State -->
-      <div v-if="loading" class="text-zinc-600 dark:text-zinc-500">
+      <div v-if="loading" class="text-zinc-600 dark:text-zinc-400">
         <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-lime-400/20 animate-pulse mb-4">
           <div class="w-8 h-8 border-4 border-lime-400 border-t-transparent rounded-full animate-spin"></div>
         </div>

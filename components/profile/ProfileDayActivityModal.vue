@@ -7,7 +7,7 @@
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-lg font-bold text-zinc-900 dark:text-white">{{ selectedDay.dateString }}</h2>
-            <p class="text-xs text-zinc-500 mt-1">{{ selectedDay.count }}개의 활동</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{{ selectedDay.count }}개의 활동</p>
           </div>
           <button @click="$emit('close')" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"><X :size="20" class="text-zinc-600 dark:text-zinc-400" /></button>
         </div>
@@ -27,14 +27,14 @@
             <!-- Mini Cover -->
             <div class="w-8 h-11 bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0 shadow-sm border border-zinc-100 dark:border-zinc-800">
               <img v-if="item.bookCover" :src="item.bookCover" class="w-full h-full object-cover" />
-              <div v-else class="w-full h-full flex items-center justify-center text-[8px] text-zinc-400">No Cover</div>
+              <div v-else class="w-full h-full flex items-center justify-center text-[8px] text-zinc-400 dark:text-zinc-300">No Cover</div>
             </div>
 
             <div class="min-w-0 flex-1">
               <h4 class="text-sm font-bold text-zinc-900 dark:text-white truncate mb-0.5 tracking-tight">
                 {{ item.bookTitle }}
               </h4>
-              <div class="flex items-center gap-2 text-[11px] text-zinc-400 font-medium">
+              <div class="flex items-center gap-2 text-[11px] text-zinc-400 dark:text-zinc-300 font-medium">
                 <span>{{ item.groupName }}</span>
                 <span class="text-zinc-300 dark:text-zinc-700">·</span>
                 <span>{{ formatTimeOnly(item.created_at) }}</span>
@@ -54,7 +54,7 @@
             <div class="bg-zinc-50 dark:bg-zinc-800/50 px-3.5 py-3">
               <div class="flex items-center gap-2 mb-2">
                 <Avatar :src="item.parentData.avatar_url" :fallback="item.parentData.nickname || '탈'" size="xs" className="w-4 h-4 shadow-xs opacity-80" />
-                <p class="text-[11px] font-bold text-zinc-400">
+                <p class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300">
                   <span :class="{ 'italic opacity-70': !item.parentData.nickname }">{{ item.parentData.nickname || '탈퇴한 사용자' }}</span>님의 기록
                 </p>
               </div>

@@ -8,7 +8,7 @@
       
       <!-- Close Button -->
       <div class="absolute top-4 right-4 z-20">
-        <button @click="$emit('close')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+        <button @click="$emit('close')" class="p-2 text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <X :size="20" />
         </button>
       </div>
@@ -73,7 +73,7 @@
           <span v-if="rating > 0" class="text-xl font-black text-amber-500 animate-in fade-in zoom-in-95 duration-300">
             {{ rating.toFixed(1) }}
           </span>
-          <span v-else class="text-sm font-bold text-zinc-400">별점을 선택해주세요</span>
+          <span v-else class="text-sm font-bold text-zinc-400 dark:text-zinc-300">별점을 선택해주세요</span>
         </div>
       </div>
 
@@ -92,7 +92,7 @@
       <div class="flex gap-3">
         <button
           @click="skip"
-          class="flex-1 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+          class="flex-1 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
         >
           {{ isEditing ? '취소' : '건너뛰기' }}
         </button>

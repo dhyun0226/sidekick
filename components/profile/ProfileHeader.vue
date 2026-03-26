@@ -16,7 +16,7 @@
         <div class="relative group cursor-pointer" @click="$emit('open-settings')">
           <div class="w-14 h-14 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border border-zinc-200 dark:border-zinc-700">
             <img v-if="profile?.avatar_url" :src="profile.avatar_url" class="w-full h-full object-cover" />
-            <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
+            <div v-else class="w-full h-full flex items-center justify-center text-zinc-400 dark:text-zinc-300">
               <User :size="20" />
             </div>
           </div>

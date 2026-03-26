@@ -5,7 +5,7 @@
       
       <div class="flex justify-between items-center px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
         <h3 class="text-lg font-black text-zinc-900 dark:text-white">설정</h3>
-        <button @click="$emit('close')" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+        <button @click="$emit('close')" class="p-2 text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <X :size="20" />
         </button>
       </div>
@@ -14,7 +14,7 @@
         <!-- Profile Edit -->
         <section>
           <div class="flex items-center justify-between mb-4 px-1">
-            <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">프로필 편집</h4>
+            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">프로필 편집</h4>
           </div>
           
           <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-5 border border-zinc-100 dark:border-zinc-800/50">
@@ -35,7 +35,7 @@
             </div>
 
             <div class="space-y-2">
-              <label class="block text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase ml-1">닉네임</label>
+              <label class="block text-[11px] font-bold text-zinc-400 dark:text-zinc-400 uppercase ml-1">닉네임</label>
               <div class="flex gap-2">
                 <input v-model="editNickname" type="text" class="flex-1 min-w-0 bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 text-zinc-900 dark:text-white transition-all" />
                 <button @click="saveProfile" class="flex-shrink-0 p-3 bg-zinc-900 dark:bg-zinc-700 text-white rounded-xl hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-all active:scale-95 disabled:opacity-50" :disabled="isSaving">
@@ -50,13 +50,13 @@
         <!-- Display Settings -->
         <section>
           <div class="flex items-center justify-between mb-4 px-1">
-            <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">화면 설정</h4>
+            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">화면 설정</h4>
           </div>
           <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50 divide-y divide-zinc-100 dark:divide-zinc-800">
             <!-- Library View Mode -->
             <div class="p-4 space-y-3">
               <div class="flex items-center gap-3 mb-2">
-                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500 dark:text-zinc-400">
                   <LayoutGrid :size="16" />
                 </div>
                 <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">서재 보기</span>
@@ -77,7 +77,7 @@
             <!-- Calendar Cover Settings -->
             <div class="p-4 space-y-3">
               <div class="flex items-center gap-3 mb-2">
-                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500 dark:text-zinc-400">
                   <Calendar :size="16" />
                 </div>
                 <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">캘린더 표지</span>
@@ -98,7 +98,7 @@
                   리뷰만
                 </button>
               </div>
-              <p class="text-[11px] text-zinc-400 px-1">
+              <p class="text-[11px] text-zinc-400 dark:text-zinc-300 px-1">
                 {{ appSettings.calendar_include_comments ? '코멘트와 리뷰를 남긴 날에 표지가 표시됩니다.' : '리뷰를 남긴 날에만 표지가 표시됩니다.' }}
               </p>
             </div>
@@ -108,12 +108,12 @@
         <!-- App Settings (Theme & Notification) -->
         <section>
           <div class="flex items-center justify-between mb-4 px-1">
-            <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">앱 설정</h4>
+            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">앱 설정</h4>
           </div>
           <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50 divide-y divide-zinc-100 dark:divide-zinc-800">
             <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-white/50 dark:hover:bg-zinc-800/50 transition-colors" @click="$emit('toggle-theme')">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500 dark:text-zinc-400">
                   <Moon v-if="isDark" :size="16" />
                   <Sun v-else :size="16" />
                 </div>
@@ -126,7 +126,7 @@
 
             <div class="p-4 space-y-4">
               <div class="flex items-center gap-3 mb-2">
-                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500 dark:text-zinc-400">
                   <Bell :size="16" />
                 </div>
                 <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">알림 설정</span>
@@ -146,7 +146,7 @@
         <!-- Account -->
         <section>
           <div class="flex items-center justify-between mb-4 px-1">
-            <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">계정</h4>
+            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">계정</h4>
           </div>
           <div class="grid grid-cols-2 gap-3">
             <button @click="$emit('sign-out')" class="py-3.5 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 rounded-xl text-xs font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all flex items-center justify-center gap-2 border border-zinc-100 dark:border-zinc-800"><LogOut :size="14" /> 로그아웃</button>
@@ -157,17 +157,17 @@
         <!-- Support -->
         <section>
           <div class="flex items-center justify-between mb-4 px-1">
-            <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">고객 지원</h4>
+            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">고객 지원</h4>
           </div>
           <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50">
             <button @click="$emit('open-inquiry')" class="w-full flex items-center justify-between p-4 hover:bg-white/50 dark:hover:bg-zinc-800/50 transition-colors rounded-2xl">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500 dark:text-zinc-400">
                   <MessageCircle :size="16" />
                 </div>
                 <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">문의하기</span>
               </div>
-              <ChevronRight :size="16" class="text-zinc-400" />
+              <ChevronRight :size="16" class="text-zinc-400 dark:text-zinc-300" />
             </button>
           </div>
         </section>
@@ -175,26 +175,26 @@
         <!-- Legal -->
         <section class="pb-4">
           <div class="flex items-center justify-between mb-4 px-1">
-            <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">약관 및 정책</h4>
+            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">약관 및 정책</h4>
           </div>
           <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50 divide-y divide-zinc-100 dark:divide-zinc-800">
             <NuxtLink to="/terms" class="flex items-center justify-between p-4 hover:bg-white/50 dark:hover:bg-zinc-800/50 transition-colors">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500 dark:text-zinc-400">
                   <FileText :size="16" />
                 </div>
                 <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">이용약관</span>
               </div>
-              <ChevronRight :size="16" class="text-zinc-400" />
+              <ChevronRight :size="16" class="text-zinc-400 dark:text-zinc-300" />
             </NuxtLink>
             <NuxtLink to="/privacy" class="flex items-center justify-between p-4 hover:bg-white/50 dark:hover:bg-zinc-800/50 transition-colors">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500">
+                <div class="w-8 h-8 bg-white dark:bg-zinc-800 rounded-lg flex items-center justify-center shadow-sm text-zinc-500 dark:text-zinc-400">
                   <Shield :size="16" />
                 </div>
                 <span class="text-[13px] font-bold text-zinc-700 dark:text-zinc-200">개인정보처리방침</span>
               </div>
-              <ChevronRight :size="16" class="text-zinc-400" />
+              <ChevronRight :size="16" class="text-zinc-400 dark:text-zinc-300" />
             </NuxtLink>
           </div>
         </section>

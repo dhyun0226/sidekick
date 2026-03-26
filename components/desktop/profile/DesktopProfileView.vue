@@ -4,13 +4,13 @@
     <div class="flex items-center gap-8 mb-12">
       <div class="w-20 h-20 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0">
         <img v-if="profile?.avatar_url" :src="profile.avatar_url" class="w-full h-full object-cover" />
-        <div v-else class="w-full h-full flex items-center justify-center text-desktop-headline font-light text-zinc-400 dark:text-zinc-400">
+        <div v-else class="w-full h-full flex items-center justify-center text-desktop-headline font-light text-zinc-400 dark:text-zinc-300">
           {{ (profile?.nickname || 'U')[0] }}
         </div>
       </div>
       <div>
         <h1 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight">{{ profile?.nickname }}</h1>
-        <p class="text-desktop-caption text-zinc-400 dark:text-zinc-400 mt-1.5 font-light">{{ profile?.email }}</p>
+        <p class="text-desktop-caption text-zinc-400 dark:text-zinc-300 mt-1.5 font-light">{{ profile?.email }}</p>
       </div>
     </div>
 
@@ -24,7 +24,7 @@
         :key="tab.key"
         @click="$emit('tab-change', tab.key)"
         class="px-5 py-3 text-desktop-caption font-medium transition-all duration-200 relative"
-        :class="activeTab === tab.key ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'"
+        :class="activeTab === tab.key ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-300'"
       >
         {{ tab.label }}
         <div

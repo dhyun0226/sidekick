@@ -165,7 +165,7 @@
           <button
             v-else
             @click="modals.drawer = true"
-            class="px-6 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-semibold rounded-2xl hover:bg-zinc-200 transition-all flex items-center gap-2"
+            class="px-6 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-semibold rounded-2xl hover:bg-zinc-200 transition-all flex items-center gap-2"
           >
             <Menu :size="18" />
             그룹 메뉴 보기

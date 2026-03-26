@@ -50,7 +50,7 @@
                 <li>• 결제 정보 (토스페이먼츠를 통해 처리)</li>
                 <li>• 결제 내역</li>
               </ul>
-              <p class="text-zinc-500 dark:text-zinc-500 text-xs mt-2">
+              <p class="text-zinc-500 dark:text-zinc-400 text-xs mt-2">
                 ※ 카드번호 등 민감한 결제 정보는 토스페이먼츠에서 직접 처리하며, 서비스는 저장하지 않습니다.
               </p>
             </div>
@@ -77,7 +77,7 @@
             <li>• <span class="font-medium">결제 정보:</span> 전자상거래법에 따라 5년간 보관</li>
             <li>• <span class="font-medium">접속 로그:</span> 3개월</li>
           </ul>
-          <p class="text-zinc-500 dark:text-zinc-500 text-sm mt-3">
+          <p class="text-zinc-500 dark:text-zinc-400 text-sm mt-3">
             단, 관련 법령에 따라 보존할 필요가 있는 경우 해당 기간 동안 보관합니다.
           </p>
         </section>
@@ -138,7 +138,7 @@
             <li>• 개인정보 처리 정지 요청</li>
             <li>• 회원 탈퇴</li>
           </ul>
-          <p class="text-zinc-500 dark:text-zinc-500 text-sm mt-3">
+          <p class="text-zinc-500 dark:text-zinc-400 text-sm mt-3">
             위 권리 행사는 서비스 내 설정 또는 고객센터를 통해 요청할 수 있습니다.
           </p>
         </section>

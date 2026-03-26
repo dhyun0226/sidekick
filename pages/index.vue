@@ -19,7 +19,7 @@
           class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden ring-1 ring-black/[0.04] dark:ring-white/[0.06] cursor-pointer hover:ring-2 hover:ring-lime-400 transition-all shadow-apple"
         >
           <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
-          <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
+          <div v-else class="w-full h-full flex items-center justify-center text-zinc-400 dark:text-zinc-300">
             <User :size="20" />
           </div>
         </div>
@@ -88,7 +88,7 @@
               <h3 class="text-base font-semibold text-zinc-900 dark:text-white leading-tight line-clamp-2 mb-1 min-h-0">
                 {{ soloGroup.currentBook.title }}
               </h3>
-              <div class="flex items-center h-4 gap-1 mt-1 whitespace-nowrap overflow-hidden leading-none text-[11px] text-zinc-600 dark:text-zinc-300">
+              <div class="flex items-center h-4 gap-1 mt-1 whitespace-nowrap overflow-hidden leading-none text-[11px] text-zinc-600 dark:text-zinc-400">
                 <p class="truncate max-w-[100px] font-bold flex-shrink-0">
                   {{ soloGroup.currentBook.author }}
                 </p>
@@ -190,7 +190,7 @@
               <h3 class="text-base font-semibold text-zinc-900 dark:text-white leading-tight line-clamp-2 mb-1 min-h-0">
                 {{ group.currentBook.title }}
               </h3>
-              <div class="flex items-center h-4 gap-1 mt-1 whitespace-nowrap overflow-hidden leading-none text-[11px] text-zinc-600 dark:text-zinc-300">
+              <div class="flex items-center h-4 gap-1 mt-1 whitespace-nowrap overflow-hidden leading-none text-[11px] text-zinc-600 dark:text-zinc-400">
                 <p class="truncate max-w-[100px] font-bold flex-shrink-0">
                   {{ group.currentBook.author }}
                 </p>
@@ -238,7 +238,7 @@
           class="bg-white dark:bg-zinc-900 rounded-2xl p-4 ring-1 ring-black/[0.04] dark:ring-white/[0.06] flex items-center gap-4 shadow-apple active:scale-[0.99] transition-all cursor-pointer group hover:ring-lime-400 dark:hover:ring-lime-500"
         >
           <!-- Left Icon Box -->
-          <div class="w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 ring-1 ring-black/[0.04] dark:ring-white/[0.06] transition-colors group-hover:bg-lime-50 dark:group-hover:bg-lime-900/20 group-hover:ring-lime-200 group-hover:text-lime-500 flex-shrink-0">
+          <div class="w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 dark:text-zinc-300 ring-1 ring-black/[0.04] dark:ring-white/[0.06] transition-colors group-hover:bg-lime-50 dark:group-hover:bg-lime-900/20 group-hover:ring-lime-200 group-hover:text-lime-500 flex-shrink-0">
             <Coffee :size="20" />
           </div>
 
@@ -258,7 +258,7 @@
                  <span>{{ group.doneCount }}</span>
               </div>
             </div>
-            <p class="text-xs text-zinc-400 dark:text-zinc-500">
+            <p class="text-xs text-zinc-400 dark:text-zinc-400">
               {{ group.members.length }}명의 멤버가 새 책을 기다리고 있어요
             </p>
           </div>
@@ -291,7 +291,7 @@
           @click="joinGroupModalOpen = true"
           class="w-full py-4 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white font-semibold rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
         >
-          <KeyRound :size="20" class="text-zinc-400" />
+          <KeyRound :size="20" class="text-zinc-400 dark:text-zinc-300" />
           초대 코드로 입장
         </button>
       </div>

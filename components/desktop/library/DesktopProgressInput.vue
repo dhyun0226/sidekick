@@ -13,7 +13,7 @@
         :class="inputError ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : 'focus:ring-zinc-900/10 dark:focus:ring-white/10'"
         :placeholder="inputMode === 'page' ? '페이지' : '%'"
       />
-      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-desktop-caption text-zinc-400 dark:text-zinc-400">
+      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-desktop-caption text-zinc-400 dark:text-zinc-300">
         {{ inputMode === 'page' ? `/ ${totalPages}p` : '%' }}
       </span>
     </div>
@@ -28,7 +28,7 @@
         class="px-3 py-1.5 text-desktop-caption font-semibold rounded-full transition-all duration-200 ease-apple"
         :class="inputMode === 'percent'
           ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm'
-          : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'"
+          : 'text-zinc-400 dark:text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-300'"
       >
         %
       </button>
@@ -37,7 +37,7 @@
         class="px-3 py-1.5 text-desktop-caption font-semibold rounded-full transition-all duration-200 ease-apple"
         :class="inputMode === 'page'
           ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm'
-          : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'"
+          : 'text-zinc-400 dark:text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-300'"
       >
         p
       </button>

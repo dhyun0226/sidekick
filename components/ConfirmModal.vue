@@ -40,7 +40,7 @@
                 {{ title }}
               </h3>
             </div>
-            <p class="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
+            <p class="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
               {{ message }}
             </p>
             <p v-if="description" class="text-xs text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">

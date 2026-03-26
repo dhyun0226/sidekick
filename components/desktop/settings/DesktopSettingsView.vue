@@ -30,10 +30,10 @@
 
       <!-- Support -->
       <div class="pt-6 border-t border-zinc-100 dark:border-zinc-800/50">
-        <h3 class="text-desktop-micro text-zinc-400 dark:text-zinc-400 uppercase tracking-widest font-medium mb-4">고객 지원</h3>
+        <h3 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium mb-4">고객 지원</h3>
         <button
           @click="$emit('open-inquiry')"
-          class="w-full py-2 text-desktop-callout text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors text-left flex items-center gap-2"
+          class="w-full py-2 text-desktop-callout text-zinc-500 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors text-left flex items-center gap-2"
         >
           <MessageCircle :size="14" />
           문의하기
@@ -42,17 +42,17 @@
 
       <!-- Account -->
       <div class="pt-6 border-t border-zinc-100 dark:border-zinc-800/50">
-        <h3 class="text-desktop-micro text-zinc-400 dark:text-zinc-400 uppercase tracking-widest font-medium mb-4">계정</h3>
+        <h3 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium mb-4">계정</h3>
         <div class="space-y-1">
           <button
             @click="$emit('sign-out')"
-            class="w-full py-2 text-desktop-callout text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors text-left"
+            class="w-full py-2 text-desktop-callout text-zinc-500 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors text-left"
           >
             로그아웃
           </button>
           <button
             @click="$emit('delete-account')"
-            class="w-full py-2 text-desktop-callout text-zinc-400 hover:text-red-500 transition-colors text-left"
+            class="w-full py-2 text-desktop-callout text-zinc-400 dark:text-zinc-300 hover:text-red-500 transition-colors text-left"
           >
             계정 삭제
           </button>
@@ -60,13 +60,13 @@
       </div>
       <!-- Legal -->
       <div class="pt-6 border-t border-zinc-100 dark:border-zinc-800/50">
-        <h3 class="text-desktop-micro text-zinc-400 dark:text-zinc-400 uppercase tracking-widest font-medium mb-4">약관 및 정책</h3>
+        <h3 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium mb-4">약관 및 정책</h3>
         <div class="space-y-1">
-          <NuxtLink to="/terms" class="w-full py-2 text-desktop-callout text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors text-left flex items-center gap-2">
+          <NuxtLink to="/terms" class="w-full py-2 text-desktop-callout text-zinc-500 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors text-left flex items-center gap-2">
             <FileText :size="14" />
             이용약관
           </NuxtLink>
-          <NuxtLink to="/privacy" class="w-full py-2 text-desktop-callout text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors text-left flex items-center gap-2">
+          <NuxtLink to="/privacy" class="w-full py-2 text-desktop-callout text-zinc-500 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors text-left flex items-center gap-2">
             <Shield :size="14" />
             개인정보처리방침
           </NuxtLink>

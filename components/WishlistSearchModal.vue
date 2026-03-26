@@ -12,7 +12,7 @@
           <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">위시리스트에 담기</h2>
           <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">읽고 싶은 책을 검색해서 담아보세요</p>
         </div>
-        <button @click="close" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+        <button @click="close" class="p-2 text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <X :size="24" />
         </button>
       </div>
@@ -27,11 +27,11 @@
           placeholder="책 제목이나 저자를 검색하세요"
           class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl px-4 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none transition-all shadow-sm"
         />
-        <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-lime-500 transition-colors" :size="20" />
+        <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-300 group-focus-within:text-lime-500 transition-colors" :size="20" />
         <button
           v-if="query"
           @click="query = ''; searchResults = []"
-          class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+          class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-zinc-400 dark:text-zinc-300 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300"
         >
           <X :size="18" />
         </button>
@@ -74,7 +74,7 @@
               class="self-center p-2.5 rounded-xl transition-all"
               :class="isInWishlist(book.isbn)
                 ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-500 cursor-not-allowed'
-                : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-400 hover:bg-pink-100 dark:hover:bg-pink-900/30 hover:text-pink-500 active:scale-90'"
+                : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-400 dark:text-zinc-300 hover:bg-pink-100 dark:hover:bg-pink-900/30 hover:text-pink-500 active:scale-90'"
             >
               <Heart :size="18" :fill="isInWishlist(book.isbn) ? 'currentColor' : 'none'" />
             </button>
@@ -85,7 +85,7 @@
             v-if="hasMore"
             @click="loadMore"
             :disabled="loading"
-            class="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-bold rounded-xl transition-all disabled:opacity-50 mt-2"
+            class="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 text-xs font-bold rounded-xl transition-all disabled:opacity-50 mt-2"
           >
             {{ loading ? '더 불러오는 중...' : '결과 더보기' }}
           </button>
@@ -94,13 +94,13 @@
         <!-- Empty State -->
         <div v-else-if="query && !loading" class="py-12 text-center">
           <Search :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
-          <p class="text-sm text-zinc-500 font-medium">검색 결과가 없습니다</p>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 font-medium">검색 결과가 없습니다</p>
         </div>
 
         <!-- Initial State -->
         <div v-else class="py-12 text-center">
           <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
-          <p class="text-sm text-zinc-500 font-medium">책 제목이나 저자를 검색해보세요</p>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 font-medium">책 제목이나 저자를 검색해보세요</p>
         </div>
       </div>
     </div>

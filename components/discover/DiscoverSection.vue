@@ -18,7 +18,7 @@
 
     <!-- Empty State -->
     <div v-else-if="books.length === 0" class="py-8 text-center">
-      <p class="text-sm text-zinc-400 dark:text-zinc-500">{{ emptyMessage }}</p>
+      <p class="text-sm text-zinc-400 dark:text-zinc-400">{{ emptyMessage }}</p>
     </div>
 
     <!-- Book List (Horizontal Scroll) -->
@@ -65,7 +65,7 @@ const iconColorMap: Record<string, string> = {
 }
 
 const iconComponent = computed(() => iconMap[props.icon] || Flame)
-const iconColor = computed(() => iconColorMap[props.icon] || 'text-zinc-400')
+const iconColor = computed(() => iconColorMap[props.icon] || 'text-zinc-400 dark:text-zinc-300')
 
 defineEmits(['book-click'])
 </script>

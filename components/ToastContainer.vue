@@ -11,7 +11,7 @@
           <Check v-if="t.type === 'success'" :size="16" class="text-lime-400 dark:text-lime-600" />
           <AlertCircle v-else-if="t.type === 'error'" :size="16" class="text-red-400 dark:text-red-500" />
           <AlertTriangle v-else-if="t.type === 'warning'" :size="16" class="text-amber-400 dark:text-amber-500" />
-          <Info v-else :size="16" class="text-zinc-400 dark:text-zinc-500" />
+          <Info v-else :size="16" class="text-zinc-400 dark:text-zinc-400" />
         </div>
 
         <!-- Message -->
@@ -32,7 +32,7 @@
         <button
           v-if="!t.onUndo"
           @click="toastStore.remove(t.id)"
-          class="flex-shrink-0 p-0.5 rounded-full text-zinc-500 dark:text-zinc-400 hover:text-zinc-300 dark:hover:text-zinc-600 transition-colors"
+          class="flex-shrink-0 p-0.5 rounded-full text-zinc-500 dark:text-zinc-400 hover:text-zinc-300 dark:hover:text-zinc-600 dark:text-zinc-400 transition-colors"
         >
           <X :size="14" />
         </button>

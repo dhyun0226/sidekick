@@ -10,22 +10,22 @@
         <!-- Info -->
         <div class="flex-1 min-w-0 flex flex-col">
           <h2 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight">{{ book.title }}</h2>
-          <p class="mt-1.5 text-desktop-callout text-zinc-500 font-light">{{ book.author }}</p>
-          <p v-if="book.publisher" class="mt-0.5 text-desktop-caption text-zinc-400 font-light">{{ book.publisher }}</p>
+          <p class="mt-1.5 text-desktop-callout text-zinc-500 dark:text-zinc-400 font-light">{{ book.author }}</p>
+          <p v-if="book.publisher" class="mt-0.5 text-desktop-caption text-zinc-400 dark:text-zinc-300 font-light">{{ book.publisher }}</p>
 
           <!-- Stats grid -->
           <div class="mt-auto pt-6 grid grid-cols-3 gap-4">
             <div v-if="book.avgRating" class="text-center">
               <p class="text-desktop-headline font-semibold text-zinc-900 dark:text-white tabular-nums leading-none">{{ book.avgRating.toFixed(1) }}</p>
-              <p class="mt-1 text-desktop-caption text-zinc-400 uppercase tracking-widest font-medium">평점</p>
+              <p class="mt-1 text-desktop-caption text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium">평점</p>
             </div>
             <div v-if="book.count" class="text-center">
-              <p class="text-desktop-headline font-semibold text-zinc-900 dark:text-white tabular-nums leading-none">{{ book.count }}<span class="text-desktop-callout font-light text-zinc-400 ml-0.5">명</span></p>
-              <p class="mt-1 text-desktop-caption text-zinc-400 uppercase tracking-widest font-medium">독자 수</p>
+              <p class="text-desktop-headline font-semibold text-zinc-900 dark:text-white tabular-nums leading-none">{{ book.count }}<span class="text-desktop-callout font-light text-zinc-400 dark:text-zinc-300 ml-0.5">명</span></p>
+              <p class="mt-1 text-desktop-caption text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium">독자 수</p>
             </div>
             <div v-if="book.completionRate" class="text-center">
               <p class="text-desktop-headline font-semibold text-lime-500 tabular-nums leading-none">{{ Math.round(book.completionRate) }}<span class="text-desktop-callout font-light">%</span></p>
-              <p class="mt-1 text-desktop-caption text-zinc-400 uppercase tracking-widest font-medium">완독률</p>
+              <p class="mt-1 text-desktop-caption text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium">완독률</p>
             </div>
           </div>
         </div>
@@ -50,7 +50,7 @@
         <div class="flex items-center gap-3">
           <button
             @click="$emit('close')"
-            class="px-5 py-2.5 text-desktop-callout text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+            class="px-5 py-2.5 text-desktop-callout text-zinc-400 dark:text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
           >
             닫기
           </button>

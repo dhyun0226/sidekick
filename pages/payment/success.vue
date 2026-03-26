@@ -5,7 +5,7 @@
       <div v-if="loading" class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8 text-center">
         <div class="inline-block w-12 h-12 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mb-4"></div>
         <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">결제 처리 중...</h2>
-        <p class="text-sm text-zinc-500">잠시만 기다려주세요.</p>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">잠시만 기다려주세요.</p>
       </div>
 
       <!-- Success -->

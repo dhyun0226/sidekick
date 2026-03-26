@@ -11,7 +11,7 @@
         <button 
           v-if="!editingGoal" 
           @click="$emit('start-edit-goal')" 
-          class="text-xs font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white px-2 py-1 -mr-2 active:scale-95 transition-all"
+          class="text-xs font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white px-2 py-1 -mr-2 active:scale-95 transition-all"
         >
           수정
         </button>
@@ -28,7 +28,7 @@
           class="flex-1 min-w-0 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white text-zinc-900 dark:text-white" 
         />
         <button @click="$emit('save-goal')" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-xl text-xs font-bold active:scale-95 transition-transform">저장</button>
-        <button @click="$emit('cancel-edit-goal')" class="px-4 py-2 bg-zinc-200 dark:bg-zinc-800 text-zinc-500 rounded-xl text-xs font-bold active:scale-95 transition-transform">취소</button>
+        <button @click="$emit('cancel-edit-goal')" class="px-4 py-2 bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 rounded-xl text-xs font-bold active:scale-95 transition-transform">취소</button>
       </div>
 
       <!-- Display Mode -->
@@ -52,15 +52,15 @@
         </div>
 
         <!-- Footer: More Readable Meta Info -->
-        <div class="flex items-center justify-between text-[11px] font-bold text-zinc-600 dark:text-zinc-300 border-t border-zinc-200/50 dark:border-zinc-800/50 pt-3">
+        <div class="flex items-center justify-between text-[11px] font-bold text-zinc-600 dark:text-zinc-400 border-t border-zinc-200/50 dark:border-zinc-800/50 pt-3">
           <div class="flex items-center gap-3">
             <div class="flex items-center gap-1">
-              <span class="text-zinc-400 dark:text-zinc-500 font-bold">D-</span>
+              <span class="text-zinc-400 dark:text-zinc-400 font-bold">D-</span>
               <span>{{ daysLeftInYear }}</span>
             </div>
             <span class="w-px h-2.5 bg-zinc-300 dark:bg-zinc-600"></span>
             <div class="flex items-center gap-1">
-              <span class="text-zinc-400 dark:text-zinc-500 font-bold">월</span>
+              <span class="text-zinc-400 dark:text-zinc-400 font-bold">월</span>
               <span>{{ booksNeededPerMonth }}권</span>
             </div>
           </div>

@@ -6,7 +6,7 @@
       class="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors flex items-center justify-center"
     >
       <slot name="icon">
-        <MoreVertical :size="iconSize" class="text-zinc-400" />
+        <MoreVertical :size="iconSize" class="text-zinc-400 dark:text-zinc-300" />
       </slot>
     </button>
 

@@ -12,7 +12,7 @@
           @close="showSortMenu = false"
         >
           <template #icon>
-            <ArrowUpDown :size="12" class="text-zinc-400 hover:text-zinc-600 transition-colors" />
+            <ArrowUpDown :size="12" class="text-zinc-400 dark:text-zinc-300 hover:text-zinc-600 dark:text-zinc-400 transition-colors" />
           </template>
           
           <button
@@ -31,11 +31,11 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <span class="text-[11px] text-zinc-400 leading-none">총 {{ filteredAndSortedBooks.length }}권</span>
+        <span class="text-[11px] text-zinc-400 dark:text-zinc-300 leading-none">총 {{ filteredAndSortedBooks.length }}권</span>
         <!-- Search Toggle -->
         <button
           @click="showSearch = !showSearch"
-          class="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors text-zinc-400 leading-none"
+          class="hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 transition-colors text-zinc-400 dark:text-zinc-300 leading-none"
           :class="{ 'text-lime-500': showSearch || searchQuery }"
           title="검색"
         >
@@ -154,7 +154,7 @@
     </div>
 
     <!-- Empty State -->
-    <div v-if="filteredAndSortedBooks.length === 0" class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-dashed ring-black/[0.04] dark:ring-white/[0.06]">
+    <div v-if="filteredAndSortedBooks.length === 0" class="text-center py-12 text-xs text-zinc-400 dark:text-zinc-300 bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-dashed ring-black/[0.04] dark:ring-white/[0.06]">
       <component :is="searchQuery ? Search : BookOpen" :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
       <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 종료한 책이 없습니다' }}</p>
     </div>

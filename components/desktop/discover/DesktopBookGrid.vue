@@ -2,7 +2,7 @@
   <div>
     <!-- Section Header -->
     <div class="flex items-center gap-3 mb-6">
-      <component :is="iconComponent" :size="18" class="text-zinc-400 dark:text-zinc-400" />
+      <component :is="iconComponent" :size="18" class="text-zinc-400 dark:text-zinc-300" />
       <h2 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white">{{ title }}</h2>
       <div class="flex-1 h-px bg-zinc-100 dark:bg-zinc-800/60 ml-1"></div>
     </div>
@@ -18,7 +18,7 @@
 
     <!-- Empty -->
     <div v-else-if="books.length === 0" class="py-12 text-center">
-      <p class="text-desktop-callout text-zinc-400 font-light">{{ emptyMessage }}</p>
+      <p class="text-desktop-callout text-zinc-400 dark:text-zinc-300 font-light">{{ emptyMessage }}</p>
     </div>
 
     <!-- Book Grid: 5 per row, max 2 rows -->
@@ -36,7 +36,7 @@
             class="absolute -top-1.5 -left-1.5 z-10 w-7 h-7 rounded-lg flex items-center justify-center text-desktop-caption font-bold shadow-sm"
             :class="index < 3
               ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
-              : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'"
+              : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-300'"
           >
             {{ index + 1 }}
           </div>
@@ -48,7 +48,7 @@
               class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300 ease-out"
             />
             <div v-else class="w-full h-full flex items-center justify-center">
-              <BookOpen :size="24" class="text-zinc-400 dark:text-zinc-400" />
+              <BookOpen :size="24" class="text-zinc-400 dark:text-zinc-300" />
             </div>
           </div>
         </div>
@@ -58,7 +58,7 @@
           <h3 class="text-desktop-callout font-semibold text-zinc-900 dark:text-white leading-snug line-clamp-2 mb-0.5">
             {{ book.title }}
           </h3>
-          <p class="text-desktop-caption-regular text-zinc-400 truncate mb-1.5">{{ book.author }}</p>
+          <p class="text-desktop-caption-regular text-zinc-400 dark:text-zinc-300 truncate mb-1.5">{{ book.author }}</p>
 
           <!-- Contextual Label -->
           <p class="text-desktop-caption-regular leading-tight" :class="labelColor">
@@ -68,12 +68,12 @@
               <span class="inline-flex items-center gap-0.5">
                 <span class="text-amber-500">★</span>
                 {{ book.avgRating?.toFixed(1) }}
-                <span class="text-zinc-400">(리뷰 {{ book.reviewCount }}개)</span>
+                <span class="text-zinc-400 dark:text-zinc-300">(리뷰 {{ book.reviewCount }}개)</span>
               </span>
             </template>
             <template v-else-if="type === 'completion'">
               완독률 {{ book.completionRate }}%
-              <span class="text-zinc-400">({{ book.count }}명 참여)</span>
+              <span class="text-zinc-400 dark:text-zinc-300">({{ book.count }}명 참여)</span>
             </template>
           </p>
         </div>
@@ -113,7 +113,7 @@ const labelColor = computed(() => {
     case 'wish': return 'text-pink-500 dark:text-pink-400'
     case 'rating': return 'text-amber-600 dark:text-amber-400'
     case 'completion': return 'text-lime-600 dark:text-lime-400'
-    default: return 'text-zinc-500'
+    default: return 'text-zinc-500 dark:text-zinc-400'
   }
 })
 </script>

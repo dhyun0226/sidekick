@@ -27,8 +27,8 @@
             @keyup.enter="handleCreate"
           />
           <div class="flex justify-between items-center text-xs">
-            <span class="text-zinc-600">그룹명은 나중에 수정할 수 있어요</span>
-            <span class="text-zinc-600 dark:text-zinc-500">{{ groupName.length }}/50</span>
+            <span class="text-zinc-600 dark:text-zinc-400">그룹명은 나중에 수정할 수 있어요</span>
+            <span class="text-zinc-600 dark:text-zinc-400">{{ groupName.length }}/50</span>
           </div>
         </div>
 

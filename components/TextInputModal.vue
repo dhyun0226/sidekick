@@ -13,7 +13,7 @@
 
       <!-- Expected Text Display -->
       <div v-if="expectedText" class="mb-3 px-3 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
-        <p class="text-xs text-zinc-500 dark:text-zinc-500 mb-1">입력해야 할 텍스트:</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-1">입력해야 할 텍스트:</p>
         <p class="text-sm font-medium text-zinc-900 dark:text-white">{{ expectedText }}</p>
       </div>
 
@@ -34,7 +34,7 @@
       <div class="flex gap-3">
         <button
           @click="$emit('cancel')"
-          class="flex-1 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+          class="flex-1 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
         >
           {{ cancelText }}
         </button>

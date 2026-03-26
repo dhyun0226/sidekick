@@ -23,7 +23,7 @@
 
     <!-- Mobile: redirect to profile settings -->
     <div v-else class="min-h-screen bg-gray-50 dark:bg-[#09090b] flex items-center justify-center">
-      <p class="text-sm text-zinc-500">설정은 프로필에서 확인하세요.</p>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400">설정은 프로필에서 확인하세요.</p>
     </div>
 
     <!-- Modals -->

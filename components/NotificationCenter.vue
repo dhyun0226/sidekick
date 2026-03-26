@@ -39,7 +39,7 @@
       <div class="max-h-[420px] overflow-y-auto custom-scrollbar overscroll-contain">
         <div v-if="loading" class="p-12 text-center">
           <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p class="text-xs text-zinc-500 font-medium">알림을 불러오고 있어요</p>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">알림을 불러오고 있어요</p>
         </div>
 
         <div v-else-if="notifications.length === 0" class="p-12 text-center flex flex-col items-center">
@@ -68,7 +68,7 @@
                 <div v-if="noti.groupName" class="text-[11px] font-black text-lime-600 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/30 px-1.5 py-0.5 rounded uppercase tracking-tighter truncate max-w-[180px]">
                   {{ noti.groupName }}
                 </div>
-                <span class="text-[11px] font-bold text-zinc-400 whitespace-nowrap ml-auto">
+                <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 whitespace-nowrap ml-auto">
                   {{ formatTimeAgo(noti.created_at) }}
                 </span>
               </div>

@@ -3,7 +3,7 @@
     <!-- Progress -->
     <div v-if="book" class="px-1">
       <div class="flex items-center justify-between mb-3">
-        <h4 class="text-desktop-micro text-zinc-400 uppercase tracking-widest font-medium">진행률</h4>
+        <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium">진행률</h4>
         <span class="text-desktop-callout font-semibold tabular-nums" :class="viewProgress >= 100 ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-900 dark:text-white'">
           {{ Math.round(viewProgress) }}%
         </span>
@@ -24,23 +24,23 @@
         ></div>
       </div>
       <!-- Remaining estimate -->
-      <p v-if="book.total_pages && viewProgress < 100 && viewProgress > 0" class="text-desktop-caption-regular text-zinc-400 mt-2 text-right">
+      <p v-if="book.total_pages && viewProgress < 100 && viewProgress > 0" class="text-desktop-caption-regular text-zinc-400 dark:text-zinc-300 mt-2 text-right">
         {{ Math.round(book.total_pages * (1 - viewProgress / 100)) }}p 남음
       </p>
     </div>
 
     <!-- Book Details -->
     <div v-if="book" class="px-1 space-y-2.5">
-      <h4 class="text-desktop-micro text-zinc-400 uppercase tracking-widest font-medium mb-1">정보</h4>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium mb-1">정보</h4>
       <div v-if="book.total_pages" class="flex justify-between items-center">
-        <span class="text-desktop-caption text-zinc-400 flex items-center gap-1.5">
+        <span class="text-desktop-caption text-zinc-400 dark:text-zinc-300 flex items-center gap-1.5">
           <BookOpen :size="12" />
           페이지
         </span>
         <span class="text-desktop-caption font-medium text-zinc-700 dark:text-zinc-300">{{ book.total_pages }}p</span>
       </div>
       <div v-if="book.genre" class="flex justify-between items-center">
-        <span class="text-desktop-caption text-zinc-400 flex items-center gap-1.5">
+        <span class="text-desktop-caption text-zinc-400 dark:text-zinc-300 flex items-center gap-1.5">
           <Tag :size="12" />
           장르
         </span>
@@ -50,7 +50,7 @@
         </span>
       </div>
       <div v-if="book.target_start_date" class="flex justify-between items-center">
-        <span class="text-desktop-caption text-zinc-400 flex items-center gap-1.5">
+        <span class="text-desktop-caption text-zinc-400 dark:text-zinc-300 flex items-center gap-1.5">
           <Calendar :size="12" />
           기간
         </span>
@@ -61,7 +61,7 @@
       <!-- D-day -->
       <div v-if="daysRemaining !== null && !isArchived" class="pt-2.5 mt-1">
         <div class="flex justify-between items-center">
-          <span class="text-desktop-caption text-zinc-400">남은 기간</span>
+          <span class="text-desktop-caption text-zinc-400 dark:text-zinc-300">남은 기간</span>
           <span class="text-desktop-caption font-semibold text-zinc-700 dark:text-zinc-300">
             {{ daysRemaining <= 0 ? '마감일 지남' : `D-${daysRemaining}` }}
           </span>
@@ -69,7 +69,7 @@
       </div>
       <!-- Round -->
       <div v-if="book.round && book.round > 1" class="flex justify-between items-center">
-        <span class="text-desktop-caption text-zinc-400 flex items-center gap-1.5">
+        <span class="text-desktop-caption text-zinc-400 dark:text-zinc-300 flex items-center gap-1.5">
           <RefreshCw :size="12" />
           회차
         </span>
@@ -77,7 +77,7 @@
       </div>
       <!-- Rating -->
       <div v-if="userRating" class="flex justify-between items-center">
-        <span class="text-desktop-caption text-zinc-400 flex items-center gap-1.5">
+        <span class="text-desktop-caption text-zinc-400 dark:text-zinc-300 flex items-center gap-1.5">
           <Star :size="12" />
           내 평점
         </span>
@@ -88,7 +88,7 @@
       </div>
       <!-- Finished Date -->
       <div v-if="book.user_finished_at" class="flex justify-between items-center">
-        <span class="text-desktop-caption text-zinc-400 flex items-center gap-1.5">
+        <span class="text-desktop-caption text-zinc-400 dark:text-zinc-300 flex items-center gap-1.5">
           <CheckCircle :size="12" />
           완독일
         </span>
@@ -98,7 +98,7 @@
 
     <!-- TOC -->
     <div v-if="toc && toc.length > 0" class="px-1">
-      <h4 class="text-desktop-micro text-zinc-400 uppercase tracking-widest font-medium mb-3">목차</h4>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium mb-3">목차</h4>
       <div class="space-y-0.5 max-h-64 overflow-y-auto">
         <button
           v-for="(chapter, idx) in toc"
@@ -107,7 +107,7 @@
           class="w-full text-left px-2 py-1.5 rounded-lg text-desktop-caption transition-colors flex items-center gap-2"
           :class="isCurrentChapter(chapter)
             ? 'text-lime-600 dark:text-lime-400 font-medium'
-            : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'"
+            : 'text-zinc-500 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-300'"
         >
           <div
             class="w-1 h-1 rounded-full flex-shrink-0"
@@ -122,13 +122,13 @@
     <div v-if="!isReadOnlyMode" class="space-y-0.5 px-1">
       <!-- 관리자 전용 -->
       <template v-if="isAdmin && !isArchived">
-        <button @click="$emit('edit-dates')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+        <button @click="$emit('edit-dates')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
           <Calendar :size="14" /> 기간 수정
         </button>
-        <button @click="$emit('edit-toc')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+        <button @click="$emit('edit-toc')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
           <List :size="14" /> 목차 수정
         </button>
-        <button @click="$emit('edit-genre')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+        <button @click="$emit('edit-genre')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
           <Tag :size="14" /> 장르 수정
         </button>
       </template>
@@ -138,25 +138,25 @@
         <button v-if="!book.user_finished_at && !isArchived" @click="$emit('mark-finished')" class="w-full px-2.5 py-2 text-desktop-caption text-lime-600/80 dark:text-lime-400/80 hover:text-lime-700 dark:hover:text-lime-300 rounded-lg transition-colors text-left flex items-center gap-2.5">
           <CheckCircle :size="14" /> 완독 처리
         </button>
-        <button v-if="book.user_finished_at" @click="$emit('unmark-finished')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+        <button v-if="book.user_finished_at" @click="$emit('unmark-finished')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
           <Undo2 :size="14" /> 완독 취소
         </button>
-        <button v-if="book.user_finished_at" @click="$emit('open-review')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+        <button v-if="book.user_finished_at" @click="$emit('open-review')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
           <Star :size="14" /> {{ userRating ? '리뷰 수정' : '리뷰 작성' }}
         </button>
-        <button v-if="book.status === 'done'" @click="$emit('open-reviews')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+        <button v-if="book.status === 'done'" @click="$emit('open-reviews')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
           <MessageSquare :size="14" /> 리뷰 보기
         </button>
 
         <!-- 관리자 전용 (그룹만: 종료 관련) -->
         <template v-if="isAdmin">
-          <button v-if="!isSolo && showMarkCompleted && book.status === 'reading'" @click="$emit('mark-completed')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+          <button v-if="!isSolo && showMarkCompleted && book.status === 'reading'" @click="$emit('mark-completed')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
             <CheckCircle :size="14" /> 종료 처리
           </button>
-          <button v-if="!isSolo && book.status === 'done'" @click="$emit('restart-reading')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+          <button v-if="!isSolo && book.status === 'done'" @click="$emit('restart-reading')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
             <RefreshCw :size="14" /> 종료 취소
           </button>
-          <button v-if="!isSolo && book.status === 'done'" @click="$emit('edit-finished-date')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+          <button v-if="!isSolo && book.status === 'done'" @click="$emit('edit-finished-date')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
             <Calendar :size="14" /> 종료 날짜 수정
           </button>
           <button @click="$emit('delete-book')" class="w-full px-2.5 py-2 text-desktop-caption text-red-400 hover:text-red-500 rounded-lg transition-colors text-left flex items-center gap-2.5">

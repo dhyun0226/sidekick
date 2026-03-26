@@ -7,11 +7,11 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <span class="text-[11px] text-zinc-400 leading-none">총 {{ filteredMembers.length }}명</span>
+        <span class="text-[11px] text-zinc-400 dark:text-zinc-300 leading-none">총 {{ filteredMembers.length }}명</span>
         <!-- Search Toggle -->
         <button
           @click="showSearch = !showSearch"
-          class="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors text-zinc-400 leading-none"
+          class="hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 transition-colors text-zinc-400 dark:text-zinc-300 leading-none"
           :class="{ 'text-lime-500': showSearch || searchQuery }"
           title="멤버 검색"
         >
@@ -34,7 +34,7 @@
     <!-- Empty State (no members at all) -->
     <div v-if="sortedMembersWithProgress.length === 0" class="text-center py-8">
       <Users :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-2" />
-      <p class="text-sm font-medium text-zinc-500">아직 멤버가 없어요</p>
+      <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">아직 멤버가 없어요</p>
     </div>
 
     <!-- Members List (Slim Style) -->
@@ -49,7 +49,7 @@
         <div class="relative flex-shrink-0">
           <div class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
             <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
-            <div v-else class="w-full h-full flex items-center justify-center text-zinc-400">
+            <div v-else class="w-full h-full flex items-center justify-center text-zinc-400 dark:text-zinc-300">
               <User :size="16" />
             </div>
           </div>
@@ -58,7 +58,7 @@
             class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-zinc-900 flex items-center justify-center"
             :class="member.inactive ? 'bg-zinc-300 dark:bg-zinc-600' : 'bg-lime-500'"
           >
-            <span v-if="member.inactive" class="text-[5px] text-zinc-500">z</span>
+            <span v-if="member.inactive" class="text-[5px] text-zinc-500 dark:text-zinc-400">z</span>
           </div>
         </div>
 
@@ -71,7 +71,7 @@
             
             <template v-if="member.timeAgo">
               <span class="text-[11px] text-zinc-300 dark:text-zinc-500 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
-              <span class="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium leading-none">{{ member.timeAgo }}</span>
+              <span class="text-[11px] text-zinc-400 dark:text-zinc-400 font-medium leading-none">{{ member.timeAgo }}</span>
             </template>
 
             <template v-if="member.id === currentUserId">
@@ -132,7 +132,7 @@
     </div>
 
     <!-- Empty Search State -->
-    <div v-else class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-dashed ring-black/[0.04] dark:ring-white/[0.06]">
+    <div v-else class="text-center py-12 text-xs text-zinc-400 dark:text-zinc-300 bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-dashed ring-black/[0.04] dark:ring-white/[0.06]">
       <Search :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
       <p>검색 결과와 일치하는 멤버가 없습니다</p>
     </div>

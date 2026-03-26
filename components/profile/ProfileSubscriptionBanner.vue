@@ -13,7 +13,7 @@
         </div>
         <div>
           <h3 class="text-sm font-bold text-white leading-none mb-1.5">프리미엄 회원</h3>
-          <p v-if="subscriptionDetails" class="text-[11px] text-zinc-400 leading-none">
+          <p v-if="subscriptionDetails" class="text-[11px] text-zinc-400 dark:text-zinc-300 leading-none">
             {{ formatDate(subscriptionDetails.end_date) }}까지 이용 가능
           </p>
         </div>
@@ -35,7 +35,7 @@
     >
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 bg-zinc-50 dark:bg-zinc-800 rounded flex items-center justify-center border border-zinc-100 dark:border-zinc-700">
-          <Lock :size="16" class="text-zinc-400 group-hover:text-lime-500 transition-colors" />
+          <Lock :size="16" class="text-zinc-400 dark:text-zinc-300 group-hover:text-lime-500 transition-colors" />
         </div>
         <div>
           <h3 class="text-sm font-bold text-zinc-900 dark:text-white leading-none mb-1.5">프리미엄 혜택 보기</h3>

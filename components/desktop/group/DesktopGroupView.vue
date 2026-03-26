@@ -26,7 +26,7 @@
           <AlertCircle :size="32" class="text-red-500" />
         </div>
         <h2 class="text-desktop-body font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">문제가 발생했습니다</h2>
-        <p class="text-desktop-callout text-zinc-500 mb-4 font-light">{{ loadError }}</p>
+        <p class="text-desktop-callout text-zinc-500 dark:text-zinc-400 mb-4 font-light">{{ loadError }}</p>
         <button @click="fetchData" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors duration-200 ease-apple text-desktop-callout">
           다시 시도
         </button>
@@ -36,10 +36,10 @@
         <!-- Banners -->
         <div v-if="isReadOnlyMode" class="px-8 pt-4">
           <div class="bg-zinc-50 dark:bg-zinc-800/40 rounded-xl p-4 flex items-center gap-3 ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
-            <Lock :size="18" class="text-zinc-400 flex-shrink-0" />
+            <Lock :size="18" class="text-zinc-400 dark:text-zinc-300 flex-shrink-0" />
             <div class="flex-1">
               <p class="text-desktop-callout text-zinc-700 dark:text-zinc-300 font-medium">읽기 전용 모드</p>
-              <p class="text-desktop-caption text-zinc-500">프리미엄으로 업그레이드하면 참여할 수 있어요.</p>
+              <p class="text-desktop-caption text-zinc-500 dark:text-zinc-400">프리미엄으로 업그레이드하면 참여할 수 있어요.</p>
             </div>
             <button
               @click="modals.upgradeReadOnly = true"
@@ -52,10 +52,10 @@
 
         <div v-if="isPausedGroup && !isArchived" class="px-8 pt-4">
           <div class="bg-zinc-50 dark:bg-zinc-800/40 rounded-xl p-4 flex items-center gap-3 ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
-            <Lock :size="18" class="text-zinc-400 flex-shrink-0" />
+            <Lock :size="18" class="text-zinc-400 dark:text-zinc-300 flex-shrink-0" />
             <div class="flex-1">
               <p class="text-desktop-callout text-zinc-700 dark:text-zinc-300 font-medium">일시정지된 그룹</p>
-              <p class="text-desktop-caption text-zinc-500">구독이 만료되어 그룹이 일시정지 상태입니다.</p>
+              <p class="text-desktop-caption text-zinc-500 dark:text-zinc-400">구독이 만료되어 그룹이 일시정지 상태입니다.</p>
             </div>
             <button
               v-if="isPremium"
@@ -74,9 +74,9 @@
               <img v-if="bookCover" :src="bookCover" class="w-full h-full object-cover" />
             </div>
             <div class="pt-1">
-              <p class="text-desktop-caption text-zinc-400 mb-1">{{ groupName }}</p>
+              <p class="text-desktop-caption text-zinc-400 dark:text-zinc-300 mb-1">{{ groupName }}</p>
               <h1 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-1.5 leading-tight">{{ bookTitle }}</h1>
-              <div class="flex flex-wrap items-center gap-1.5 mb-3 text-[16px] text-zinc-500 dark:text-zinc-400">
+              <div class="flex flex-wrap items-center gap-1.5 mb-3 text-[16px] text-zinc-500 dark:text-zinc-300">
                 <span>{{ bookAuthor }}</span>
                 <template v-if="selectedBook.book?.publisher || selectedBook.total_pages">
                   <span class="text-zinc-300 dark:text-zinc-500">·</span>

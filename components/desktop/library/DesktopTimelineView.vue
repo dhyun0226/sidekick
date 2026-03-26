@@ -25,21 +25,21 @@
                 class="px-2.5 py-0.5 text-desktop-micro font-semibold rounded-full transition-all duration-200 ease-apple"
                 :class="positionMode === 'percent'
                   ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm'
-                  : 'text-zinc-400'"
+                  : 'text-zinc-400 dark:text-zinc-300'"
               >{{ positionMode === 'percent' ? '퍼센트' : '%' }}</button>
               <button
                 @click="setMode('page')"
                 class="px-2.5 py-0.5 text-desktop-micro font-semibold rounded-full transition-all duration-200 ease-apple"
                 :class="positionMode === 'page'
                   ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-apple-sm'
-                  : 'text-zinc-400'"
+                  : 'text-zinc-400 dark:text-zinc-300'"
               >{{ positionMode === 'page' ? '페이지' : 'p' }}</button>
             </div>
-            <span class="text-desktop-micro text-zinc-400 dark:text-zinc-400 font-medium">에서</span>
+            <span class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium">에서</span>
           </div>
           <button
             @click="$emit('open-batch')"
-            class="px-2.5 py-1 text-zinc-400 rounded-lg text-desktop-caption font-medium hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all duration-200 ease-apple flex items-center gap-1"
+            class="px-2.5 py-1 text-zinc-400 dark:text-zinc-300 rounded-lg text-desktop-caption font-medium hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all duration-200 ease-apple flex items-center gap-1"
           >
             <Layers :size="12" />
             일괄 입력
@@ -54,7 +54,7 @@
             placeholder="인용 구절 (선택)"
             rows="1"
             maxlength="500"
-            class="w-full px-4 py-2.5 bg-transparent border-l-2 border-lime-400 dark:border-lime-500 text-desktop-callout-regular text-zinc-600 dark:text-zinc-400 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 focus:outline-none resize-none transition-all duration-200 ease-apple"
+            class="w-full px-4 py-2.5 bg-transparent border-l-2 border-lime-400 dark:border-lime-500 text-desktop-callout-regular text-zinc-600 dark:text-zinc-300 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 focus:outline-none resize-none transition-all duration-200 ease-apple"
           ></textarea>
         </div>
 
@@ -86,7 +86,7 @@
             </span>
           </Transition>
           <div class="flex items-center gap-3 ml-auto">
-            <kbd class="hidden sm:inline text-desktop-micro text-zinc-400 dark:text-zinc-400">{{ isMac ? '⌘' : 'Ctrl' }}↵</kbd>
+            <kbd class="hidden sm:inline text-desktop-micro text-zinc-400 dark:text-zinc-300">{{ isMac ? '⌘' : 'Ctrl' }}↵</kbd>
             <button
               @click="submitComment"
               :disabled="(!newComment.trim() && !anchorText.trim()) || isSubmitting"
@@ -115,7 +115,7 @@
             <!-- Shared Anchor Text - Hide when editing a comment in this group -->
             <div v-if="anchorGroup.anchorText && !anchorGroup.comments.some(c => c.id === editingCommentId)" class="mb-4">
               <div class="pl-4 py-2.5 border-l-2 border-lime-400 dark:border-lime-500 bg-lime-50/60 dark:bg-lime-900/10 rounded-r-xl">
-                <p class="text-desktop-callout-regular text-zinc-600 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap">{{ anchorGroup.anchorText }}</p>
+                <p class="text-desktop-callout-regular text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{{ anchorGroup.anchorText }}</p>
               </div>
             </div>
 
@@ -134,7 +134,7 @@
                   <div class="flex-1 min-w-0">
                     <div class="flex items-baseline gap-2">
                       <span class="text-desktop-caption font-semibold text-zinc-900 dark:text-zinc-100">{{ comment.user?.nickname || '나' }}</span>
-                      <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-400">{{ formatTimeAgo(comment.created_at) }}</span>
+                      <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-300">{{ formatTimeAgo(comment.created_at) }}</span>
                     </div>
 
                     <template v-if="editingCommentId !== comment.id">
@@ -146,7 +146,7 @@
                           <button
                             @click="handleLike(comment)"
                             class="flex items-center gap-1 text-desktop-footnote font-medium transition-colors"
-                            :class="comment.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-400 hover:text-red-400'"
+                            :class="comment.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-300 hover:text-red-400'"
                           >
                             <Heart :size="12" :fill="comment.isLiked ? 'currentColor' : 'none'" :class="likedId === comment.id ? 'animate-like-bounce' : ''" />
                             <span v-if="comment.likes" class="tabular-nums">{{ comment.likes }}</span>
@@ -157,17 +157,17 @@
                         <button
                           v-if="!isReadOnlyMode"
                           @click="toggleReplyForm(comment.id)"
-                          class="flex items-center gap-1 text-desktop-footnote font-medium text-zinc-400 dark:text-zinc-400 hover:text-zinc-500 transition-colors"
+                          class="flex items-center gap-1 text-desktop-footnote font-medium text-zinc-400 dark:text-zinc-300 hover:text-zinc-500 transition-colors"
                         >
                           <MessageCircle :size="12" />
                           <span v-if="comment.replies?.length" class="tabular-nums">{{ comment.replies.length }}</span>
                         </button>
 
                         <template v-if="!isReadOnlyMode && currentUserId && comment.user_id === currentUserId">
-                          <button @click="startEdit(comment)" class="text-zinc-400 dark:text-zinc-400 hover:text-zinc-500 transition-colors">
+                          <button @click="startEdit(comment)" class="text-zinc-400 dark:text-zinc-300 hover:text-zinc-500 transition-colors">
                             <Pencil :size="13" />
                           </button>
-                          <button @click="$emit('delete', comment)" class="text-zinc-400 dark:text-zinc-400 hover:text-red-400 transition-colors">
+                          <button @click="$emit('delete', comment)" class="text-zinc-400 dark:text-zinc-300 hover:text-red-400 transition-colors">
                             <Trash2 :size="13" />
                           </button>
                         </template>
@@ -182,7 +182,7 @@
                           placeholder="인용 구절 (선택)"
                           rows="2"
                           maxlength="500"
-                          class="w-full px-3 py-2.5 bg-lime-50/60 dark:bg-lime-900/10 border-l-2 border-lime-400 rounded-r-xl text-desktop-callout-regular text-zinc-600 dark:text-zinc-400 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400/20"
+                          class="w-full px-3 py-2.5 bg-lime-50/60 dark:bg-lime-900/10 border-l-2 border-lime-400 rounded-r-xl text-desktop-callout-regular text-zinc-600 dark:text-zinc-300 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400/20"
                           @keydown.escape="cancelEdit"
                         ></textarea>
                         <textarea
@@ -200,7 +200,7 @@
                       <div class="flex items-center gap-2 mt-2">
                         <button @click="saveEdit(comment)" :disabled="!editContent.trim() && !editAnchor.trim()" class="px-3.5 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50">저장</button>
                         <button @click="cancelEdit" class="px-3.5 py-1.5 text-zinc-500 text-desktop-caption font-medium hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">취소</button>
-                        <kbd class="ml-auto text-desktop-micro text-zinc-400 dark:text-zinc-400">{{ isMac ? '⌘' : 'Ctrl' }}↵</kbd>
+                        <kbd class="ml-auto text-desktop-micro text-zinc-400 dark:text-zinc-300">{{ isMac ? '⌘' : 'Ctrl' }}↵</kbd>
                       </div>
                     </template>
 
@@ -217,15 +217,15 @@
                         <div class="flex-1 min-w-0">
                           <div class="flex items-baseline gap-1.5">
                             <span class="text-desktop-caption font-semibold text-zinc-700 dark:text-zinc-300">{{ reply.user?.nickname || '탈퇴한 사용자' }}</span>
-                            <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-400">{{ formatTimeAgo(reply.created_at) }}</span>
+                            <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-300">{{ formatTimeAgo(reply.created_at) }}</span>
                           </div>
-                          <p class="text-desktop-caption text-zinc-600 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap break-words mt-0.5">{{ reply.content }}</p>
+                          <p class="text-desktop-caption text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words mt-0.5">{{ reply.content }}</p>
                           <div class="flex items-center gap-3 mt-1">
                             <div class="relative">
                               <button
                                 @click="handleLike(reply)"
                                 class="flex items-center gap-1 text-desktop-footnote font-medium transition-colors"
-                                :class="reply.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-400 hover:text-red-400'"
+                                :class="reply.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-300 hover:text-red-400'"
                               >
                                 <Heart :size="12" :fill="reply.isLiked ? 'currentColor' : 'none'" :class="likedId === reply.id ? 'animate-like-bounce' : ''" />
                                 <span v-if="reply.likes" class="tabular-nums">{{ reply.likes }}</span>
@@ -273,7 +273,7 @@
       <button
         @click="$emit('load-more')"
         :disabled="isLoadingMore"
-        class="px-5 py-2 text-desktop-caption text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all duration-200 ease-apple"
+        class="px-5 py-2 text-desktop-caption text-zinc-400 dark:text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-300 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all duration-200 ease-apple"
       >
         {{ isLoadingMore ? '불러오는 중...' : '이전 기록 더 보기' }}
       </button>
@@ -281,9 +281,9 @@
 
     <!-- Empty State -->
     <div v-if="comments.length === 0 && !isLoadingMore" class="text-center py-20">
-      <Pencil :size="22" class="mx-auto text-zinc-400 dark:text-zinc-400 mb-4" />
+      <Pencil :size="22" class="mx-auto text-zinc-400 dark:text-zinc-300 mb-4" />
       <h3 class="text-desktop-callout-regular font-medium tracking-tight text-zinc-900 dark:text-white mb-1.5">아직 기록이 없어요</h3>
-      <p class="text-desktop-caption text-zinc-400 font-light">책을 읽으면서 느낀 점을 기록해보세요.</p>
+      <p class="text-desktop-caption text-zinc-400 dark:text-zinc-300 font-light">책을 읽으면서 느낀 점을 기록해보세요.</p>
     </div>
   </div>
 </template>

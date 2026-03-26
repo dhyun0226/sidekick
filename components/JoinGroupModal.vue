@@ -8,7 +8,7 @@
       
       <!-- Close Button -->
       <div class="absolute top-4 right-4 z-20">
-        <button @click="close" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+        <button @click="close" class="p-2 text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <X :size="20" />
         </button>
       </div>
@@ -25,7 +25,7 @@
       <div class="space-y-6">
         <!-- Code Input -->
         <div class="space-y-3">
-          <label class="block text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase ml-1">초대 코드</label>
+          <label class="block text-xs font-bold text-zinc-400 dark:text-zinc-400 uppercase ml-1">초대 코드</label>
           <div class="relative group">
             <input
               v-model="inviteCode"
@@ -49,7 +49,7 @@
         <div class="flex gap-3 pt-2">
           <button
             @click="close"
-            class="flex-1 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
+            class="flex-1 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
           >
             취소
           </button>

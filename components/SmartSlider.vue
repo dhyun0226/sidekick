@@ -10,7 +10,7 @@
         <!-- Chapter Name & Write Button Row -->
         <div class="flex justify-between items-end mb-6 px-1 gap-4">
           <div class="flex flex-col min-w-0 flex-1">
-            <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase mb-0.5">지금 읽는 곳</span>
+            <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-400 uppercase mb-0.5">지금 읽는 곳</span>
             <span class="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate leading-tight">
               {{ currentChapterName || bookTitle || '읽기 시작' }}
             </span>
@@ -113,7 +113,7 @@
 
         <!-- Current Position Label (Always visible) -->
         <div class="flex items-center justify-between mt-2 px-0.5">
-          <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 tabular-nums">
+          <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-400 tabular-nums">
             {{ Math.round(currentPct) }}%<template v-if="currentPage"> · {{ currentPage }}p</template>
           </span>
           <span v-if="totalPages" class="text-[11px] text-zinc-300 dark:text-zinc-500 tabular-nums">

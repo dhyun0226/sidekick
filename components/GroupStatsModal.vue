@@ -9,7 +9,7 @@
       <div class="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-6 py-4 flex justify-between items-center z-10">
         <div>
           <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">그룹 통계</h2>
-          <p class="text-sm text-zinc-500">{{ groupName }}</p>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ groupName }}</p>
         </div>
         <button @click="$emit('close')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
           <X :size="24" />
@@ -21,12 +21,12 @@
         <!-- Loading State -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-12">
           <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p class="text-sm text-zinc-500">통계를 불러오는 중...</p>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">통계를 불러오는 중...</p>
         </div>
 
         <!-- Error State -->
         <div v-else-if="fetchError" class="flex flex-col items-center justify-center py-12">
-          <p class="text-sm text-zinc-500 mb-4">통계를 불러오지 못했습니다.</p>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">통계를 불러오지 못했습니다.</p>
           <button @click="fetchStats" class="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-lg text-sm font-medium hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
             다시 시도
           </button>
@@ -36,20 +36,20 @@
           <!-- Summary Stats -->
           <div class="grid grid-cols-2 gap-4">
             <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4">
-              <div class="text-xs text-zinc-600 dark:text-zinc-500 mb-1">완독한 책</div>
-              <div class="text-2xl font-bold text-lime-400">{{ stats.completedBooks }}<span class="text-sm text-zinc-500 font-normal ml-1">권</span></div>
+              <div class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">완독한 책</div>
+              <div class="text-2xl font-bold text-lime-400">{{ stats.completedBooks }}<span class="text-sm text-zinc-500 dark:text-zinc-400 font-normal ml-1">권</span></div>
             </div>
             <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4">
-              <div class="text-xs text-zinc-600 dark:text-zinc-500 mb-1">진행 중</div>
-              <div class="text-2xl font-bold text-blue-400">{{ stats.currentBooks }}<span class="text-sm text-zinc-500 font-normal ml-1">권</span></div>
+              <div class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">진행 중</div>
+              <div class="text-2xl font-bold text-blue-400">{{ stats.currentBooks }}<span class="text-sm text-zinc-500 dark:text-zinc-400 font-normal ml-1">권</span></div>
             </div>
             <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4">
-              <div class="text-xs text-zinc-600 dark:text-zinc-500 mb-1">작성한 리뷰</div>
-              <div class="text-2xl font-bold text-purple-400">{{ stats.totalReviews }}<span class="text-sm text-zinc-500 font-normal ml-1">개</span></div>
+              <div class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">작성한 리뷰</div>
+              <div class="text-2xl font-bold text-purple-400">{{ stats.totalReviews }}<span class="text-sm text-zinc-500 dark:text-zinc-400 font-normal ml-1">개</span></div>
             </div>
             <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4">
-              <div class="text-xs text-zinc-600 dark:text-zinc-500 mb-1">작성한 댓글</div>
-              <div class="text-2xl font-bold text-yellow-400">{{ stats.totalComments }}<span class="text-sm text-zinc-500 font-normal ml-1">개</span></div>
+              <div class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">작성한 댓글</div>
+              <div class="text-2xl font-bold text-yellow-400">{{ stats.totalComments }}<span class="text-sm text-zinc-500 dark:text-zinc-400 font-normal ml-1">개</span></div>
             </div>
           </div>
 
@@ -68,7 +68,7 @@
                 </div>
                 <div class="flex-1">
                   <div class="font-medium text-zinc-900 dark:text-zinc-200 text-sm">{{ member.nickname }}</div>
-                  <div class="text-xs text-zinc-500">댓글 {{ member.commentCount }}개 · 리뷰 {{ member.reviewCount }}개</div>
+                  <div class="text-xs text-zinc-500 dark:text-zinc-400">댓글 {{ member.commentCount }}개 · 리뷰 {{ member.reviewCount }}개</div>
                 </div>
                 <div class="text-lg font-bold text-lime-400">{{ member.totalActivity }}</div>
               </div>
@@ -94,7 +94,7 @@
                   </div>
                 </div>
                 <!-- Label -->
-                <span class="text-[11px] text-zinc-500 font-medium">{{ month.label }}</span>
+                <span class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">{{ month.label }}</span>
               </div>
             </div>
           </div>
@@ -116,15 +116,15 @@
                     <span v-if="book.round" class="text-lime-400 ml-1 text-xs">[{{ book.round }}회]</span>
                   </div>
                   <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
-                    <div class="text-xs text-zinc-500">{{ book.author }}</div>
-                    <div v-if="book.publisher || book.total_pages" class="text-[11px] text-zinc-400">
+                    <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ book.author }}</div>
+                    <div v-if="book.publisher || book.total_pages" class="text-[11px] text-zinc-400 dark:text-zinc-300">
                       <span v-if="book.publisher">{{ book.publisher }}</span>
                       <span v-if="book.publisher && book.total_pages"> · </span>
                       <span v-if="book.total_pages">{{ book.total_pages }}p</span>
                     </div>
                     <GenreBadge v-if="book.genre" :genre="book.genre" size="sm" />
                   </div>
-                  <div class="flex items-center gap-2 text-xs text-zinc-500">
+                  <div class="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                     <span>{{ formatDate(book.finishedAt) }}</span>
                     <RatingBadge :rating="book.avgRating" size="sm" />
                   </div>
@@ -133,7 +133,7 @@
             </div>
             <div v-else class="text-center py-8">
               <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-2" />
-              <p class="text-sm text-zinc-500">아직 완독한 책이 없습니다</p>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400">아직 완독한 책이 없습니다</p>
             </div>
           </div>
         </template>

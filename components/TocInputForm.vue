@@ -20,7 +20,7 @@
           placeholder="책의 마지막 페이지 번호를 적어주세요"
           class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3.5 pr-16 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none transition-all no-spinner outline-none"
         />
-        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400 font-bold pointer-events-none whitespace-nowrap">쪽까지</span>
+        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400 dark:text-zinc-300 font-bold pointer-events-none whitespace-nowrap">쪽까지</span>
       </div>
     </div>
 
@@ -28,7 +28,7 @@
     <div>
       <div class="flex justify-between items-center mb-3">
         <label class="text-sm font-bold text-zinc-700 dark:text-zinc-300">챕터 설정 (선택)</label>
-        <span class="text-[11px] text-zinc-400 font-medium">진행도를 더 정교하게 관리할 수 있어요</span>
+        <span class="text-[11px] text-zinc-400 dark:text-zinc-300 font-medium">진행도를 더 정교하게 관리할 수 있어요</span>
       </div>
       
       <div class="space-y-3">
@@ -37,11 +37,11 @@
           <div class="w-12 h-12 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-sm mb-3">
             <ListTree :size="20" class="text-zinc-300 group-hover:text-lime-400 transition-colors" />
           </div>
-          <p class="text-xs text-zinc-400 dark:text-zinc-500 mb-4 font-medium">챕터를 나누어 읽어볼까요?</p>
+          <p class="text-xs text-zinc-400 dark:text-zinc-400 mb-4 font-medium">챕터를 나누어 읽어볼까요?</p>
           <button
             @click="addChapter"
             type="button"
-            class="px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all shadow-sm active:scale-95"
+            class="px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all shadow-sm active:scale-95"
           >
             + 첫 챕터 추가하기
           </button>
@@ -54,14 +54,14 @@
               
               <!-- Left: Index + Title Box (Flexible) -->
               <div class="flex-1 min-w-0 flex items-center h-11 bg-zinc-100 dark:bg-zinc-800 rounded-xl px-1 transition-all focus-within:ring-2 focus-within:ring-inset focus-within:ring-lime-400">
-                <div class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[11px] font-black text-zinc-400 bg-white dark:bg-zinc-700 rounded-lg shadow-sm flex-shrink-0 ml-1">
+                <div class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[11px] font-black text-zinc-400 dark:text-zinc-300 bg-white dark:bg-zinc-700 rounded-lg shadow-sm flex-shrink-0 ml-1">
                   {{ (idx + 1).toString().padStart(2, '0') }}
                 </div>
                 <input
                   v-model="chapter.title"
                   type="text"
                   placeholder="챕터 제목"
-                  class="min-w-0 flex-1 bg-transparent border-none focus:ring-0 text-sm px-2 py-2 text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none"
+                  class="min-w-0 flex-1 bg-transparent border-none focus:ring-0 text-sm px-2 py-2 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:text-zinc-300 outline-none"
                 />
               </div>
 
@@ -74,14 +74,14 @@
                   @blur="validateChapterPage(idx)"
                   class="w-10 sm:w-12 bg-transparent border-none focus:ring-0 text-sm font-black text-center p-0 text-lime-600 dark:text-lime-400 no-spinner outline-none"
                 />
-                <span class="text-[11px] sm:text-[12px] text-zinc-400 font-bold pointer-events-none whitespace-nowrap">쪽부터</span>
+                <span class="text-[11px] sm:text-[12px] text-zinc-400 dark:text-zinc-300 font-bold pointer-events-none whitespace-nowrap">쪽부터</span>
               </div>
               
               <!-- Delete Button -->
               <button
                 @click="removeChapter(idx)"
                 type="button"
-                class="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all flex-shrink-0"
+                class="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center text-zinc-400 dark:text-zinc-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all flex-shrink-0"
               >
                 <Trash2 :size="18" />
               </button>
@@ -91,7 +91,7 @@
           <button
             @click="addChapter"
             type="button"
-            class="w-full py-3 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-400 hover:text-lime-500 hover:border-lime-200 dark:hover:border-lime-900/50 transition-all flex items-center justify-center gap-2"
+            class="w-full py-3 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-400 dark:text-zinc-300 hover:text-lime-500 hover:border-lime-200 dark:hover:border-lime-900/50 transition-all flex items-center justify-center gap-2"
           >
             <Plus :size="14" />
             챕터 추가

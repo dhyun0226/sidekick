@@ -8,7 +8,7 @@
     <!-- Reading Books -->
     <div class="flex-1 overflow-y-auto">
       <div v-if="readingBooks.length > 0" class="px-3 pt-2 pb-1">
-        <p class="text-xs font-medium text-zinc-400 dark:text-zinc-400 px-2 mb-1.5">읽는 중</p>
+        <p class="text-xs font-medium text-zinc-400 dark:text-zinc-300 px-2 mb-1.5">읽는 중</p>
         <button
           v-for="book in readingBooks"
           :key="book.id"
@@ -31,7 +31,7 @@
 
       <!-- History Books -->
       <div v-if="historyBooks.length > 0" class="px-3 pt-4 pb-1">
-        <p class="text-xs font-medium text-zinc-400 dark:text-zinc-400 px-2 mb-1.5">완독</p>
+        <p class="text-xs font-medium text-zinc-400 dark:text-zinc-300 px-2 mb-1.5">완독</p>
         <div
           v-for="book in historyBooks"
           :key="book.id"
@@ -54,8 +54,8 @@
 
       <!-- Empty -->
       <div v-if="readingBooks.length === 0 && historyBooks.length === 0" class="text-center py-8">
-        <BookOpen :size="20" class="text-zinc-400 dark:text-zinc-400 mx-auto mb-2" />
-        <p class="text-desktop-caption text-zinc-400">책이 없어요</p>
+        <BookOpen :size="20" class="text-zinc-400 dark:text-zinc-300 mx-auto mb-2" />
+        <p class="text-desktop-caption text-zinc-400 dark:text-zinc-300">책이 없어요</p>
       </div>
     </div>
 
@@ -63,7 +63,7 @@
     <div v-if="!isArchived" class="px-4 pt-3 pb-1">
       <button
         @click="$emit('add-book')"
-        class="w-full flex items-center justify-center gap-2 px-3 py-2 text-zinc-400 dark:text-zinc-400 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all duration-200 ease-apple text-desktop-caption"
+        class="w-full flex items-center justify-center gap-2 px-3 py-2 text-zinc-400 dark:text-zinc-300 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all duration-200 ease-apple text-desktop-caption"
       >
         <Plus :size="15" />
         새 책 추가
@@ -72,7 +72,7 @@
 
     <!-- Keyboard Shortcuts Hint -->
     <div class="px-4 py-3 border-t border-zinc-100 dark:border-zinc-800/50">
-      <div class="flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-zinc-400 dark:text-zinc-400">
+      <div class="flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-zinc-400 dark:text-zinc-300">
         <span><kbd class="px-1 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[9px] font-mono">↑↓</kbd> 이동</span>
         <span><kbd class="px-1 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[9px] font-mono">/</kbd> 입력</span>
         <span><kbd class="px-1 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[9px] font-mono">{{ isMac ? '⌘' : 'Ctrl' }} /</kbd> 일괄입력</span>

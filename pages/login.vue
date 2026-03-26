@@ -42,7 +42,7 @@
           </div>
           <div class="space-y-1">
             <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">간편하고 안전한 소셜 로그인</p>
-            <p class="text-xs text-zinc-600 dark:text-zinc-500">구글 계정으로 3초 만에 시작하세요. 별도의 비밀번호 관리가 필요 없습니다.</p>
+            <p class="text-xs text-zinc-600 dark:text-zinc-400">구글 계정으로 3초 만에 시작하세요. 별도의 비밀번호 관리가 필요 없습니다.</p>
           </div>
         </div>
       </div>
@@ -77,8 +77,8 @@
     </div>
 
     <!-- Footer -->
-    <div class="absolute bottom-6 text-center text-xs text-zinc-600">
-      <p>로그인하시면 <NuxtLink to="/terms" class="text-zinc-600 dark:text-zinc-500 hover:text-lime-400 underline">서비스 이용약관</NuxtLink> 및 <NuxtLink to="/privacy" class="text-zinc-600 dark:text-zinc-500 hover:text-lime-400 underline">개인정보처리방침</NuxtLink>에 동의하게 됩니다.</p>
+    <div class="absolute bottom-6 text-center text-xs text-zinc-600 dark:text-zinc-400">
+      <p>로그인하시면 <NuxtLink to="/terms" class="text-zinc-600 dark:text-zinc-400 hover:text-lime-400 underline">서비스 이용약관</NuxtLink> 및 <NuxtLink to="/privacy" class="text-zinc-600 dark:text-zinc-400 hover:text-lime-400 underline">개인정보처리방침</NuxtLink>에 동의하게 됩니다.</p>
     </div>
   </div>
 </template>

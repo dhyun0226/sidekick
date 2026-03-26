@@ -36,12 +36,12 @@
             <div class="flex items-start gap-3 mb-3">
               <div class="w-8 h-11 bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0 shadow-apple ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
                 <img v-if="item.bookCover" :src="item.bookCover" class="w-full h-full object-cover" />
-                <div v-else class="w-full h-full flex items-center justify-center text-[8px] text-zinc-400">No Cover</div>
+                <div v-else class="w-full h-full flex items-center justify-center text-[8px] text-zinc-400 dark:text-zinc-300">No Cover</div>
               </div>
 
               <div class="min-w-0 flex-1 text-left">
                 <h4 class="text-sm font-semibold text-zinc-900 dark:text-white truncate mb-0.5 tracking-tight">{{ item.bookTitle }}</h4>
-                <div class="flex items-center gap-2 text-[11px] text-zinc-400 font-medium">
+                <div class="flex items-center gap-2 text-[11px] text-zinc-400 dark:text-zinc-300 font-medium">
                   <span>{{ item.groupName }}</span>
                   <span class="text-zinc-300 dark:text-zinc-700">·</span>
                   <span>{{ formatTimeAgo(item.created_at) }}</span>
@@ -61,7 +61,7 @@
               <div class="bg-zinc-50 dark:bg-zinc-800/50 px-3.5 py-3">
                 <div class="flex items-center gap-2 mb-2">
                   <Avatar :src="item.parentData.avatar_url" :fallback="item.parentData.nickname?.charAt(0) || 'U'" size="xs" className="w-4 h-4 shadow-xs" />
-                  <p class="text-[11px] font-semibold text-zinc-400">{{ item.parentData.nickname }}님의 기록</p>
+                  <p class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-300">{{ item.parentData.nickname }}님의 기록</p>
                 </div>
                 <div v-if="item.parentData.anchor_text" class="mb-2 pl-2 border-l-2 border-zinc-300 dark:border-zinc-600">
                   <p class="text-[13px] text-zinc-500 dark:text-zinc-400 italic  leading-relaxed">{{ item.parentData.anchor_text }}</p>

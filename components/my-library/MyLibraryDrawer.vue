@@ -9,7 +9,7 @@
       <!-- Drawer Header -->
       <div class="flex items-center justify-between p-4 ring-1 ring-black/[0.04] dark:ring-white/[0.06] bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md">
         <h2 class="text-lg font-semibold text-zinc-900 dark:text-white truncate pr-2">{{ groupName }}</h2>
-        <button @click="emit('close')" class="text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
+        <button @click="emit('close')" class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <X :size="24" />
         </button>
       </div>
@@ -19,7 +19,7 @@
         <button
           @click="activeTab = 'info'"
           class="flex-1 py-3 text-sm font-medium transition-colors relative"
-          :class="activeTab === 'info' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-500'"
+          :class="activeTab === 'info' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-400'"
         >
           정보
           <div v-if="activeTab === 'info'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-4"></div>
@@ -27,7 +27,7 @@
         <button
           @click="activeTab = 'bookshelf'"
           class="flex-1 py-3 text-sm font-medium transition-colors relative"
-          :class="activeTab === 'bookshelf' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-500'"
+          :class="activeTab === 'bookshelf' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-400'"
         >
           책장
           <div v-if="activeTab === 'bookshelf'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-4"></div>

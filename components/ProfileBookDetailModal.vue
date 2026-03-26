@@ -7,7 +7,7 @@
         <!-- Header -->
         <div class="bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-800 dark:to-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
           <div class="flex items-center justify-between px-4 pt-4 pb-3">
-            <h3 class="text-xs font-bold text-zinc-500 uppercase">책 상세</h3>
+            <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">책 상세</h3>
             <button @click="$emit('close')" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
               <X :size="20" class="text-zinc-600 dark:text-zinc-400" />
             </button>
@@ -19,7 +19,7 @@
             </div>
             <div class="flex-1 min-w-0 flex flex-col pt-0.5">
               <!-- 그룹명 -->
-              <p class="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 mb-1">
+              <p class="text-[11px] font-medium text-zinc-400 dark:text-zinc-400 mb-1">
                 {{ book.groupName }}에서 {{ book.finished_at ? '읽음' : '읽는중' }}
               </p>
               <h2 class="text-lg font-bold text-zinc-900 dark:text-white line-clamp-2 leading-tight mb-2 tracking-tight">{{ book.title }}</h2>
@@ -58,7 +58,7 @@
             <button
               @click="tab = 'all'"
               class="flex-1 py-3 text-sm font-bold transition-colors relative"
-              :class="tab === 'all' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
+              :class="tab === 'all' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-400'"
             >
               전체
               <div v-if="tab === 'all'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
@@ -66,7 +66,7 @@
             <button
               @click="tab = 'review'"
               class="flex-1 py-3 text-sm font-bold transition-colors relative"
-              :class="tab === 'review' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
+              :class="tab === 'review' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-400'"
             >
               리뷰
               <div v-if="tab === 'review'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
@@ -74,7 +74,7 @@
             <button
               @click="tab = 'comments'"
               class="flex-1 py-3 text-sm font-bold transition-colors relative"
-              :class="tab === 'comments' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
+              :class="tab === 'comments' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-400'"
             >
               코멘트
               <div v-if="tab === 'comments'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
@@ -86,7 +86,7 @@
         <div class="p-4 space-y-3 max-h-[60vh] overflow-y-auto bg-zinc-50/30 dark:bg-zinc-950/20">
           <div v-if="loading" class="py-12 flex flex-col items-center justify-center space-y-3">
             <LoadingSpinner size="md" />
-            <p class="text-xs text-zinc-400 font-medium">기록 불러오는 중...</p>
+            <p class="text-xs text-zinc-400 dark:text-zinc-300 font-medium">기록 불러오는 중...</p>
           </div>
 
           <template v-else>
@@ -104,7 +104,7 @@
                     <div class="flex items-center gap-2 text-zinc-900 dark:text-zinc-100 mb-0.5">
                       <span class="text-xs font-bold truncate">{{ item.groupName }}</span>
                       <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                      <span class="text-[11px] text-zinc-400 font-medium whitespace-nowrap">{{ formatDateTime(item.created_at) }}</span>
+                      <span class="text-[11px] text-zinc-400 dark:text-zinc-300 font-medium whitespace-nowrap">{{ formatDateTime(item.created_at) }}</span>
                     </div>
                   </div>
                   
@@ -128,7 +128,7 @@
                         size="xs"
                         className="w-4 h-4 shadow-xs"
                       />
-                      <p class="text-[11px] font-bold text-zinc-400">{{ item.parentData.nickname }}님의 기록</p>
+                      <p class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300">{{ item.parentData.nickname }}님의 기록</p>
                     </div>
                     <!-- Larger & Bordered Anchor -->
                     <div v-if="item.parentData.anchor_text" class="mb-2 pl-3 py-1.5 border-l-2 border-lime-400 bg-lime-50/60 dark:bg-lime-900/10 rounded-r-xl">
@@ -159,7 +159,7 @@
               <div v-if="filteredTimeline.length === 0" class="py-12 text-center">
                 <PenLine :size="24" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
                 <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">기록이 없습니다</h3>
-                <p class="text-xs text-zinc-500">이 책에 대한 생각을 확인해보세요</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">이 책에 대한 생각을 확인해보세요</p>
               </div>
             </div>
 
@@ -177,7 +177,7 @@
                     <div class="flex items-center gap-2 text-zinc-900 dark:text-zinc-100 mb-0.5">
                       <span class="text-xs font-bold truncate">{{ item.groupName }}</span>
                       <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                      <span class="text-[11px] text-zinc-400 font-medium whitespace-nowrap">{{ formatDateTime(item.created_at) }}</span>
+                      <span class="text-[11px] text-zinc-400 dark:text-zinc-300 font-medium whitespace-nowrap">{{ formatDateTime(item.created_at) }}</span>
                     </div>
                   </div>
                   

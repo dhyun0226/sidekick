@@ -6,9 +6,9 @@
       <div class="flex justify-between items-center mb-4">
         <div>
           <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">댓글 작성</h3>
-          <p class="text-xs text-zinc-600 dark:text-zinc-500 mt-1">{{ chapterName }} · {{ Math.round(position) }}%</p>
+          <p class="text-xs text-zinc-600 dark:text-zinc-400 mt-1">{{ chapterName }} · {{ Math.round(position) }}%</p>
         </div>
-        <button @click="emit('close')" class="text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
+        <button @click="emit('close')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
           <X :size="20" />
         </button>
       </div>
@@ -31,11 +31,11 @@
                 : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10'
             ]"
           ></textarea>
-          <div v-if="anchorTextLocked" class="absolute right-2 top-2 text-xs text-zinc-600 dark:text-zinc-500 bg-white dark:bg-zinc-900 px-2 py-1 rounded">
+          <div v-if="anchorTextLocked" class="absolute right-2 top-2 text-xs text-zinc-600 dark:text-zinc-400 bg-white dark:bg-zinc-900 px-2 py-1 rounded">
             고정됨
           </div>
         </div>
-        <p v-if="!anchorTextLocked" class="text-[11px] text-zinc-500 dark:text-zinc-500 mt-1">인용하고 싶은 문구를 입력하세요</p>
+        <p v-if="!anchorTextLocked" class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">인용하고 싶은 문구를 입력하세요</p>
       </div>
 
       <!-- Content -->
@@ -48,8 +48,8 @@
           maxlength="500"
         ></textarea>
         <div class="flex justify-between items-center mt-1">
-          <p class="text-[11px] text-zinc-500 dark:text-zinc-500">최대 500자</p>
-          <p class="text-[11px]" :class="content.length > 500 ? 'text-red-400' : 'text-zinc-500 dark:text-zinc-500'">
+          <p class="text-[11px] text-zinc-500 dark:text-zinc-400">최대 500자</p>
+          <p class="text-[11px]" :class="content.length > 500 ? 'text-red-400' : 'text-zinc-500 dark:text-zinc-400'">
             {{ content.length }} / 500
           </p>
         </div>

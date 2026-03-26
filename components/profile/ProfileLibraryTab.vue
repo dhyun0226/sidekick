@@ -48,7 +48,7 @@
                 {{ book.round }}회
               </div>
             </div>
-            <div class="mt-1 flex items-center justify-center gap-1 text-[11px] text-zinc-400">
+            <div class="mt-1 flex items-center justify-center gap-1 text-[11px] text-zinc-400 dark:text-zinc-300">
               <template v-if="book.target_end_date && !book.isBookDeleted && !book.isDiscontinued">
                 <span class="font-semibold" :class="getDaysRemaining(book.target_end_date) < 0 ? 'text-red-500' : 'text-lime-600 dark:text-lime-400'">
                   {{ formatDday(book.target_end_date) }}
@@ -95,7 +95,7 @@
                 <span class="font-semibold text-zinc-900 dark:text-white">{{ book.myRating }}</span>
                 <span class="text-zinc-300 dark:text-zinc-500">·</span>
               </template>
-              <span class="text-zinc-500">{{ formatMonthOnly(book.finished_at) }}</span>
+              <span class="text-zinc-500 dark:text-zinc-400">{{ formatMonthOnly(book.finished_at) }}</span>
             </div>
           </div>
         </div>

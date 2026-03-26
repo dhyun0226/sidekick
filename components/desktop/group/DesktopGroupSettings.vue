@@ -2,7 +2,7 @@
   <div class="space-y-8">
     <!-- Group Info -->
     <div>
-      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-400 uppercase tracking-widest font-medium mb-4">그룹 정보</h4>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium mb-4">그룹 정보</h4>
       <div>
         <div v-if="isAdmin" class="flex items-center gap-2">
           <input
@@ -34,7 +34,7 @@
           <button
             v-if="!isEditingName"
             @click="startEditName"
-            class="flex items-center gap-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors py-1.5"
+            class="flex items-center gap-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors py-1.5"
           >
             <Pencil :size="14" />
             수정
@@ -46,21 +46,21 @@
 
     <!-- Invite Code -->
     <div v-if="inviteCode">
-      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-400 uppercase tracking-widest font-medium mb-4">초대 코드</h4>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium mb-4">초대 코드</h4>
       <div class="flex items-center gap-3 px-4 py-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
         <code class="text-desktop-body font-mono text-zinc-900 dark:text-white tracking-widest flex-1">
           {{ inviteCode }}
         </code>
         <button
           @click="$emit('copy-code')"
-          class="flex items-center gap-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors py-1.5"
+          class="flex items-center gap-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors py-1.5"
         >
           <Copy :size="14" />
           복사
         </button>
         <button
           @click="$emit('copy-link')"
-          class="flex items-center gap-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors py-1.5"
+          class="flex items-center gap-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors py-1.5"
         >
           <Link :size="14" />
           링크 복사
@@ -69,7 +69,7 @@
       <button
         v-if="isAdmin"
         @click="$emit('regenerate-code')"
-        class="flex items-center gap-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors py-1.5 mt-3"
+        class="flex items-center gap-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors py-1.5 mt-3"
       >
         <RefreshCw :size="14" />
         초대 코드 재생성
@@ -80,7 +80,7 @@
     <div v-if="isAdmin" class="pt-4 border-t border-zinc-100 dark:border-zinc-800/50">
       <button
         @click="$emit('open-search-modal')"
-        class="flex items-center gap-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors py-1.5"
+        class="flex items-center gap-2 text-desktop-caption text-zinc-500 dark:text-zinc-300 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors py-1.5"
       >
         <Plus :size="14" />
         새 책 시작하기
@@ -91,7 +91,7 @@
     <div v-if="isAdmin" class="pt-4 border-t border-zinc-100 dark:border-zinc-800/50">
       <button
         @click="$emit('delete-group')"
-        class="flex items-center gap-2 text-desktop-caption text-zinc-400 hover:text-red-500 transition-colors py-1.5"
+        class="flex items-center gap-2 text-desktop-caption text-zinc-400 dark:text-zinc-300 hover:text-red-500 transition-colors py-1.5"
       >
         <Archive :size="14" />
         그룹 종료
@@ -100,7 +100,7 @@
     <div v-else class="pt-4 border-t border-zinc-100 dark:border-zinc-800/50">
       <button
         @click="$emit('leave-group')"
-        class="flex items-center gap-2 text-desktop-caption text-zinc-400 hover:text-red-500 transition-colors py-1.5"
+        class="flex items-center gap-2 text-desktop-caption text-zinc-400 dark:text-zinc-300 hover:text-red-500 transition-colors py-1.5"
       >
         <LogOut :size="14" />
         그룹 나가기

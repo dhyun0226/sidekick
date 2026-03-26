@@ -7,7 +7,7 @@
         <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">
           읽는 중
         </h3>
-        <span class="text-[11px] text-zinc-400">{{ sortedReadingBooks.length }}권</span>
+        <span class="text-[11px] text-zinc-400 dark:text-zinc-300">{{ sortedReadingBooks.length }}권</span>
       </div>
 
       <!-- Card -->
@@ -106,7 +106,7 @@
       <div v-if="selectedBook && toc.length > 0 && isSelectedBookReading" class="mt-6">
         <div class="flex items-center justify-between px-1 mb-3">
           <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">목차 이동</h3>
-          <span class="text-[11px] font-bold text-zinc-400 opacity-60">{{ toc.length }}개</span>
+          <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 opacity-60">{{ toc.length }}개</span>
         </div>
         
         <div class="bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden shadow-apple">
@@ -152,7 +152,7 @@
                     {{ chapter.page }}쪽
                   </span>
                   <span 
-                    class="text-[9px] font-bold text-zinc-400"
+                    class="text-[9px] font-bold text-zinc-400 dark:text-zinc-300"
                   >
                     {{ Math.round(chapter.start) }}%
                   </span>

@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="border-b border-zinc-200 dark:border-zinc-800 px-6 py-4">
       <h3 class="text-sm font-bold text-zinc-900 dark:text-white">월별 독서량</h3>
-      <p class="text-xs text-zinc-500 mt-1">최근 12개월</p>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">최근 12개월</p>
     </div>
 
     <!-- Chart -->
@@ -11,7 +11,7 @@
       <!-- Loading State -->
       <div v-if="loading" class="flex flex-col items-center justify-center py-12">
         <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="text-sm text-zinc-500">데이터를 불러오는 중...</p>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">데이터를 불러오는 중...</p>
       </div>
 
       <!-- Chart Content -->
@@ -35,14 +35,14 @@
             </div>
 
             <!-- Label -->
-            <span class="text-[11px] text-zinc-500 font-medium">{{ month.label }}</span>
+            <span class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">{{ month.label }}</span>
           </div>
         </div>
 
         <!-- Empty State -->
         <div v-if="maxCount === 0" class="text-center py-8">
           <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-2" />
-          <p class="text-sm text-zinc-500">아직 완독한 책이 없습니다</p>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">아직 완독한 책이 없습니다</p>
         </div>
 
         <!-- Selected Month Details -->
@@ -51,7 +51,7 @@
             <h4 class="text-sm font-bold text-zinc-700 dark:text-zinc-300">
               {{ selectedMonth.label }} ({{ selectedMonth.books.length }}권)
             </h4>
-            <button @click="selectedMonth = null" class="text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">
+            <button @click="selectedMonth = null" class="text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">
               닫기
             </button>
           </div>
@@ -65,7 +65,7 @@
               <div class="w-8 h-12 bg-zinc-200 dark:bg-zinc-700 rounded flex-shrink-0" v-else></div>
               <div class="flex-1 min-w-0">
                 <div class="text-sm font-medium text-zinc-900 dark:text-zinc-200 line-clamp-1">{{ book.title }}</div>
-                <div class="text-xs text-zinc-500">{{ formatDate(book.finishedAt) }}</div>
+                <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ formatDate(book.finishedAt) }}</div>
               </div>
             </div>
           </div>

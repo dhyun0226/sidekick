@@ -34,7 +34,7 @@
             <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
               <!-- 결제일 표시 -->
               <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl px-5 py-3 border border-zinc-100 dark:border-zinc-800">
-                <p class="text-[11px] text-zinc-400 font-black uppercase mb-1">
+                <p class="text-[11px] text-zinc-400 dark:text-zinc-300 font-black uppercase mb-1">
                   {{ currentSubscription.auto_renew ? '다음 결제일' : '만료일' }}
                 </p>
                 <p class="text-sm font-bold text-zinc-900 dark:text-white">{{ formatDate(currentSubscription.end_date) }}</p>
@@ -81,36 +81,36 @@
         <div class="bg-white dark:bg-zinc-900 rounded-3xl p-8 border border-zinc-200 dark:border-zinc-800 flex flex-col hover:shadow-lg transition-all">
           <div class="mb-8">
             <h2 class="text-lg font-black text-zinc-900 dark:text-white mb-2">무료 플랜</h2>
-            <p class="text-zinc-500 text-sm mb-6 font-medium">기본적인 독서 경험</p>
+            <p class="text-zinc-500 dark:text-zinc-400 text-sm mb-6 font-medium">기본적인 독서 경험</p>
             <div class="flex items-baseline gap-1">
               <span class="text-4xl font-black text-zinc-900 dark:text-white">₩0</span>
-              <span class="text-zinc-400 font-bold">/월</span>
+              <span class="text-zinc-400 dark:text-zinc-300 font-bold">/월</span>
             </div>
           </div>
           
           <ul class="space-y-4 mb-10 flex-1">
-            <li class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-300 font-bold">
+            <li class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400 font-bold">
               <Check :size="18" class="text-lime-500" />
               독서 진도 추적
             </li>
-            <li class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-300 font-bold">
+            <li class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400 font-bold">
               <Check :size="18" class="text-lime-500" />
               내 서재에서 무제한 책 추가
             </li>
-            <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-500 font-bold opacity-60 line-through">
-              <X :size="18" class="text-zinc-400" />
+            <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-400 font-bold opacity-60 line-through">
+              <X :size="18" class="text-zinc-400 dark:text-zinc-300" />
               소셜 그룹에서 책 추가 (읽기전용)
             </li>
-            <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-500 font-bold opacity-60 line-through">
-              <X :size="18" class="text-zinc-400" />
+            <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-400 font-bold opacity-60 line-through">
+              <X :size="18" class="text-zinc-400 dark:text-zinc-300" />
               고급 통계 분석
             </li>
           </ul>
 
-          <button v-if="userStore.profile?.subscription_tier === 'free'" disabled class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 font-black rounded-2xl cursor-not-allowed">
+          <button v-if="userStore.profile?.subscription_tier === 'free'" disabled class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-300 font-black rounded-2xl cursor-not-allowed">
             현재 플랜
           </button>
-          <button v-else disabled class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 font-black rounded-2xl cursor-not-allowed">
+          <button v-else disabled class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-300 font-black rounded-2xl cursor-not-allowed">
             기본 플랜
           </button>
         </div>
@@ -120,10 +120,10 @@
           <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-lime-400 text-black px-4 py-1 rounded-full text-xs font-black shadow-lg">POPULAR</div>
           <div class="mb-8">
             <h2 class="text-lg font-black text-zinc-900 dark:text-white mb-2">프리미엄 월간</h2>
-            <p class="text-zinc-500 text-sm mb-6 font-medium">매달 가볍게 시작하기</p>
+            <p class="text-zinc-500 dark:text-zinc-400 text-sm mb-6 font-medium">매달 가볍게 시작하기</p>
             <div class="flex items-baseline gap-1">
               <span class="text-4xl font-black text-zinc-900 dark:text-white">₩2,500</span>
-              <span class="text-zinc-400 font-bold">/월</span>
+              <span class="text-zinc-400 dark:text-zinc-300 font-bold">/월</span>
             </div>
           </div>
           
@@ -145,7 +145,7 @@
           <button
             v-else
             disabled
-            class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 font-black rounded-2xl cursor-not-allowed"
+            class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-300 font-black rounded-2xl cursor-not-allowed"
           >
             다른 플랜 구독 중
           </button>
@@ -158,10 +158,10 @@
           
           <div class="mb-8 relative z-10">
             <h2 class="text-lg font-black text-white mb-2">프리미엄 연간</h2>
-            <p class="text-zinc-400 text-sm mb-6 font-medium">최고의 효율로 즐기기</p>
+            <p class="text-zinc-400 dark:text-zinc-300 text-sm mb-6 font-medium">최고의 효율로 즐기기</p>
             <div class="flex items-baseline gap-1">
               <span class="text-4xl font-black text-lime-400">₩19,000</span>
-              <span class="text-zinc-500 font-bold">/년</span>
+              <span class="text-zinc-500 dark:text-zinc-400 font-bold">/년</span>
             </div>
             <div class="text-[11px] text-lime-400/60 font-bold mt-1">월 ₩1,583 꼴 (연 11,000원 절약)</div>
           </div>
@@ -184,7 +184,7 @@
           <button
             v-else
             disabled
-            class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 font-black rounded-2xl cursor-not-allowed relative z-10"
+            class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-300 font-black rounded-2xl cursor-not-allowed relative z-10"
           >
             다른 플랜 구독 중
           </button>

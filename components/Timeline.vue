@@ -14,7 +14,7 @@
         <span class="text-sm font-semibold text-lime-600 dark:text-lime-500">
           {{ Math.round(group.position) }}%
         </span>
-        <span class="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">
+        <span class="text-[11px] text-zinc-400 dark:text-zinc-400 font-medium">
           {{ group.totalCount }}개의 기록
         </span>
       </div>
@@ -47,7 +47,7 @@
               :alt="comment.user?.nickname || '탈퇴한 사용자'"
               className="w-5 h-5 shadow-sm opacity-80"
             />
-            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100" :class="{ 'text-zinc-400 font-medium italic': !comment.user }">
+            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100" :class="{ 'text-zinc-400 dark:text-zinc-300 font-medium italic': !comment.user }">
               {{ comment.user?.nickname || '탈퇴한 사용자' }}
             </span>
             <span class="text-[11px] text-zinc-300 dark:text-zinc-500">{{ formatDate(comment.created_at) }}</span>
@@ -60,7 +60,7 @@
 
           <!-- Content -->
           <div 
-            class="text-[14px] text-zinc-600 dark:text-zinc-300 leading-relaxed break-words whitespace-pre-wrap"
+            class="text-[14px] text-zinc-600 dark:text-zinc-400 leading-relaxed break-words whitespace-pre-wrap"
             :class="{
               'blur-sm opacity-40 select-none pointer-events-none': isSpoiler(group.position)
             }"
@@ -94,7 +94,7 @@
                   <div v-if="isSavingEdit" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                   <span v-else>저장</span>
                 </button>
-                <button @click="cancelEdit" class="px-4 py-2 text-zinc-400 text-sm font-medium hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">취소</button>
+                <button @click="cancelEdit" class="px-4 py-2 text-zinc-400 dark:text-zinc-300 text-sm font-medium hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">취소</button>
               </div>
             </div>
           </div>
@@ -174,7 +174,7 @@
                 
                 <!-- Reply Actions (Edit/Delete) - Always visible for mobile -->
                 <div v-if="isOwnReply(reply) && editingReplyId !== reply.id" class="flex items-center gap-2.5">
-                  <button @click="startReplyEdit(reply)" class="text-[11px] font-bold text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">수정</button>
+                  <button @click="startReplyEdit(reply)" class="text-[11px] font-bold text-zinc-300 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 transition-colors">수정</button>
                   <button v-if="isOwnReply(reply)" @click="confirmDeleteReply(reply.id)" class="text-[11px] font-bold text-zinc-300 hover:text-red-400 transition-colors">삭제</button>
                 </div>
               </div>
@@ -217,7 +217,7 @@
                       <div v-if="isSavingReplyEdit" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                       <span v-else>저장</span>
                     </button>
-                    <button @click="cancelReplyEdit" class="px-3 py-1 text-zinc-400 text-xs hover:text-zinc-600 dark:hover:text-zinc-200">취소</button>
+                    <button @click="cancelReplyEdit" class="px-3 py-1 text-zinc-400 dark:text-zinc-300 text-xs hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-200">취소</button>
                   </div>
                 </div>
               </div>
@@ -239,7 +239,7 @@
       <button
         v-if="group.hasMore"
         @click="openDetailModal(group)"
-        class="mt-4 w-full py-2.5 bg-zinc-50 dark:bg-zinc-800/50 text-[11px] font-semibold text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded-2xl transition-all ring-1 ring-black/[0.04] dark:ring-white/[0.06] flex items-center justify-center gap-1"
+        class="mt-4 w-full py-2.5 bg-zinc-50 dark:bg-zinc-800/50 text-[11px] font-semibold text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white rounded-2xl transition-all ring-1 ring-black/[0.04] dark:ring-white/[0.06] flex items-center justify-center gap-1"
       >
         <span>{{ group.remainingCount }}개의 기록 더보기</span>
       </button>
@@ -250,21 +250,21 @@
 
     <!-- Loading More Indicator -->
     <div v-if="isLoadingMore" class="flex justify-center py-8">
-      <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-500 text-sm">
+      <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 text-sm">
         <div class="w-4 h-4 border-2 border-lime-400 border-t-transparent rounded-full animate-spin"></div>
         <span>댓글을 불러오는 중...</span>
       </div>
     </div>
 
     <!-- End of Comments -->
-    <div v-else-if="!hasMore && comments.length > 0" class="text-center py-8 text-zinc-500 dark:text-zinc-500 text-sm">
+    <div v-else-if="!hasMore && comments.length > 0" class="text-center py-8 text-zinc-500 dark:text-zinc-400 text-sm">
       모든 댓글을 불러왔습니다
     </div>
 
     <!-- Empty State -->
     <div v-if="comments.length === 0 && !isLoadingMore" class="flex flex-col items-center justify-center py-20 px-4 text-center">
       <h3 class="text-sm font-semibold text-zinc-900 dark:text-white mb-1">아직 댓글이 없어요</h3>
-      <p class="text-xs text-zinc-600 dark:text-zinc-500">첫 댓글을 남겨보세요!</p>
+      <p class="text-xs text-zinc-600 dark:text-zinc-400">첫 댓글을 남겨보세요!</p>
     </div>
 
     <!-- Comment Detail Modal -->

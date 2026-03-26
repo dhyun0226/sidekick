@@ -14,7 +14,7 @@
             <div v-for="i in 3" :key="i" class="h-1 rounded-full transition-all duration-300" :class="i <= step ? 'w-4 bg-lime-400' : 'w-1.5 bg-zinc-200 dark:bg-zinc-800'"></div>
           </div>
         </div>
-        <button @click="close" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+        <button @click="close" class="p-2 text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <X :size="24" />
         </button>
       </div>
@@ -29,14 +29,14 @@
             <button
               @click="searchTab = 'search'"
               class="flex-1 py-2 text-sm font-bold rounded-lg transition-all"
-              :class="searchTab === 'search' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
+              :class="searchTab === 'search' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'"
             >
               검색
             </button>
             <button
               @click="searchTab = 'wishlist'"
               class="flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-1.5"
-              :class="searchTab === 'wishlist' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
+              :class="searchTab === 'wishlist' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'"
             >
               내 위시
               <span v-if="wishlist.length > 0" class="text-[11px] bg-lime-400 text-black min-w-[18px] h-[18px] inline-flex items-center justify-center rounded-full font-bold leading-none">{{ wishlist.length }}</span>
@@ -53,7 +53,7 @@
                 placeholder="책 제목이나 저자를 검색하세요"
                 class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl px-4 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none transition-all shadow-sm"
               />
-              <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-zinc-900 dark:group-focus-within:text-white transition-colors" :size="20" />
+              <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-300 group-focus-within:text-zinc-900 dark:group-focus-within:text-white transition-colors" :size="20" />
             </div>
 
             <div class="space-y-3 pt-2">
@@ -95,7 +95,7 @@
                   class="self-center p-2.5 rounded-xl transition-all"
                   :class="isInWishlist(book.isbn)
                     ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-500 cursor-not-allowed'
-                    : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-400 hover:bg-pink-100 dark:hover:bg-pink-900/30 hover:text-pink-500 active:scale-90'"
+                    : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-400 dark:text-zinc-300 hover:bg-pink-100 dark:hover:bg-pink-900/30 hover:text-pink-500 active:scale-90'"
                 >
                   <Heart :size="18" :fill="isInWishlist(book.isbn) ? 'currentColor' : 'none'" />
                 </button>
@@ -103,14 +103,14 @@
 
               <div v-if="!loading && query && searchResults.length === 0" class="py-12 text-center">
                 <Search :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
-                <p class="text-sm text-zinc-500 font-medium">검색 결과가 없습니다</p>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400 font-medium">검색 결과가 없습니다</p>
               </div>
 
               <div v-if="hasMore && searchResults.length > 0" class="pt-4 pb-8">
                 <button
                   @click="loadMore"
                   :disabled="loading"
-                  class="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+                  class="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 text-xs font-bold rounded-xl transition-all disabled:opacity-50"
                 >
                   {{ loading ? '더 불러오는 중...' : '결과 더보기' }}
                 </button>
@@ -126,8 +126,8 @@
 
             <div v-else-if="wishlist.length === 0" class="py-12 text-center">
               <Heart :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
-              <p class="text-sm text-zinc-500 font-medium mb-1">위시리스트가 비어있어요</p>
-              <p class="text-xs text-zinc-400">검색 탭에서 책을 위시에 담아보세요</p>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 font-medium mb-1">위시리스트가 비어있어요</p>
+              <p class="text-xs text-zinc-400 dark:text-zinc-300">검색 탭에서 책을 위시에 담아보세요</p>
             </div>
 
             <div v-else class="space-y-3 pt-2">
@@ -197,7 +197,7 @@
                 class="transition-all duration-200 transform active:scale-90"
               >
                 <GenreBadge v-if="selectedGenre === genre" :genre="genre" />
-                <div v-else class="inline-flex items-center px-2 py-1 rounded bg-zinc-50 dark:bg-zinc-800/50 text-zinc-400 dark:text-zinc-500 text-xs font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors border border-transparent">
+                <div v-else class="inline-flex items-center px-2 py-1 rounded bg-zinc-50 dark:bg-zinc-800/50 text-zinc-400 dark:text-zinc-400 text-xs font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors border border-transparent">
                   {{ genre }}
                 </div>
               </button>
@@ -267,7 +267,7 @@
             </div>
             <div class="flex items-center gap-1">
               <span class="text-lg font-black text-lime-600 dark:text-lime-400">{{ calculateDays() }}</span>
-              <span class="text-sm font-bold text-zinc-400">일</span>
+              <span class="text-sm font-bold text-zinc-400 dark:text-zinc-300">일</span>
             </div>
           </div>
         </div>
@@ -275,7 +275,7 @@
 
       <!-- Footer Buttons -->
       <div v-if="step > 1" class="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex gap-3">
-        <button @click="step--" class="flex-1 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all">이전</button>
+        <button @click="step--" class="flex-1 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all">이전</button>
         <button v-if="step === 2" @click="goToStep3" class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm">다음 단계</button>
         <button v-else @click="confirmBook" class="flex-[2] py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-apple-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center" :disabled="!startDate || !endDate || isConfirming">
           <div v-if="isConfirming" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
