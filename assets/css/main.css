@@ -28,7 +28,7 @@
 
   /* Desktop sidebar item */
   .sidebar-item {
-    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/40 transition-all ease-apple duration-200 cursor-pointer;
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-[14px] text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/40 transition-all ease-apple duration-200 cursor-pointer;
   }
   .sidebar-item.active {
     @apply bg-zinc-100/80 dark:bg-zinc-800/60 text-zinc-900 dark:text-white font-medium;
@@ -36,10 +36,10 @@
 
   /* Action text (interactive icons/buttons) */
   .text-action {
-    @apply text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors;
+    @apply text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors;
   }
   .text-action-danger {
-    @apply text-zinc-400 dark:text-zinc-500 hover:text-red-500 transition-colors;
+    @apply text-zinc-500 dark:text-zinc-400 hover:text-red-500 transition-colors;
   }
 
   /* Desktop input field */
