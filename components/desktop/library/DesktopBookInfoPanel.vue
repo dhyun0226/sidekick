@@ -1,22 +1,8 @@
 <template>
   <div class="space-y-6">
-    <!-- Book Cover & Info -->
-    <div v-if="book">
-      <div class="relative mx-auto w-32 h-[184px] rounded-xl overflow-hidden shadow-apple-lg mb-5 group/cover">
-        <img v-if="book.book?.cover_url" :src="book.book.cover_url" class="w-full h-full object-cover" />
-        <div v-else class="w-full h-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-          <BookOpen :size="28" class="text-zinc-400 dark:text-zinc-500" />
-        </div>
-        <!-- Subtle progress overlay -->
-        <div class="absolute bottom-0 left-0 right-0 h-1 bg-black/10">
-          <div class="h-full bg-lime-400 transition-all duration-500" :style="{ width: `${viewProgress}%` }"></div>
-        </div>
-      </div>
-      <div class="text-center">
-        <h3 class="text-desktop-callout text-zinc-900 dark:text-white mb-1 leading-snug">{{ book.book?.title }}</h3>
-        <p class="text-desktop-caption text-zinc-500">{{ book.book?.author }}</p>
-        <p v-if="book.book?.publisher" class="text-desktop-caption text-zinc-400 mt-0.5">{{ book.book.publisher }}</p>
-      </div>
+    <!-- Progress Bar (compact) -->
+    <div v-if="book" class="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+      <div class="h-full bg-lime-400 transition-all duration-500 rounded-full" :style="{ width: `${viewProgress}%` }"></div>
     </div>
 
     <!-- Progress -->
