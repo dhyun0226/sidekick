@@ -107,7 +107,7 @@
                     <button
                       @click="removeRow(idx)"
                       class="opacity-0 group-hover:opacity-100 w-7 h-7 flex items-center justify-center text-zinc-300 hover:text-red-400 transition-all rounded-lg"
-                      title="행 삭제 (Cmd+Backspace)"
+                      :title="`행 삭제 (${isMac ? '⌘' : 'Ctrl'}+Backspace)`"
                     >
                       <Minus :size="14" />
                     </button>
@@ -178,7 +178,7 @@
               >
                 <span v-if="!saving">저장하기</span>
                 <span v-else>저장 중...</span>
-                <kbd v-if="!saving" class="text-desktop-micro text-zinc-500 dark:text-zinc-400">⌘↵</kbd>
+                <kbd v-if="!saving" class="text-desktop-micro text-zinc-500 dark:text-zinc-400">{{ isMac ? '⌘' : 'Ctrl' }}↵</kbd>
               </button>
             </div>
           </div>
@@ -221,6 +221,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { Plus, Minus, X, Check } from 'lucide-vue-next'
+
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent)
 
 interface BatchRow {
   position: number | null

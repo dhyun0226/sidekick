@@ -59,7 +59,7 @@
           >
             <Search :size="14" />
             <span>검색...</span>
-            <span class="ml-2 text-xs border border-zinc-300 dark:border-zinc-600 rounded px-1.5 py-0.5">⌘K</span>
+            <span class="ml-2 text-xs border border-zinc-300 dark:border-zinc-600 rounded px-1.5 py-0.5">{{ isMac ? '⌘' : 'Ctrl+' }}K</span>
           </button>
           
           <div class="text-xs text-zinc-400">
@@ -94,6 +94,7 @@ import {
 import CommandPalette from '~/components/admin/CommandPalette.vue'
 
 const route = useRoute()
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent)
 const commandPaletteRef = ref<InstanceType<typeof CommandPalette> | null>(null)
 
 const navItems = [

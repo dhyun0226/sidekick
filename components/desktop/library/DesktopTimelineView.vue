@@ -86,7 +86,7 @@
             </span>
           </Transition>
           <div class="flex items-center gap-3 ml-auto">
-            <kbd class="hidden sm:inline text-desktop-micro text-zinc-400 dark:text-zinc-500">⌘↵</kbd>
+            <kbd class="hidden sm:inline text-desktop-micro text-zinc-400 dark:text-zinc-500">{{ isMac ? '⌘' : 'Ctrl' }}↵</kbd>
             <button
               @click="submitComment"
               :disabled="(!newComment.trim() && !anchorText.trim()) || isSubmitting"
@@ -200,7 +200,7 @@
                       <div class="flex items-center gap-2 mt-2">
                         <button @click="saveEdit(comment)" :disabled="!editContent.trim() && !editAnchor.trim()" class="px-3.5 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50">저장</button>
                         <button @click="cancelEdit" class="px-3.5 py-1.5 text-zinc-500 text-desktop-caption font-medium hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">취소</button>
-                        <kbd class="ml-auto text-desktop-micro text-zinc-400 dark:text-zinc-500">⌘↵</kbd>
+                        <kbd class="ml-auto text-desktop-micro text-zinc-400 dark:text-zinc-500">{{ isMac ? '⌘' : 'Ctrl' }}↵</kbd>
                       </div>
                     </template>
 
@@ -291,6 +291,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
 import { Pencil, Layers, Check, Heart, MessageCircle, Trash2, Send } from 'lucide-vue-next'
+
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent)
 import Avatar from '~/components/Avatar.vue'
 
 const props = defineProps<{

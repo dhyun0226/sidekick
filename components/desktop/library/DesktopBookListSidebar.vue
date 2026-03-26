@@ -100,7 +100,7 @@
       <div class="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-zinc-400 dark:text-zinc-500">
         <span><kbd class="px-1 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[9px] font-mono">↑↓</kbd> 이동</span>
         <span><kbd class="px-1 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[9px] font-mono">/</kbd> 입력</span>
-        <span><kbd class="px-1 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[9px] font-mono">Ctrl /</kbd> 일괄입력</span>
+        <span><kbd class="px-1 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[9px] font-mono">{{ isMac ? '⌘' : 'Ctrl' }} /</kbd> 일괄입력</span>
       </div>
     </div>
   </div>
@@ -109,6 +109,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Plus, MoreHorizontal, BookOpen } from 'lucide-vue-next'
+
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent)
 
 defineProps<{
   readingBooks: any[]
