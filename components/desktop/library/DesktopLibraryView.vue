@@ -24,7 +24,7 @@
           </div>
           <div class="pt-1">
             <h1 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-1.5 leading-tight">{{ bookTitle }}</h1>
-            <div class="flex flex-wrap items-center gap-1.5 mb-3 text-[15px] text-zinc-500">
+            <div class="flex flex-wrap items-center gap-1.5 mb-3 text-[16px] text-zinc-500">
               <span>{{ bookAuthor }}</span>
               <template v-if="selectedBook.book?.publisher || selectedBook.total_pages">
                 <span class="text-zinc-300 dark:text-zinc-700">·</span>
