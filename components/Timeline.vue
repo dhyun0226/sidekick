@@ -72,12 +72,14 @@
             <!-- Edit Mode -->
             <div v-if="editingCommentId === comment.id" class="mt-2 space-y-2">
               <textarea
+                ref="editAnchorRef"
                 v-model="editAnchor"
                 placeholder="인용 구절 (선택)"
                 maxlength="500"
-                class="w-full bg-lime-50/60 dark:bg-lime-900/10 text-zinc-700 dark:text-zinc-300 text-sm rounded-2xl px-4 py-3 border-l-[3px] border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/20 resize-none"
-                rows="2"
+                class="w-full bg-lime-50/60 dark:bg-lime-900/10 text-zinc-700 dark:text-zinc-300 text-sm rounded-2xl px-4 py-3 border-l-[3px] border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/20 resize-none overflow-hidden"
+                rows="1"
                 @keydown.esc="cancelEdit"
+                @input="autoResizeAnchor"
               ></textarea>
               <textarea
                 v-model="editContent"
@@ -578,11 +580,21 @@ const isOwnReply = (reply: Reply) => {
 
 // Comment edit functions
 const editAnchor = ref('')
+const editAnchorRef = ref<HTMLTextAreaElement | null>(null)
+
+const autoResizeAnchor = () => {
+  const el = editAnchorRef.value
+  if (el) {
+    el.style.height = 'auto'
+    el.style.height = el.scrollHeight + 'px'
+  }
+}
 
 const startEdit = (comment: Comment) => {
   editingCommentId.value = comment.id
   editContent.value = comment.content || ''
   editAnchor.value = comment.anchor_text || ''
+  nextTick(autoResizeAnchor)
 }
 
 const saveEdit = async (commentId: string) => {
