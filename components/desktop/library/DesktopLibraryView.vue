@@ -11,10 +11,6 @@
         @select="selectBook"
         @select-history="selectBook"
         @add-book="openSearchModal"
-        @restart-reading="handleRestartReading"
-        @delete-history="handleDeleteHistoryBook"
-        @open-reviews="(id: string) => openReviews(id)"
-        @edit-finished-date="(id: string) => handleEditFinishedDate(id)"
       />
     </div>
 
@@ -105,6 +101,7 @@
         :view-progress="viewProgress"
         :toc="toc"
         :is-archived="isArchived"
+        :is-admin="true"
         :preferred-mode="preferredInputMode"
         :user-rating="selectedBookId ? userReviewedBooks.get(selectedBookId) : null"
         @progress-change="handleProgressChange"
@@ -119,6 +116,8 @@
         @mark-completed="selectedBookId && openMarkCompletedModal(selectedBookId)"
         @open-review="selectedBookId && handleOpenReview(selectedBookId)"
         @open-reviews="selectedBookId && openReviews(selectedBookId)"
+        @restart-reading="selectedBookId && handleRestartReading(selectedBookId)"
+        @edit-finished-date="selectedBookId && handleEditFinishedDate(selectedBookId)"
       />
     </DesktopRightPanel>
 

@@ -119,96 +119,51 @@
     </div>
 
     <!-- Actions -->
-    <div v-if="!isArchived && !isReadOnlyMode" class="space-y-0.5 px-1">
-      <button
-        @click="$emit('edit-dates')"
-        class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5"
-      >
-        <Calendar :size="14" />
-        기간 수정
-      </button>
-      <button
-        @click="$emit('edit-toc')"
-        class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5"
-      >
-        <List :size="14" />
-        목차 수정
-      </button>
-      <button
-        @click="$emit('edit-genre')"
-        class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5"
-      >
-        <Tag :size="14" />
-        장르 수정
-      </button>
-      <div class="pt-3 mt-2">
-        <button
-          v-if="!book.user_finished_at"
-          @click="$emit('mark-finished')"
-          class="w-full px-2.5 py-2 text-desktop-caption text-lime-600/80 dark:text-lime-400/80 hover:text-lime-700 dark:hover:text-lime-300 rounded-lg transition-colors text-left flex items-center gap-2.5"
-        >
-          <CheckCircle :size="14" />
-          완독 처리
+    <div v-if="!isReadOnlyMode" class="space-y-0.5 px-1">
+      <!-- 관리자 전용 -->
+      <template v-if="isAdmin && !isArchived">
+        <button @click="$emit('edit-dates')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+          <Calendar :size="14" /> 기간 수정
         </button>
-        <button
-          v-if="book.user_finished_at"
-          @click="$emit('unmark-finished')"
-          class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5"
-        >
-          <Undo2 :size="14" />
-          완독 취소
+        <button @click="$emit('edit-toc')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+          <List :size="14" /> 목차 수정
         </button>
-        <button
-          v-if="showMarkCompleted && book.status === 'reading'"
-          @click="$emit('mark-completed')"
-          class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5"
-        >
-          <CheckCircle :size="14" />
-          종료 처리 (책장으로 이동)
+        <button @click="$emit('edit-genre')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+          <Tag :size="14" /> 장르 수정
         </button>
-        <button
-          v-if="book.user_finished_at"
-          @click="$emit('open-review')"
-          class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5"
-        >
-          <Star :size="14" />
-          리뷰 작성
-        </button>
-        <button
-          v-if="book.status === 'done'"
-          @click="$emit('open-reviews')"
-          class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5"
-        >
-          <MessageSquare :size="14" />
-          리뷰 보기
-        </button>
-        <button
-          @click="$emit('delete-book')"
-          class="w-full px-2.5 py-2 text-desktop-caption text-red-400 hover:text-red-500 rounded-lg transition-colors text-left flex items-center gap-2.5"
-        >
-          <Trash2 :size="14" />
-          삭제
-        </button>
-      </div>
-    </div>
+      </template>
 
-    <!-- Archived book actions -->
-    <div v-if="isArchived" class="space-y-0.5 px-1">
-      <button
-        v-if="book.user_finished_at"
-        @click="$emit('unmark-finished')"
-        class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5"
-      >
-        <Undo2 :size="14" />
-        완독 취소
-      </button>
-      <button
-        @click="$emit('delete-book')"
-        class="w-full px-2.5 py-2 text-desktop-caption text-red-400 hover:text-red-500 rounded-lg transition-colors text-left flex items-center gap-2.5"
-      >
-        <Trash2 :size="14" />
-        삭제
-      </button>
+      <div class="pt-3 mt-2 space-y-0.5">
+        <!-- 모든 유저 -->
+        <button v-if="!book.user_finished_at && !isArchived" @click="$emit('mark-finished')" class="w-full px-2.5 py-2 text-desktop-caption text-lime-600/80 dark:text-lime-400/80 hover:text-lime-700 dark:hover:text-lime-300 rounded-lg transition-colors text-left flex items-center gap-2.5">
+          <CheckCircle :size="14" /> 완독 처리
+        </button>
+        <button v-if="book.user_finished_at" @click="$emit('unmark-finished')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+          <Undo2 :size="14" /> 완독 취소
+        </button>
+        <button v-if="book.user_finished_at" @click="$emit('open-review')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+          <Star :size="14" /> 리뷰 작성
+        </button>
+        <button v-if="book.status === 'done'" @click="$emit('open-reviews')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+          <MessageSquare :size="14" /> 리뷰 보기
+        </button>
+
+        <!-- 관리자 전용 -->
+        <template v-if="isAdmin">
+          <button v-if="showMarkCompleted && book.status === 'reading'" @click="$emit('mark-completed')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+            <CheckCircle :size="14" /> 종료 처리
+          </button>
+          <button v-if="book.status === 'done'" @click="$emit('restart-reading')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+            <RefreshCw :size="14" /> 종료 취소
+          </button>
+          <button v-if="book.status === 'done'" @click="$emit('edit-finished-date')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+            <Calendar :size="14" /> 종료 날짜 수정
+          </button>
+          <button @click="$emit('delete-book')" class="w-full px-2.5 py-2 text-desktop-caption text-red-400 hover:text-red-500 rounded-lg transition-colors text-left flex items-center gap-2.5">
+            <Trash2 :size="14" /> 삭제
+          </button>
+        </template>
+      </div>
     </div>
   </div>
 </template>
@@ -225,12 +180,13 @@ const props = defineProps<{
   toc?: TocChapter[]
   isArchived?: boolean
   isReadOnlyMode?: boolean
+  isAdmin?: boolean
   preferredMode?: 'percent' | 'page'
   showMarkCompleted?: boolean
   userRating?: number | null
 }>()
 
-defineEmits(['progress-change', 'mode-change', 'jump-to-chapter', 'edit-dates', 'edit-toc', 'mark-finished', 'delete-book', 'edit-genre', 'unmark-finished', 'mark-completed', 'open-review', 'open-reviews'])
+defineEmits(['progress-change', 'mode-change', 'jump-to-chapter', 'edit-dates', 'edit-toc', 'mark-finished', 'delete-book', 'edit-genre', 'unmark-finished', 'mark-completed', 'open-review', 'open-reviews', 'restart-reading', 'edit-finished-date'])
 
 const isCurrentChapter = (chapter: TocChapter) => {
   const pct = props.viewProgress

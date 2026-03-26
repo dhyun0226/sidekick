@@ -49,43 +49,6 @@
             <p class="text-desktop-caption font-semibold text-zinc-600 dark:text-zinc-400 truncate">{{ book.title }}</p>
             <p class="text-desktop-caption-regular text-zinc-400 truncate">{{ book.author }}</p>
           </div>
-          <!-- History menu button -->
-          <button
-            @click.stop="activeHistoryMenu = activeHistoryMenu === book.id ? null : book.id"
-            class="flex-shrink-0 p-1 rounded-lg text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all duration-200 ease-apple"
-          >
-            <MoreHorizontal :size="14" />
-          </button>
-          <!-- Dropdown menu -->
-          <div
-            v-if="activeHistoryMenu === book.id"
-            class="absolute right-2 top-full mt-1 w-36 bg-white dark:bg-zinc-900 rounded-xl shadow-apple ring-1 ring-black/[0.04] dark:ring-white/[0.06] py-1 z-10"
-          >
-            <button
-              @click.stop="$emit('open-reviews', book.id); activeHistoryMenu = null"
-              class="w-full px-3 py-2 text-left text-desktop-caption text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-            >
-              리뷰 보기
-            </button>
-            <button
-              @click.stop="$emit('restart-reading', book.id); activeHistoryMenu = null"
-              class="w-full px-3 py-2 text-left text-desktop-caption text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-            >
-              종료 취소
-            </button>
-            <button
-              @click.stop="$emit('edit-finished-date', book.id); activeHistoryMenu = null"
-              class="w-full px-3 py-2 text-left text-desktop-caption text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-            >
-              종료 날짜 수정
-            </button>
-            <button
-              @click.stop="$emit('delete-history', book.id); activeHistoryMenu = null"
-              class="w-full px-3 py-2 text-left text-desktop-caption text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
-            >
-              삭제
-            </button>
-          </div>
         </div>
       </div>
 
@@ -119,8 +82,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { Plus, MoreHorizontal, BookOpen } from 'lucide-vue-next'
+import { ref, nextTick } from 'vue'
+import { Plus, BookOpen } from 'lucide-vue-next'
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent)
 
@@ -131,7 +94,7 @@ defineProps<{
   isArchived?: boolean
 }>()
 
-const emit = defineEmits(['select', 'select-history', 'add-book', 'restart-reading', 'delete-history', 'open-reviews', 'edit-finished-date'])
+const emit = defineEmits(['select', 'select-history', 'add-book'])
 
 const selectAdjacentBook = (direction: 'up' | 'down') => {
   const allBooks = [
@@ -159,18 +122,4 @@ const selectAdjacentBook = (direction: 'up' | 'down') => {
 }
 
 defineExpose({ selectAdjacentBook })
-
-const activeHistoryMenu = ref<string | null>(null)
-
-const closeMenu = () => {
-  activeHistoryMenu.value = null
-}
-
-onMounted(() => {
-  document.addEventListener('click', closeMenu)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', closeMenu)
-})
 </script>

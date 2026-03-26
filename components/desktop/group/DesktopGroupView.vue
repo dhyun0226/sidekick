@@ -10,10 +10,6 @@
         @select="selectBook"
         @select-history="selectBook"
         @add-book="isAdmin ? openSearchModal() : toast.info('관리자만 책을 추가할 수 있어요')"
-        @restart-reading="handleRestartReading"
-        @delete-history="handleDeleteHistoryBook"
-        @open-reviews="(id: string) => openReviews(id)"
-        @edit-finished-date="(id: string) => handleEditFinishedDate(id)"
       />
     </div>
 
@@ -185,6 +181,7 @@
         :toc="toc"
         :is-archived="isArchived"
         :is-read-only-mode="isReadOnlyMode"
+        :is-admin="isAdmin"
         :preferred-mode="preferredInputMode"
         :show-mark-completed="isAdmin"
         :user-rating="selectedBookId ? userReviewedBooks.get(selectedBookId) : null"
@@ -200,6 +197,8 @@
         @unmark-finished="selectedBookId && handleUnmarkFinished(selectedBookId)"
         @open-review="selectedBookId && handleOpenReview(selectedBookId)"
         @open-reviews="selectedBookId && openReviews(selectedBookId)"
+        @restart-reading="selectedBookId && handleRestartReading(selectedBookId)"
+        @edit-finished-date="selectedBookId && handleEditFinishedDate(selectedBookId)"
       />
 
       <!-- Settings Tab -->
