@@ -26,10 +26,17 @@
           </div>
           <div class="pt-1">
             <h1 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-1.5 leading-tight">{{ bookTitle }}</h1>
-            <p class="text-desktop-callout text-zinc-500 mb-3 font-light">{{ bookAuthor }}</p>
-            <div class="flex flex-wrap items-center gap-1.5 mt-1">
+            <div class="flex flex-wrap items-center gap-1.5 mb-3 text-desktop-callout text-zinc-500 font-light">
+              <span>{{ bookAuthor }}</span>
+              <template v-if="selectedBook.book?.publisher || selectedBook.total_pages">
+                <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                <span v-if="selectedBook.book?.publisher">{{ selectedBook.book.publisher }}</span>
+                <span v-if="selectedBook.book?.publisher && selectedBook.total_pages" class="text-zinc-300 dark:text-zinc-700">·</span>
+                <span v-if="selectedBook.total_pages">{{ selectedBook.total_pages }}p</span>
+              </template>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5">
               <GenreBadge v-if="selectedBook.genre" :genre="selectedBook.genre" />
-              <Badge v-if="selectedBook.total_pages">{{ selectedBook.total_pages }}p</Badge>
               <Badge v-if="daysRemaining !== null">
                 {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
               </Badge>
