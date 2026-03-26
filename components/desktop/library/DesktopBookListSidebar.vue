@@ -2,13 +2,13 @@
   <div class="h-full flex flex-col">
     <!-- Header -->
     <div class="px-5 pt-5 pb-2">
-      <h3 class="text-desktop-caption font-medium text-zinc-400 dark:text-zinc-400">책 목록</h3>
+      <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">책 목록</h3>
     </div>
 
     <!-- Reading Books -->
     <div class="flex-1 overflow-y-auto">
       <div v-if="readingBooks.length > 0" class="px-3 pt-2 pb-1">
-        <p class="text-desktop-micro font-medium text-zinc-400 dark:text-zinc-400 px-2 mb-1.5 uppercase tracking-widest">읽는 중</p>
+        <p class="text-xs font-medium text-zinc-400 dark:text-zinc-400 px-2 mb-1.5">읽는 중</p>
         <button
           v-for="book in readingBooks"
           :key="book.id"
@@ -31,7 +31,7 @@
 
       <!-- History Books -->
       <div v-if="historyBooks.length > 0" class="px-3 pt-4 pb-1">
-        <p class="text-desktop-micro font-medium text-zinc-400 dark:text-zinc-400 px-2 mb-1.5 uppercase tracking-widest">완독</p>
+        <p class="text-xs font-medium text-zinc-400 dark:text-zinc-400 px-2 mb-1.5">완독</p>
         <div
           v-for="book in historyBooks"
           :key="book.id"
