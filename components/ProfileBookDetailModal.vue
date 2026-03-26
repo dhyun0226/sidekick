@@ -131,8 +131,8 @@
                       <p class="text-[11px] font-bold text-zinc-400">{{ item.parentData.nickname }}님의 기록</p>
                     </div>
                     <!-- Larger & Bordered Anchor -->
-                    <div v-if="item.parentData.anchor_text" class="mb-2 pl-2 border-l-2 border-zinc-300 dark:border-zinc-600">
-                      <p class="text-[13px] text-zinc-500 dark:text-zinc-400 italic ">
+                    <div v-if="item.parentData.anchor_text" class="mb-2 pl-3 py-1.5 border-l-2 border-lime-400 bg-lime-50/60 dark:bg-lime-900/10 rounded-r-xl">
+                      <p class="text-[13px] text-zinc-500 dark:text-zinc-400">
                         {{ item.parentData.anchor_text }}
                       </p>
                     </div>
@@ -143,8 +143,8 @@
                 </div>
 
                 <!-- Quote -->
-                <div v-if="item.anchor_text" class="mb-3 pl-3 border-l-2 border-zinc-200 dark:border-zinc-800 text-left">
-                  <p class="text-xs text-zinc-500 dark:text-zinc-400 italic leading-relaxed ">
+                <div v-if="item.anchor_text" class="mb-3 pl-3 py-2 border-l-2 border-lime-400 bg-lime-50/60 dark:bg-lime-900/10 rounded-r-xl text-left">
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
                     {{ item.anchor_text }}
                   </p>
                 </div>
