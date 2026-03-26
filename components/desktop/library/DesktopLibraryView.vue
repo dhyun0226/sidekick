@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-[100dvh]">
     <!-- Left: Book List Sidebar -->
-    <div class="w-56 border-r border-zinc-100 dark:border-zinc-800/60 flex-shrink-0">
+    <div class="w-64 border-r border-zinc-100 dark:border-zinc-800/60 flex-shrink-0">
       <DesktopBookListSidebar
         ref="sidebarRef"
         :reading-books="readingBooks"
