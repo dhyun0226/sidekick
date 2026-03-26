@@ -63,7 +63,7 @@ export default defineNuxtConfig({
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
       title: 'Cheer Readers | 당신의 독서를 응원합니다',
-      titleTemplate: '%s | Cheer Readers'
+      titleTemplate: (title) => title ? `${title} | Cheer Readers` : 'Cheer Readers | 당신의 독서를 응원합니다'
     }
   },
 
