@@ -344,6 +344,8 @@ definePageMeta({
   middleware: ['auth']
 })
 
+useHead({ title: '당신의 독서를 응원합니다' })
+
 const router = useRouter()
 const userStore = useUserStore()
 const toast = useToastStore()
