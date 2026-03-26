@@ -13,6 +13,8 @@
         @add-book="openSearchModal"
         @restart-reading="handleRestartReading"
         @delete-history="handleDeleteHistoryBook"
+        @open-reviews="(id: string) => openReviews(id)"
+        @edit-finished-date="(id: string) => handleEditFinishedDate(id)"
       />
     </div>
 
@@ -199,6 +201,7 @@ const {
   openMarkCompletedModal,
   handleDeleteHistoryBook,
   handleRestartReading,
+  handleEditFinishedDate,
   userReviewedBooks,
   modals
 } = ctx

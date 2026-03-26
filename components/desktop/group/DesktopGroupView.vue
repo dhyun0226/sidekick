@@ -12,6 +12,8 @@
         @add-book="isAdmin ? openSearchModal() : toast.info('관리자만 책을 추가할 수 있어요')"
         @restart-reading="handleRestartReading"
         @delete-history="handleDeleteHistoryBook"
+        @open-reviews="(id: string) => openReviews(id)"
+        @edit-finished-date="(id: string) => handleEditFinishedDate(id)"
       />
     </div>
 
@@ -200,19 +202,6 @@
         @open-reviews="selectedBookId && openReviews(selectedBookId)"
       />
 
-      <!-- Bookshelf Tab -->
-      <DesktopBookshelfPanel
-        v-if="activeRightTab === 'bookshelf'"
-        :books="visibleHistoryBooks"
-        :is-admin="isAdmin"
-        :is-archived="isArchived"
-        @select-book="selectBook"
-        @open-reviews="(id: string) => openReviews(id)"
-        @restart-reading="(id: string) => handleRestartReading(id)"
-        @edit-finished-date="(id: string) => handleEditFinishedDate(id)"
-        @delete-history="(id: string) => handleDeleteHistoryBook(id)"
-      />
-
       <!-- Settings Tab -->
       <DesktopGroupSettings
         v-if="activeRightTab === 'settings'"
@@ -302,12 +291,11 @@ const {
 
 const batchModalOpen = ref(false)
 const batchModalRef = ref<InstanceType<typeof DesktopBatchNotesModal> | null>(null)
-const activeRightTab = ref<'members' | 'book' | 'bookshelf' | 'settings'>('members')
+const activeRightTab = ref<'members' | 'book' | 'settings'>('members')
 
 const rightTabs = [
   { key: 'members' as const, label: '멤버' },
   { key: 'book' as const, label: '책 정보' },
-  { key: 'bookshelf' as const, label: '책장' },
   { key: 'settings' as const, label: '설정' }
 ]
 

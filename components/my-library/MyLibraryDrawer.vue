@@ -32,14 +32,6 @@
           책장
           <div v-if="activeTab === 'bookshelf'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-4"></div>
         </button>
-        <button
-          @click="activeTab = 'settings'"
-          class="flex-1 py-3 text-sm font-medium transition-colors relative"
-          :class="activeTab === 'settings' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-500'"
-        >
-          설정
-          <div v-if="activeTab === 'settings'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-4"></div>
-        </button>
       </div>
 
       <!-- Tab Content -->
@@ -83,14 +75,6 @@
           @open-upgrade-modal="emit('openUpgradeModal')"
         />
 
-        <MyLibrarySettingsTab
-          v-if="activeTab === 'settings'"
-          :group-name="groupName"
-          :is-archived="isArchived"
-          @save-group-name="(name) => emit('saveGroupName', name)"
-          @open-search-modal="emit('openSearchModal')"
-          @delete-group="emit('deleteGroup')"
-        />
       </div>
 
       <!-- FAB: 새 책 추가 버튼 -->
@@ -111,7 +95,6 @@ import { ref, watch, onUnmounted } from 'vue'
 import { X, Plus } from 'lucide-vue-next'
 import MyLibraryInfoTab from '~/components/my-library/MyLibraryInfoTab.vue'
 import MyLibraryBookshelfTab from '~/components/my-library/MyLibraryBookshelfTab.vue'
-import MyLibrarySettingsTab from '~/components/my-library/MyLibrarySettingsTab.vue'
 
 interface Props {
   isOpen: boolean
@@ -149,7 +132,7 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const activeTab = ref<'info' | 'bookshelf' | 'settings'>('info')
+const activeTab = ref<'info' | 'bookshelf'>('info')
 
 // Prevent body scroll when drawer is open
 watch(() => props.isOpen, (isOpen) => {

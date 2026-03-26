@@ -59,13 +59,25 @@
           <!-- Dropdown menu -->
           <div
             v-if="activeHistoryMenu === book.id"
-            class="absolute right-2 top-full mt-1 w-32 bg-white dark:bg-zinc-900 rounded-xl shadow-apple py-1 z-10"
+            class="absolute right-2 top-full mt-1 w-36 bg-white dark:bg-zinc-900 rounded-xl shadow-apple ring-1 ring-black/[0.04] dark:ring-white/[0.06] py-1 z-10"
           >
+            <button
+              @click.stop="$emit('open-reviews', book.id); activeHistoryMenu = null"
+              class="w-full px-3 py-2 text-left text-desktop-caption text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            >
+              리뷰 보기
+            </button>
             <button
               @click.stop="$emit('restart-reading', book.id); activeHistoryMenu = null"
               class="w-full px-3 py-2 text-left text-desktop-caption text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
             >
-              다시 읽기
+              종료 취소
+            </button>
+            <button
+              @click.stop="$emit('edit-finished-date', book.id); activeHistoryMenu = null"
+              class="w-full px-3 py-2 text-left text-desktop-caption text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            >
+              종료 날짜 수정
             </button>
             <button
               @click.stop="$emit('delete-history', book.id); activeHistoryMenu = null"
@@ -119,7 +131,7 @@ defineProps<{
   isArchived?: boolean
 }>()
 
-const emit = defineEmits(['select', 'select-history', 'add-book', 'restart-reading', 'delete-history'])
+const emit = defineEmits(['select', 'select-history', 'add-book', 'restart-reading', 'delete-history', 'open-reviews', 'edit-finished-date'])
 
 const selectAdjacentBook = (direction: 'up' | 'down') => {
   const allBooks = [
