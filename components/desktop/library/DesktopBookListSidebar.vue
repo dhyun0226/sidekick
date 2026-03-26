@@ -96,10 +96,12 @@
     </div>
 
     <!-- Keyboard Shortcuts Hint -->
-    <div class="px-5 py-3 border-t border-zinc-100 dark:border-zinc-800/50">
-      <p class="text-desktop-micro text-zinc-300 dark:text-zinc-600 leading-relaxed">
-        <kbd class="font-mono">↑↓</kbd> 이동 · <kbd class="font-mono">/</kbd> 입력 · <kbd class="font-mono">⌘/</kbd> 일괄입력
-      </p>
+    <div class="px-4 py-3 border-t border-zinc-100 dark:border-zinc-800/50">
+      <div class="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-zinc-400 dark:text-zinc-500">
+        <span><kbd class="px-1 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[9px] font-mono">↑↓</kbd> 이동</span>
+        <span><kbd class="px-1 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[9px] font-mono">/</kbd> 입력</span>
+        <span><kbd class="px-1 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[9px] font-mono">Ctrl /</kbd> 일괄입력</span>
+      </div>
     </div>
   </div>
 </template>
