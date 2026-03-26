@@ -67,6 +67,8 @@ const DesktopSettingsView = defineAsyncComponent(() => import('~/components/desk
 
 definePageMeta({ middleware: ['auth'] })
 
+useHead({ title: '설정' })
+
 const router = useRouter()
 const userStore = useUserStore()
 const toast = useToastStore()

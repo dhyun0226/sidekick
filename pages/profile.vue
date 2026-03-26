@@ -212,6 +212,8 @@ import { Lock } from 'lucide-vue-next'
 const DesktopProfileView = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopProfileView.vue'))
 const { isDesktop } = useDevice()
 
+useHead({ title: '프로필' })
+
 import ProfileHeader from '~/components/profile/ProfileHeader.vue'
 import ProfileStats from '~/components/profile/ProfileStats.vue'
 import ProfileSubscriptionBanner from '~/components/profile/ProfileSubscriptionBanner.vue'

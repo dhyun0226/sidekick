@@ -60,6 +60,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { XCircle } from 'lucide-vue-next'
 
+useHead({ title: '결제 실패' })
+
 const route = useRoute()
 
 const errorMessage = ref('결제가 취소되었거나 오류가 발생했습니다.')

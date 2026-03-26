@@ -350,6 +350,8 @@ definePageMeta({
   middleware: ['auth']
 })
 
+useHead({ title: '내 서재' })
+
 const groupIdRef = ref('')
 
 const groupPageCtx = useGroupPage({ mode: 'solo', groupIdRef })

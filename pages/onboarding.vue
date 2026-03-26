@@ -112,6 +112,8 @@ import { useRouter } from 'vue-router'
 import { User, Camera } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 
+useHead({ title: '시작하기' })
+
 const router = useRouter()
 const client = useSupabaseClient()
 const toast = useToastStore()

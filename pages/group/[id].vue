@@ -571,6 +571,8 @@ const {
   selectBook,
   fetchComments
 } = groupPageCtx
+
+useHead({ title: computed(() => groupName?.value || '그룹') })
 </script>
 
 <style>

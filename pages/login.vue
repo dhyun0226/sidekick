@@ -89,6 +89,8 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
 
+useHead({ title: '로그인' })
+
 const router = useRouter()
 const userStore = useUserStore()
 const toast = useToastStore()

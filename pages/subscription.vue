@@ -254,6 +254,8 @@ definePageMeta({
   middleware: 'auth'
 })
 
+useHead({ title: '구독' })
+
 const userStore = useUserStore()
 const toast = useToastStore()
 const client = useSupabaseClient()

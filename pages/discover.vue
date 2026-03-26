@@ -161,6 +161,8 @@ import BookSearchModal from '~/components/BookSearchModal.vue'
 
 definePageMeta({ middleware: ['auth'] })
 
+useHead({ title: '디스커버' })
+
 const router = useRouter()
 const toast = useToastStore()
 const userStore = useUserStore()

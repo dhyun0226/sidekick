@@ -72,6 +72,8 @@ import { ref, onMounted } from 'vue'
 import { CheckCircle, XCircle } from 'lucide-vue-next'
 import { useUserStore } from '~/stores/user'
 
+useHead({ title: '결제 완료' })
+
 const route = useRoute()
 const userStore = useUserStore()
 
