@@ -50,7 +50,7 @@
     </header>
 
     <!-- 1. My Library Section (Solo Group) -->
-    <div v-if="soloGroup" class="mb-6">
+    <div v-if="soloGroup" class="mt-2 mb-6">
       <div
         @click="router.push('/my-library')"
         class="relative w-full rounded-2xl bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-4 flex gap-4 items-stretch shadow-apple cursor-pointer group transition-all hover:ring-lime-400 dark:hover:ring-lime-500 active:scale-[0.98] min-h-[140px]"
