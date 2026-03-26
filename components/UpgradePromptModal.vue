@@ -22,7 +22,7 @@
               <component :is="featureIcon" :size="40" class="text-white drop-shadow-sm" stroke-width="2.5" />
             </div>
             
-            <div class="inline-flex items-center gap-1.5 bg-lime-50 dark:bg-lime-900/20 px-3 py-1 rounded-full mb-3">
+            <div class="inline-flex items-center gap-1.5 bg-lime-50 dark:bg-lime-900/30 px-3 py-1 rounded-full mb-3">
               <Sparkles :size="12" class="text-lime-600 dark:text-lime-400" />
               <span class="text-[11px] font-black text-lime-700 dark:text-lime-400 uppercase tracking-widest">Premium Membership</span>
             </div>

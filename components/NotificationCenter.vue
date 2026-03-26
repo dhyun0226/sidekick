@@ -58,7 +58,7 @@
             v-for="noti in notifications"
             :key="noti.id"
             class="group relative flex flex-col p-5 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all cursor-pointer"
-            :class="{ 'bg-lime-50/30 dark:bg-lime-900/20': !noti.is_read }"
+            :class="{ 'bg-lime-50/30 dark:bg-lime-900/30': !noti.is_read }"
             @click="handleNotificationClick(noti)"
           >
             <!-- Content Wrapper -->

@@ -130,7 +130,7 @@
           <!-- Save Completed Screen -->
           <div v-if="saveCompleted" class="flex-1 flex items-center justify-center">
             <div class="text-center">
-              <div class="w-14 h-14 mx-auto mb-5 rounded-full bg-lime-50 dark:bg-lime-900/20 flex items-center justify-center">
+              <div class="w-14 h-14 mx-auto mb-5 rounded-full bg-lime-50 dark:bg-lime-900/30 flex items-center justify-center">
                 <Check :size="24" class="text-lime-500" />
               </div>
               <h3 class="text-desktop-body font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">

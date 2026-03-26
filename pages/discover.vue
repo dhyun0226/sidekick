@@ -53,7 +53,7 @@
             <button
               @click="selectedGenre = null; genreDropdownOpen = false"
               class="w-full px-4 py-2 text-left text-sm font-medium transition-colors"
-              :class="!selectedGenre ? 'bg-lime-50 dark:bg-lime-900/20 text-lime-700 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700'"
+              :class="!selectedGenre ? 'bg-lime-50 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700'"
             >
               전체 장르
             </button>
@@ -62,7 +62,7 @@
               :key="genre"
               @click="selectedGenre = genre; genreDropdownOpen = false"
               class="w-full px-4 py-2 text-left text-sm font-medium transition-colors"
-              :class="selectedGenre === genre ? 'bg-lime-50 dark:bg-lime-900/20 text-lime-700 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700'"
+              :class="selectedGenre === genre ? 'bg-lime-50 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700'"
             >
               {{ genre }}
             </button>

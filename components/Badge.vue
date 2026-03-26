@@ -24,7 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
 const variantClass = computed(() => {
   const variants = {
     zinc: 'bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400',
-    lime: 'bg-lime-50 dark:bg-lime-900/20 text-lime-700 dark:text-lime-400',
+    lime: 'bg-lime-50 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400',
     amber: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400',
     orange: 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400',
     teal: 'bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400',

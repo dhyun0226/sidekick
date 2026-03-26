@@ -11,7 +11,7 @@
       <!-- Success -->
       <div v-else-if="success" class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8">
         <div class="text-center mb-6">
-          <div class="w-16 h-16 bg-lime-100 dark:bg-lime-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div class="w-16 h-16 bg-lime-100 dark:bg-lime-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle :size="32" class="text-lime-600 dark:text-lime-400" />
           </div>
           <h2 class="text-2xl font-bold text-zinc-900 dark:text-white mb-2">결제 완료!</h2>

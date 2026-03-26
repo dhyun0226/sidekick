@@ -121,7 +121,7 @@
 
         <!-- Empty State -->
         <div v-else class="flex items-center justify-center w-full gap-3">
-          <div class="w-12 h-12 rounded-xl flex items-center justify-center" :class="soloGroup.doneCount > 0 ? 'bg-amber-100 dark:bg-amber-900/20' : 'bg-lime-100 dark:bg-lime-900/20'">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center" :class="soloGroup.doneCount > 0 ? 'bg-amber-100 dark:bg-amber-900/20' : 'bg-lime-100 dark:bg-lime-900/30'">
             <BookOpen :size="20" :class="soloGroup.doneCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-lime-600 dark:text-lime-400'" />
           </div>
           <div>

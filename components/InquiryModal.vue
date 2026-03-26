@@ -145,7 +145,7 @@
                   <span class="text-[11px] font-bold text-zinc-500 dark:text-zinc-400">관리자 답변</span>
                   <span class="text-[11px] text-zinc-400 dark:text-zinc-300">{{ formatDate(selectedInquiry.replied_at) }}</span>
                 </div>
-                <div class="bg-lime-50 dark:bg-lime-900/20 rounded-xl p-4 border border-lime-100 dark:border-lime-700/30">
+                <div class="bg-lime-50 dark:bg-lime-900/30 rounded-xl p-4 border border-lime-100 dark:border-lime-700/30">
                   <p class="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed">{{ selectedInquiry.admin_reply }}</p>
                 </div>
               </div>

@@ -21,7 +21,7 @@
             @click.stop="selectSort(option.value)"
             class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-between transition-colors"
             :class="sortBy === option.value
-              ? 'bg-lime-50 dark:bg-lime-900/20 text-lime-700 dark:text-lime-500 font-bold'
+              ? 'bg-lime-50 dark:bg-lime-900/30 text-lime-700 dark:text-lime-500 font-bold'
               : 'text-zinc-700 dark:text-zinc-300'"
           >
             <span>{{ option.label }}</span>

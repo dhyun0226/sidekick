@@ -6,7 +6,7 @@
         <label class="text-sm font-bold text-zinc-700 dark:text-zinc-300">
           전체 페이지 수 <span class="text-red-500">*</span>
         </label>
-        <span v-if="totalPages" class="text-[11px] text-lime-600 dark:text-lime-400 font-bold bg-lime-50 dark:bg-lime-900/20 px-1.5 py-0.5 rounded">
+        <span v-if="totalPages" class="text-[11px] text-lime-600 dark:text-lime-400 font-bold bg-lime-50 dark:bg-lime-900/30 px-1.5 py-0.5 rounded">
           입력 완료
         </span>
       </div>

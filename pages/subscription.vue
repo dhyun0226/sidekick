@@ -44,7 +44,7 @@
               </div>
 
               <!-- 자동갱신 상태 표시 -->
-              <div class="flex items-center gap-2 px-4 py-2 rounded-xl" :class="currentSubscription.auto_renew ? 'bg-lime-50 dark:bg-lime-900/20' : 'bg-orange-50 dark:bg-orange-900/20'">
+              <div class="flex items-center gap-2 px-4 py-2 rounded-xl" :class="currentSubscription.auto_renew ? 'bg-lime-50 dark:bg-lime-900/30' : 'bg-orange-50 dark:bg-orange-900/20'">
                 <div class="w-2 h-2 rounded-full" :class="currentSubscription.auto_renew ? 'bg-lime-500 animate-pulse' : 'bg-orange-500'"></div>
                 <span class="text-xs font-bold" :class="currentSubscription.auto_renew ? 'text-lime-700 dark:text-lime-400' : 'text-orange-700 dark:text-orange-400'">
                   {{ currentSubscription.auto_renew ? '자동갱신 ON' : '자동갱신 OFF' }}

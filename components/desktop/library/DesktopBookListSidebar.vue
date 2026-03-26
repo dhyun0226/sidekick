@@ -15,7 +15,7 @@
           @click="$emit('select', book.id)"
           class="w-full flex items-center gap-3 px-2 py-2 rounded-xl transition-all duration-200 ease-apple text-left"
           :class="selectedBookId === book.id
-            ? 'bg-lime-50 dark:bg-lime-900/20 ring-1 ring-lime-200 dark:ring-lime-700/40'
+            ? 'bg-lime-50 dark:bg-lime-900/30 ring-1 ring-lime-200 dark:ring-lime-700/50'
             : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50'"
         >
           <div class="w-8 h-11 rounded overflow-hidden flex-shrink-0">
@@ -37,7 +37,7 @@
           :key="book.id"
           class="group relative flex items-center gap-3 px-2 py-2 rounded-xl transition-all duration-200 ease-apple cursor-pointer"
           :class="selectedBookId === book.id
-            ? 'bg-lime-50 dark:bg-lime-900/20 ring-1 ring-lime-200 dark:ring-lime-700/40'
+            ? 'bg-lime-50 dark:bg-lime-900/30 ring-1 ring-lime-200 dark:ring-lime-700/50'
             : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50'"
           @click="$emit('select-history', book.id)"
         >
