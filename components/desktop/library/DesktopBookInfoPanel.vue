@@ -142,7 +142,7 @@
           <Undo2 :size="14" /> 완독 취소
         </button>
         <button v-if="book.user_finished_at" @click="$emit('open-review')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
-          <Star :size="14" /> 리뷰 작성
+          <Star :size="14" /> {{ userRating ? '리뷰 수정' : '리뷰 작성' }}
         </button>
         <button v-if="book.status === 'done'" @click="$emit('open-reviews')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
           <MessageSquare :size="14" /> 리뷰 보기
