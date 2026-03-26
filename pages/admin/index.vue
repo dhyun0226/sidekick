@@ -104,10 +104,10 @@
                 <div class="text-xs text-zinc-500 mb-1">
                   {{ formatDate(book.created_at) }}
                 </div>
-                <div v-if="book.draft_toc && !book.official_toc" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-400">
+                <div v-if="book.draft_toc && !book.official_toc" class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-400">
                   승인 대기
                 </div>
-                <div v-else-if="book.official_toc" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                <div v-else-if="book.official_toc" class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                   승인 완료
                 </div>
               </div>

@@ -13,7 +13,7 @@
         </div>
         <div>
           <h3 class="text-sm font-bold text-white leading-none mb-1.5">프리미엄 회원</h3>
-          <p v-if="subscriptionDetails" class="text-[10px] text-zinc-400 leading-none">
+          <p v-if="subscriptionDetails" class="text-[11px] text-zinc-400 leading-none">
             {{ formatDate(subscriptionDetails.end_date) }}까지 이용 가능
           </p>
         </div>
@@ -39,7 +39,7 @@
         </div>
         <div>
           <h3 class="text-sm font-bold text-zinc-900 dark:text-white leading-none mb-1.5">프리미엄 혜택 보기</h3>
-          <p class="text-[10px] text-zinc-500 dark:text-zinc-400 leading-none">더 많은 그룹과 상세 분석을 시작하세요</p>
+          <p class="text-[11px] text-zinc-500 dark:text-zinc-400 leading-none">더 많은 그룹과 상세 분석을 시작하세요</p>
         </div>
       </div>
       

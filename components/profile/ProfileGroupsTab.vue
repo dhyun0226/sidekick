@@ -30,7 +30,7 @@
                   <template #icon><BookOpen :size="10" /></template>
                   {{ group.book_count }}
                 </Badge>
-                <ChevronRight :size="14" class="text-zinc-300 dark:text-zinc-600" />
+                <ChevronRight :size="14" class="text-zinc-300 dark:text-zinc-500" />
               </div>
             </div>
 
@@ -106,7 +106,7 @@
                   <template #icon><BookOpen :size="10" /></template>
                   {{ group.book_count }}
                 </Badge>
-                <ChevronRight :size="14" class="text-zinc-300 dark:text-zinc-600" />
+                <ChevronRight :size="14" class="text-zinc-300 dark:text-zinc-500" />
               </div>
             </div>
 
@@ -133,7 +133,7 @@
 
       <!-- Empty State -->
       <div v-if="groups.length === 0" class="text-center py-12">
-        <Users :size="32" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+        <Users :size="32" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
         <p class="text-[15px] font-medium text-zinc-900 dark:text-white mb-1">참여 중인 그룹이 없어요</p>
         <p class="text-[13px] text-zinc-400">그룹에 참여하거나 새로운 그룹을 만들어보세요</p>
       </div>
@@ -235,10 +235,10 @@
                     <p class="text-[11px] text-zinc-500 truncate">
                       {{ book.author }}
                       <template v-if="book.publisher">
-                        <span class="text-zinc-300 dark:text-zinc-600"> · </span>{{ book.publisher }}
+                        <span class="text-zinc-300 dark:text-zinc-500"> · </span>{{ book.publisher }}
                       </template>
                       <template v-if="book.total_pages">
-                        <span class="text-zinc-300 dark:text-zinc-600"> · </span>{{ book.total_pages }}p
+                        <span class="text-zinc-300 dark:text-zinc-500"> · </span>{{ book.total_pages }}p
                       </template>
                     </p>
                     <div class="flex items-center gap-1 mt-1.5 flex-wrap">

@@ -7,7 +7,7 @@
         <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">
           읽는 중
         </h3>
-        <span class="text-[10px] text-zinc-400">{{ sortedReadingBooks.length }}권</span>
+        <span class="text-[11px] text-zinc-400">{{ sortedReadingBooks.length }}권</span>
       </div>
 
       <!-- Card -->
@@ -109,7 +109,7 @@
       <div v-if="selectedBook && toc.length > 0 && isSelectedBookReading" class="mt-6">
         <div class="flex items-center justify-between px-1 mb-3">
           <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">목차 이동</h3>
-          <span class="text-[10px] font-bold text-zinc-400 opacity-60">{{ toc.length }}개</span>
+          <span class="text-[11px] font-bold text-zinc-400 opacity-60">{{ toc.length }}개</span>
         </div>
         
         <div class="bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden shadow-apple">
@@ -129,7 +129,7 @@
 
               <div class="flex items-center gap-3 min-w-0">
                 <span 
-                  class="text-[10px] font-black w-4 text-zinc-300 dark:text-zinc-600 group-hover:text-lime-500 transition-colors"
+                  class="text-[11px] font-black w-4 text-zinc-300 dark:text-zinc-500 group-hover:text-lime-500 transition-colors"
                   :class="{ 'text-lime-500': isCurrentChapter(chapter) }"
                 >
                   {{ (index + 1).toString().padStart(2, '0') }}
@@ -150,7 +150,7 @@
                 <div class="flex flex-col items-end gap-0.5">
                   <span 
                     v-if="chapter.page != null"
-                    class="text-[10px] font-black text-lime-600 dark:text-lime-400"
+                    class="text-[11px] font-black text-lime-600 dark:text-lime-400"
                   >
                     {{ chapter.page }}쪽
                   </span>
@@ -162,7 +162,7 @@
                 </div>
                 <ChevronRight 
                   :size="14" 
-                  class="text-zinc-300 dark:text-zinc-600 transform transition-transform group-hover:translate-x-0.5 group-hover:text-lime-500" 
+                  class="text-zinc-300 dark:text-zinc-500 transform transition-transform group-hover:translate-x-0.5 group-hover:text-lime-500" 
                 />
               </div>
             </button>

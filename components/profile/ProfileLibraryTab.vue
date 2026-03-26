@@ -6,7 +6,7 @@
 
     <div v-else-if="library.length === 0" class="py-16 flex flex-col items-center text-center">
       <div class="w-20 h-20 bg-gradient-to-tr from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-5 shadow-inner">
-        <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-600" />
+        <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-500" />
       </div>
       <h3 class="text-lg font-semibold text-zinc-900 dark:text-white mb-2">아직 완독한 책이 없어요</h3>
       <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-8 max-w-xs leading-relaxed">
@@ -48,7 +48,7 @@
                 {{ book.round }}회
               </div>
             </div>
-            <div class="mt-1 flex items-center justify-center gap-1 text-[10px] text-zinc-400">
+            <div class="mt-1 flex items-center justify-center gap-1 text-[11px] text-zinc-400">
               <template v-if="book.target_end_date && !book.isBookDeleted && !book.isDiscontinued">
                 <span class="font-semibold" :class="getDaysRemaining(book.target_end_date) < 0 ? 'text-red-500' : 'text-lime-600 dark:text-lime-400'">
                   {{ formatDday(book.target_end_date) }}
@@ -89,11 +89,11 @@
                 {{ book.round }}회
               </div>
             </div>
-            <div class="mt-1 flex items-center justify-center gap-1 text-[10px]">
+            <div class="mt-1 flex items-center justify-center gap-1 text-[11px]">
               <template v-if="book.myRating && !book.isBookDeleted">
                 <Star :size="10" fill="#EAB308" class="text-yellow-500" />
                 <span class="font-semibold text-zinc-900 dark:text-white">{{ book.myRating }}</span>
-                <span class="text-zinc-300 dark:text-zinc-600">·</span>
+                <span class="text-zinc-300 dark:text-zinc-500">·</span>
               </template>
               <span class="text-zinc-500">{{ formatMonthOnly(book.finished_at) }}</span>
             </div>

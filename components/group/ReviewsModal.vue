@@ -10,7 +10,7 @@
       <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 sticky top-0 z-20">
         <div class="min-w-0">
           <h2 class="text-lg font-black text-zinc-900 dark:text-white truncate mb-0.5">{{ bookTitle }}</h2>
-          <p class="text-[10px] text-zinc-400 font-bold uppercase">리뷰 {{ reviews.length }}개</p>
+          <p class="text-[11px] text-zinc-400 font-bold uppercase">리뷰 {{ reviews.length }}개</p>
         </div>
         <button @click="emit('close')" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors">
           <X :size="20" class="text-zinc-400" />
@@ -50,7 +50,7 @@
             <div class="h-12 w-px bg-zinc-200 dark:bg-zinc-800"></div>
             <div class="flex flex-col gap-1">
               <div v-for="i in [5, 4, 3, 2, 1]" :key="i" class="flex items-center gap-2">
-                <span class="text-[10px] font-bold text-zinc-400 w-2">{{ i }}</span>
+                <span class="text-[11px] font-bold text-zinc-400 w-2">{{ i }}</span>
                 <div class="w-24 h-1 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
                   <div 
                     class="h-full bg-yellow-400 transition-all duration-500"
@@ -82,7 +82,7 @@
                   <p class="font-bold text-sm text-zinc-900 dark:text-white" :class="{ 'text-zinc-400 font-medium italic': !review.user }">
                     {{ review.user?.display_name || '탈퇴한 사용자' }}
                   </p>
-                  <p class="text-[10px] text-zinc-400 font-medium">{{ formatDate(review.created_at) }}</p>
+                  <p class="text-[11px] text-zinc-400 font-medium">{{ formatDate(review.created_at) }}</p>
                 </div>
               </div>
               <RatingBadge :rating="review.rating" size="sm" />
@@ -100,7 +100,7 @@
           <!-- Empty State -->
           <div v-if="reviews.length === 0" class="text-center py-16 flex flex-col items-center">
             <div class="w-20 h-20 bg-zinc-50 dark:bg-zinc-800 rounded-3xl flex items-center justify-center mb-4 shadow-inner">
-              <Star :size="28" class="text-zinc-300 dark:text-zinc-600" />
+              <Star :size="28" class="text-zinc-300 dark:text-zinc-500" />
             </div>
             <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">아직 리뷰가 없어요</h3>
             <p class="text-xs text-zinc-500">이 책의 첫 번째 리뷰어가 되어보세요!</p>

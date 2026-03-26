@@ -117,7 +117,7 @@
 
     <!-- Calendar Grid - Daily View -->
     <div v-if="viewMode === 'month'" class="grid grid-cols-7 gap-1 mb-4">
-      <div v-for="day in weekDays" :key="day" class="text-center text-[10px] text-zinc-400 font-medium pb-2">{{ day }}</div>
+      <div v-for="day in weekDays" :key="day" class="text-center text-[11px] text-zinc-400 font-medium pb-2">{{ day }}</div>
       <div
         v-for="(day, index) in calendarDays"
         :key="index"
@@ -134,7 +134,7 @@
           <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" v-if="getLatestCover(day.activities)"></div>
           <div v-if="getUniqueBookCount(day.activities) > 1" class="absolute bottom-1 right-1 z-20 px-1 py-0.5 bg-black/40 backdrop-blur-sm rounded text-[8px] font-black text-white leading-none border border-white/10">+{{ getUniqueBookCount(day.activities) - 1 }}</div>
         </div>
-        <span v-if="day.date" class="text-[10px] z-10" :class="{'text-zinc-400 dark:text-zinc-600': !day.isCurrentMonth, 'text-zinc-700 dark:text-zinc-300': day.isCurrentMonth && day.count === 0, 'text-white dark:text-white font-black drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]': day.count > 0}">{{ day.dayNumber }}</span>
+        <span v-if="day.date" class="text-[11px] z-10" :class="{'text-zinc-400 dark:text-zinc-500': !day.isCurrentMonth, 'text-zinc-700 dark:text-zinc-300': day.isCurrentMonth && day.count === 0, 'text-white dark:text-white font-black drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]': day.count > 0}">{{ day.dayNumber }}</span>
         <div v-if="day.date && day.count > 0" class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none shadow-lg">{{ day.dateString }} · 활동 {{ day.count }}개</div>
       </div>
     </div>
@@ -154,22 +154,22 @@
           <div v-if="getUniqueBookCount(monthData.activities) > 1" class="absolute bottom-2 right-2 z-20 px-1.5 py-1 bg-black/40 backdrop-blur-sm rounded-md text-[9px] font-black text-white leading-none border border-white/10">+{{ getUniqueBookCount(monthData.activities) - 1 }}</div>
         </div>
         <span class="text-sm font-black z-10 mb-1" :class="monthData.count > 0 ? 'text-white drop-shadow-md' : 'text-zinc-700 dark:text-zinc-300'">{{ monthData.monthName }}</span>
-        <span class="text-[10px] font-bold z-10 px-2 py-0.5 rounded-full bg-black/40 text-white backdrop-blur-sm" v-if="monthData.count > 0">{{ monthData.count }}개</span>
+        <span class="text-[11px] font-bold z-10 px-2 py-0.5 rounded-full bg-black/40 text-white backdrop-blur-sm" v-if="monthData.count > 0">{{ monthData.count }}개</span>
       </div>
     </div>
 
     <!-- Integrated Stats Summary -->
     <div class="pt-5 mt-2 border-t border-zinc-100 dark:border-zinc-800/50 grid grid-cols-3 gap-4">
       <div class="text-left">
-        <p class="text-[10px] font-black text-zinc-400 uppercase tracking-tighter mb-1">{{ statsLabel.books }}</p>
+        <p class="text-[11px] font-black text-zinc-400 uppercase tracking-tighter mb-1">{{ statsLabel.books }}</p>
         <p class="text-lg font-black text-zinc-900 dark:text-white leading-none">{{ currentStats.books }}권</p>
       </div>
       <div class="text-left border-l border-zinc-100 dark:border-zinc-800/50 pl-4">
-        <p class="text-[10px] font-black text-zinc-400 uppercase tracking-tighter mb-1">{{ statsLabel.activities }}</p>
+        <p class="text-[11px] font-black text-zinc-400 uppercase tracking-tighter mb-1">{{ statsLabel.activities }}</p>
         <p class="text-lg font-black text-zinc-900 dark:text-white leading-none">{{ currentStats.activities }}회</p>
       </div>
       <div class="text-left border-l border-zinc-100 dark:border-zinc-800/50 pl-4">
-        <p class="text-[10px] font-black text-zinc-400 uppercase tracking-tighter mb-1">최장 연속</p>
+        <p class="text-[11px] font-black text-zinc-400 uppercase tracking-tighter mb-1">최장 연속</p>
         <p class="text-lg font-black text-lime-600 dark:text-lime-400 leading-none">{{ currentStats.longestStreak }}일</p>
       </div>
     </div>

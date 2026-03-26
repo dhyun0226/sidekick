@@ -60,7 +60,7 @@
         <!-- 책이 없을 때 Empty State (개선된 온보딩) -->
         <div v-if="!selectedBook" class="flex flex-col items-center justify-center pt-32 px-4">
           <div class="w-24 h-24 bg-gradient-to-br from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner">
-            <BookOpen :size="32" class="text-zinc-300 dark:text-zinc-600" />
+            <BookOpen :size="32" class="text-zinc-300 dark:text-zinc-500" />
           </div>
           <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
             읽을 책을 추가해주세요

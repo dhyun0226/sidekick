@@ -10,7 +10,7 @@
         <!-- Chapter Name & Write Button Row -->
         <div class="flex justify-between items-end mb-6 px-1 gap-4">
           <div class="flex flex-col min-w-0 flex-1">
-            <span class="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase mb-0.5">지금 읽는 곳</span>
+            <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase mb-0.5">지금 읽는 곳</span>
             <span class="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate leading-tight">
               {{ currentChapterName || bookTitle || '읽기 시작' }}
             </span>
@@ -105,7 +105,7 @@
             :style="{ left: `${currentPct}%` }"
           >
             <span class="text-sm font-semibold leading-none">{{ displayMode === 'page' && currentPage ? `p.${currentPage}` : `${Math.round(currentPct)}%` }}</span>
-            <span v-if="displayMode === 'page' ? true : currentPage" class="text-[10px] font-medium opacity-80 leading-none mt-1">{{ displayMode === 'page' ? `${Math.round(currentPct)}%` : (currentPage ? `p.${currentPage}` : '') }}</span>
+            <span v-if="displayMode === 'page' ? true : currentPage" class="text-[11px] font-medium opacity-80 leading-none mt-1">{{ displayMode === 'page' ? `${Math.round(currentPct)}%` : (currentPage ? `p.${currentPage}` : '') }}</span>
             <!-- Arrow -->
             <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-900 dark:bg-white rotate-45"></div>
           </div>
@@ -116,7 +116,7 @@
           <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 tabular-nums">
             {{ Math.round(currentPct) }}%<template v-if="currentPage"> · {{ currentPage }}p</template>
           </span>
-          <span v-if="totalPages" class="text-[10px] text-zinc-300 dark:text-zinc-600 tabular-nums">
+          <span v-if="totalPages" class="text-[11px] text-zinc-300 dark:text-zinc-500 tabular-nums">
             / {{ totalPages }}p
           </span>
         </div>

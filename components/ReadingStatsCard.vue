@@ -70,7 +70,7 @@
                   <div class="font-medium text-zinc-900 dark:text-zinc-200 text-sm line-clamp-1">{{ book.title }}</div>
                   <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
                     <div class="text-xs text-zinc-600 dark:text-zinc-400">{{ book.author }}</div>
-                    <div v-if="book.publisher || book.total_pages" class="text-[10px] text-zinc-400">
+                    <div v-if="book.publisher || book.total_pages" class="text-[11px] text-zinc-400">
                       <span v-if="book.publisher">{{ book.publisher }}</span>
                       <span v-if="book.publisher && book.total_pages"> · </span>
                       <span v-if="book.total_pages">{{ book.total_pages }}p</span>

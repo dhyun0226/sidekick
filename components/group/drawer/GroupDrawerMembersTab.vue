@@ -7,7 +7,7 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <span class="text-[10px] text-zinc-400 leading-none">총 {{ filteredMembers.length }}명</span>
+        <span class="text-[11px] text-zinc-400 leading-none">총 {{ filteredMembers.length }}명</span>
         <!-- Search Toggle -->
         <button
           @click="showSearch = !showSearch"
@@ -33,7 +33,7 @@
 
     <!-- Empty State (no members at all) -->
     <div v-if="sortedMembersWithProgress.length === 0" class="text-center py-8">
-      <Users :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
+      <Users :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-2" />
       <p class="text-sm font-medium text-zinc-500">아직 멤버가 없어요</p>
     </div>
 
@@ -70,23 +70,23 @@
             </span>
             
             <template v-if="member.timeAgo">
-              <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
+              <span class="text-[11px] text-zinc-300 dark:text-zinc-500 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
               <span class="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium leading-none">{{ member.timeAgo }}</span>
             </template>
 
             <template v-if="member.id === currentUserId">
-              <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
+              <span class="text-[11px] text-zinc-300 dark:text-zinc-500 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
               <Badge variant="lime" size="sm" class="!px-1 !py-0 !text-[9px] !h-3.5 relative -translate-y-[0.5px]">나</Badge>
             </template>
 
             <template v-if="member.role === 'admin'">
-              <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
+              <span class="text-[11px] text-zinc-300 dark:text-zinc-500 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
               <Badge variant="purple" size="sm" class="!px-1 !py-0 !text-[9px] !h-3.5 relative -translate-y-[0.5px]">그룹장</Badge>
             </template>
 
             <!-- Free user badge (read-only in social groups) -->
             <template v-if="member.subscription_tier === 'free'">
-              <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
+              <span class="text-[11px] text-zinc-300 dark:text-zinc-500 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
               <Badge variant="zinc" size="sm" class="!px-1 !py-0 !text-[9px] !h-3.5 relative -translate-y-[0.5px]">읽기전용</Badge>
             </template>
           </div>
@@ -99,7 +99,7 @@
                 :style="{ width: `${member.progress}%` }"
               ></div>
             </div>
-            <span class="text-[10px] font-black w-8 text-right" :class="member.isCompleted ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-500 dark:text-zinc-400'">
+            <span class="text-[11px] font-black w-8 text-right" :class="member.isCompleted ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-500 dark:text-zinc-400'">
               {{ member.isCompleted ? '완독' : `${member.progress}%` }}
             </span>
           </div>
@@ -133,7 +133,7 @@
 
     <!-- Empty Search State -->
     <div v-else class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-dashed ring-black/[0.04] dark:ring-white/[0.06]">
-      <Search :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+      <Search :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
       <p>검색 결과와 일치하는 멤버가 없습니다</p>
     </div>
   </div>

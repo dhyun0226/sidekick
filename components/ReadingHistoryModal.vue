@@ -35,7 +35,7 @@
               <div class="w-16 h-24 bg-zinc-200 dark:bg-zinc-700 rounded-lg overflow-hidden flex-shrink-0">
                 <img v-if="book.cover" :src="book.cover" class="w-full h-full object-cover" />
                 <div v-else class="w-full h-full flex items-center justify-center">
-                  <BookOpen :size="24" class="text-zinc-500 dark:text-zinc-600" />
+                  <BookOpen :size="24" class="text-zinc-500 dark:text-zinc-500" />
                 </div>
               </div>
               <div class="flex-1 min-w-0">
@@ -43,7 +43,7 @@
                 <div class="flex items-center gap-2 mb-2">
                   <p class="text-xs text-zinc-600 dark:text-zinc-400 truncate">{{ book.author }}</p>
                   <template v-if="book.genre">
-                    <span class="text-zinc-300 dark:text-zinc-700 text-[10px]">•</span>
+                    <span class="text-zinc-300 dark:text-zinc-700 text-[11px]">•</span>
                     <GenreBadge :genre="book.genre" size="sm" />
                   </template>
                 </div>
@@ -58,7 +58,7 @@
               </div>
               <div class="space-y-1">
                 <div v-for="(history, idx) in book.readingHistory" :key="idx" class="text-xs text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
-                  <span class="text-zinc-500 dark:text-zinc-600">•</span>
+                  <span class="text-zinc-500 dark:text-zinc-500">•</span>
                   <span>{{ history.groupName }}</span>
                   <span v-if="history.round" class="text-lime-400">[{{ history.round }}회]</span>
                   <span class="text-zinc-500 dark:text-zinc-700">·</span>
@@ -80,13 +80,13 @@
                       <Star :size="12" class="text-yellow-400 fill-yellow-400" />
                       <span class="text-xs font-bold text-yellow-400">{{ review.rating.toFixed(1) }}</span>
                     </div>
-                    <span class="text-xs text-zinc-500 dark:text-zinc-600">·</span>
+                    <span class="text-xs text-zinc-500 dark:text-zinc-500">·</span>
                     <span class="text-xs text-zinc-600 dark:text-zinc-500">{{ review.groupName }}</span>
                   </div>
-                  <span class="text-[10px] text-zinc-500 dark:text-zinc-600">{{ formatDate(review.createdAt) }}</span>
+                  <span class="text-[11px] text-zinc-500 dark:text-zinc-500">{{ formatDate(review.createdAt) }}</span>
                 </div>
                 <p v-if="review.content" class="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{{ review.content }}</p>
-                <p v-else class="text-sm text-zinc-500 dark:text-zinc-600 italic">리뷰 내용 없음</p>
+                <p v-else class="text-sm text-zinc-500 dark:text-zinc-500 italic">리뷰 내용 없음</p>
               </div>
             </div>
 
@@ -98,7 +98,7 @@
               </div>
               <div v-for="comment in book.comments.slice(0, 3)" :key="comment.id" class="bg-white dark:bg-zinc-900/50 rounded-lg p-3 border-l-2 border-blue-400/30">
                 <p class="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed mb-1">{{ comment.content }}</p>
-                <div class="flex items-center gap-2 text-[10px] text-zinc-500 dark:text-zinc-600">
+                <div class="flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-500">
                   <span>{{ comment.groupName }}</span>
                   <span>•</span>
                   <span>{{ formatDate(comment.createdAt) }}</span>

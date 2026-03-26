@@ -300,7 +300,7 @@
         >
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">{{ getTierLabel(limit.tier) }}</h3>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
               {{ limit.tier }}
             </span>
           </div>

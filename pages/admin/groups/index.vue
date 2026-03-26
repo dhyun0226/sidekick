@@ -62,7 +62,7 @@
 
       <!-- Empty State -->
       <div v-else-if="filteredGroups.length === 0" class="text-center py-12">
-        <Users :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+        <Users :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
         <p class="text-zinc-900 dark:text-white font-medium">검색 결과가 없습니다</p>
       </div>
 

@@ -94,9 +94,9 @@
                 </p>
 
                 <template v-if="soloGroup.currentBook.publisher || soloGroup.currentBook.total_pages">
-                  <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold relative -translate-y-[0.5px] flex-shrink-0">·</span>
+                  <span class="text-[11px] text-zinc-300 dark:text-zinc-500 font-bold relative -translate-y-[0.5px] flex-shrink-0">·</span>
                   <span v-if="soloGroup.currentBook.publisher" class="truncate max-w-[80px] font-medium flex-shrink-0">{{ soloGroup.currentBook.publisher }}</span>
-                  <span v-if="soloGroup.currentBook.publisher && soloGroup.currentBook.total_pages" class="text-[10px] text-zinc-300 dark:text-zinc-600 flex-shrink-0">·</span>
+                  <span v-if="soloGroup.currentBook.publisher && soloGroup.currentBook.total_pages" class="text-[11px] text-zinc-300 dark:text-zinc-500 flex-shrink-0">·</span>
                   <span v-if="soloGroup.currentBook.total_pages" class="font-medium flex-shrink-0">{{ soloGroup.currentBook.total_pages }}p</span>
                 </template>
               </div>
@@ -105,12 +105,12 @@
             <!-- Bottom: Date & Progress -->
             <div class="w-full mt-auto pt-2">
               <div class="flex justify-between items-center mb-0.5 px-0.5">
-                <div class="text-[10px] text-zinc-500 dark:text-zinc-400 flex gap-0.5 font-bold">
+                <div class="text-[11px] text-zinc-500 dark:text-zinc-400 flex gap-0.5 font-bold">
                   <span>{{ soloGroup.currentBook.target_start_date ? formatDateSimple(soloGroup.currentBook.target_start_date) : 'Start' }}</span>
                   <span>~</span>
                   <span>{{ soloGroup.currentBook.target_end_date ? formatDateSimple(soloGroup.currentBook.target_end_date) : 'End' }}</span>
                 </div>
-                <span class="text-[10px] font-bold text-lime-600 dark:text-lime-400">{{ Math.round(soloGroup.currentBook.progress) }}%</span>
+                <span class="text-[11px] font-bold text-lime-600 dark:text-lime-400">{{ Math.round(soloGroup.currentBook.progress) }}%</span>
               </div>
               <div class="h-1 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                 <div class="h-full bg-lime-500 rounded-full transition-all duration-300" :style="{ width: `${soloGroup.currentBook.progress}%` }"></div>
@@ -196,9 +196,9 @@
                 </p>
                 
                 <template v-if="group.currentBook.publisher || group.currentBook.total_pages">
-                  <span class="text-[10px] text-zinc-300 dark:text-zinc-600 font-bold relative -translate-y-[0.5px] flex-shrink-0">·</span>
+                  <span class="text-[11px] text-zinc-300 dark:text-zinc-500 font-bold relative -translate-y-[0.5px] flex-shrink-0">·</span>
                   <span v-if="group.currentBook.publisher" class="truncate max-w-[80px] font-medium flex-shrink-0">{{ group.currentBook.publisher }}</span>
-                  <span v-if="group.currentBook.publisher && group.currentBook.total_pages" class="text-[10px] text-zinc-300 dark:text-zinc-600 flex-shrink-0">·</span>
+                  <span v-if="group.currentBook.publisher && group.currentBook.total_pages" class="text-[11px] text-zinc-300 dark:text-zinc-500 flex-shrink-0">·</span>
                   <span v-if="group.currentBook.total_pages" class="font-medium flex-shrink-0">{{ group.currentBook.total_pages }}p</span>
                 </template>
               </div>
@@ -207,12 +207,12 @@
             <!-- Bottom: Date & Progress -->
             <div class="w-full mt-auto pt-2">
               <div class="flex justify-between items-center mb-0.5 px-0.5">
-                <div class="text-[10px] text-zinc-500 dark:text-zinc-400 flex gap-0.5 font-bold">
+                <div class="text-[11px] text-zinc-500 dark:text-zinc-400 flex gap-0.5 font-bold">
                   <span>{{ group.currentBook.target_start_date ? formatDateSimple(group.currentBook.target_start_date) : 'Start' }}</span>
                   <span>~</span>
                   <span>{{ group.currentBook.target_end_date ? formatDateSimple(group.currentBook.target_end_date) : 'End' }}</span>
                 </div>
-                <span class="text-[10px] font-bold text-lime-600 dark:text-lime-400">{{ Math.round(group.currentBook.progress) }}%</span>
+                <span class="text-[11px] font-bold text-lime-600 dark:text-lime-400">{{ Math.round(group.currentBook.progress) }}%</span>
               </div>
               <div class="h-1 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                 <div class="h-full bg-lime-500 rounded-full transition-all duration-300" :style="{ width: `${group.currentBook.progress}%` }"></div>
@@ -248,12 +248,12 @@
               <!-- Group Name -->
               <h3 class="font-semibold text-zinc-900 dark:text-zinc-200 text-sm truncate">{{ group.name }}</h3>
               <!-- Member Badge -->
-              <div class="flex items-center gap-1 text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded flex-shrink-0">
+              <div class="flex items-center gap-1 text-[11px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded flex-shrink-0">
                  <User :size="10" />
                  <span>{{ group.members.length }}</span>
               </div>
               <!-- Done Books Badge -->
-              <div v-if="group.doneCount > 0" class="flex items-center gap-1 text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded flex-shrink-0">
+              <div v-if="group.doneCount > 0" class="flex items-center gap-1 text-[11px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded flex-shrink-0">
                  <BookOpen :size="10" />
                  <span>{{ group.doneCount }}</span>
               </div>
@@ -263,7 +263,7 @@
             </p>
           </div>
 
-          <ChevronRight :size="18" class="text-zinc-300 dark:text-zinc-600 group-hover:text-lime-500 transition-colors flex-shrink-0" />
+          <ChevronRight :size="18" class="text-zinc-300 dark:text-zinc-500 group-hover:text-lime-500 transition-colors flex-shrink-0" />
         </div>
       </div>
     </div>
@@ -271,7 +271,7 @@
     <!-- Empty State (Social 그룹이 없을 때) -->
     <div v-if="socialGroups.length === 0 && !loading" class="flex flex-col items-center justify-center min-h-[40vh] px-4 text-center">
       <div class="w-24 h-24 bg-gradient-to-tr from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-inner">
-        <User :size="36" class="text-zinc-300 dark:text-zinc-600" />
+        <User :size="36" class="text-zinc-300 dark:text-zinc-500" />
       </div>
       <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-2">반가워요, {{ userStore.profile?.nickname }}님!</h2>
       <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-8 max-w-xs leading-relaxed">

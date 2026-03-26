@@ -39,7 +39,7 @@
               :class="searchTab === 'wishlist' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
             >
               내 위시
-              <span v-if="wishlist.length > 0" class="text-[10px] bg-lime-400 text-black min-w-[18px] h-[18px] inline-flex items-center justify-center rounded-full font-bold leading-none">{{ wishlist.length }}</span>
+              <span v-if="wishlist.length > 0" class="text-[11px] bg-lime-400 text-black min-w-[18px] h-[18px] inline-flex items-center justify-center rounded-full font-bold leading-none">{{ wishlist.length }}</span>
             </button>
           </div>
 
@@ -102,7 +102,7 @@
               </div>
 
               <div v-if="!loading && query && searchResults.length === 0" class="py-12 text-center">
-                <Search :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+                <Search :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
                 <p class="text-sm text-zinc-500 font-medium">검색 결과가 없습니다</p>
               </div>
 
@@ -125,7 +125,7 @@
             </div>
 
             <div v-else-if="wishlist.length === 0" class="py-12 text-center">
-              <Heart :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+              <Heart :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
               <p class="text-sm text-zinc-500 font-medium mb-1">위시리스트가 비어있어요</p>
               <p class="text-xs text-zinc-400">검색 탭에서 책을 위시에 담아보세요</p>
             </div>

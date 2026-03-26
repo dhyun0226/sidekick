@@ -30,18 +30,18 @@
                 class="w-full bg-lime-400 rounded-t-lg transition-all duration-500 ease-out flex items-end justify-center pb-1"
                 :style="{ height: getBarHeight(month.count) }"
               >
-                <span v-if="month.count > 0" class="text-[10px] font-bold text-black">{{ month.count }}</span>
+                <span v-if="month.count > 0" class="text-[11px] font-bold text-black">{{ month.count }}</span>
               </div>
             </div>
 
             <!-- Label -->
-            <span class="text-[10px] text-zinc-500 font-medium">{{ month.label }}</span>
+            <span class="text-[11px] text-zinc-500 font-medium">{{ month.label }}</span>
           </div>
         </div>
 
         <!-- Empty State -->
         <div v-if="maxCount === 0" class="text-center py-8">
-          <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
+          <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-2" />
           <p class="text-sm text-zinc-500">아직 완독한 책이 없습니다</p>
         </div>
 

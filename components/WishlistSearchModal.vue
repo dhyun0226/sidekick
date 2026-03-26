@@ -93,13 +93,13 @@
 
         <!-- Empty State -->
         <div v-else-if="query && !loading" class="py-12 text-center">
-          <Search :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+          <Search :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
           <p class="text-sm text-zinc-500 font-medium">검색 결과가 없습니다</p>
         </div>
 
         <!-- Initial State -->
         <div v-else class="py-12 text-center">
-          <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+          <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
           <p class="text-sm text-zinc-500 font-medium">책 제목이나 저자를 검색해보세요</p>
         </div>
       </div>

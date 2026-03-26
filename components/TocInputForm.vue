@@ -6,7 +6,7 @@
         <label class="text-sm font-bold text-zinc-700 dark:text-zinc-300">
           전체 페이지 수 <span class="text-red-500">*</span>
         </label>
-        <span v-if="totalPages" class="text-[10px] text-lime-600 dark:text-lime-400 font-bold bg-lime-50 dark:bg-lime-900/20 px-1.5 py-0.5 rounded">
+        <span v-if="totalPages" class="text-[11px] text-lime-600 dark:text-lime-400 font-bold bg-lime-50 dark:bg-lime-900/20 px-1.5 py-0.5 rounded">
           입력 완료
         </span>
       </div>
@@ -28,7 +28,7 @@
     <div>
       <div class="flex justify-between items-center mb-3">
         <label class="text-sm font-bold text-zinc-700 dark:text-zinc-300">챕터 설정 (선택)</label>
-        <span class="text-[10px] text-zinc-400 font-medium">진행도를 더 정교하게 관리할 수 있어요</span>
+        <span class="text-[11px] text-zinc-400 font-medium">진행도를 더 정교하게 관리할 수 있어요</span>
       </div>
       
       <div class="space-y-3">
@@ -54,7 +54,7 @@
               
               <!-- Left: Index + Title Box (Flexible) -->
               <div class="flex-1 min-w-0 flex items-center h-11 bg-zinc-100 dark:bg-zinc-800 rounded-xl px-1 transition-all focus-within:ring-2 focus-within:ring-inset focus-within:ring-lime-400">
-                <div class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px] font-black text-zinc-400 bg-white dark:bg-zinc-700 rounded-lg shadow-sm flex-shrink-0 ml-1">
+                <div class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[11px] font-black text-zinc-400 bg-white dark:bg-zinc-700 rounded-lg shadow-sm flex-shrink-0 ml-1">
                   {{ (idx + 1).toString().padStart(2, '0') }}
                 </div>
                 <input

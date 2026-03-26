@@ -25,12 +25,12 @@
     <h4 class="text-xs font-bold text-zinc-800 dark:text-zinc-200 truncate mb-0.5">
       {{ book.title }}
     </h4>
-    <p class="text-[10px] text-zinc-500 dark:text-zinc-400 truncate mb-1">
+    <p class="text-[11px] text-zinc-500 dark:text-zinc-400 truncate mb-1">
       {{ book.author }}
     </p>
 
     <!-- Stats Badge -->
-    <div class="flex items-center gap-1 text-[10px] font-bold">
+    <div class="flex items-center gap-1 text-[11px] font-bold">
       <template v-if="type === 'hot'">
         <Flame :size="10" class="text-orange-500" />
         <span class="text-zinc-600 dark:text-zinc-400">{{ book.count }}명</span>

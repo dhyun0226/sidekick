@@ -22,7 +22,7 @@
               <div class="relative group cursor-pointer" @click="triggerFileInput">
                 <div class="w-24 h-24 rounded-full bg-white dark:bg-zinc-800 overflow-hidden border-4 border-white dark:border-zinc-700 shadow-xl relative">
                   <img v-if="previewAvatar" :src="previewAvatar" class="w-full h-full object-cover" />
-                  <div v-else class="w-full h-full flex items-center justify-center text-zinc-300 dark:text-zinc-600"><UserIcon :size="40"/></div>
+                  <div v-else class="w-full h-full flex items-center justify-center text-zinc-300 dark:text-zinc-500"><UserIcon :size="40"/></div>
                   <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Camera :size="24" class="text-white" />
                   </div>
@@ -98,7 +98,7 @@
                   리뷰만
                 </button>
               </div>
-              <p class="text-[10px] text-zinc-400 px-1">
+              <p class="text-[11px] text-zinc-400 px-1">
                 {{ appSettings.calendar_include_comments ? '코멘트와 리뷰를 남긴 날에 표지가 표시됩니다.' : '리뷰를 남긴 날에만 표지가 표시됩니다.' }}
               </p>
             </div>

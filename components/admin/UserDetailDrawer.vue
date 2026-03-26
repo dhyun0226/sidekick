@@ -45,7 +45,7 @@
                         <p class="text-sm text-zinc-500 dark:text-zinc-400 truncate">{{ user.email || '-' }}</p>
                         <div class="flex items-center gap-2 mt-1.5">
                           <span
-                            class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                            class="px-2 py-0.5 rounded-full text-[11px] font-semibold"
                             :class="{
                               'bg-zinc-100 dark:bg-zinc-800 text-zinc-500': user.subscription_tier === 'free',
                               'bg-lime-100 dark:bg-lime-900/20 text-lime-700 dark:text-lime-400': user.subscription_tier === 'premium',
@@ -54,7 +54,7 @@
                           >
                             {{ { free: '무료', premium: '프리미엄', admin: '관리자' }[user.subscription_tier] || user.subscription_tier }}
                           </span>
-                          <span class="text-[10px] text-zinc-400">{{ formatDate(user.created_at) }} 가입</span>
+                          <span class="text-[11px] text-zinc-400">{{ formatDate(user.created_at) }} 가입</span>
                         </div>
                       </div>
                     </div>
@@ -63,15 +63,15 @@
                     <div class="grid grid-cols-3 gap-3">
                       <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-4 text-center ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
                         <p class="text-2xl font-semibold text-zinc-900 dark:text-white tabular-nums">{{ stats.group_count }}</p>
-                        <p class="text-[10px] text-zinc-400 mt-1">참여 그룹</p>
+                        <p class="text-[11px] text-zinc-400 mt-1">참여 그룹</p>
                       </div>
                       <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-4 text-center ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
                         <p class="text-2xl font-semibold text-zinc-900 dark:text-white tabular-nums">{{ stats.read_count }}</p>
-                        <p class="text-[10px] text-zinc-400 mt-1">완독</p>
+                        <p class="text-[11px] text-zinc-400 mt-1">완독</p>
                       </div>
                       <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-4 text-center ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
                         <p class="text-2xl font-semibold text-zinc-900 dark:text-white tabular-nums">{{ stats.comment_count }}</p>
-                        <p class="text-[10px] text-zinc-400 mt-1">댓글</p>
+                        <p class="text-[11px] text-zinc-400 mt-1">댓글</p>
                       </div>
                     </div>
 
@@ -92,10 +92,10 @@
                         >
                           <div>
                             <p class="text-sm font-semibold text-zinc-900 dark:text-white tabular-nums">{{ formatPrice(payment.amount) }}</p>
-                            <p class="text-[10px] text-zinc-400 mt-0.5">{{ payment.plan?.display_name || '-' }} · {{ formatDateTime(payment.approved_at || payment.created_at) }}</p>
+                            <p class="text-[11px] text-zinc-400 mt-0.5">{{ payment.plan?.display_name || '-' }} · {{ formatDateTime(payment.approved_at || payment.created_at) }}</p>
                           </div>
                           <span
-                            class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                            class="px-2 py-0.5 rounded-full text-[11px] font-semibold"
                             :class="{
                               'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400': payment.status === 'completed',
                               'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400': payment.status === 'failed' || payment.status === 'cancelled',

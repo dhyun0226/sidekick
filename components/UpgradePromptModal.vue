@@ -24,7 +24,7 @@
             
             <div class="inline-flex items-center gap-1.5 bg-lime-50 dark:bg-lime-900/20 px-3 py-1 rounded-full mb-3">
               <Sparkles :size="12" class="text-lime-600 dark:text-lime-400" />
-              <span class="text-[10px] font-black text-lime-700 dark:text-lime-400 uppercase tracking-widest">Premium Membership</span>
+              <span class="text-[11px] font-black text-lime-700 dark:text-lime-400 uppercase tracking-widest">Premium Membership</span>
             </div>
             
             <h3 class="text-2xl font-semibold text-zinc-900 dark:text-white leading-tight mb-2 tracking-tight whitespace-pre-line">
@@ -49,11 +49,11 @@
           <div class="p-8 bg-zinc-50 dark:bg-zinc-800/30 border-t border-zinc-100 dark:border-zinc-800/50">
             <div class="flex items-center justify-between mb-6">
               <div class="text-left">
-                <p class="text-[10px] font-bold text-zinc-400 uppercase mb-0.5">베이직 플랜</p>
+                <p class="text-[11px] font-bold text-zinc-400 uppercase mb-0.5">베이직 플랜</p>
                 <p class="text-lg font-black text-zinc-900 dark:text-white leading-none">₩2,500 <span class="text-xs font-normal text-zinc-500">/ 월</span></p>
               </div>
               <div class="text-right">
-                <div class="bg-lime-400 text-[10px] font-black px-2 py-1 rounded-lg text-black animate-pulse-gentle shadow-sm shadow-lime-400/30">
+                <div class="bg-lime-400 text-[11px] font-black px-2 py-1 rounded-lg text-black animate-pulse-gentle shadow-sm shadow-lime-400/30">
                   BEST VALUE
                 </div>
               </div>
@@ -66,7 +66,7 @@
               >
                 멤버십 시작하기
               </button>
-              <p class="text-[10px] text-zinc-400 text-center font-medium">언제든지 해지할 수 있습니다.</p>
+              <p class="text-[11px] text-zinc-400 text-center font-medium">언제든지 해지할 수 있습니다.</p>
             </div>
           </div>
         </div>

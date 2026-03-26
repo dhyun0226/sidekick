@@ -27,7 +27,7 @@
             {{ copied ? '복사됨!' : '복사' }}
           </button>
         </div>
-        <p class="text-xs text-zinc-500 dark:text-zinc-600 mt-2">
+        <p class="text-xs text-zinc-500 dark:text-zinc-500 mt-2">
           위 텍스트를 길게 눌러 복사하거나, 복사 버튼을 눌러주세요
         </p>
       </div>

@@ -93,7 +93,7 @@
               @click.stop="handleAction('open-reviews', book)"
               :disabled="book.reviewCount === 0"
               class="w-full px-3 py-2 text-left text-desktop-caption hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors flex items-center gap-2"
-              :class="book.reviewCount === 0 ? 'text-zinc-300 dark:text-zinc-600 cursor-not-allowed' : 'text-zinc-600 dark:text-zinc-400'"
+              :class="book.reviewCount === 0 ? 'text-zinc-300 dark:text-zinc-500 cursor-not-allowed' : 'text-zinc-600 dark:text-zinc-400'"
             >
               <MessageCircle :size="13" />
               리뷰 보기
@@ -127,7 +127,7 @@
 
     <!-- Empty state -->
     <div v-else class="py-10 flex flex-col items-center gap-3">
-      <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-600" />
+      <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-500" />
       <p class="text-desktop-caption text-zinc-400 dark:text-zinc-500">아직 종료한 책이 없어요</p>
     </div>
   </div>

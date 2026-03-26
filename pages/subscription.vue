@@ -23,7 +23,7 @@
               <div>
                 <div class="flex items-center gap-2 mb-1">
                   <h3 class="text-xl font-black text-zinc-900 dark:text-white">{{ currentSubscription.plan?.display_name }}</h3>
-                  <span class="px-2 py-0.5 bg-lime-400 text-black text-[10px] font-black rounded uppercase">Active</span>
+                  <span class="px-2 py-0.5 bg-lime-400 text-black text-[11px] font-black rounded uppercase">Active</span>
                 </div>
                 <p class="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
                   {{ formatPrice(currentSubscription.plan?.price) }} / {{ currentSubscription.plan?.billing_period === 'monthly' ? '월' : '년' }}
@@ -34,11 +34,11 @@
             <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
               <!-- 결제일 표시 -->
               <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl px-5 py-3 border border-zinc-100 dark:border-zinc-800">
-                <p class="text-[10px] text-zinc-400 font-black uppercase mb-1">
+                <p class="text-[11px] text-zinc-400 font-black uppercase mb-1">
                   {{ currentSubscription.auto_renew ? '다음 결제일' : '만료일' }}
                 </p>
                 <p class="text-sm font-bold text-zinc-900 dark:text-white">{{ formatDate(currentSubscription.end_date) }}</p>
-                <p v-if="currentSubscription.auto_renew" class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1">
+                <p v-if="currentSubscription.auto_renew" class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
                   {{ formatPrice(currentSubscription.plan?.price) }} 자동결제
                 </p>
               </div>
@@ -97,11 +97,11 @@
               <Check :size="18" class="text-lime-500" />
               내 서재에서 무제한 책 추가
             </li>
-            <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-600 font-bold opacity-60 line-through">
+            <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-500 font-bold opacity-60 line-through">
               <X :size="18" class="text-zinc-400" />
               소셜 그룹에서 책 추가 (읽기전용)
             </li>
-            <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-600 font-bold opacity-60 line-through">
+            <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-500 font-bold opacity-60 line-through">
               <X :size="18" class="text-zinc-400" />
               고급 통계 분석
             </li>
@@ -154,7 +154,7 @@
         <!-- 3. Premium Yearly -->
         <div class="bg-zinc-900 rounded-3xl p-8 border border-zinc-800 flex flex-col shadow-2xl hover:scale-[1.02] transition-all relative overflow-hidden">
           <div class="absolute -right-16 -top-16 w-48 h-48 bg-lime-400/10 blur-3xl rounded-full"></div>
-          <div class="absolute top-4 right-4 bg-lime-400 text-black px-3 py-1 rounded-full text-[10px] font-black shadow-lg animate-pulse">37% 할인</div>
+          <div class="absolute top-4 right-4 bg-lime-400 text-black px-3 py-1 rounded-full text-[11px] font-black shadow-lg animate-pulse">37% 할인</div>
           
           <div class="mb-8 relative z-10">
             <h2 class="text-lg font-black text-white mb-2">프리미엄 연간</h2>

@@ -17,7 +17,7 @@
             : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'"
         >
           {{ tab.label }}
-          <span v-if="tab.count > 0" class="ml-1.5 px-1.5 py-0.5 text-[10px] font-bold rounded-full"
+          <span v-if="tab.count > 0" class="ml-1.5 px-1.5 py-0.5 text-[11px] font-bold rounded-full"
             :class="currentStatus === tab.value ? 'bg-white/20 dark:bg-black/20' : 'bg-zinc-200 dark:bg-zinc-700'">
             {{ tab.count }}
           </span>
@@ -45,13 +45,13 @@
         <div class="flex items-start justify-between gap-4">
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-1">
-              <span class="text-[10px] font-bold" :class="statusColor(inq.status)">
+              <span class="text-[11px] font-bold" :class="statusColor(inq.status)">
                 {{ statusLabel(inq.status) }}
               </span>
-              <span class="text-[10px] font-medium text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">
+              <span class="text-[11px] font-medium text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">
                 {{ categoryLabel(inq.category) }}
               </span>
-              <span class="text-[10px] text-zinc-400">{{ formatDate(inq.created_at) }}</span>
+              <span class="text-[11px] text-zinc-400">{{ formatDate(inq.created_at) }}</span>
             </div>
             <h4 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">{{ inq.title }}</h4>
             <p class="text-xs text-zinc-500 line-clamp-2">{{ inq.content }}</p>
@@ -60,7 +60,7 @@
           <div class="flex items-center gap-3 flex-shrink-0">
             <div v-if="inq.user" class="text-right">
               <p class="text-xs font-bold text-zinc-700 dark:text-zinc-300">{{ inq.user.nickname || '알 수 없음' }}</p>
-              <p class="text-[10px] text-zinc-400">{{ tierLabel(inq.user.subscription_tier) }}</p>
+              <p class="text-[11px] text-zinc-400">{{ tierLabel(inq.user.subscription_tier) }}</p>
             </div>
             <button
               @click="openReply(inq)"
@@ -76,7 +76,7 @@
 
         <!-- Existing Reply -->
         <div v-if="inq.admin_reply" class="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-          <p class="text-[10px] font-bold text-lime-600 dark:text-lime-400 mb-1">관리자 답변 · {{ formatDate(inq.replied_at) }}</p>
+          <p class="text-[11px] font-bold text-lime-600 dark:text-lime-400 mb-1">관리자 답변 · {{ formatDate(inq.replied_at) }}</p>
           <p class="text-xs text-zinc-600 dark:text-zinc-400 line-clamp-2">{{ inq.admin_reply }}</p>
         </div>
       </div>
@@ -96,7 +96,7 @@
 
           <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
             <div>
-              <p class="text-[10px] font-bold text-zinc-400 mb-1">{{ categoryLabel(replyTarget.category) }} · {{ formatDate(replyTarget.created_at) }}</p>
+              <p class="text-[11px] font-bold text-zinc-400 mb-1">{{ categoryLabel(replyTarget.category) }} · {{ formatDate(replyTarget.created_at) }}</p>
               <p class="text-sm font-bold text-zinc-900 dark:text-white">{{ replyTarget.title }}</p>
             </div>
 
@@ -109,7 +109,7 @@
               <span>·</span>
               <span>{{ replyTarget.user.email }}</span>
               <span>·</span>
-              <span class="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[10px]">{{ tierLabel(replyTarget.user.subscription_tier) }}</span>
+              <span class="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[11px]">{{ tierLabel(replyTarget.user.subscription_tier) }}</span>
             </div>
 
             <div>

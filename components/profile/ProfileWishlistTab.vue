@@ -8,7 +8,7 @@
 
       <div v-else-if="wishlist.length === 0" class="py-16 flex flex-col items-center text-center">
         <div class="w-20 h-20 bg-gradient-to-tr from-pink-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-5 shadow-inner">
-          <Heart :size="28" class="text-zinc-300 dark:text-zinc-600" />
+          <Heart :size="28" class="text-zinc-300 dark:text-zinc-500" />
         </div>
         <h3 class="text-lg font-semibold text-zinc-900 dark:text-white mb-2">아직 담은 책이 없어요</h3>
         <p class="text-sm text-zinc-500 dark:text-zinc-400 max-w-xs leading-relaxed mb-6">
@@ -51,7 +51,7 @@
               </div>
               <div class="mt-2">
                 <p class="text-xs font-semibold text-zinc-800 dark:text-zinc-200 line-clamp-2 leading-tight">{{ item.book.title }}</p>
-                <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">{{ item.book.author }}</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">{{ item.book.author }}</p>
               </div>
             </div>
             <!-- 삭제 버튼 -->

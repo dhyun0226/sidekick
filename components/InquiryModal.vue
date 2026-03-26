@@ -32,7 +32,7 @@
               </div>
 
               <div v-else-if="inquiries.length === 0" class="text-center py-8">
-                <MessageCircle :size="32" class="mx-auto text-zinc-300 dark:text-zinc-600 mb-3" />
+                <MessageCircle :size="32" class="mx-auto text-zinc-300 dark:text-zinc-500 mb-3" />
                 <p class="text-sm text-zinc-400">문의 내역이 없습니다</p>
               </div>
 
@@ -44,10 +44,10 @@
                   class="w-full text-left bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4 border border-zinc-100 dark:border-zinc-800/50 hover:border-zinc-200 dark:hover:border-zinc-700 transition-colors"
                 >
                   <div class="flex items-center justify-between mb-1.5">
-                    <span class="text-[10px] font-bold uppercase tracking-wider" :class="statusColor(inq.status)">
+                    <span class="text-[11px] font-bold uppercase tracking-wider" :class="statusColor(inq.status)">
                       {{ statusLabel(inq.status) }}
                     </span>
-                    <span class="text-[10px] text-zinc-400">{{ formatDate(inq.created_at) }}</span>
+                    <span class="text-[11px] text-zinc-400">{{ formatDate(inq.created_at) }}</span>
                   </div>
                   <p class="text-sm font-bold text-zinc-900 dark:text-white truncate">{{ inq.title }}</p>
                   <p class="text-xs text-zinc-500 mt-0.5">{{ categoryLabel(inq.category) }}</p>
@@ -94,7 +94,7 @@
                   placeholder="문의 내용을 자세히 적어주세요"
                   class="w-full bg-zinc-50 dark:bg-zinc-800/50 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 text-zinc-900 dark:text-white placeholder-zinc-400 resize-none"
                 ></textarea>
-                <p class="text-[10px] text-zinc-400 text-right mt-1">{{ form.content.length }} / 2000</p>
+                <p class="text-[11px] text-zinc-400 text-right mt-1">{{ form.content.length }} / 2000</p>
               </div>
 
               <div class="flex gap-3">
@@ -124,13 +124,13 @@
 
               <div>
                 <div class="flex items-center gap-2 mb-2">
-                  <span class="text-[10px] font-bold uppercase tracking-wider" :class="statusColor(selectedInquiry.status)">
+                  <span class="text-[11px] font-bold uppercase tracking-wider" :class="statusColor(selectedInquiry.status)">
                     {{ statusLabel(selectedInquiry.status) }}
                   </span>
-                  <span class="text-[10px] text-zinc-400">{{ categoryLabel(selectedInquiry.category) }}</span>
+                  <span class="text-[11px] text-zinc-400">{{ categoryLabel(selectedInquiry.category) }}</span>
                 </div>
                 <h4 class="text-base font-bold text-zinc-900 dark:text-white">{{ selectedInquiry.title }}</h4>
-                <p class="text-[10px] text-zinc-400 mt-1">{{ formatDate(selectedInquiry.created_at) }}</p>
+                <p class="text-[11px] text-zinc-400 mt-1">{{ formatDate(selectedInquiry.created_at) }}</p>
               </div>
 
               <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4 border border-zinc-100 dark:border-zinc-800/50">
@@ -143,7 +143,7 @@
                     <MessageCircle :size="10" class="text-black" />
                   </div>
                   <span class="text-[11px] font-bold text-zinc-500">관리자 답변</span>
-                  <span class="text-[10px] text-zinc-400">{{ formatDate(selectedInquiry.replied_at) }}</span>
+                  <span class="text-[11px] text-zinc-400">{{ formatDate(selectedInquiry.replied_at) }}</span>
                 </div>
                 <div class="bg-lime-50 dark:bg-lime-900/10 rounded-xl p-4 border border-lime-100 dark:border-lime-900/20">
                   <p class="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed">{{ selectedInquiry.admin_reply }}</p>

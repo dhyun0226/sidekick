@@ -90,11 +90,11 @@
                     class="w-full bg-lime-400 rounded-t-lg transition-all duration-500 flex items-end justify-center pb-1"
                     :style="{ height: getActivityBarHeight(month.count) }"
                   >
-                    <span v-if="month.count > 0" class="text-[10px] font-bold text-black">{{ month.count }}</span>
+                    <span v-if="month.count > 0" class="text-[11px] font-bold text-black">{{ month.count }}</span>
                   </div>
                 </div>
                 <!-- Label -->
-                <span class="text-[10px] text-zinc-500 font-medium">{{ month.label }}</span>
+                <span class="text-[11px] text-zinc-500 font-medium">{{ month.label }}</span>
               </div>
             </div>
           </div>
@@ -117,7 +117,7 @@
                   </div>
                   <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
                     <div class="text-xs text-zinc-500">{{ book.author }}</div>
-                    <div v-if="book.publisher || book.total_pages" class="text-[10px] text-zinc-400">
+                    <div v-if="book.publisher || book.total_pages" class="text-[11px] text-zinc-400">
                       <span v-if="book.publisher">{{ book.publisher }}</span>
                       <span v-if="book.publisher && book.total_pages"> · </span>
                       <span v-if="book.total_pages">{{ book.total_pages }}p</span>
@@ -132,7 +132,7 @@
               </div>
             </div>
             <div v-else class="text-center py-8">
-              <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
+              <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-2" />
               <p class="text-sm text-zinc-500">아직 완독한 책이 없습니다</p>
             </div>
           </div>

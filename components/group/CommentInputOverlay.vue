@@ -35,7 +35,7 @@
             고정됨
           </div>
         </div>
-        <p v-if="!anchorTextLocked" class="text-[10px] text-zinc-500 dark:text-zinc-600 mt-1">인용하고 싶은 문구를 입력하세요</p>
+        <p v-if="!anchorTextLocked" class="text-[11px] text-zinc-500 dark:text-zinc-500 mt-1">인용하고 싶은 문구를 입력하세요</p>
       </div>
 
       <!-- Content -->
@@ -48,8 +48,8 @@
           maxlength="500"
         ></textarea>
         <div class="flex justify-between items-center mt-1">
-          <p class="text-[10px] text-zinc-500 dark:text-zinc-600">최대 500자</p>
-          <p class="text-[10px]" :class="content.length > 500 ? 'text-red-400' : 'text-zinc-500 dark:text-zinc-600'">
+          <p class="text-[11px] text-zinc-500 dark:text-zinc-500">최대 500자</p>
+          <p class="text-[11px]" :class="content.length > 500 ? 'text-red-400' : 'text-zinc-500 dark:text-zinc-500'">
             {{ content.length }} / 500
           </p>
         </div>

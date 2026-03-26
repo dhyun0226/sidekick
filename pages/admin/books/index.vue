@@ -156,7 +156,7 @@
                 <template v-if="detailBook.official_pages">
                   <div class="flex items-center gap-2">
                     <span class="text-2xl font-semibold text-blue-600">{{ detailBook.official_pages }}p</span>
-                    <span class="text-[10px] text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded">승인됨</span>
+                    <span class="text-[11px] text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded">승인됨</span>
                   </div>
                 </template>
                 <template v-else-if="detailBook.draft_pages">
@@ -187,7 +187,7 @@
                 <template v-if="detailBook.official_genre">
                   <div class="flex items-center gap-2">
                     <span class="text-2xl font-semibold text-blue-600">{{ detailBook.official_genre }}</span>
-                    <span class="text-[10px] text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded">승인됨</span>
+                    <span class="text-[11px] text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded">승인됨</span>
                   </div>
                 </template>
                 <template v-else-if="detailBook.draft_genre">
@@ -216,8 +216,8 @@
                   목차
                   <span v-if="detailTocData.length > 0" class="text-zinc-500 ml-1">{{ detailTocData.length }}장</span>
                 </h4>
-                <span v-if="detailBook.official_toc" class="text-[10px] text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded">승인됨</span>
-                <span v-else-if="detailBook.draft_toc" class="text-[10px] text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded">대기</span>
+                <span v-if="detailBook.official_toc" class="text-[11px] text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded">승인됨</span>
+                <span v-else-if="detailBook.draft_toc" class="text-[11px] text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded">대기</span>
               </div>
 
               <div class="flex-1 overflow-y-auto">
@@ -229,7 +229,7 @@
                   >
                     <div class="flex items-baseline justify-between">
                       <p class="text-sm text-zinc-900 dark:text-white">
-                        <span class="text-zinc-300 dark:text-zinc-600 mr-2 tabular-nums">{{ idx + 1 }}.</span>
+                        <span class="text-zinc-300 dark:text-zinc-500 mr-2 tabular-nums">{{ idx + 1 }}.</span>
                         {{ ch.title }}
                       </p>
                       <span v-if="ch.startPage" class="text-sm text-zinc-400 tabular-nums shrink-0 ml-4">{{ ch.startPage }}p</span>

@@ -104,7 +104,7 @@
                     <div class="flex items-center gap-2 text-zinc-900 dark:text-zinc-100 mb-0.5">
                       <span class="text-xs font-bold truncate">{{ item.groupName }}</span>
                       <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                      <span class="text-[10px] text-zinc-400 font-medium whitespace-nowrap">{{ formatDateTime(item.created_at) }}</span>
+                      <span class="text-[11px] text-zinc-400 font-medium whitespace-nowrap">{{ formatDateTime(item.created_at) }}</span>
                     </div>
                   </div>
                   
@@ -157,7 +157,7 @@
 
               <!-- Empty State -->
               <div v-if="filteredTimeline.length === 0" class="py-12 text-center">
-                <PenLine :size="24" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+                <PenLine :size="24" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
                 <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">기록이 없습니다</h3>
                 <p class="text-xs text-zinc-500">이 책에 대한 생각을 확인해보세요</p>
               </div>
@@ -177,7 +177,7 @@
                     <div class="flex items-center gap-2 text-zinc-900 dark:text-zinc-100 mb-0.5">
                       <span class="text-xs font-bold truncate">{{ item.groupName }}</span>
                       <span class="text-zinc-300 dark:text-zinc-700">·</span>
-                      <span class="text-[10px] text-zinc-400 font-medium whitespace-nowrap">{{ formatDateTime(item.created_at) }}</span>
+                      <span class="text-[11px] text-zinc-400 font-medium whitespace-nowrap">{{ formatDateTime(item.created_at) }}</span>
                     </div>
                   </div>
                   
@@ -192,7 +192,7 @@
                 </p>
               </div>
               <div v-if="bookReviews.length === 0" class="py-12 text-center">
-                <Star :size="24" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+                <Star :size="24" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
                 <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">리뷰가 없습니다</h3>
               </div>
             </div>

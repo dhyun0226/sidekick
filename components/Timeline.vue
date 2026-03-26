@@ -14,7 +14,7 @@
         <span class="text-sm font-semibold text-lime-600 dark:text-lime-500">
           {{ Math.round(group.position) }}%
         </span>
-        <span class="text-[10px] text-zinc-400 dark:text-zinc-600 font-medium">
+        <span class="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">
           {{ group.totalCount }}개의 기록
         </span>
       </div>
@@ -50,12 +50,12 @@
             <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100" :class="{ 'text-zinc-400 font-medium italic': !comment.user }">
               {{ comment.user?.nickname || '탈퇴한 사용자' }}
             </span>
-            <span class="text-[10px] text-zinc-300 dark:text-zinc-600">{{ formatDate(comment.created_at) }}</span>
+            <span class="text-[11px] text-zinc-300 dark:text-zinc-500">{{ formatDate(comment.created_at) }}</span>
           </div>
 
           <!-- Date only in Solo mode -->
           <div v-else class="flex items-center gap-2 mb-1.5">
-            <span class="text-[10px] text-zinc-300 dark:text-zinc-600">{{ formatDate(comment.created_at) }}</span>
+            <span class="text-[11px] text-zinc-300 dark:text-zinc-500">{{ formatDate(comment.created_at) }}</span>
           </div>
 
           <!-- Content -->
@@ -103,8 +103,8 @@
           <div v-if="!isSolo && !isSpoiler(group.position) && editingCommentId !== comment.id" class="flex items-center gap-4 mt-2.5">
             <button
               @click.stop="toggleLike(comment.id)"
-              class="flex items-center gap-1 text-[10px] font-bold transition-colors"
-              :class="comment.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-600 hover:text-red-400'"
+              class="flex items-center gap-1 text-[11px] font-bold transition-colors"
+              :class="comment.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-500 hover:text-red-400'"
             >
               <Heart :size="12" :fill="comment.isLiked ? 'currentColor' : 'none'" />
               <span v-if="comment.likes">{{ comment.likes }}</span>
@@ -113,22 +113,22 @@
 
             <button
               @click.stop="toggleReplyForm(comment.id)"
-              class="flex items-center gap-1 text-[10px] font-bold text-zinc-300 dark:text-zinc-600 hover:text-lime-500 transition-colors"
+              class="flex items-center gap-1 text-[11px] font-bold text-zinc-300 dark:text-zinc-500 hover:text-lime-500 transition-colors"
             >
               <MessageCircle :size="12" />
               답글
             </button>
 
             <div v-if="isOwnComment(comment)" class="flex items-center gap-1 ml-auto">
-              <button @click.stop="startEdit(comment)" class="text-xs font-bold text-zinc-300 dark:text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-zinc-100 dark:active:bg-zinc-800">수정</button>
-              <button @click.stop="confirmDelete(comment.id)" class="text-xs font-bold text-zinc-300 dark:text-zinc-600 hover:text-red-500 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-red-50 dark:active:bg-red-900/20">삭제</button>
+              <button @click.stop="startEdit(comment)" class="text-xs font-bold text-zinc-300 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-zinc-100 dark:active:bg-zinc-800">수정</button>
+              <button @click.stop="confirmDelete(comment.id)" class="text-xs font-bold text-zinc-300 dark:text-zinc-500 hover:text-red-500 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-red-50 dark:active:bg-red-900/20">삭제</button>
             </div>
           </div>
 
           <!-- Solo mode actions (Edit/Delete only) -->
           <div v-if="isSolo && !isSpoiler(group.position) && editingCommentId !== comment.id && isOwnComment(comment)" class="flex items-center gap-1 mt-2.5">
-            <button @click.stop="startEdit(comment)" class="text-xs font-bold text-zinc-300 dark:text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-zinc-100 dark:active:bg-zinc-800">수정</button>
-            <button @click.stop="confirmDelete(comment.id)" class="text-xs font-bold text-zinc-300 dark:text-zinc-600 hover:text-red-500 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-red-50 dark:active:bg-red-900/20">삭제</button>
+            <button @click.stop="startEdit(comment)" class="text-xs font-bold text-zinc-300 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-zinc-100 dark:active:bg-zinc-800">수정</button>
+            <button @click.stop="confirmDelete(comment.id)" class="text-xs font-bold text-zinc-300 dark:text-zinc-500 hover:text-red-500 transition-colors px-2.5 py-1.5 -my-1 rounded-lg active:bg-red-50 dark:active:bg-red-900/20">삭제</button>
           </div>
 
           <!-- Reply Form (Hidden in Solo mode) -->
@@ -169,13 +169,13 @@
                   <span class="text-[11px] font-bold text-zinc-500 dark:text-zinc-400" :class="{ 'italic font-medium opacity-70': !reply.user }">
                     {{ reply.user?.nickname || '탈퇴한 사용자' }}
                   </span>
-                  <span class="text-[10px] text-zinc-300 dark:text-zinc-600">{{ formatDate(reply.created_at) }}</span>
+                  <span class="text-[11px] text-zinc-300 dark:text-zinc-500">{{ formatDate(reply.created_at) }}</span>
                 </div>
                 
                 <!-- Reply Actions (Edit/Delete) - Always visible for mobile -->
                 <div v-if="isOwnReply(reply) && editingReplyId !== reply.id" class="flex items-center gap-2.5">
-                  <button @click="startReplyEdit(reply)" class="text-[10px] font-bold text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">수정</button>
-                  <button v-if="isOwnReply(reply)" @click="confirmDeleteReply(reply.id)" class="text-[10px] font-bold text-zinc-300 hover:text-red-400 transition-colors">삭제</button>
+                  <button @click="startReplyEdit(reply)" class="text-[11px] font-bold text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">수정</button>
+                  <button v-if="isOwnReply(reply)" @click="confirmDeleteReply(reply.id)" class="text-[11px] font-bold text-zinc-300 hover:text-red-400 transition-colors">삭제</button>
                 </div>
               </div>
 
@@ -193,8 +193,8 @@
                   <div v-if="!isSpoiler(group.position)" class="flex items-center gap-3 mt-2">
                     <button
                       @click.stop="toggleLike(reply.id)"
-                      class="flex items-center gap-1.5 text-[10px] font-bold transition-colors"
-                      :class="reply.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-600 hover:text-red-400'"
+                      class="flex items-center gap-1.5 text-[11px] font-bold transition-colors"
+                      :class="reply.isLiked ? 'text-red-500' : 'text-zinc-300 dark:text-zinc-500 hover:text-red-400'"
                     >
                       <Heart :size="12" :fill="reply.isLiked ? 'currentColor' : 'none'" />
                       <span v-if="reply.likes">{{ reply.likes }}</span>
@@ -250,14 +250,14 @@
 
     <!-- Loading More Indicator -->
     <div v-if="isLoadingMore" class="flex justify-center py-8">
-      <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-600 text-sm">
+      <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-500 text-sm">
         <div class="w-4 h-4 border-2 border-lime-400 border-t-transparent rounded-full animate-spin"></div>
         <span>댓글을 불러오는 중...</span>
       </div>
     </div>
 
     <!-- End of Comments -->
-    <div v-else-if="!hasMore && comments.length > 0" class="text-center py-8 text-zinc-500 dark:text-zinc-600 text-sm">
+    <div v-else-if="!hasMore && comments.length > 0" class="text-center py-8 text-zinc-500 dark:text-zinc-500 text-sm">
       모든 댓글을 불러왔습니다
     </div>
 

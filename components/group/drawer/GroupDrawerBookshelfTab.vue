@@ -31,7 +31,7 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <span class="text-[10px] text-zinc-400 leading-none">총 {{ filteredAndSortedBooks.length }}권</span>
+        <span class="text-[11px] text-zinc-400 leading-none">총 {{ filteredAndSortedBooks.length }}권</span>
         <!-- Search Toggle -->
         <button
           @click="showSearch = !showSearch"
@@ -155,7 +155,7 @@
 
     <!-- Empty State -->
     <div v-if="filteredAndSortedBooks.length === 0" class="text-center py-12 text-xs text-zinc-400 bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-dashed ring-black/[0.04] dark:ring-white/[0.06]">
-      <component :is="searchQuery ? Search : BookOpen" :size="28" class="text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+      <component :is="searchQuery ? Search : BookOpen" :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
       <p>{{ searchQuery ? '검색 결과가 없습니다' : '아직 종료한 책이 없습니다' }}</p>
     </div>
   </div>

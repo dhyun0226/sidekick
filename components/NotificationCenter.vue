@@ -44,7 +44,7 @@
 
         <div v-else-if="notifications.length === 0" class="p-12 text-center flex flex-col items-center">
           <div class="w-16 h-16 bg-zinc-50 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mb-4">
-            <Bell :size="28" class="text-zinc-300 dark:text-zinc-600" />
+            <Bell :size="28" class="text-zinc-300 dark:text-zinc-500" />
           </div>
           <h4 class="text-sm font-bold text-zinc-900 dark:text-white mb-1">새로운 소식이 없어요</h4>
           <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
@@ -65,10 +65,10 @@
             <div class="min-w-0">
               <!-- Top Row: Group Badge & Time -->
               <div class="flex items-center justify-between mb-2">
-                <div v-if="noti.groupName" class="text-[10px] font-black text-lime-600 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/30 px-1.5 py-0.5 rounded uppercase tracking-tighter truncate max-w-[180px]">
+                <div v-if="noti.groupName" class="text-[11px] font-black text-lime-600 dark:text-lime-400 bg-lime-50 dark:bg-lime-900/30 px-1.5 py-0.5 rounded uppercase tracking-tighter truncate max-w-[180px]">
                   {{ noti.groupName }}
                 </div>
-                <span class="text-[10px] font-bold text-zinc-400 whitespace-nowrap ml-auto">
+                <span class="text-[11px] font-bold text-zinc-400 whitespace-nowrap ml-auto">
                   {{ formatTimeAgo(noti.created_at) }}
                 </span>
               </div>

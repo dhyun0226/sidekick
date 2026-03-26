@@ -6,7 +6,7 @@
 
     <div v-else-if="timeline.length === 0 && !loading" class="py-16 flex flex-col items-center text-center">
       <div class="w-20 h-20 bg-gradient-to-tr from-lime-100 to-white dark:from-zinc-800 dark:to-zinc-900 rounded-full flex items-center justify-center mb-5 shadow-inner">
-        <Pencil :size="28" class="text-zinc-300 dark:text-zinc-600" />
+        <Pencil :size="28" class="text-zinc-300 dark:text-zinc-500" />
       </div>
       <h3 class="text-lg font-semibold text-zinc-900 dark:text-white mb-2">아직 남긴 기록이 없어요</h3>
       <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-8 max-w-xs leading-relaxed">
