@@ -13,7 +13,7 @@
         :class="inputError ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : 'focus:ring-zinc-900/10 dark:focus:ring-white/10'"
         :placeholder="inputMode === 'page' ? '페이지' : '%'"
       />
-      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-desktop-caption text-zinc-400 dark:text-zinc-500">
+      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-desktop-caption text-zinc-400 dark:text-zinc-400">
         {{ inputMode === 'page' ? `/ ${totalPages}p` : '%' }}
       </span>
     </div>

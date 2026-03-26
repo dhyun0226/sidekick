@@ -47,8 +47,8 @@ export default <Partial<Config>>{
                 'desktop-callout-regular': ['15px', { lineHeight: '22px', fontWeight: '400' }],
                 'desktop-caption': ['13px', { lineHeight: '18px', fontWeight: '500' }],
                 'desktop-caption-regular': ['13px', { lineHeight: '18px', fontWeight: '400' }],
-                'desktop-footnote': ['12px', { lineHeight: '18px', fontWeight: '400' }],
-                'desktop-micro': ['11px', { lineHeight: '16px', fontWeight: '500' }],
+                'desktop-footnote': ['13px', { lineHeight: '18px', fontWeight: '400' }],
+                'desktop-micro': ['13px', { lineHeight: '18px', fontWeight: '500' }],
             },
             spacing: {
                 'sidebar': '240px',

@@ -1,11 +1,11 @@
 <template>
   <div class="pt-6 border-t border-zinc-200/80 dark:border-zinc-800">
-    <h3 class="text-desktop-micro text-zinc-400 dark:text-zinc-500 uppercase tracking-widest font-medium mb-5">프로필</h3>
+    <h3 class="text-desktop-micro text-zinc-400 dark:text-zinc-400 uppercase tracking-widest font-medium mb-5">프로필</h3>
 
     <div class="flex items-center gap-5 mb-6">
       <div class="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0">
         <img v-if="profile?.avatar_url" :src="profile.avatar_url" class="w-full h-full object-cover" />
-        <div v-else class="w-full h-full flex items-center justify-center text-desktop-body text-zinc-400 dark:text-zinc-500">
+        <div v-else class="w-full h-full flex items-center justify-center text-desktop-body text-zinc-400 dark:text-zinc-400">
           {{ (profile?.nickname || 'U')[0] }}
         </div>
       </div>
@@ -19,7 +19,7 @@
 
     <div class="space-y-4">
       <div>
-        <label class="text-desktop-caption text-zinc-400 dark:text-zinc-500 mb-1.5 block font-medium">닉네임</label>
+        <label class="text-desktop-caption text-zinc-400 dark:text-zinc-400 mb-1.5 block font-medium">닉네임</label>
         <input
           v-model="nickname"
           class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 border-0 rounded-xl text-desktop-body text-zinc-900 dark:text-white placeholder-zinc-300 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all ease-apple duration-200"

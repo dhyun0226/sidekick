@@ -5,7 +5,7 @@
       <h1 class="text-desktop-title font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight mb-2.5">
         {{ greeting.text }}
       </h1>
-      <p class="text-desktop-body text-zinc-400 dark:text-zinc-500 font-light">{{ greeting.sub }}</p>
+      <p class="text-desktop-body text-zinc-400 dark:text-zinc-400 font-light">{{ greeting.sub }}</p>
     </div>
 
     <!-- Loading -->
@@ -24,7 +24,7 @@
           @click="router.push('/my-library')"
         />
         <div v-else class="py-10 text-center">
-          <p class="text-desktop-body text-zinc-400 dark:text-zinc-500 mb-5">읽을 책을 추가해보세요</p>
+          <p class="text-desktop-body text-zinc-400 dark:text-zinc-400 mb-5">읽을 책을 추가해보세요</p>
           <button
             @click="router.push('/my-library')"
             class="px-5 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-medium rounded-full hover:opacity-80 transition-opacity duration-200 ease-apple text-desktop-callout"
@@ -63,10 +63,10 @@
       <!-- Empty State -->
       <div v-if="!soloGroup && readingGroups.length === 0 && idleGroups.length === 0" class="text-center py-24">
         <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center">
-          <UsersIcon :size="24" class="text-zinc-400 dark:text-zinc-500" />
+          <UsersIcon :size="24" class="text-zinc-400 dark:text-zinc-400" />
         </div>
         <h3 class="text-desktop-body font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">공유 그룹에 참여해보세요</h3>
-        <p class="text-desktop-callout text-zinc-400 dark:text-zinc-500 font-light mb-8">새로운 모임을 만들거나 초대를 받아보세요.</p>
+        <p class="text-desktop-callout text-zinc-400 dark:text-zinc-400 font-light mb-8">새로운 모임을 만들거나 초대를 받아보세요.</p>
         <div class="flex gap-3 justify-center">
           <button
             @click="$emit('create-group')"

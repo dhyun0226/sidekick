@@ -35,7 +35,7 @@
                   : 'text-zinc-400'"
               >{{ positionMode === 'page' ? '페이지' : 'p' }}</button>
             </div>
-            <span class="text-desktop-micro text-zinc-400 dark:text-zinc-500 font-medium">에서</span>
+            <span class="text-desktop-micro text-zinc-400 dark:text-zinc-400 font-medium">에서</span>
           </div>
           <button
             @click="$emit('open-batch')"
@@ -86,7 +86,7 @@
             </span>
           </Transition>
           <div class="flex items-center gap-3 ml-auto">
-            <kbd class="hidden sm:inline text-desktop-micro text-zinc-400 dark:text-zinc-500">{{ isMac ? '⌘' : 'Ctrl' }}↵</kbd>
+            <kbd class="hidden sm:inline text-desktop-micro text-zinc-400 dark:text-zinc-400">{{ isMac ? '⌘' : 'Ctrl' }}↵</kbd>
             <button
               @click="submitComment"
               :disabled="(!newComment.trim() && !anchorText.trim()) || isSubmitting"
@@ -134,7 +134,7 @@
                   <div class="flex-1 min-w-0">
                     <div class="flex items-baseline gap-2">
                       <span class="text-desktop-caption font-semibold text-zinc-900 dark:text-zinc-100">{{ comment.user?.nickname || '나' }}</span>
-                      <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-500">{{ formatTimeAgo(comment.created_at) }}</span>
+                      <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-400">{{ formatTimeAgo(comment.created_at) }}</span>
                     </div>
 
                     <template v-if="editingCommentId !== comment.id">
@@ -146,7 +146,7 @@
                           <button
                             @click="handleLike(comment)"
                             class="flex items-center gap-1 text-desktop-footnote font-medium transition-colors"
-                            :class="comment.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-500 hover:text-red-400'"
+                            :class="comment.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-400 hover:text-red-400'"
                           >
                             <Heart :size="12" :fill="comment.isLiked ? 'currentColor' : 'none'" :class="likedId === comment.id ? 'animate-like-bounce' : ''" />
                             <span v-if="comment.likes" class="tabular-nums">{{ comment.likes }}</span>
@@ -157,17 +157,17 @@
                         <button
                           v-if="!isReadOnlyMode"
                           @click="toggleReplyForm(comment.id)"
-                          class="flex items-center gap-1 text-desktop-footnote font-medium text-zinc-400 dark:text-zinc-500 hover:text-zinc-500 transition-colors"
+                          class="flex items-center gap-1 text-desktop-footnote font-medium text-zinc-400 dark:text-zinc-400 hover:text-zinc-500 transition-colors"
                         >
                           <MessageCircle :size="12" />
                           <span v-if="comment.replies?.length" class="tabular-nums">{{ comment.replies.length }}</span>
                         </button>
 
                         <template v-if="!isReadOnlyMode && currentUserId && comment.user_id === currentUserId">
-                          <button @click="startEdit(comment)" class="text-zinc-400 dark:text-zinc-500 hover:text-zinc-500 transition-colors">
+                          <button @click="startEdit(comment)" class="text-zinc-400 dark:text-zinc-400 hover:text-zinc-500 transition-colors">
                             <Pencil :size="13" />
                           </button>
-                          <button @click="$emit('delete', comment)" class="text-zinc-400 dark:text-zinc-500 hover:text-red-400 transition-colors">
+                          <button @click="$emit('delete', comment)" class="text-zinc-400 dark:text-zinc-400 hover:text-red-400 transition-colors">
                             <Trash2 :size="13" />
                           </button>
                         </template>
@@ -200,7 +200,7 @@
                       <div class="flex items-center gap-2 mt-2">
                         <button @click="saveEdit(comment)" :disabled="!editContent.trim() && !editAnchor.trim()" class="px-3.5 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50">저장</button>
                         <button @click="cancelEdit" class="px-3.5 py-1.5 text-zinc-500 text-desktop-caption font-medium hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">취소</button>
-                        <kbd class="ml-auto text-desktop-micro text-zinc-400 dark:text-zinc-500">{{ isMac ? '⌘' : 'Ctrl' }}↵</kbd>
+                        <kbd class="ml-auto text-desktop-micro text-zinc-400 dark:text-zinc-400">{{ isMac ? '⌘' : 'Ctrl' }}↵</kbd>
                       </div>
                     </template>
 
@@ -217,7 +217,7 @@
                         <div class="flex-1 min-w-0">
                           <div class="flex items-baseline gap-1.5">
                             <span class="text-desktop-caption font-semibold text-zinc-700 dark:text-zinc-300">{{ reply.user?.nickname || '탈퇴한 사용자' }}</span>
-                            <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-500">{{ formatTimeAgo(reply.created_at) }}</span>
+                            <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-400">{{ formatTimeAgo(reply.created_at) }}</span>
                           </div>
                           <p class="text-desktop-caption text-zinc-600 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap break-words mt-0.5">{{ reply.content }}</p>
                           <div class="flex items-center gap-3 mt-1">
@@ -225,7 +225,7 @@
                               <button
                                 @click="handleLike(reply)"
                                 class="flex items-center gap-1 text-desktop-footnote font-medium transition-colors"
-                                :class="reply.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-500 hover:text-red-400'"
+                                :class="reply.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-400 hover:text-red-400'"
                               >
                                 <Heart :size="12" :fill="reply.isLiked ? 'currentColor' : 'none'" :class="likedId === reply.id ? 'animate-like-bounce' : ''" />
                                 <span v-if="reply.likes" class="tabular-nums">{{ reply.likes }}</span>
@@ -281,7 +281,7 @@
 
     <!-- Empty State -->
     <div v-if="comments.length === 0 && !isLoadingMore" class="text-center py-20">
-      <Pencil :size="22" class="mx-auto text-zinc-400 dark:text-zinc-500 mb-4" />
+      <Pencil :size="22" class="mx-auto text-zinc-400 dark:text-zinc-400 mb-4" />
       <h3 class="text-desktop-callout-regular font-medium tracking-tight text-zinc-900 dark:text-white mb-1.5">아직 기록이 없어요</h3>
       <p class="text-desktop-caption text-zinc-400 font-light">책을 읽으면서 느낀 점을 기록해보세요.</p>
     </div>

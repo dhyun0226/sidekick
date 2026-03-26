@@ -1,11 +1,11 @@
 <template>
   <div class="space-y-5">
     <div class="flex items-center justify-between">
-      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-500 uppercase tracking-widest font-medium">멤버 ({{ members.length }})</h4>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-400 uppercase tracking-widest font-medium">멤버 ({{ members.length }})</h4>
       <button
         @click="showSearch = !showSearch; if (!showSearch) searchQuery = ''"
         class="p-1 rounded-lg transition-colors"
-        :class="showSearch ? 'text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800' : 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-500 dark:hover:text-zinc-400'"
+        :class="showSearch ? 'text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800' : 'text-zinc-400 dark:text-zinc-400 hover:text-zinc-500 dark:hover:text-zinc-400'"
       >
         <Search :size="13" />
       </button>
@@ -46,11 +46,11 @@
           <div class="flex items-center justify-between gap-1">
             <div class="flex items-center gap-1.5 min-w-0">
               <span class="text-desktop-caption font-medium text-zinc-900 dark:text-white truncate max-w-[100px]">{{ member.nickname }}</span>
-              <span v-if="member.id === currentUserId" class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 font-normal flex-shrink-0">나</span>
-              <span v-if="member.role === 'admin'" class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 font-normal flex-shrink-0">관리자</span>
+              <span v-if="member.id === currentUserId" class="text-desktop-footnote text-zinc-400 dark:text-zinc-400 font-normal flex-shrink-0">나</span>
+              <span v-if="member.role === 'admin'" class="text-desktop-footnote text-zinc-400 dark:text-zinc-400 font-normal flex-shrink-0">관리자</span>
             </div>
-            <span v-if="member.isCompleted && member.finishedDate" class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 flex-shrink-0">{{ member.finishedDate }}</span>
-            <span v-else-if="member.timeAgo" class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 flex-shrink-0">{{ member.timeAgo }}</span>
+            <span v-if="member.isCompleted && member.finishedDate" class="text-desktop-footnote text-zinc-400 dark:text-zinc-400 flex-shrink-0">{{ member.finishedDate }}</span>
+            <span v-else-if="member.timeAgo" class="text-desktop-footnote text-zinc-400 dark:text-zinc-400 flex-shrink-0">{{ member.timeAgo }}</span>
           </div>
           <div class="flex items-center gap-2 mt-1">
             <div class="flex-1 h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
@@ -75,7 +75,7 @@
         <div v-else-if="isAdmin && member.id !== currentUserId" class="relative flex-shrink-0">
           <button
             @click.stop="toggleMenu(member.id)"
-            class="p-1 rounded-lg text-zinc-400 dark:text-zinc-500 opacity-0 group-hover:opacity-100 hover:text-zinc-500 dark:hover:text-zinc-400 transition-all"
+            class="p-1 rounded-lg text-zinc-400 dark:text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-zinc-500 dark:hover:text-zinc-400 transition-all"
           >
             <MoreHorizontal :size="14" />
           </button>

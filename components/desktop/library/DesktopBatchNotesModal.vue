@@ -69,7 +69,7 @@
                   class="group"
                 >
                   <td class="py-3 align-top">
-                    <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 font-medium">{{ idx + 1 }}</span>
+                    <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-400 font-medium">{{ idx + 1 }}</span>
                   </td>
                   <td class="py-3 pr-3 align-top">
                     <input
@@ -123,7 +123,7 @@
             >
               <Plus :size="14" />
               <span>행 추가</span>
-              <span class="text-desktop-micro text-zinc-400 dark:text-zinc-500 ml-1">Tab으로 자동 추가</span>
+              <span class="text-desktop-micro text-zinc-400 dark:text-zinc-400 ml-1">Tab으로 자동 추가</span>
             </button>
           </div>
 

@@ -2,7 +2,7 @@
   <div>
     <!-- Section Header -->
     <div class="flex items-center gap-3 mb-6">
-      <component :is="iconComponent" :size="18" class="text-zinc-400 dark:text-zinc-500" />
+      <component :is="iconComponent" :size="18" class="text-zinc-400 dark:text-zinc-400" />
       <h2 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white">{{ title }}</h2>
       <div class="flex-1 h-px bg-zinc-100 dark:bg-zinc-800/60 ml-1"></div>
     </div>
@@ -48,7 +48,7 @@
               class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300 ease-out"
             />
             <div v-else class="w-full h-full flex items-center justify-center">
-              <BookOpen :size="24" class="text-zinc-400 dark:text-zinc-500" />
+              <BookOpen :size="24" class="text-zinc-400 dark:text-zinc-400" />
             </div>
           </div>
         </div>

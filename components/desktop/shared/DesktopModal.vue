@@ -21,7 +21,7 @@
             <h2 class="text-desktop-headline text-zinc-900 dark:text-white">{{ title }}</h2>
             <button
               @click="$emit('close')"
-              class="w-7 h-7 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              class="w-7 h-7 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <X :size="15" />
             </button>

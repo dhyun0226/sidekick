@@ -2,11 +2,11 @@
   <div class="space-y-5">
     <!-- Header -->
     <div class="flex items-center justify-between">
-      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-500 uppercase tracking-widest font-medium">책장 {{ books.length }}</h4>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-400 uppercase tracking-widest font-medium">책장 {{ books.length }}</h4>
       <div v-if="books.length > 1" class="relative">
         <button
           @click.stop="showSortMenu = !showSortMenu"
-          class="flex items-center gap-1 text-desktop-footnote text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+          class="flex items-center gap-1 text-desktop-footnote text-zinc-400 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
         >
           <ArrowUpDown :size="12" />
           <span>{{ sortLabel }}</span>
@@ -40,7 +40,7 @@
         <div class="w-10 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-zinc-100 dark:bg-zinc-800">
           <img v-if="book.cover_url" :src="book.cover_url" class="w-full h-full object-cover" />
           <div v-else class="w-full h-full flex items-center justify-center">
-            <BookOpen :size="16" class="text-zinc-400 dark:text-zinc-500" />
+            <BookOpen :size="16" class="text-zinc-400 dark:text-zinc-400" />
           </div>
         </div>
 
@@ -65,7 +65,7 @@
             </span>
           </div>
           <!-- Completed date -->
-          <p class="text-desktop-footnote text-zinc-400 dark:text-zinc-500 mt-1">
+          <p class="text-desktop-footnote text-zinc-400 dark:text-zinc-400 mt-1">
             {{ formatDate(book.date || book.user_finished_at) }} 종료
           </p>
         </div>
@@ -74,7 +74,7 @@
         <div v-if="isAdmin && !isArchived" class="relative flex-shrink-0 pt-1">
           <button
             @click.stop="toggleMenu(book.id)"
-            class="p-1 rounded-lg text-zinc-400 dark:text-zinc-500 opacity-0 group-hover:opacity-100 hover:text-zinc-500 dark:hover:text-zinc-400 transition-all"
+            class="p-1 rounded-lg text-zinc-400 dark:text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-zinc-500 dark:hover:text-zinc-400 transition-all"
           >
             <MoreHorizontal :size="14" />
           </button>
@@ -93,7 +93,7 @@
               @click.stop="handleAction('open-reviews', book)"
               :disabled="book.reviewCount === 0"
               class="w-full px-3 py-2 text-left text-desktop-caption hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors flex items-center gap-2"
-              :class="book.reviewCount === 0 ? 'text-zinc-300 dark:text-zinc-500 cursor-not-allowed' : 'text-zinc-600 dark:text-zinc-400'"
+              :class="book.reviewCount === 0 ? 'text-zinc-300 dark:text-zinc-400 cursor-not-allowed' : 'text-zinc-600 dark:text-zinc-400'"
             >
               <MessageCircle :size="13" />
               리뷰 보기
@@ -127,8 +127,8 @@
 
     <!-- Empty state -->
     <div v-else class="py-10 flex flex-col items-center gap-3">
-      <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-500" />
-      <p class="text-desktop-caption text-zinc-400 dark:text-zinc-500">아직 종료한 책이 없어요</p>
+      <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-400" />
+      <p class="text-desktop-caption text-zinc-400 dark:text-zinc-400">아직 종료한 책이 없어요</p>
     </div>
   </div>
 </template>
