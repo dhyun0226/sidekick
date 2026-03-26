@@ -12,7 +12,7 @@
 
         <!-- Modal - Full size -->
         <div
-          class="relative w-[90vw] max-w-[1100px] h-[85vh] bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden flex flex-col"
+          class="relative w-[95vw] max-w-[1400px] h-[85vh] bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden flex flex-col"
           @click.stop
         >
           <!-- Header -->
