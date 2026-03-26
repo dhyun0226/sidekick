@@ -114,7 +114,7 @@
           <div v-for="anchorGroup in posGroup.anchorGroups" :key="anchorGroup.key">
             <!-- Shared Anchor Text - Hide when editing a comment in this group -->
             <div v-if="anchorGroup.anchorText && !anchorGroup.comments.some(c => c.id === editingCommentId)" class="mb-4">
-              <div class="pl-4 py-2.5 border-l-2 border-lime-400 dark:border-lime-500 bg-lime-50/60 dark:bg-lime-900/10 rounded-r-xl">
+              <div class="pl-4 py-2.5 border-l-2 border-lime-400 dark:border-lime-500 bg-lime-50/60 dark:bg-lime-900/20 rounded-r-xl">
                 <p class="text-desktop-callout-regular text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{{ anchorGroup.anchorText }}</p>
               </div>
             </div>
@@ -182,7 +182,7 @@
                           placeholder="인용 구절 (선택)"
                           rows="2"
                           maxlength="500"
-                          class="w-full px-3 py-2.5 bg-lime-50/60 dark:bg-lime-900/10 border-l-2 border-lime-400 rounded-r-xl text-desktop-callout-regular text-zinc-600 dark:text-zinc-300 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400/20"
+                          class="w-full px-3 py-2.5 bg-lime-50/60 dark:bg-lime-900/20 border-l-2 border-lime-400 rounded-r-xl text-desktop-callout-regular text-zinc-600 dark:text-zinc-300 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400/20"
                           @keydown.escape="cancelEdit"
                         ></textarea>
                         <textarea

@@ -127,7 +127,7 @@
       >
         <div v-if="day.activities?.length > 0" class="absolute inset-0 z-0 text-left">
           <img v-if="getLatestCover(day.activities)" :src="getLatestCover(day.activities)" class="w-full h-full object-cover opacity-100 transition-opacity" />
-          <div v-else class="w-full h-full bg-lime-50/30 dark:bg-lime-900/10">
+          <div v-else class="w-full h-full bg-lime-50/30 dark:bg-lime-900/20">
             <!-- Dot positioned at bottom center -->
             <div class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-lime-500 dark:bg-lime-400"></div>
           </div>

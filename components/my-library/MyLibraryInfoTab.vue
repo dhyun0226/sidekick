@@ -21,7 +21,7 @@
           class="p-4 cursor-pointer transition-all relative rounded-2xl"
           :class="[
             selectedBookId === book.id
-              ? 'ring-2 ring-lime-500 dark:ring-lime-400 bg-lime-50/30 dark:bg-lime-900/10'
+              ? 'ring-2 ring-lime-500 dark:ring-lime-400 bg-lime-50/30 dark:bg-lime-900/20'
               : 'ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:ring-lime-300 dark:hover:ring-lime-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/30',
             activeBookMenu === book.id ? 'z-[10001]' : 'z-0'
           ]"
@@ -116,7 +116,7 @@
               :key="index"
               @click="emit('jumpToChapter', chapter.start)"
               class="w-full flex items-center justify-between px-4 py-3.5 text-left transition-all group relative active:bg-zinc-50 dark:active:bg-zinc-800"
-              :class="{ 'bg-lime-50/30 dark:bg-lime-900/5': isCurrentChapter(chapter) }"
+              :class="{ 'bg-lime-50/30 dark:bg-lime-900/20': isCurrentChapter(chapter) }"
             >
               <!-- Current Indicator Bar -->
               <div 

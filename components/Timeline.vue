@@ -22,7 +22,7 @@
       <!-- Anchor Text (Clean & Classic) - Hide when editing a comment in this group -->
       <div
         v-if="group.anchorText && !group.previewComments.some(c => c.id === editingCommentId)"
-        class="mb-4 pl-4 py-2.5 border-l-[3px] border-lime-400 bg-lime-50/60 dark:bg-lime-900/10 rounded-r-2xl cursor-pointer hover:opacity-80 transition-opacity"
+        class="mb-4 pl-4 py-2.5 border-l-[3px] border-lime-400 bg-lime-50/60 dark:bg-lime-900/20 rounded-r-2xl cursor-pointer hover:opacity-80 transition-opacity"
         :class="{ 'blur-sm opacity-40 select-none': isSpoiler(group.position) }"
       >
         <p class="text-[15px] text-zinc-700 dark:text-zinc-300 leading-relaxed">
@@ -76,7 +76,7 @@
                 v-model="editAnchor"
                 placeholder="인용 구절 (선택)"
                 maxlength="500"
-                class="w-full bg-lime-50/60 dark:bg-lime-900/10 text-zinc-700 dark:text-zinc-300 text-sm rounded-2xl px-4 py-3 border-l-[3px] border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/20 resize-none overflow-hidden"
+                class="w-full bg-lime-50/60 dark:bg-lime-900/20 text-zinc-700 dark:text-zinc-300 text-sm rounded-2xl px-4 py-3 border-l-[3px] border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/20 resize-none overflow-hidden"
                 rows="1"
                 @keydown.esc="cancelEdit"
                 @input="autoResizeAnchor"

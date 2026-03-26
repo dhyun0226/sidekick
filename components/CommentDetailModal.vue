@@ -21,7 +21,7 @@
         </div>
 
         <!-- Anchor Text (Quote Style) -->
-        <div v-if="anchorText" class="pl-4 py-2.5 border-l-2 border-lime-400 bg-lime-50/60 dark:bg-lime-900/10 rounded-r-2xl">
+        <div v-if="anchorText" class="pl-4 py-2.5 border-l-2 border-lime-400 bg-lime-50/60 dark:bg-lime-900/20 rounded-r-2xl">
           <p class="text-desktop-callout-regular text-zinc-600 dark:text-zinc-400 leading-relaxed line-clamp-2">
             {{ anchorText }}
           </p>
