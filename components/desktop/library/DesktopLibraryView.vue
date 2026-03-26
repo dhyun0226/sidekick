@@ -102,6 +102,7 @@
         :toc="toc"
         :is-archived="isArchived"
         :is-admin="true"
+        :is-solo="true"
         :preferred-mode="preferredInputMode"
         :user-rating="selectedBookId ? userReviewedBooks.get(selectedBookId) : null"
         @progress-change="handleProgressChange"

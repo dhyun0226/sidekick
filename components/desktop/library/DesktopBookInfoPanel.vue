@@ -148,15 +148,15 @@
           <MessageSquare :size="14" /> 리뷰 보기
         </button>
 
-        <!-- 관리자 전용 -->
+        <!-- 관리자 전용 (그룹만: 종료 관련) -->
         <template v-if="isAdmin">
-          <button v-if="showMarkCompleted && book.status === 'reading'" @click="$emit('mark-completed')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+          <button v-if="!isSolo && showMarkCompleted && book.status === 'reading'" @click="$emit('mark-completed')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
             <CheckCircle :size="14" /> 종료 처리
           </button>
-          <button v-if="book.status === 'done'" @click="$emit('restart-reading')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+          <button v-if="!isSolo && book.status === 'done'" @click="$emit('restart-reading')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
             <RefreshCw :size="14" /> 종료 취소
           </button>
-          <button v-if="book.status === 'done'" @click="$emit('edit-finished-date')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
+          <button v-if="!isSolo && book.status === 'done'" @click="$emit('edit-finished-date')" class="w-full px-2.5 py-2 text-desktop-caption text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-lg transition-colors text-left flex items-center gap-2.5">
             <Calendar :size="14" /> 종료 날짜 수정
           </button>
           <button @click="$emit('delete-book')" class="w-full px-2.5 py-2 text-desktop-caption text-red-400 hover:text-red-500 rounded-lg transition-colors text-left flex items-center gap-2.5">
@@ -181,6 +181,7 @@ const props = defineProps<{
   isArchived?: boolean
   isReadOnlyMode?: boolean
   isAdmin?: boolean
+  isSolo?: boolean
   preferredMode?: 'percent' | 'page'
   showMarkCompleted?: boolean
   userRating?: number | null
