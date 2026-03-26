@@ -5,12 +5,8 @@
       v-if="appLoading"
       class="fixed inset-0 z-[9999] bg-white dark:bg-[#09090b] flex items-center justify-center"
     >
-      <div class="flex flex-col items-center gap-6">
-        <BookOpen :size="32" class="text-lime-400" />
-        <div class="text-center space-y-1.5">
-          <h1 class="text-xl font-semibold text-zinc-900 dark:text-white tracking-tight">치어리더스</h1>
-          <p class="text-[13px] text-zinc-400 dark:text-zinc-500">당신의 독서를 응원합니다</p>
-        </div>
+      <div class="flex flex-col items-center gap-5">
+        <BookOpen :size="28" class="text-lime-400" />
         <div class="w-5 h-5 border-2 border-lime-400/30 border-t-lime-400 rounded-full animate-spin"></div>
       </div>
     </div>

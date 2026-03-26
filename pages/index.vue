@@ -344,8 +344,6 @@ definePageMeta({
   middleware: ['auth']
 })
 
-useHead({ title: '홈' })
-
 const router = useRouter()
 const userStore = useUserStore()
 const toast = useToastStore()
