@@ -22,10 +22,10 @@
       <!-- Anchor Text (Clean & Classic) - Hide when editing a comment in this group -->
       <div
         v-if="group.anchorText && !group.previewComments.some(c => c.id === editingCommentId)"
-        class="mb-4 pl-4 py-2.5 border-l-[3px] border-lime-400 bg-lime-50/60 dark:bg-lime-900/30 rounded-r-2xl cursor-pointer hover:opacity-80 transition-opacity"
+        class="mb-4 pl-4 pr-4 py-2.5 border-l-[3px] border-lime-400 bg-lime-50/60 dark:bg-lime-900/30 rounded-r-2xl cursor-pointer hover:opacity-80 transition-opacity"
         :class="{ 'blur-sm opacity-40 select-none': isSpoiler(group.position) }"
       >
-        <p class="text-[15px] text-zinc-700 dark:text-zinc-300 leading-relaxed">
+        <p class="text-[14px] text-zinc-700 dark:text-zinc-300 leading-relaxed">
           {{ group.anchorText }}
         </p>
       </div>

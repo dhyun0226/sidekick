@@ -63,7 +63,7 @@
                   <Avatar :src="item.parentData.avatar_url" :fallback="item.parentData.nickname?.charAt(0) || 'U'" size="xs" className="w-4 h-4 shadow-xs" />
                   <p class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-300">{{ item.parentData.nickname }}님의 기록</p>
                 </div>
-                <div v-if="item.parentData.anchor_text" class="mb-2 pl-4 py-2 border-l-2 border-lime-400 bg-lime-50/60 dark:bg-lime-900/30 rounded-r-2xl">
+                <div v-if="item.parentData.anchor_text" class="mb-2 pl-4 pr-4 py-2 border-l-2 border-lime-400 bg-lime-50/60 dark:bg-lime-900/30 rounded-r-2xl">
                   <p class="text-[13px] text-zinc-700 dark:text-zinc-300 leading-relaxed">{{ item.parentData.anchor_text }}</p>
                 </div>
                 <p class="text-[13px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">{{ item.parentData.content }}</p>
@@ -71,7 +71,7 @@
             </div>
 
             <!-- Quote -->
-            <div v-if="item.anchor_text" class="mb-3 pl-4 py-2 border-l-2 border-lime-400 bg-lime-50/60 dark:bg-lime-900/30 rounded-r-2xl text-left">
+            <div v-if="item.anchor_text" class="mb-3 pl-4 pr-4 py-2 border-l-2 border-lime-400 bg-lime-50/60 dark:bg-lime-900/30 rounded-r-2xl text-left">
               <p class="text-[13px] text-zinc-700 dark:text-zinc-300 leading-relaxed">{{ item.anchor_text }}</p>
             </div>
 
