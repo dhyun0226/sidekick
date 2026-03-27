@@ -3,7 +3,7 @@
  * 자동 갱신을 중지하고 현재 기간 종료 시 무료 플랜으로 전환
  */
 
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const client = await serverSupabaseClient(event)
+  const client = serverSupabaseServiceRole(event)
 
   try {
     // 현재 활성 구독 조회

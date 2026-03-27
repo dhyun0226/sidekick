@@ -83,8 +83,58 @@ const paymentInfo = ref<any>({})
 const errorMessage = ref('')
 
 onMounted(async () => {
-  const { orderId, paymentKey, amount } = route.query
+  const { authKey, customerKey, planName, reactivate, orderId, paymentKey, amount } = route.query
 
+  // 재활성화 콜백 (카드 재등록 후)
+  if (authKey && customerKey && reactivate === 'true') {
+    try {
+      // 빌링키 발급
+      const billingResponse: any = await $fetch('/api/payments/billing-reactivate', {
+        method: 'POST',
+        body: { authKey, customerKey }
+      })
+      success.value = true
+      paymentInfo.value = { subscription: billingResponse.subscription }
+      await userStore.fetchProfile(true)
+    } catch (error: any) {
+      console.error('[Payment] Reactivate error:', error)
+      errorMessage.value = error.data?.message || '자동갱신 재활성화에 실패했습니다.'
+    } finally {
+      loading.value = false
+    }
+    return
+  }
+
+  // 빌링 방식 (새로운 자동결제 플로우)
+  if (authKey && customerKey && planName) {
+    try {
+      const response = await $fetch('/api/payments/billing-subscribe', {
+        method: 'POST',
+        body: {
+          authKey,
+          customerKey,
+          planName
+        }
+      })
+
+      success.value = true
+      paymentInfo.value = {
+        amount: response.subscription?.plan_id ? undefined : 0,
+        subscription: response.subscription
+      }
+
+      // 사용자 정보 + 구독 제한값 강제 새로고침
+      await userStore.fetchProfile(true)
+    } catch (error: any) {
+      console.error('[Payment] Billing subscribe error:', error)
+      errorMessage.value = error.data?.message || '결제 처리 중 오류가 발생했습니다.'
+    } finally {
+      loading.value = false
+    }
+    return
+  }
+
+  // 레거시 방식 (기존 일회성 결제 — 호환용)
   if (!orderId || !paymentKey || !amount) {
     errorMessage.value = '결제 정보가 올바르지 않습니다.'
     loading.value = false
@@ -92,7 +142,6 @@ onMounted(async () => {
   }
 
   try {
-    // 결제 승인 요청
     const response = await $fetch('/api/payments/confirm', {
       method: 'POST',
       body: {
@@ -108,7 +157,6 @@ onMounted(async () => {
       subscription: response.subscription
     }
 
-    // 사용자 정보 강제 새로고침 (캐시 무시)
     await userStore.fetchProfile(true)
   } catch (error: any) {
     console.error('[Payment] Confirm error:', error)

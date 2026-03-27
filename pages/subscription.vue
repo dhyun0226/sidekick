@@ -292,24 +292,17 @@ const fetchCurrentSubscription = async () => {
 
 const startPayment = async (planName: string) => {
   if (!userStore.profile) { toast.error('로그인이 필요합니다'); return }
-  
+
   const isMonthly = planName === 'premium_monthly'
   if (isMonthly) payingMonthly.value = true; else payingYearly.value = true
   paying.value = true
   try {
-    const { data: plan } = await client.from('subscription_plans').select('*').eq('name', planName).eq('is_active', true).single()
-    if (!plan) throw new Error('플랜을 찾을 수 없습니다.')
-    const orderResponse = await $fetch('/api/payments/create-order', { method: 'POST', body: { planId: plan.id, amount: plan.price } })
     const clientKey = useRuntimeConfig().public.tossClientKey
     const tossPayments = await loadTossPayments(clientKey)
-    const orderName = plan.billing_period === 'yearly' ? '치어리더스 프리미엄 (연간)' : '치어리더스 프리미엄 (월간)'
-    await tossPayments.requestPayment('카드', {
-      amount: plan.price,
-      orderId: orderResponse.orderId,
-      orderName,
-      customerName: userStore.profile.nickname || userStore.profile.username,
-      customerEmail: userStore.profile.email,
-      successUrl: `${window.location.origin}/payment/success`,
+    // 빌링키 발급 요청 (자동결제용 카드 등록)
+    await tossPayments.requestBillingAuth('카드', {
+      customerKey: userStore.profile.id,
+      successUrl: `${window.location.origin}/payment/success?planName=${planName}`,
       failUrl: `${window.location.origin}/payment/fail`
     })
   } catch (error: any) {
@@ -337,7 +330,21 @@ const handleReactivateClick = () => { showReactivateConfirm.value = true }
 const confirmReactivateSubscription = async () => {
   showReactivateConfirm.value = false; reactivating.value = true
   try {
-    await $fetch('/api/payments/reactivate-subscription', { method: 'POST' })
+    const response = await $fetch('/api/payments/reactivate-subscription', { method: 'POST' })
+
+    // 빌링키가 없어서 카드 재등록 필요
+    if (response.needsCardRegistration) {
+      toast.info('자동갱신을 위해 카드를 다시 등록해주세요')
+      const clientKey = useRuntimeConfig().public.tossClientKey
+      const tossPayments = await loadTossPayments(clientKey)
+      await tossPayments.requestBillingAuth('카드', {
+        customerKey: userStore.profile!.id,
+        successUrl: `${window.location.origin}/payment/success?reactivate=true`,
+        failUrl: `${window.location.origin}/payment/fail`
+      })
+      return
+    }
+
     toast.success('자동갱신이 재개되었습니다')
     await fetchCurrentSubscription()
     await userStore.fetchProfile(true)
