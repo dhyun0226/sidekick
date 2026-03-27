@@ -57,12 +57,13 @@ export default defineEventHandler(async (event) => {
         .select('group_book_id, rating')
         .eq('user_id', userId),
 
-      // 3. 활성 그룹 수
+      // 3. 활성 그룹 수 (social만, solo 제외)
       client
         .from('group_members')
-        .select('groups!inner(deleted_at)', { count: 'exact', head: true })
+        .select('groups!inner(deleted_at, group_type)', { count: 'exact', head: true })
         .eq('user_id', userId)
         .is('groups.deleted_at', null)
+        .eq('groups.group_type', 'social')
         .is('left_at', null),
 
       // 4. 연간 목표
