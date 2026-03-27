@@ -46,7 +46,7 @@ import DesktopStatsDashboard from './DesktopStatsDashboard.vue'
 
 const props = defineProps<{
   profile: any
-  stats: { books: number; wish: number; comments: number; streak: number; groups: number }
+  stats: { books: number; wish: number; comments: number; groups: number }
   activeTab: string
 }>()
 
@@ -56,15 +56,20 @@ const tabs = [
   { key: 'library', label: '서재' },
   { key: 'wishlist', label: '위시' },
   { key: 'timeline', label: '기록' },
-  { key: 'insight', label: '분석' },
-  { key: 'groups', label: '그룹' }
+  { key: 'groups', label: '그룹' },
+  { key: 'insight', label: '분석' }
 ]
 
+const formatNumber = (n: number): string => {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
+  return String(n)
+}
+
 const statCards = computed(() => [
-  { label: '완독', value: props.stats.books },
-  { label: '위시', value: props.stats.wish },
-  { label: '기록', value: props.stats.comments },
-  { label: '연속', value: `${props.stats.streak}일` },
-  { label: '그룹', value: props.stats.groups },
+  { label: '완독', value: formatNumber(props.stats.books) },
+  { label: '위시', value: formatNumber(props.stats.wish) },
+  { label: '기록', value: formatNumber(props.stats.comments) },
+  { label: '그룹', value: formatNumber(props.stats.groups) },
 ])
 </script>

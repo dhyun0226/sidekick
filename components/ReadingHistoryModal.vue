@@ -86,7 +86,7 @@
                   <span class="text-[11px] text-zinc-500 dark:text-zinc-400">{{ formatDate(review.createdAt) }}</span>
                 </div>
                 <p v-if="review.content" class="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{{ review.content }}</p>
-                <p v-else class="text-sm text-zinc-500 dark:text-zinc-400 italic">리뷰 내용 없음</p>
+                <p v-else class="text-sm text-zinc-500 dark:text-zinc-400">리뷰 내용 없음</p>
               </div>
             </div>
 
