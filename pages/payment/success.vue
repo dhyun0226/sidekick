@@ -108,8 +108,8 @@ onMounted(async () => {
       subscription: response.subscription
     }
 
-    // 사용자 정보 새로고침
-    await userStore.fetchProfile()
+    // 사용자 정보 강제 새로고침 (캐시 무시)
+    await userStore.fetchProfile(true)
   } catch (error: any) {
     console.error('[Payment] Confirm error:', error)
     errorMessage.value = error.data?.message || '결제 승인 중 오류가 발생했습니다.'
