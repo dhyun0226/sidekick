@@ -12,6 +12,7 @@
                 type="number"
                 :value="commentPosition"
                 @input="handlePositionInput"
+                @keydown.tab.prevent="anchorInputRef?.focus()"
                 :min="0"
                 :max="positionMax"
                 :placeholder="currentPositionPlaceholder"
@@ -21,6 +22,7 @@
             <!-- Mode toggle -->
             <div v-if="totalPages" class="flex bg-zinc-100 dark:bg-zinc-800 rounded-full p-0.5">
               <button
+                tabindex="-1"
                 @click="setMode('percent')"
                 class="px-2.5 py-0.5 text-desktop-micro font-semibold rounded-full transition-all duration-200 ease-apple"
                 :class="positionMode === 'percent'
@@ -28,6 +30,7 @@
                   : 'text-zinc-400 dark:text-zinc-300'"
               >{{ positionMode === 'percent' ? '퍼센트' : '%' }}</button>
               <button
+                tabindex="-1"
                 @click="setMode('page')"
                 class="px-2.5 py-0.5 text-desktop-micro font-semibold rounded-full transition-all duration-200 ease-apple"
                 :class="positionMode === 'page'
@@ -38,6 +41,7 @@
             <span class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium">에서</span>
           </div>
           <button
+            tabindex="-1"
             @click="$emit('open-batch')"
             class="px-2.5 py-1 text-zinc-400 dark:text-zinc-300 rounded-lg text-desktop-caption font-medium hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all duration-200 ease-apple flex items-center gap-1"
           >
