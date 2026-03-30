@@ -35,7 +35,7 @@
               @close="activeBookMenu = null"
             >
               <!-- All Users -->
-              <button @click.stop="handleReview(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
+              <button v-if="book.user_finished_at" @click.stop="handleReview(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
                 <Edit3 :size="12" /> {{ props.userReviewedBooks.has(book.id) ? '리뷰 수정' : '리뷰 작성' }}
               </button>
               <button v-if="!book.user_finished_at" @click.stop="handleMarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
@@ -106,7 +106,7 @@
       </div>
 
       <!-- Chapter Navigation (선택된 책의 목차) -->
-      <div v-if="selectedBook && toc.length > 0 && isSelectedBookReading" class="mt-6">
+      <div v-if="selectedBook && toc.length > 0" class="mt-6">
         <div class="flex items-center justify-between px-1 mb-3">
           <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">목차 이동</h3>
           <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 opacity-60">{{ toc.length }}개</span>

@@ -636,9 +636,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const handleSliderChange = async (val: number) => {
-    viewProgress.value = val
-    nextTick(() => scrollToPosition(Math.round(val)))
-
     // Read-only mode check (social only, harmless no-op for solo)
     if (isReadOnlyMode.value) return
 
@@ -646,8 +643,15 @@ export function useGroupPage(config: GroupPageConfig) {
     const isFinished = currentBookData?.user_finished_at != null
 
     if (isArchived.value || isFinished) {
-      // Navigation mode - don't save
-    } else {
+      // Navigation mode - scroll timeline but don't change progress display
+      nextTick(() => scrollToPosition(Math.round(val)))
+      return
+    }
+
+    viewProgress.value = val
+    nextTick(() => scrollToPosition(Math.round(val)))
+
+    {
       updateOptimistic(val)
       if (progressSaveTimeout) clearTimeout(progressSaveTimeout)
       const bookIdAtDrag = selectedBookId.value

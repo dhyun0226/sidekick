@@ -146,7 +146,7 @@
 
                       <!-- Actions (hidden when spoiler) -->
                       <div v-if="!isSpoiler(posGroup.position)" class="flex items-center gap-3 mt-1.5">
-                        <div class="relative">
+                        <div v-if="!isSolo" class="relative">
                           <button
                             @click="handleLike(comment)"
                             class="flex items-center gap-1 text-desktop-footnote font-medium transition-colors"
@@ -226,7 +226,7 @@
                             </div>
                             <p class="text-desktop-caption text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words mt-0.5" :class="{ 'blur-sm opacity-40 select-none pointer-events-none': isSpoiler(posGroup.position) }">{{ reply.content }}</p>
                             <div v-if="!isSpoiler(posGroup.position)" class="flex items-center gap-3 mt-1">
-                              <div class="relative">
+                              <div v-if="!isSolo" class="relative">
                                 <button
                                   @click="handleLike(reply)"
                                   class="flex items-center gap-1 text-desktop-footnote font-medium transition-colors"
