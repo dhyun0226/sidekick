@@ -1569,18 +1569,23 @@ export function useGroupPage(config: GroupPageConfig) {
 
   // ===== Navigation =====
   const jumpToChapter = (startPct: number) => {
-    viewProgress.value = startPct
-
-    nextTick(() => {
-      scrollToPosition(Math.round(startPct))
-      modals.drawer = false
-    })
-
-    // 완독한 책은 진행률 변경하지 않음 (타임라인 스크롤만)
-    const currentBookData = readingBooks.value.find((b: any) => b.id === selectedBookId.value)
+    const currentBookData = allBooks.value.find((b: any) => b.id === selectedBookId.value)
     const isFinished = currentBookData?.user_finished_at != null
-    if (!isFinished && !isArchived.value) {
+
+    if (isFinished || isArchived.value) {
+      // 완독/보관: 스크롤만 이동, 진행률 변경 없음
+      nextTick(() => {
+        scrollToPosition(Math.round(startPct))
+        modals.drawer = false
+      })
+    } else {
+      // 읽는 중: 진행률 변경 + 스크롤 + 저장
+      viewProgress.value = startPct
       updateOptimistic(startPct)
+      nextTick(() => {
+        scrollToPosition(Math.round(startPct))
+        modals.drawer = false
+      })
       if (selectedBookId.value) {
         saveProgress(startPct)
       }
