@@ -236,6 +236,14 @@
                               </button>
                               <div :ref="(el) => setParticleRef(reply.id, el)" class="pointer-events-none absolute inset-0 overflow-visible"></div>
                             </div>
+                            <template v-if="!isReadOnlyMode && currentUserId && reply.user_id === currentUserId">
+                              <button @click="$emit('edit', reply)" class="text-zinc-400 dark:text-zinc-300 hover:text-zinc-500 transition-colors">
+                                <Pencil :size="11" />
+                              </button>
+                              <button @click="$emit('delete', reply)" class="text-zinc-400 dark:text-zinc-300 hover:text-red-400 transition-colors">
+                                <Trash2 :size="11" />
+                              </button>
+                            </template>
                           </div>
                         </div>
                       </div>
