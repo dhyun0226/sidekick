@@ -411,7 +411,26 @@ const handleEditComment = async (comment: any) => {
       content: comment.content,
       anchor_text: comment.anchor_text || null
     }).eq('id', comment.id)
-    if (selectedBookId.value) fetchComments(selectedBookId.value)
+    // 로컬 상태 업데이트 (전체 새로고침 없이 즉시 반영)
+    const updateLocal = (list: any[]) => {
+      for (const c of list) {
+        if (c.id === comment.id) {
+          c.content = comment.content
+          c.anchor_text = comment.anchor_text || null
+          return true
+        }
+        if (c.replies) {
+          for (const r of c.replies) {
+            if (r.id === comment.id) {
+              r.content = comment.content
+              return true
+            }
+          }
+        }
+      }
+      return false
+    }
+    updateLocal(comments.value)
     toast.success('수정되었습니다')
   } catch (e) { toast.error('수정에 실패했습니다') }
 }
@@ -421,7 +440,12 @@ const handleDeleteComment = async (comment: any) => {
   if (comment.parent_id) {
     try {
       await client.from('comments').delete().eq('id', comment.id)
-      if (selectedBookId.value) fetchComments(selectedBookId.value)
+      // 로컬에서 답글 제거
+      for (const c of comments.value) {
+        if (c.replies) {
+          c.replies = c.replies.filter((r: any) => r.id !== comment.id)
+        }
+      }
       toast.success('답글이 삭제되었습니다')
     } catch (e) { toast.error('삭제에 실패했습니다') }
     return
