@@ -73,19 +73,24 @@
       </div>
     </nav>
 
-    <!-- Bottom: User -->
+    <!-- Bottom: User + Notifications -->
     <div class="px-3 pb-5 pt-3">
-      <NuxtLink to="/profile" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-100/70 dark:hover:bg-zinc-800/50 transition-all duration-200 ease-apple">
-        <div class="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0">
-          <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
-          <div v-else class="w-full h-full flex items-center justify-center text-zinc-400 dark:text-zinc-300">
-            <User :size="14" :stroke-width="1.75" />
+      <div class="flex items-center gap-1">
+        <NuxtLink to="/profile" class="flex-1 min-w-0 flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-100/70 dark:hover:bg-zinc-800/50 transition-all duration-200 ease-apple">
+          <div class="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0">
+            <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
+            <div v-else class="w-full h-full flex items-center justify-center text-zinc-400 dark:text-zinc-300">
+              <User :size="14" :stroke-width="1.75" />
+            </div>
           </div>
+          <div class="min-w-0">
+            <p class="text-desktop-caption font-medium text-zinc-600 dark:text-zinc-300 truncate">{{ userStore.profile?.nickname }}</p>
+          </div>
+        </NuxtLink>
+        <div class="flex-shrink-0">
+          <NotificationCenter placement="right" />
         </div>
-        <div class="min-w-0">
-          <p class="text-desktop-caption font-medium text-zinc-600 dark:text-zinc-300 truncate">{{ userStore.profile?.nickname }}</p>
-        </div>
-      </NuxtLink>
+      </div>
     </div>
   </aside>
 </template>

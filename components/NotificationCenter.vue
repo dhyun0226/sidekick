@@ -18,7 +18,8 @@
     <!-- Dropdown Modal -->
     <div
       v-if="isOpen"
-      class="absolute right-0 top-12 w-[340px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl z-[100010] overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right"
+      class="absolute w-[340px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl z-[100010] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+      :class="placement === 'right' ? 'left-0 bottom-12 origin-bottom-left' : 'right-0 top-12 origin-top-right'"
       @keydown.esc="isOpen = false"
       tabindex="-1"
     >
@@ -117,6 +118,12 @@ import { useRouter } from 'vue-router'
 import { Bell, MessageCircle, Heart, Info, X, Trash2, BookOpen, UserPlus, CheckCircle2 } from 'lucide-vue-next'
 import ConfirmModal from './ConfirmModal.vue'
 import { useToastStore } from '~/stores/toast'
+
+const props = withDefaults(defineProps<{
+  placement?: 'default' | 'right'
+}>(), {
+  placement: 'default'
+})
 
 const router = useRouter()
 const client = useSupabaseClient()

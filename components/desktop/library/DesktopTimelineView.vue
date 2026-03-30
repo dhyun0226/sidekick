@@ -119,7 +119,7 @@
             <!-- Shared Anchor Text - Hide when editing a comment in this group -->
             <div v-if="anchorGroup.anchorText && !anchorGroup.comments.some(c => c.id === editingCommentId)" class="mb-4">
               <div class="pl-4 py-2.5 border-l-2 border-lime-400 dark:border-lime-500 bg-lime-50/60 dark:bg-lime-900/30 rounded-r-xl">
-                <p class="text-desktop-callout-regular text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{{ anchorGroup.anchorText }}</p>
+                <p class="text-desktop-callout-regular text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap" :class="{ 'blur-sm opacity-40 select-none': isSpoiler(posGroup.position) }">{{ anchorGroup.anchorText }}</p>
               </div>
             </div>
 
@@ -142,10 +142,10 @@
                     </div>
 
                     <template v-if="editingCommentId !== comment.id">
-                      <p v-if="comment.content" class="text-desktop-callout-regular text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words mt-1">{{ comment.content }}</p>
+                      <p v-if="comment.content" class="text-desktop-callout-regular text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words mt-1" :class="{ 'blur-sm opacity-40 select-none pointer-events-none': isSpoiler(posGroup.position) }">{{ comment.content }}</p>
 
-                      <!-- Actions (always visible, very muted) -->
-                      <div class="flex items-center gap-3 mt-1.5">
+                      <!-- Actions (hidden when spoiler) -->
+                      <div v-if="!isSpoiler(posGroup.position)" class="flex items-center gap-3 mt-1.5">
                         <div class="relative">
                           <button
                             @click="handleLike(comment)"
@@ -224,8 +224,8 @@
                               <span class="text-desktop-caption font-semibold text-zinc-700 dark:text-zinc-300">{{ reply.user?.nickname || '탈퇴한 사용자' }}</span>
                               <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-300">{{ formatTimeAgo(reply.created_at) }}</span>
                             </div>
-                            <p class="text-desktop-caption text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words mt-0.5">{{ reply.content }}</p>
-                            <div class="flex items-center gap-3 mt-1">
+                            <p class="text-desktop-caption text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words mt-0.5" :class="{ 'blur-sm opacity-40 select-none pointer-events-none': isSpoiler(posGroup.position) }">{{ reply.content }}</p>
+                            <div v-if="!isSpoiler(posGroup.position)" class="flex items-center gap-3 mt-1">
                               <div class="relative">
                                 <button
                                   @click="handleLike(reply)"
@@ -332,6 +332,8 @@ const props = defineProps<{
   currentUserId?: string
   totalPages?: number
   preferredMode?: 'percent' | 'page'
+  isSolo?: boolean
+  isFinished?: boolean
 }>()
 
 const emit = defineEmits(['submit', 'load-more', 'reply', 'reply-submit', 'like', 'open-batch', 'edit', 'delete', 'progress-change'])
@@ -410,6 +412,15 @@ const getPositionAsPct = (): number => {
     return Math.round((commentPosition.value / props.totalPages) * 100)
   }
   return commentPosition.value
+}
+
+// ===== Spoiler Detection =====
+const isSpoiler = (position: number) => {
+  // Solo 모드는 스포일러 없음 (본인 기록만 있음)
+  if (props.isSolo) return false
+  // 완독한 경우 스포일러 잠금 해제
+  if (props.isFinished) return false
+  return Math.round(position) > Math.round(props.viewProgress)
 }
 
 // ===== Submit =====

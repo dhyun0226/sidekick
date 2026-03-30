@@ -76,6 +76,8 @@
           :current-user-id="ctx.currentUserId.value"
           :total-pages="selectedBook?.total_pages"
           :preferred-mode="preferredInputMode"
+          :is-solo="true"
+          :is-finished="selectedBook?.user_finished_at != null"
           @submit="handleInlineSubmit"
           @load-more="handleLoadMore"
           @reply="handleReply"

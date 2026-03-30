@@ -9,6 +9,7 @@
     :current-user-id="currentUserId"
     :total-pages="totalPages"
     :preferred-mode="preferredMode"
+    :is-finished="isFinished"
     @submit="$emit('submit', $event)"
     @load-more="$emit('load-more')"
     @reply="$emit('reply', $event)"
@@ -34,6 +35,7 @@ defineProps<{
   currentUserId?: string
   totalPages?: number
   preferredMode?: 'percent' | 'page'
+  isFinished?: boolean
 }>()
 
 defineEmits(['submit', 'load-more', 'reply', 'reply-submit', 'like', 'open-batch', 'edit', 'delete', 'progress-change'])
