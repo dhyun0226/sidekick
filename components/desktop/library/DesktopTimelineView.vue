@@ -219,32 +219,47 @@
                           className="w-5 h-5 shadow-sm flex-shrink-0 mt-0.5"
                         />
                         <div class="flex-1 min-w-0">
-                          <div class="flex items-baseline gap-1.5">
-                            <span class="text-desktop-caption font-semibold text-zinc-700 dark:text-zinc-300">{{ reply.user?.nickname || '탈퇴한 사용자' }}</span>
-                            <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-300">{{ formatTimeAgo(reply.created_at) }}</span>
-                          </div>
-                          <p class="text-desktop-caption text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words mt-0.5">{{ reply.content }}</p>
-                          <div class="flex items-center gap-3 mt-1">
-                            <div class="relative">
-                              <button
-                                @click="handleLike(reply)"
-                                class="flex items-center gap-1 text-desktop-footnote font-medium transition-colors"
-                                :class="reply.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-300 hover:text-red-400'"
-                              >
-                                <Heart :size="12" :fill="reply.isLiked ? 'currentColor' : 'none'" :class="likedId === reply.id ? 'animate-like-bounce' : ''" />
-                                <span v-if="reply.likes" class="tabular-nums">{{ reply.likes }}</span>
-                              </button>
-                              <div :ref="(el) => setParticleRef(reply.id, el)" class="pointer-events-none absolute inset-0 overflow-visible"></div>
+                          <template v-if="editingReplyId !== reply.id">
+                            <div class="flex items-baseline gap-1.5">
+                              <span class="text-desktop-caption font-semibold text-zinc-700 dark:text-zinc-300">{{ reply.user?.nickname || '탈퇴한 사용자' }}</span>
+                              <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-300">{{ formatTimeAgo(reply.created_at) }}</span>
                             </div>
-                            <template v-if="!isReadOnlyMode && currentUserId && reply.user_id === currentUserId">
-                              <button @click="$emit('edit', reply)" class="text-zinc-400 dark:text-zinc-300 hover:text-zinc-500 transition-colors">
-                                <Pencil :size="11" />
-                              </button>
-                              <button @click="$emit('delete', reply)" class="text-zinc-400 dark:text-zinc-300 hover:text-red-400 transition-colors">
-                                <Trash2 :size="11" />
-                              </button>
-                            </template>
-                          </div>
+                            <p class="text-desktop-caption text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words mt-0.5">{{ reply.content }}</p>
+                            <div class="flex items-center gap-3 mt-1">
+                              <div class="relative">
+                                <button
+                                  @click="handleLike(reply)"
+                                  class="flex items-center gap-1 text-desktop-footnote font-medium transition-colors"
+                                  :class="reply.isLiked ? 'text-red-500' : 'text-zinc-400 dark:text-zinc-300 hover:text-red-400'"
+                                >
+                                  <Heart :size="12" :fill="reply.isLiked ? 'currentColor' : 'none'" :class="likedId === reply.id ? 'animate-like-bounce' : ''" />
+                                  <span v-if="reply.likes" class="tabular-nums">{{ reply.likes }}</span>
+                                </button>
+                                <div :ref="(el) => setParticleRef(reply.id, el)" class="pointer-events-none absolute inset-0 overflow-visible"></div>
+                              </div>
+                              <template v-if="!isReadOnlyMode && currentUserId && reply.user_id === currentUserId">
+                                <button @click="startReplyEdit(reply)" class="text-zinc-400 dark:text-zinc-300 hover:text-zinc-500 transition-colors">
+                                  <Pencil :size="11" />
+                                </button>
+                                <button @click="$emit('delete', reply)" class="text-zinc-400 dark:text-zinc-300 hover:text-red-400 transition-colors">
+                                  <Trash2 :size="11" />
+                                </button>
+                              </template>
+                            </div>
+                          </template>
+                          <!-- Reply Edit Mode -->
+                          <template v-else>
+                            <textarea
+                              v-model="editReplyContent"
+                              class="w-full bg-zinc-50 dark:bg-zinc-800 text-desktop-caption text-zinc-900 dark:text-white rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none"
+                              rows="2"
+                              @keydown.escape="cancelReplyEdit"
+                            ></textarea>
+                            <div class="flex gap-2 mt-1.5">
+                              <button @click="saveReplyEdit(reply)" class="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-footnote font-bold rounded-lg hover:opacity-90">저장</button>
+                              <button @click="cancelReplyEdit" class="px-3 py-1 text-zinc-400 dark:text-zinc-300 text-desktop-footnote hover:text-zinc-600">취소</button>
+                            </div>
+                          </template>
                         </div>
                       </div>
                     </div>
@@ -475,6 +490,27 @@ const replyInputRef = ref<HTMLInputElement | null>(null)
 const cancelReply = () => {
   activeReplyId.value = null
   replyContent.value = ''
+}
+
+// ===== Reply Edit State =====
+const editingReplyId = ref<string | null>(null)
+const editReplyContent = ref('')
+
+const startReplyEdit = (reply: any) => {
+  editingReplyId.value = reply.id
+  editReplyContent.value = reply.content || ''
+}
+
+const cancelReplyEdit = () => {
+  editingReplyId.value = null
+  editReplyContent.value = ''
+}
+
+const saveReplyEdit = (reply: any) => {
+  if (!editReplyContent.value.trim()) return
+  emit('edit', { ...reply, content: editReplyContent.value.trim() })
+  editingReplyId.value = null
+  editReplyContent.value = ''
 }
 
 const submitReply = (comment: any) => {

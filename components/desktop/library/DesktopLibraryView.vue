@@ -385,14 +385,23 @@ const handleEditComment = async (comment: any) => {
 }
 
 const handleDeleteComment = async (comment: any) => {
+  // 답글 삭제 (parent_id가 있으면 답글)
+  if (comment.parent_id) {
+    try {
+      await client.from('comments').delete().eq('id', comment.id)
+      if (selectedBookId.value) fetchComments(selectedBookId.value)
+      toast.success('답글이 삭제되었습니다')
+    } catch (e) { toast.error('삭제에 실패했습니다') }
+    return
+  }
+
+  // 코멘트 삭제 (undo 지원)
   try {
-    // 백업 (undo용) — created_at 포함해서 원래 위치 보존
     const savedReplies = comment.replies ? [...comment.replies] : []
     const savedContent = comment.content
     const savedAnchor = comment.anchor_text
     const savedCreatedAt = comment.created_at
 
-    // 답글 먼저 삭제, 그 다음 부모 삭제
     if (savedReplies.length > 0) {
       const replyIds = savedReplies.map((r: any) => r.id)
       await client.from('comments').delete().in('id', replyIds)
@@ -401,7 +410,6 @@ const handleDeleteComment = async (comment: any) => {
 
     if (selectedBookId.value) fetchComments(selectedBookId.value)
     toast.success('삭제되었습니다', async () => {
-      // Undo: 부모 먼저 복원 (created_at 보존), 그 다음 답글 복원
       try {
         const { data: restored } = await client.from('comments').insert({
           content: savedContent,
