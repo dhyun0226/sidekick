@@ -12,7 +12,7 @@
         :model-value="viewProgress"
         :total-pages="book.total_pages"
         :preferred-mode="preferredMode"
-        :disabled="isArchived || isReadOnlyMode"
+        :disabled="isArchived || isReadOnlyMode || !!book.user_finished_at"
         @update:model-value="$emit('progress-change', $event)"
         @update:mode="$emit('mode-change', $event)"
       />
