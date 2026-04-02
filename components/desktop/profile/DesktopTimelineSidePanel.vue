@@ -1,10 +1,10 @@
 <template>
-  <div class="w-56 flex-shrink-0 sticky top-0 self-start space-y-4 pt-1" v-if="months.length > 0">
+  <div class="space-y-3" v-if="months.length > 0">
     <!-- 월별 요약 (각 월) -->
     <div
       v-for="month in months"
       :key="month.key"
-      class="bg-white dark:bg-zinc-900 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-4"
+      class="bg-zinc-50 dark:bg-zinc-900 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-3"
     >
       <h4 class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-3">{{ month.label }} 요약</h4>
       <div class="space-y-2.5">

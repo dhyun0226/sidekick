@@ -7,18 +7,40 @@
       :active-tab="activeTab"
       @tab-change="(t) => t === 'insight' ? handleInsightTabClick() : activeTab = t"
     >
-      <div class="min-h-[300px] px-8 py-6">
-        <!-- 서재: grid 확장 -->
+      <!-- 좌측 패널 하단: 탭별 추가 정보 -->
+      <template #panel>
+        <!-- 분석 탭: 목표/스트릭/이달 -->
+        <DesktopInsightSidePanel
+          v-if="activeTab === 'insight'"
+          :this-year-books="thisYearBooks"
+          :yearly-goal="yearlyGoal"
+          :days-left-in-year="daysLeftInYear"
+          :books-needed-per-month="booksNeededPerMonth"
+          :on-track="onTrack"
+          :is-goal-achieved="isGoalAchieved"
+          :current-streak="stats.streak"
+          :longest-streak="longestStreak"
+          :this-month-books="thisMonthBooks"
+          :this-month-comments="thisMonthComments"
+          :editing-goal="editingGoal"
+          :temp-goal="tempGoal"
+          @start-edit-goal="startEditGoal"
+          @save-goal="saveGoal"
+          @cancel-edit-goal="cancelEditGoal"
+          @update:temp-goal="tempGoal = $event"
+        />
+        <!-- 기록 탭: 월별 요약 -->
+        <DesktopTimelineSidePanel v-if="activeTab === 'timeline'" :timeline="timeline" :monthly-totals="monthlyTotals" />
+      </template>
+
+      <!-- 우측 콘텐츠 -->
+      <div class="p-6 h-full">
+        <!-- 서재 -->
         <ProfileLibraryTab v-if="activeTab === 'library'" :library="library" :reading-books="readingBooks" :library-groups="libraryByYear" :loading="loading" :desktop-wide="true" @open-book="openBookDetail" />
-        <!-- 위시: grid 확장 -->
+        <!-- 위시 -->
         <ProfileWishlistTab v-if="activeTab === 'wishlist'" :wishlist="wishlist" :loading="wishlistLoading" :desktop-wide="true" @refresh="fetchWishlistData" @start-book="handleStartBookFromWishlist" />
-        <!-- 기록: 1열 + 우측 사이드패널 -->
-        <div v-if="activeTab === 'timeline'" class="flex gap-8">
-          <div class="flex-1 min-w-0">
-            <ProfileTimelineTab :timeline="timeline" :loading="loading" :is-loading-more="isLoadingMoreTimeline" :has-more="hasMoreTimeline" :monthly-totals="monthlyTotals" :is-book-finished="isBookFinished" @load-more="loadMoreTimeline" @navigate="navigateToItem" />
-          </div>
-          <DesktopTimelineSidePanel :timeline="timeline" :monthly-totals="monthlyTotals" />
-        </div>
+        <!-- 기록: 1열 (사이드 요약은 좌측 패널로 이동) -->
+        <ProfileTimelineTab v-if="activeTab === 'timeline'" :timeline="timeline" :loading="loading" :is-loading-more="isLoadingMoreTimeline" :has-more="hasMoreTimeline" :monthly-totals="monthlyTotals" :is-book-finished="isBookFinished" @load-more="loadMoreTimeline" @navigate="navigateToItem" />
         <!-- 그룹: 리스트 + 우측 그룹 상세 -->
         <div v-if="activeTab === 'groups'" class="flex gap-8">
           <div class="flex-1 min-w-0">
@@ -26,9 +48,9 @@
           </div>
           <DesktopGroupSidePanel :group="selectedGroupForPanel" />
         </div>
-        <!-- 분석: 캘린더 왼쪽(모바일 사이즈) + 우측 목표/통계 -->
-        <div v-if="activeTab === 'insight'" class="flex gap-8">
-          <div class="w-[360px] flex-shrink-0">
+        <!-- 분석: 캘린더 최대 크기 (목표/통계는 좌측 패널) -->
+        <div v-if="activeTab === 'insight'" class="h-full flex items-center justify-center">
+          <div class="w-full max-w-[480px]">
             <ReadingHeatmap
               :activities="fullActivities"
               :currentStreak="stats.streak"
@@ -39,24 +61,6 @@
               @year-change="handleYearChange"
             />
           </div>
-          <DesktopInsightSidePanel
-            :this-year-books="thisYearBooks"
-            :yearly-goal="yearlyGoal"
-            :days-left-in-year="daysLeftInYear"
-            :books-needed-per-month="booksNeededPerMonth"
-            :on-track="onTrack"
-            :is-goal-achieved="isGoalAchieved"
-            :current-streak="stats.streak"
-            :longest-streak="longestStreak"
-            :this-month-books="thisMonthBooks"
-            :this-month-comments="thisMonthComments"
-            :editing-goal="editingGoal"
-            :temp-goal="tempGoal"
-            @start-edit-goal="startEditGoal"
-            @save-goal="saveGoal"
-            @cancel-edit-goal="cancelEditGoal"
-            @update:temp-goal="tempGoal = $event"
-          />
         </div>
       </div>
     </DesktopProfileView>
