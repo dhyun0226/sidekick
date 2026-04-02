@@ -18,7 +18,7 @@
     <div v-else class="space-y-8">
       <div v-for="monthGroup in timelineByMonth" :key="monthGroup.month" class="space-y-4">
         <!-- Monthly Divider (Matched with Library Tab Style) -->
-        <div class="flex items-center gap-3 sticky top-[49px] lg:top-0 z-20 bg-gray-50 dark:bg-[#09090b] py-2.5 -mx-4 px-4 lg:-mx-6 lg:px-6 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
+        <div :ref="el => setMonthRef(el, monthGroup.month)" class="flex items-center gap-3 sticky top-[49px] lg:top-0 z-20 bg-gray-50 dark:bg-[#09090b] py-2.5 -mx-4 px-4 lg:-mx-6 lg:px-6 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
           <h3 class="text-sm font-bold text-zinc-900 dark:text-white">{{ monthGroup.month.replace('.', '년 ') }}월</h3>
           <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
           <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">{{ monthlyTotals[monthGroup.month] || 0 }}개</span>
@@ -90,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Pencil } from 'lucide-vue-next'
 import LoadingSpinner from '~/components/LoadingSpinner.vue'
@@ -107,10 +107,47 @@ const props = defineProps<{
   isBookFinished: (id: string) => boolean
 }>()
 
-const emit = defineEmits(['load-more', 'navigate'])
+const emit = defineEmits(['load-more', 'navigate', 'visible-month-change'])
 const router = useRouter()
 const sentinel = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
+
+// 월별 구분선 IntersectionObserver (현재 보이는 월 감지)
+const monthRefs = new Map<string, HTMLElement>()
+let monthObserver: IntersectionObserver | null = null
+
+const setMonthRef = (el: any, month: string) => {
+  if (el) monthRefs.set(month, el as HTMLElement)
+}
+
+const setupMonthObserver = () => {
+  if (monthObserver) monthObserver.disconnect()
+  monthObserver = new IntersectionObserver((entries) => {
+    // 가장 위에 보이는 월을 찾기
+    let topMonth = ''
+    let topY = Infinity
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const y = entry.boundingClientRect.top
+        if (y < topY) {
+          topY = y
+          // entry.target에서 month key 찾기
+          for (const [month, el] of monthRefs) {
+            if (el === entry.target) { topMonth = month; break }
+          }
+        }
+      }
+    })
+    if (topMonth) emit('visible-month-change', topMonth)
+  }, { threshold: 0.1 })
+
+  // 모든 월 구분선 관찰
+  nextTick(() => {
+    for (const el of monthRefs.values()) {
+      monthObserver!.observe(el)
+    }
+  })
+}
 
 const timelineByMonth = computed(() => {
   const grouped: Record<string, any[]> = {}
@@ -140,9 +177,16 @@ onMounted(() => {
     }
   }, { threshold: 0.1 })
   if (sentinel.value) observer.observe(sentinel.value)
+  setupMonthObserver()
+})
+
+// 타임라인 데이터 변경 시 monthObserver 재설정
+watch(() => props.timeline.length, () => {
+  nextTick(() => setupMonthObserver())
 })
 
 onUnmounted(() => {
   if (observer) observer.disconnect()
+  if (monthObserver) monthObserver.disconnect()
 })
 </script>

@@ -30,7 +30,7 @@
           @update:temp-goal="tempGoal = $event"
         />
         <!-- 기록 탭: 월별 요약 -->
-        <DesktopTimelineSidePanel v-if="activeTab === 'timeline'" :timeline="timeline" :monthly-totals="monthlyTotals" />
+        <DesktopTimelineSidePanel v-if="activeTab === 'timeline'" :timeline="timeline" :monthly-totals="monthlyTotals" :visible-month="visibleMonth" />
       </template>
 
       <!-- 우측 콘텐츠 -->
@@ -40,7 +40,7 @@
         <!-- 위시 -->
         <ProfileWishlistTab v-if="activeTab === 'wishlist'" :wishlist="wishlist" :loading="wishlistLoading" :desktop-wide="true" @refresh="fetchWishlistData" @start-book="handleStartBookFromWishlist" />
         <!-- 기록: 1열 (사이드 요약은 좌측 패널로 이동) -->
-        <ProfileTimelineTab v-if="activeTab === 'timeline'" :timeline="timeline" :loading="loading" :is-loading-more="isLoadingMoreTimeline" :has-more="hasMoreTimeline" :monthly-totals="monthlyTotals" :is-book-finished="isBookFinished" @load-more="loadMoreTimeline" @navigate="navigateToItem" />
+        <ProfileTimelineTab v-if="activeTab === 'timeline'" :timeline="timeline" :loading="loading" :is-loading-more="isLoadingMoreTimeline" :has-more="hasMoreTimeline" :monthly-totals="monthlyTotals" :is-book-finished="isBookFinished" @load-more="loadMoreTimeline" @navigate="navigateToItem" @visible-month-change="visibleMonth = $event" />
         <!-- 그룹 -->
         <ProfileGroupsTab v-if="activeTab === 'groups'" @refresh-stats="fetchData" @refresh-library="fetchData" />
         <!-- 분석: 캘린더 높이 최대 (목표/통계는 좌측 패널) -->
@@ -291,6 +291,7 @@ const loading = ref(true)
 const timeline = ref<any[]>([])
 const library = ref<any[]>([])
 const selectedGroupForPanel = ref<any>(null)
+const visibleMonth = ref('')
 const stats = ref({ books: 0, wish: 0, comments: 0, streak: 0, groups: 0 })
 const longestStreak = ref(0)
 
