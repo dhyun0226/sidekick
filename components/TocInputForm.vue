@@ -201,7 +201,7 @@ const addChapter = () => {
 
   localChapters.value.push({
     id: generateChapterId(),
-    title: `챕터 ${localChapters.value.length + 1}`,
+    title: '',
     startPage: nextStartPage
   })
 }
