@@ -43,7 +43,7 @@
         <ProfileTimelineTab v-if="activeTab === 'timeline'" :timeline="timeline" :loading="loading" :is-loading-more="isLoadingMoreTimeline" :has-more="hasMoreTimeline" :monthly-totals="monthlyTotals" :is-book-finished="isBookFinished" @load-more="loadMoreTimeline" @navigate="navigateToItem" @visible-month-change="visibleMonth = $event" />
         <!-- 그룹 -->
         <ProfileGroupsTab v-if="activeTab === 'groups'" @refresh-stats="fetchData" @refresh-library="fetchData" />
-        <!-- 분석: 캘린더 2개 나란히 (목표/통계는 좌측 패널) -->
+        <!-- 분석: 캘린더 2개 나란히 연동 (목표/통계는 좌측 패널) -->
         <div v-if="activeTab === 'insight'" class="flex gap-4">
           <div class="flex-1 min-w-0">
             <ReadingHeatmap
@@ -53,8 +53,11 @@
               :finishedBooks="finishedLibraryForStats"
               :include-comments="appSettings.calendar_include_comments"
               :compact-year="true"
+              :initial-month="calPrimaryMonth"
+              :initial-year="calPrimaryYear"
               @day-click="handleDayClick"
               @year-change="handleYearChange"
+              @navigate="handleCalNavigate"
             />
           </div>
           <div class="flex-1 min-w-0">
@@ -63,10 +66,11 @@
               :finishedBooks="finishedLibraryForStats"
               :include-comments="appSettings.calendar_include_comments"
               :compact-year="true"
-              :initial-month="prevMonth"
-              :initial-year="prevMonthYear"
+              :initial-month="calSecondaryMonth"
+              :initial-year="calSecondaryYear"
               @day-click="handleDayClick"
               @year-change="handleYearChange"
+              @navigate="(p) => { const d = new Date(p.year, p.month + 1, 1); handleCalNavigate({ month: d.getMonth(), year: d.getFullYear() }) }"
             />
           </div>
         </div>
@@ -306,10 +310,21 @@ const library = ref<any[]>([])
 const selectedGroupForPanel = ref<any>(null)
 const visibleMonth = ref('')
 
-// 분석 탭: 이전 달 계산 (2달 나란히 표시용)
-const now = new Date()
-const prevMonth = computed(() => now.getMonth() === 0 ? 11 : now.getMonth() - 1)
-const prevMonthYear = computed(() => now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear())
+// 분석 탭: 2달 나란히 표시 (연동)
+const calPrimaryMonth = ref(new Date().getMonth())
+const calPrimaryYear = ref(new Date().getFullYear())
+const calSecondaryMonth = computed(() => {
+  const d = new Date(calPrimaryYear.value, calPrimaryMonth.value - 1, 1)
+  return d.getMonth()
+})
+const calSecondaryYear = computed(() => {
+  const d = new Date(calPrimaryYear.value, calPrimaryMonth.value - 1, 1)
+  return d.getFullYear()
+})
+const handleCalNavigate = (payload: { month: number; year: number }) => {
+  calPrimaryMonth.value = payload.month
+  calPrimaryYear.value = payload.year
+}
 const stats = ref({ books: 0, wish: 0, comments: 0, streak: 0, groups: 0 })
 const longestStreak = ref(0)
 

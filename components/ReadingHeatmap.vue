@@ -122,8 +122,8 @@
         v-for="(day, index) in calendarDays"
         :key="index"
         @click="day.count > 0 ? emit('day-click', day) : null"
-        class="aspect-[2/3] rounded-md flex flex-col items-center justify-center relative group transition-all overflow-hidden border border-zinc-100 dark:border-zinc-800/50"
-        :class="[getDayClass(day), day.count > 0 ? 'cursor-pointer hover:ring-2 hover:ring-lime-400 hover:scale-105' : '']"
+        class="rounded-md flex flex-col items-center justify-center relative group transition-all overflow-hidden border border-zinc-100 dark:border-zinc-800/50"
+        :class="[compactYear && hassixWeeks ? 'aspect-[3/4]' : 'aspect-[2/3]', getDayClass(day), day.count > 0 ? 'cursor-pointer hover:ring-2 hover:ring-lime-400 hover:scale-105' : '']"
       >
         <div v-if="day.activities?.length > 0" class="absolute inset-0 z-0 text-left">
           <img v-if="getLatestCover(day.activities)" :src="getLatestCover(day.activities)" class="w-full h-full object-cover opacity-100 transition-opacity" />
@@ -193,6 +193,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'day-click', day: { date: Date; dateString: string; count: number; activities: any[] }): void
   (e: 'year-change', year: number): void
+  (e: 'navigate', payload: { month: number; year: number; viewMode: 'month' | 'year' }): void
 }>()
 
 const getLocalDateString = (date: Date): string => {
@@ -279,14 +280,21 @@ watch(currentYear, (newYear) => {
   emit('year-change', newYear)
 })
 
+// 외부에서 initialMonth/Year가 변경되면 반영
+watch(() => props.initialMonth, (v) => { if (v !== undefined) currentMonth.value = v })
+watch(() => props.initialYear, (v) => { if (v !== undefined) { currentYear.value = v; pickerYear.value = v } })
+
+// 네비게이션 시 부모에 알림
+const emitNavigate = () => { emit('navigate', { month: currentMonth.value, year: currentYear.value, viewMode: viewMode.value }) }
+
 const isFuture = computed(() => currentYear.value > now.getFullYear() || (currentYear.value === now.getFullYear() && currentMonth.value >= now.getMonth()))
-const changeMonth = (delta: number) => { const nd = new Date(currentYear.value, currentMonth.value + delta, 1); currentYear.value = nd.getFullYear(); currentMonth.value = nd.getMonth(); pickerYear.value = currentYear.value }
-const selectMonth = (m: number) => { currentYear.value = pickerYear.value; currentMonth.value = m; showPicker.value = false; showYearGrid.value = false; viewMode.value = 'month' }
-const selectMonthFromYearView = (m: number) => { currentMonth.value = m; viewMode.value = 'month' }
+const changeMonth = (delta: number) => { const nd = new Date(currentYear.value, currentMonth.value + delta, 1); currentYear.value = nd.getFullYear(); currentMonth.value = nd.getMonth(); pickerYear.value = currentYear.value; emitNavigate() }
+const selectMonth = (m: number) => { currentYear.value = pickerYear.value; currentMonth.value = m; showPicker.value = false; showYearGrid.value = false; viewMode.value = 'month'; emitNavigate() }
+const selectMonthFromYearView = (m: number) => { currentMonth.value = m; viewMode.value = 'month'; emitNavigate() }
 const isMonthDisabled = (m: number) => pickerYear.value > now.getFullYear() || (pickerYear.value === now.getFullYear() && m > now.getMonth())
-const goToToday = () => { currentYear.value = now.getFullYear(); currentMonth.value = now.getMonth(); pickerYear.value = now.getFullYear(); showPicker.value = false; showYearGrid.value = false; viewMode.value = 'month' }
+const goToToday = () => { currentYear.value = now.getFullYear(); currentMonth.value = now.getMonth(); pickerYear.value = now.getFullYear(); showPicker.value = false; showYearGrid.value = false; viewMode.value = 'month'; emitNavigate() }
 const toggleYearGrid = () => { showYearGrid.value = !showYearGrid.value }
-const selectYear = (y: number) => { pickerYear.value = y; currentYear.value = y; showYearGrid.value = false; showPicker.value = false; viewMode.value = 'year' }
+const selectYear = (y: number) => { pickerYear.value = y; currentYear.value = y; showYearGrid.value = false; showPicker.value = false; viewMode.value = 'year'; emitNavigate() }
 const yearRange = computed(() => { const cy = now.getFullYear(), yrs = []; for (let i = 0; i < 12; i++) yrs.push(cy - i); return yrs })
 
 const yearlyMonths = computed(() => {
@@ -310,6 +318,9 @@ const calendarDays = computed(() => {
   if (remainingCells < 7) { for (let i = 1; i <= remainingCells; i++) { const d = new Date(yr, m + 1, i); days.push({ date: d, dateString: getLocalDateString(d), dayNumber: i, isCurrentMonth: false, count: 0, activities: [] }) } }
   return days
 })
+
+// 6주 달인지 감지 (compactYear 모드에서 비율 조정용)
+const hassixWeeks = computed(() => calendarDays.value.length > 35)
 
 const getDayClass = (day: any) => {
   if (!day.isCurrentMonth) return 'bg-transparent opacity-30'
