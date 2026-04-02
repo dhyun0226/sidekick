@@ -186,6 +186,8 @@ const props = defineProps<{
   finishedBooks?: any[] // Array of books with finished_at date
   includeComments?: boolean
   compactYear?: boolean // 데스크탑: 년뷰 셀 높이 줄이기
+  initialMonth?: number // 초기 월 (0-11)
+  initialYear?: number // 초기 년도
 }>()
 
 const emit = defineEmits<{
@@ -200,7 +202,7 @@ const getLocalDateString = (date: Date): string => {
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토']
 const now = new Date()
-const currentYear = ref(now.getFullYear()), currentMonth = ref(now.getMonth()), showPicker = ref(false), pickerYear = ref(now.getFullYear()), showYearGrid = ref(false), viewMode = ref<'month' | 'year'>('month')
+const currentYear = ref(props.initialYear ?? now.getFullYear()), currentMonth = ref(props.initialMonth ?? now.getMonth()), showPicker = ref(false), pickerYear = ref(props.initialYear ?? now.getFullYear()), showYearGrid = ref(false), viewMode = ref<'month' | 'year'>('month')
 
 // Stats Logic
 const statsLabel = computed(() => {

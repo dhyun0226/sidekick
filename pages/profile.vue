@@ -43,9 +43,9 @@
         <ProfileTimelineTab v-if="activeTab === 'timeline'" :timeline="timeline" :loading="loading" :is-loading-more="isLoadingMoreTimeline" :has-more="hasMoreTimeline" :monthly-totals="monthlyTotals" :is-book-finished="isBookFinished" @load-more="loadMoreTimeline" @navigate="navigateToItem" @visible-month-change="visibleMonth = $event" />
         <!-- 그룹 -->
         <ProfileGroupsTab v-if="activeTab === 'groups'" @refresh-stats="fetchData" @refresh-library="fetchData" />
-        <!-- 분석: 캘린더 최대 (목표/통계는 좌측 패널) -->
-        <div v-if="activeTab === 'insight'">
-          <div class="w-full">
+        <!-- 분석: 캘린더 2개 나란히 (목표/통계는 좌측 패널) -->
+        <div v-if="activeTab === 'insight'" class="flex gap-4">
+          <div class="flex-1 min-w-0">
             <ReadingHeatmap
               :activities="fullActivities"
               :currentStreak="stats.streak"
@@ -53,6 +53,18 @@
               :finishedBooks="finishedLibraryForStats"
               :include-comments="appSettings.calendar_include_comments"
               :compact-year="true"
+              @day-click="handleDayClick"
+              @year-change="handleYearChange"
+            />
+          </div>
+          <div class="flex-1 min-w-0">
+            <ReadingHeatmap
+              :activities="fullActivities"
+              :finishedBooks="finishedLibraryForStats"
+              :include-comments="appSettings.calendar_include_comments"
+              :compact-year="true"
+              :initial-month="prevMonth"
+              :initial-year="prevMonthYear"
               @day-click="handleDayClick"
               @year-change="handleYearChange"
             />
@@ -293,6 +305,11 @@ const timeline = ref<any[]>([])
 const library = ref<any[]>([])
 const selectedGroupForPanel = ref<any>(null)
 const visibleMonth = ref('')
+
+// 분석 탭: 이전 달 계산 (2달 나란히 표시용)
+const now = new Date()
+const prevMonth = computed(() => now.getMonth() === 0 ? 11 : now.getMonth() - 1)
+const prevMonthYear = computed(() => now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear())
 const stats = ref({ books: 0, wish: 0, comments: 0, streak: 0, groups: 0 })
 const longestStreak = ref(0)
 

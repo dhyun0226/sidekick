@@ -115,6 +115,7 @@ let observer: IntersectionObserver | null = null
 // 월별 구분선 IntersectionObserver (현재 보이는 월 감지)
 const monthRefs = new Map<string, HTMLElement>()
 let monthObserver: IntersectionObserver | null = null
+let lastEmittedMonth = ''
 
 const setMonthRef = (el: any, month: string) => {
   if (el) monthRefs.set(month, el as HTMLElement)
@@ -122,26 +123,29 @@ const setMonthRef = (el: any, month: string) => {
 
 const setupMonthObserver = () => {
   if (monthObserver) monthObserver.disconnect()
+  const visibleMonths = new Set<string>()
+
   monthObserver = new IntersectionObserver((entries) => {
-    // 가장 위에 보이는 월을 찾기
-    let topMonth = ''
-    let topY = Infinity
     entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const y = entry.boundingClientRect.top
-        if (y < topY) {
-          topY = y
-          // entry.target에서 month key 찾기
-          for (const [month, el] of monthRefs) {
-            if (el === entry.target) { topMonth = month; break }
-          }
+      // entry.target에서 month key 찾기
+      for (const [month, el] of monthRefs) {
+        if (el === entry.target) {
+          if (entry.isIntersecting) visibleMonths.add(month)
+          else visibleMonths.delete(month)
+          break
         }
       }
     })
-    if (topMonth) emit('visible-month-change', topMonth)
+    // 보이는 월 중 가장 최근(큰) 월 선택
+    if (visibleMonths.size > 0) {
+      const topMonth = [...visibleMonths].sort().pop()!
+      if (topMonth !== lastEmittedMonth) {
+        lastEmittedMonth = topMonth
+        emit('visible-month-change', topMonth)
+      }
+    }
   }, { threshold: 0.1 })
 
-  // 모든 월 구분선 관찰
   nextTick(() => {
     for (const el of monthRefs.values()) {
       monthObserver!.observe(el)
