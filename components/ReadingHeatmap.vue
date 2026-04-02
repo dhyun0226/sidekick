@@ -145,8 +145,7 @@
         v-for="monthData in yearlyMonths"
         :key="monthData.month"
         @click="selectMonthFromYearView(monthData.month)"
-        class="aspect-[2/3] rounded-xl flex flex-col items-center justify-center relative group transition-all cursor-pointer hover:ring-2 hover:ring-lime-400 hover:scale-105 overflow-hidden border border-zinc-100 dark:border-zinc-800/50"
-        :class="getMonthClass(monthData)"
+        :class="[compactYear ? 'aspect-[4/3]' : 'aspect-[2/3]', 'rounded-xl flex flex-col items-center justify-center relative group transition-all cursor-pointer hover:ring-2 hover:ring-lime-400 hover:scale-105 overflow-hidden border border-zinc-100 dark:border-zinc-800/50', getMonthClass(monthData)]"
       >
         <div v-if="monthData.activities?.length > 0" class="absolute inset-0 z-0">
           <img v-if="getLatestCover(monthData.activities)" :src="getLatestCover(monthData.activities)" class="w-full h-full object-cover opacity-100 transition-opacity" />
@@ -186,6 +185,7 @@ const props = defineProps<{
   longestStreak?: number
   finishedBooks?: any[] // Array of books with finished_at date
   includeComments?: boolean
+  compactYear?: boolean // 데스크탑: 년뷰 셀 높이 줄이기
 }>()
 
 const emit = defineEmits<{
