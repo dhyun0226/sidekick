@@ -1,70 +1,63 @@
 <template>
-  <div v-if="book" class="relative w-full pt-20 pb-8 overflow-hidden bg-zinc-900">
-    <!-- Background (Blurred) -->
-    <div class="absolute inset-0 z-0">
-      <img
-        v-if="!hasError"
-        :src="book.coverUrl"
-        class="w-full h-full object-cover blur-2xl opacity-70 scale-125"
-        @error="handleError"
-      />
-      <div
-        v-else
-        class="w-full h-full bg-gradient-to-br from-zinc-400 to-zinc-600 dark:from-zinc-700 dark:to-zinc-900"
-      ></div>
-      <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-gray-50 dark:to-background"></div>
-    </div>
-
+  <div v-if="book" class="relative w-full pt-16 pb-8 bg-white dark:bg-[#09090b] ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
     <!-- Content -->
     <div class="relative z-10 flex flex-col items-center px-6 text-center">
-      <!-- Book Cover (3D Effect) -->
-      <div class="w-28 aspect-[2/3] rounded-lg shadow-2xl mb-5 transform transition-transform hover:scale-105 hover:-rotate-2 duration-500 relative">
+      <!-- Book Cover -->
+      <div class="w-28 aspect-[2/3] shadow-apple-lg mb-5 transform transition-transform hover:scale-105 hover:-rotate-2 duration-500 relative">
         <img
           v-if="!hasError"
           :src="book.coverUrl"
-          class="w-full h-full object-cover rounded-lg border border-white/10"
+          class="w-full h-full object-cover"
           @error="handleError"
         />
         <div
           v-else
-          class="w-full h-full rounded-lg border border-white/10 bg-gradient-to-br from-lime-400 to-lime-500 flex items-center justify-center text-white font-bold text-4xl"
+          class="w-full h-full bg-gradient-to-br from-lime-400 to-lime-500 flex items-center justify-center text-white font-bold text-4xl"
         >
           {{ book.title.charAt(0).toUpperCase() }}
         </div>
-        <!-- Round Badge -->
-        <div v-if="book.round" class="absolute -top-2 -right-2 w-8 h-8 bg-lime-400 rounded-full flex items-center justify-center text-xs font-bold text-black border-2 border-white dark:border-zinc-900 shadow-lg z-20">
-          {{ book.round }}회
-        </div>
       </div>
 
-      <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-1 drop-shadow-sm line-clamp-2 px-4 leading-tight">
+      <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-3 drop-shadow-sm line-clamp-2 px-4 leading-tight">
         {{ book.title }}
       </h2>
-      <p class="text-xs text-zinc-600 dark:text-zinc-400 font-medium mb-4 opacity-80">
-        {{ book.author }}
-      </p>
+      <div class="flex flex-wrap items-center justify-center gap-1.5 mb-3 text-sm text-zinc-600 dark:text-zinc-400 font-medium leading-none">
+        <span>{{ book.author }}</span>
+        <template v-if="book.publisher || book.total_pages">
+          <span class="text-zinc-300 dark:text-zinc-700">·</span>
+          <span v-if="book.publisher">{{ book.publisher }}</span>
+          <span v-if="book.publisher && book.total_pages" class="text-zinc-300 dark:text-zinc-700">·</span>
+          <span v-if="book.total_pages">{{ book.total_pages }}p</span>
+        </template>
+      </div>
 
-      <!-- Stats / D-Day -->
-      <div class="flex items-center gap-3 flex-wrap justify-center">
-        <!-- 완주 뱃지 또는 D-Day 뱃지 -->
-        <div v-if="book.status === 'done'" class="flex items-center gap-1.5 px-3 py-1.5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-full border border-lime-400 shadow-sm">
-           <span class="text-xs font-bold text-lime-600 dark:text-lime-400">
-             완주<template v-if="book.finishedAt"> · {{ formatDate(book.finishedAt) }}</template>
-           </span>
-        </div>
-        <div v-else-if="book.status === 'reading' && daysRemaining !== null" class="flex items-center gap-1.5 px-3 py-1.5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
-           <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">
-             {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
-           </span>
-        </div>
+      <!-- Badges Line (Synchronized with Drawer Info Tab) -->
+      <div class="flex flex-wrap items-center justify-center gap-1.5 mb-6">
+        <GenreBadge v-if="book.genre" :genre="book.genre" />
+        
+        <Badge v-if="book.round && book.round > 1">
+          {{ book.round }}회차
+        </Badge>
 
-        <!-- 멤버 수 -->
-        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
-           <User :size="12" class="text-zinc-700 dark:text-zinc-300" />
-           <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">
-             {{ book.status === 'reading' ? `${memberCount}명 함께 읽는 중` : `${memberCount}명이 함께 읽었어요` }}
-           </span>
-        </div>
+        <Badge v-if="book.target_start_date && book.target_end_date">
+          {{ formatDateRange(book.target_start_date, book.target_end_date) }}
+        </Badge>
+
+        <!-- Members Badge (Social 그룹만) -->
+        <Badge v-if="memberCount !== undefined">
+          <template #icon><User :size="12" /></template>
+          {{ memberCount }}
+        </Badge>
+
+        <!-- D-Day Badge -->
+        <Badge v-if="book.status === 'reading' && daysRemaining !== null" variant="lime">
+          {{ daysRemaining > 0 ? `D-${daysRemaining}` : daysRemaining === 0 ? 'D-Day' : `D+${Math.abs(daysRemaining)}` }}
+        </Badge>
+
+        <!-- Finished Date Badge -->
+        <Badge v-if="book.status === 'done' && book.finishedAt" variant="lime">
+          {{ formatDate(book.finishedAt) }} {{ isSolo ? '완독' : '종료' }}
+        </Badge>
       </div>
     </div>
   </div>
@@ -73,20 +66,28 @@
 <script setup lang="ts">
 import { User } from 'lucide-vue-next'
 import { useImageError } from '~/composables/useImageError'
+import Badge from '~/components/Badge.vue'
+import GenreBadge from '~/components/GenreBadge.vue'
 
 interface Book {
   coverUrl: string
   title: string
   author: string
+  publisher?: string | null
+  total_pages?: number | null
+  genre?: string | null
   status: 'reading' | 'done'
   round?: number | null
   finishedAt?: string | null
+  target_start_date?: string | null
+  target_end_date?: string | null
 }
 
 interface Props {
   book: Book | null
   daysRemaining: number | null
-  memberCount: number
+  memberCount?: number
+  isSolo?: boolean
 }
 
 const props = defineProps<Props>()
@@ -96,8 +97,13 @@ const { hasError, handleError } = useImageError()
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr)
   const year = date.getFullYear() % 100
-  const month = date.getMonth() + 1
-  const day = date.getDate()
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
   return `${year}.${month}.${day}`
+}
+
+const formatDateRange = (start?: string | null, end?: string | null) => {
+  if (!start || !end) return ''
+  return `${formatDate(start)} - ${formatDate(end)}`
 }
 </script>

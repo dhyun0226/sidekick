@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, toValue, type MaybeRef } from 'vue'
 
 interface BookData {
   id: string
@@ -7,20 +7,25 @@ interface BookData {
   target_start_date?: string
   target_end_date?: string
   toc_snapshot?: any[]
+  pages_snapshot?: number // ✅ Group specific total pages (사용자 입력값)
+  genre_snapshot?: string // ✅ Group specific genre (사용자 입력값)
   finished_at?: string
   created_at: string
   book?: {
     title: string
     author: string
     cover_url: string
-    total_pages?: number
+    draft_pages?: number // Draft pages (미승인)
+    official_pages?: number // Official pages (승인된 가이드)
+    draft_genre?: string
+    official_genre?: string // Official genre (승인된 가이드)
   }
   user_reading_progress?: Array<{
     last_read_at?: string
     progress_pct?: number
     finished_at?: string
   }>
-  user_finished_at?: string // 사용자의 개인 완독일 (computed)
+  user_finished_at?: string
 }
 
 interface HistoryBook {
@@ -30,11 +35,15 @@ interface HistoryBook {
   author: string
   cover_url: string
   publisher?: string
-  total_pages?: number
+  total_pages?: number // Unified from snapshot → official → draft
+  genre?: string // Unified genre to display
   date: string
   round?: number
   reviewCount?: number
   user_finished_at?: string | null
+  // Keep these for reference if needed
+  official_genre?: string
+  draft_genre?: string
 }
 
 interface BookAddData {
@@ -45,84 +54,93 @@ interface BookAddData {
     publisher: string
     cover: string
   }
+  genre: string
   totalPages: number
   toc: any[]
   startDate: string
   endDate: string
 }
 
-export const useGroupBooks = (groupId: string) => {
+export const useGroupBooks = (groupId: MaybeRef<string>) => {
   const client = useSupabaseClient()
-  const { getBookRound } = useBookRound()
+  const { getBookRound, getBatchBookRounds } = useBookRound()
   const userStore = useUserStore()
 
   const currentBook = ref<BookData | null>(null)
-  const readingBooks = ref<BookData[]>([]) // 읽는 중인 모든 책
+  const readingBooks = ref<BookData[]>([])
   const historyBooks = ref<HistoryBook[]>([])
   const selectedBookId = ref<string | null>(null)
   const allBooks = ref<BookData[]>([])
 
-  // Computed: Currently selected book (either selectedBookId or currentBook)
   const selectedBook = computed(() => {
     if (!selectedBookId.value) return currentBook.value
     return allBooks.value.find(b => b.id === selectedBookId.value) || currentBook.value
   })
 
-  /**
-   * Fetch all books (reading + done) for the group
-   */
   const fetchBooks = async () => {
     const userId = userStore.profile?.id
 
-    // Fetch all books with user's reading progress
-    const { data: allBooksData } = await client
+    const { data: allBooksData, error: fetchError } = await client
       .from('group_books')
       .select(`
         *,
-        book:books(*),
+        book:books(*, official_genre, draft_genre),
         user_reading_progress!left (
           last_read_at,
           progress_pct,
           finished_at
         )
       `)
-      .eq('group_id', groupId)
+      .eq('group_id', toValue(groupId))
       .in('status', ['reading', 'done'])
+      .is('deleted_at', null)  // 삭제된 책 제외
       .eq('user_reading_progress.user_id', userId)
 
+    if (fetchError) {
+      throw new Error('책 목록을 불러오는데 실패했습니다.')
+    }
+
     if (allBooksData) {
-      // Sort by last_read_at (내가 마지막으로 읽은 책 우선)
       const sortedAllBooks = allBooksData.sort((a: any, b: any) => {
         const aLastRead = a.user_reading_progress?.[0]?.last_read_at
         const bLastRead = b.user_reading_progress?.[0]?.last_read_at
 
-        // 둘 다 진행도 없으면 created_at 기준
         if (!aLastRead && !bLastRead) {
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         }
-        // 하나만 진행도 있으면 그게 우선
         if (!aLastRead) return 1
         if (!bLastRead) return -1
 
-        // 둘 다 있으면 last_read_at 기준 (최근이 먼저)
         return new Date(bLastRead).getTime() - new Date(aLastRead).getTime()
       })
 
-      // Add user_finished_at field from user_reading_progress
       const booksWithUserProgress = sortedAllBooks.map((b: any) => ({
         ...b,
-        user_finished_at: b.user_reading_progress?.[0]?.finished_at || null
+        user_finished_at: b.user_reading_progress?.[0]?.finished_at || null,
+        // ✅ Unified genre for display (snapshot → official → draft)
+        genre: b.genre_snapshot || b.book?.official_genre || b.book?.draft_genre,
+        // ✅ Unified total_pages for display (snapshot → official → draft)
+        total_pages: b.pages_snapshot || b.book?.official_pages || b.book?.draft_pages
       }))
 
-      allBooks.value = booksWithUserProgress
+      // Batch fetch rounds for ALL books (reading + done)
+      const allRoundsMap = await getBatchBookRounds(
+        toValue(groupId),
+        booksWithUserProgress.map((b: any) => ({ isbn: b.isbn, id: b.id }))
+      )
 
-      // Find all reading books (여러 권 동시 읽기 가능, 이미 정렬됨)
-      readingBooks.value = booksWithUserProgress.filter((b: any) => b.status === 'reading')
+      // Add round to allBooks
+      allBooks.value = booksWithUserProgress.map((b: any) => ({
+        ...b,
+        round: allRoundsMap.get(b.id) || null
+      }))
 
-      // Current book = 내가 가장 최근에 읽은 reading 책
+      const rawReadingBooks = allBooks.value.filter((b: any) => b.status === 'reading')
+
+      readingBooks.value = rawReadingBooks
+
       currentBook.value = readingBooks.value[0] || null
 
-      // Set selectedBook to currentBook by default
       if (!selectedBookId.value && currentBook.value) {
         selectedBookId.value = currentBook.value.id
       }
@@ -132,47 +150,57 @@ export const useGroupBooks = (groupId: string) => {
       currentBook.value = null
     }
 
-    // Create history books from allBooks (status='done')
     const doneBooks = allBooks.value.filter((b: any) => b.status === 'done')
 
     if (doneBooks.length > 0) {
-      // 🔥 성능 최적화: 리뷰 개수 N+1 쿼리 제거 (10권 기준 10개 쿼리 → 1개 쿼리)
-
-      // 1. 모든 완독 책의 리뷰 개수를 한 번에 조회 (1개 쿼리)
       const bookIds = doneBooks.map((gb: any) => gb.id)
       const { data: allReviews } = await client
         .from('reviews')
-        .select('group_book_id')
+        .select('group_book_id, rating')
         .in('group_book_id', bookIds)
 
-      // 2. JavaScript에서 책별 리뷰 개수 계산 (쿼리 없음)
-      const reviewCountMap = new Map<string, number>()
+      const reviewStatsMap = new Map<string, { count: number, totalRating: number }>()
       allReviews?.forEach(review => {
-        const count = reviewCountMap.get(review.group_book_id) || 0
-        reviewCountMap.set(review.group_book_id, count + 1)
+        const stats = reviewStatsMap.get(review.group_book_id) || { count: 0, totalRating: 0 }
+        reviewStatsMap.set(review.group_book_id, {
+          count: stats.count + 1,
+          totalRating: stats.totalRating + Number(review.rating || 0)
+        })
       })
 
-      // 3. Calculate round numbers and combine data
-      const historyBooksWithRounds = await Promise.all(
+      // Promise.allSettled로 개별 실패해도 다른 책 정보는 유지
+      const historyBooksResults = await Promise.allSettled(
         doneBooks.map(async (gb: any) => {
-          const round = await getBookRound(groupId, gb.isbn, gb.id)
+          const round = await getBookRound(toValue(groupId), gb.isbn, gb.id)
+          const stats = reviewStatsMap.get(gb.id) || { count: 0, totalRating: 0 }
+          const avgRating = stats.count > 0 ? (stats.totalRating / stats.count).toFixed(1) : null
 
           return {
             id: gb.id,
             isbn: gb.isbn,
-            title: gb.book.title,
-            author: gb.book.author,
-            cover_url: gb.book.cover_url,
-            publisher: gb.book.publisher,
-            total_pages: gb.book.total_pages,
-            date: new Date(gb.finished_at || gb.created_at).toLocaleDateString(),
+            title: gb.book?.title || '제목 없음',
+            author: gb.book?.author || '저자 미상',
+            cover_url: gb.book?.cover_url || '',
+            publisher: gb.book?.publisher,
+            // ✅ Use snapshot (사용자 입력값) → fallback to official → draft
+            total_pages: gb.pages_snapshot || gb.book?.official_pages || gb.book?.draft_pages,
+            // ✅ Use snapshot (사용자 입력값) → fallback to official → draft
+            genre: gb.genre_snapshot || gb.book?.official_genre || gb.book?.draft_genre,
+            official_genre: gb.book?.official_genre, // Keep for fallback/debug
+            draft_genre: gb.book?.draft_genre,       // Keep for fallback/debug
+            date: gb.finished_at || gb.created_at,
             round,
-            reviewCount: reviewCountMap.get(gb.id) || 0,
+            reviewCount: stats.count,
+            averageRating: avgRating,
             user_finished_at: gb.user_finished_at
           }
         })
       )
-      // Sort by finished_at (most recent first)
+
+      // 성공한 결과만 필터링
+      const historyBooksWithRounds = historyBooksResults
+        .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
+        .map(result => result.value)
       historyBooks.value = historyBooksWithRounds.sort((a, b) =>
         new Date(b.date).getTime() - new Date(a.date).getTime()
       )
@@ -188,29 +216,15 @@ export const useGroupBooks = (groupId: string) => {
     }
   }
 
-  /**
-   * Add a new book to the group
-   */
   const addBook = async (data: BookAddData) => {
-    console.log('[Group] Adding book:', data)
-
-    // 1. Check if book exists in books table
     const { data: existingBook, error: bookCheckError } = await client
       .from('books')
       .select('*')
       .eq('isbn', data.book.isbn)
       .maybeSingle()
 
-    if (bookCheckError) {
-      console.error('Book check error:', bookCheckError)
-    }
-
-    // ✅ official_toc는 화면에 미리 채워주는 가이드 역할
-    // ✅ 저장은 항상 사용자가 최종 확인/수정한 data.toc 사용
-    const tocToUse = data.toc
-
     if (!existingBook) {
-      // ✅ 새 책: draft_toc에 임시 저장 (관리자 승인 전)
+      // ✅ 새 책 추가 시: draft만 저장
       const { error: bookInsertError } = await client
         .from('books')
         .insert({
@@ -219,108 +233,97 @@ export const useGroupBooks = (groupId: string) => {
           author: data.book.author,
           publisher: data.book.publisher,
           cover_url: data.book.cover,
-          total_pages: data.totalPages,
+          draft_pages: data.totalPages, // ✅ Draft pages
           draft_toc: data.toc,
-          official_toc: null  // 승인 전이므로 null
+          draft_genre: data.genre
         })
 
-      if (bookInsertError) {
-        console.error('Book insert error:', bookInsertError)
-        throw new Error('책 정보 저장에 실패했습니다.')
+      if (bookInsertError) throw new Error('책 정보 저장에 실패했습니다.')
+    } else if (!existingBook.official_toc || !existingBook.official_genre || !existingBook.official_pages) {
+      // ✅ 승인되지 않은 항목만 draft 업데이트
+      const updateData: any = {
+        updated_at: new Date().toISOString()
       }
+      if (!existingBook.official_toc) updateData.draft_toc = data.toc
+      if (!existingBook.official_genre) updateData.draft_genre = data.genre
+      if (!existingBook.official_pages) updateData.draft_pages = data.totalPages
 
-      console.log('[Group] New book created with draft_toc')
-    } else if (!existingBook.official_toc) {
-      // ✅ 기존 책 + official_toc 없음 → draft_toc 업데이트 (관리자 승인 대기)
       const { error: bookUpdateError } = await client
         .from('books')
-        .update({
-          total_pages: data.totalPages,
-          draft_toc: data.toc,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('isbn', data.book.isbn)
 
-      if (bookUpdateError) {
-        console.error('Book update error:', bookUpdateError)
-        throw new Error('책 정보 업데이트에 실패했습니다.')
-      }
-
-      console.log('[Group] Updated draft_toc for existing book (awaiting approval)')
-    } else {
-      // ❌ 기존 책 + official_toc 있음 → books 테이블 건드리지 않음 (승인된 공식 버전 유지)
-      console.log('[Group] Using official_toc as guide, saving user-confirmed TOC to group_books only')
+      if (bookUpdateError) throw new Error('책 정보 업데이트에 실패했습니다.')
     }
 
-    // 2. Add new book to group_books (항상 사용자 입력 사용)
-    const { error: groupBookError } = await client
+    const { data: newGroupBook, error: groupBookError } = await client
       .from('group_books')
       .insert({
-        group_id: groupId,
+        group_id: toValue(groupId),
         isbn: data.book.isbn,
-        toc_snapshot: tocToUse,  // 항상 사용자가 확인/수정한 내용 사용
+        toc_snapshot: data.toc.map(c => ({ title: c.title, startPage: c.startPage })),
+        pages_snapshot: data.totalPages, // ✅ 사용자 입력 페이지수
+        genre_snapshot: data.genre, // ✅ 사용자 입력 장르
         status: 'reading',
         target_start_date: data.startDate,
         target_end_date: data.endDate
       })
+      .select('id')
+      .single()
 
-    if (groupBookError) {
-      console.error('Group book insert error:', groupBookError)
-      throw new Error('그룹에 책 추가에 실패했습니다.')
+    if (groupBookError) throw new Error('그룹에 책 추가에 실패했습니다.')
+
+    const currentUserId = userStore.profile?.id
+
+    // Check if group is solo type
+    const { data: groupData } = await client
+      .from('groups')
+      .select('group_type')
+      .eq('id', toValue(groupId))
+      .single()
+
+    // ✅ Solo 그룹: user_reading_progress 레코드 생성 (profile 서재에 바로 나타나도록)
+    if (groupData?.group_type === 'solo' && newGroupBook?.id && currentUserId) {
+      await client.from('user_reading_progress').upsert({
+        user_id: currentUserId,
+        group_book_id: newGroupBook.id,
+        progress_pct: 0,
+        last_read_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,group_book_id'
+      })
     }
 
-    console.log('[Group] Book added successfully with user-confirmed TOC')
+    // ✅ Social 그룹에서만 알림 생성
+    if (currentUserId && groupData?.group_type === 'social') {
+        const { data: members } = await client
+          .from('group_members')
+          .select('user_id, user:users(notification_settings)')
+          .eq('group_id', toValue(groupId))
+          .neq('user_id', currentUserId)
 
-    // 3. Create notifications for group members (except self)
-    const currentUserId = userStore.profile?.id
-    if (currentUserId) {
-      // Fetch group members with notification settings (excluding self)
-      const { data: members } = await client
-        .from('group_members')
-        .select('user_id, user:users(notification_settings)')
-        .eq('group_id', groupId)
-        .neq('user_id', currentUserId)
+        if (members && members.length > 0) {
+          const currentUserName = userStore.profile?.nickname || '누군가'
+          const notificationsToSend = members
+            .filter((member: any) => member.user?.notification_settings?.book_added !== false)
+            .map((member: any) => ({
+              user_id: member.user_id,
+              type: 'book_added',
+              title: '📚 새로운 책이 시작되었습니다',
+              message: `${currentUserName}님이 "${data.book.title}"을(를) 추가했습니다`,
+              source_id: toValue(groupId),
+              link: `/group/${toValue(groupId)}`
+            }))
 
-      if (members && members.length > 0) {
-        const currentUserName = userStore.profile?.nickname || '누군가'
-
-        // Filter members who have book_added notifications enabled
-        const notificationsToSend = members
-          .filter((member: any) => {
-            const settings = member.user?.notification_settings
-            return settings?.book_added !== false // Default to true if not set
-          })
-          .map((member: any) => ({
-            user_id: member.user_id,
-            type: 'book_added',
-            title: '📚 새로운 책이 시작되었습니다',
-            message: `${currentUserName}님이 "${data.book.title}"을(를) 추가했습니다`,
-            source_id: groupId,
-            link: `/group/${groupId}`
-          }))
-
-        if (notificationsToSend.length > 0) {
-          const { error: notifError } = await client
-            .from('notifications')
-            .insert(notificationsToSend)
-
-          if (notifError) {
-            console.error('Notification insert error:', notifError)
-            // Don't throw - notifications are not critical
-          } else {
-            console.log(`[Group] Sent notifications to ${notificationsToSend.length} members`)
+          if (notificationsToSend.length > 0) {
+            await client.from('notifications').insert(notificationsToSend)
           }
         }
-      }
     }
 
-    // Refresh data
     await fetchBooks()
   }
 
-  /**
-   * Update book dates
-   */
   const updateDates = async (bookId: string, startDate: string, endDate: string) => {
     const { error } = await client
       .from('group_books')
@@ -332,66 +335,75 @@ export const useGroupBooks = (groupId: string) => {
 
     if (error) throw error
 
-    // Update local data
     if (currentBook.value?.id === bookId) {
       currentBook.value.target_start_date = startDate
       currentBook.value.target_end_date = endDate
     }
   }
 
-  /**
-   * Update book TOC
-   */
   const updateToc = async (
     bookId: string,
     isbn: string,
     totalPages: number,
     chapters: { title: string; startPage: number }[]
   ) => {
-    // Calculate new TOC based on new total pages (목차가 없으면 빈 배열)
-    const toc = chapters.map((c, i) => {
-      const nextStart = chapters[i + 1]?.startPage || totalPages
-      const startPct = (c.startPage / totalPages) * 100
-      const endPct = (nextStart / totalPages) * 100
-      return {
-        title: c.title,
-        start: startPct,
-        end: endPct
-      }
-    })
+    const tocSnapshot = chapters.map(c => ({ title: c.title, startPage: c.startPage }))
 
-    // Update group_books with new TOC
+    // ✅ Update group-specific snapshot (toc_snapshot + pages_snapshot)
     const { error: groupBookError } = await client
       .from('group_books')
       .update({
-        toc_snapshot: toc
+        toc_snapshot: tocSnapshot,
+        pages_snapshot: totalPages // ✅ 사용자 입력 페이지수 저장
       })
       .eq('id', bookId)
 
     if (groupBookError) throw groupBookError
 
-    // Update books table with new total_pages
+    // ✅ Update only draft_toc (NOT total_pages - 승인된 가이드는 유지)
     const { error: bookError } = await client
       .from('books')
-      .update({
-        total_pages: totalPages
-      })
+      .update({ draft_toc: tocSnapshot })
       .eq('isbn', isbn)
 
     if (bookError) throw bookError
 
-    // Update local data
+    // Update local state
     if (currentBook.value?.id === bookId) {
-      currentBook.value.toc_snapshot = toc
-      if (currentBook.value.book) {
-        currentBook.value.book.total_pages = totalPages
-      }
+      currentBook.value.toc_snapshot = tocSnapshot
+      currentBook.value.pages_snapshot = totalPages
     }
   }
 
-  /**
-   * Mark book as completed
-   */
+  const updateGenre = async (bookId: string, isbn: string, genre: string) => {
+    // ✅ 1. Update group specific genre snapshot
+    const { error: groupError } = await client
+      .from('group_books')
+      .update({ genre_snapshot: genre })
+      .eq('id', bookId)
+
+    if (groupError) throw groupError
+
+    // ✅ 2. Update public draft genre (Contribution)
+    const { error: publicError } = await client
+      .from('books')
+      .update({ draft_genre: genre })
+      .eq('isbn', isbn)
+
+    // publicError is intentionally ignored (best-effort contribution)
+
+    // Update local state immediately
+    const book = allBooks.value.find(b => b.id === bookId)
+    if (book) {
+      book.genre_snapshot = genre
+      book.genre = genre // Also update unified genre
+    }
+    
+    if (currentBook.value?.id === bookId) {
+      currentBook.value.genre = genre
+    }
+  }
+
   const markCompleted = async (bookId: string) => {
     const { error } = await client
       .from('group_books')
@@ -403,22 +415,24 @@ export const useGroupBooks = (groupId: string) => {
 
     if (error) throw error
 
-    // Refresh data to update UI
     await fetchBooks()
   }
 
-  /**
-   * Delete a book from the group
-   */
   const deleteBook = async (bookId: string) => {
+    // Soft delete - 기록 보존을 위해 deleted_at만 설정
     const { error } = await client
       .from('group_books')
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', bookId)
 
     if (error) throw error
 
-    // Refresh data to update UI
+    // 삭제된 책은 프로필 서재에서 기본 숨김 처리
+    await client
+      .from('user_reading_progress')
+      .update({ hidden: true })
+      .eq('group_book_id', bookId)
+
     await fetchBooks()
   }
 
@@ -433,6 +447,7 @@ export const useGroupBooks = (groupId: string) => {
     addBook,
     updateDates,
     updateToc,
+    updateGenre,
     markCompleted,
     deleteBook
   }

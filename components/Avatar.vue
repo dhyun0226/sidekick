@@ -13,7 +13,7 @@
     <!-- Fallback -->
     <div
       v-else
-      class="w-full h-full flex items-center justify-center bg-gradient-to-br from-lime-400 to-lime-500 text-white font-bold uppercase"
+      class="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-400 to-zinc-500 dark:from-zinc-600 dark:to-zinc-700 text-white font-bold uppercase"
       :style="{ fontSize: fallbackFontSize }"
     >
       {{ fallbackText }}

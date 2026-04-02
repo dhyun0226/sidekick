@@ -1,15 +1,15 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center px-4">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center px-4" @keydown.esc="$emit('close')" tabindex="-1">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="$emit('close')"></div>
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="$emit('close')"></div>
 
     <!-- Modal Content -->
-    <div class="relative w-full max-w-2xl max-h-[90vh] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden">
+    <div class="relative w-full max-w-2xl max-h-[90vh] bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-2xl shadow-apple-lg overflow-hidden">
       <!-- Header -->
       <div class="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-6 py-4 flex justify-between items-center z-10">
         <div>
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-white">그룹 통계</h2>
-          <p class="text-sm text-zinc-500">{{ groupName }}</p>
+          <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">그룹 통계</h2>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ groupName }}</p>
         </div>
         <button @click="$emit('close')" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
           <X :size="24" />
@@ -21,27 +21,35 @@
         <!-- Loading State -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-12">
           <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p class="text-sm text-zinc-500">통계를 불러오는 중...</p>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">통계를 불러오는 중...</p>
+        </div>
+
+        <!-- Error State -->
+        <div v-else-if="fetchError" class="flex flex-col items-center justify-center py-12">
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">통계를 불러오지 못했습니다.</p>
+          <button @click="fetchStats" class="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-lg text-sm font-medium hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+            다시 시도
+          </button>
         </div>
 
         <template v-else>
           <!-- Summary Stats -->
           <div class="grid grid-cols-2 gap-4">
             <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4">
-              <div class="text-xs text-zinc-600 dark:text-zinc-500 mb-1">완독한 책</div>
-              <div class="text-2xl font-bold text-lime-400">{{ stats.completedBooks }}<span class="text-sm text-zinc-500 font-normal ml-1">권</span></div>
+              <div class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">완독한 책</div>
+              <div class="text-2xl font-bold text-lime-400">{{ stats.completedBooks }}<span class="text-sm text-zinc-500 dark:text-zinc-400 font-normal ml-1">권</span></div>
             </div>
             <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4">
-              <div class="text-xs text-zinc-600 dark:text-zinc-500 mb-1">진행 중</div>
-              <div class="text-2xl font-bold text-blue-400">{{ stats.currentBooks }}<span class="text-sm text-zinc-500 font-normal ml-1">권</span></div>
+              <div class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">진행 중</div>
+              <div class="text-2xl font-bold text-blue-400">{{ stats.currentBooks }}<span class="text-sm text-zinc-500 dark:text-zinc-400 font-normal ml-1">권</span></div>
             </div>
             <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4">
-              <div class="text-xs text-zinc-600 dark:text-zinc-500 mb-1">작성한 리뷰</div>
-              <div class="text-2xl font-bold text-purple-400">{{ stats.totalReviews }}<span class="text-sm text-zinc-500 font-normal ml-1">개</span></div>
+              <div class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">작성한 리뷰</div>
+              <div class="text-2xl font-bold text-purple-400">{{ stats.totalReviews }}<span class="text-sm text-zinc-500 dark:text-zinc-400 font-normal ml-1">개</span></div>
             </div>
             <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4">
-              <div class="text-xs text-zinc-600 dark:text-zinc-500 mb-1">작성한 댓글</div>
-              <div class="text-2xl font-bold text-yellow-400">{{ stats.totalComments }}<span class="text-sm text-zinc-500 font-normal ml-1">개</span></div>
+              <div class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">작성한 댓글</div>
+              <div class="text-2xl font-bold text-yellow-400">{{ stats.totalComments }}<span class="text-sm text-zinc-500 dark:text-zinc-400 font-normal ml-1">개</span></div>
             </div>
           </div>
 
@@ -60,7 +68,7 @@
                 </div>
                 <div class="flex-1">
                   <div class="font-medium text-zinc-900 dark:text-zinc-200 text-sm">{{ member.nickname }}</div>
-                  <div class="text-xs text-zinc-500">댓글 {{ member.commentCount }}개 · 리뷰 {{ member.reviewCount }}개</div>
+                  <div class="text-xs text-zinc-500 dark:text-zinc-400">댓글 {{ member.commentCount }}개 · 리뷰 {{ member.reviewCount }}개</div>
                 </div>
                 <div class="text-lg font-bold text-lime-400">{{ member.totalActivity }}</div>
               </div>
@@ -82,18 +90,18 @@
                     class="w-full bg-lime-400 rounded-t-lg transition-all duration-500 flex items-end justify-center pb-1"
                     :style="{ height: getActivityBarHeight(month.count) }"
                   >
-                    <span v-if="month.count > 0" class="text-[10px] font-bold text-black">{{ month.count }}</span>
+                    <span v-if="month.count > 0" class="text-[11px] font-bold text-black">{{ month.count }}</span>
                   </div>
                 </div>
                 <!-- Label -->
-                <span class="text-[10px] text-zinc-500 font-medium">{{ month.label }}</span>
+                <span class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">{{ month.label }}</span>
               </div>
             </div>
           </div>
 
           <!-- Completed Books History -->
           <div>
-            <h3 class="text-sm font-bold text-zinc-900 dark:text-white mb-4">📚 완독 기록</h3>
+            <h3 class="text-sm font-semibold text-zinc-900 dark:text-white mb-4">완독 기록</h3>
             <div v-if="completedBooks.length > 0" class="space-y-3 max-h-96 overflow-y-auto">
               <div
                 v-for="book in completedBooks"
@@ -107,20 +115,25 @@
                     {{ book.title }}
                     <span v-if="book.round" class="text-lime-400 ml-1 text-xs">[{{ book.round }}회]</span>
                   </div>
-                  <div class="text-xs text-zinc-500 mb-1">{{ book.author }}</div>
-                  <div class="flex items-center gap-2 text-xs text-zinc-500">
+                  <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
+                    <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ book.author }}</div>
+                    <div v-if="book.publisher || book.total_pages" class="text-[11px] text-zinc-400 dark:text-zinc-300">
+                      <span v-if="book.publisher">{{ book.publisher }}</span>
+                      <span v-if="book.publisher && book.total_pages"> · </span>
+                      <span v-if="book.total_pages">{{ book.total_pages }}p</span>
+                    </div>
+                    <GenreBadge v-if="book.genre" :genre="book.genre" size="sm" />
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                     <span>{{ formatDate(book.finishedAt) }}</span>
-                    <span v-if="book.avgRating > 0" class="flex items-center gap-1">
-                      <Star :size="12" class="text-yellow-400 fill-yellow-400" />
-                      <span class="text-yellow-400 font-bold">{{ book.avgRating.toFixed(1) }}</span>
-                    </span>
+                    <RatingBadge :rating="book.avgRating" size="sm" />
                   </div>
                 </div>
               </div>
             </div>
             <div v-else class="text-center py-8">
-              <div class="text-4xl mb-2">📖</div>
-              <p class="text-sm text-zinc-500">아직 완독한 책이 없습니다</p>
+              <BookOpen :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-2" />
+              <p class="text-sm text-zinc-500 dark:text-zinc-400">아직 완독한 책이 없습니다</p>
             </div>
           </div>
         </template>
@@ -130,8 +143,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { X, Star } from 'lucide-vue-next'
+import { ref, computed, watch, onUnmounted } from 'vue'
+import { X, Star, BookOpen } from 'lucide-vue-next'
 
 const props = defineProps<{
   isOpen: boolean
@@ -145,6 +158,7 @@ const client = useSupabaseClient()
 const { getBookRound } = useBookRound()
 
 const loading = ref(false)
+const fetchError = ref(false)
 
 const stats = ref({
   completedBooks: 0,
@@ -190,6 +204,7 @@ const fetchStats = async () => {
   if (!props.groupId) return
 
   loading.value = true
+  fetchError.value = false
 
   try {
     // 1. Fetch completed books count
@@ -293,7 +308,11 @@ const fetchStats = async () => {
         books (
           title,
           author,
-          cover_url
+          publisher,
+          total_pages,
+          cover_url,
+          official_genre,
+          draft_genre
         )
       `)
       .eq('group_id', props.groupId)
@@ -304,22 +323,29 @@ const fetchStats = async () => {
     if (booksData) {
       const booksWithRatings = await Promise.all(
         booksData.map(async (book: any) => {
-          const { data: reviewsForBook } = await client
-            .from('reviews')
-            .select('rating')
-            .eq('group_book_id', book.id)
+          let avgRating = 0
+          let round = 1
+          try {
+            const { data: reviewsForBook } = await client
+              .from('reviews')
+              .select('rating')
+              .eq('group_book_id', book.id)
 
-          const avgRating = reviewsForBook && reviewsForBook.length > 0
-            ? reviewsForBook.reduce((sum, r) => sum + r.rating, 0) / reviewsForBook.length
-            : 0
+            avgRating = reviewsForBook && reviewsForBook.length > 0
+              ? reviewsForBook.reduce((sum: number, r: any) => sum + r.rating, 0) / reviewsForBook.length
+              : 0
 
-          const round = await getBookRound(props.groupId, book.isbn, book.id)
+            round = await getBookRound(props.groupId, book.isbn, book.id)
+          } catch (e) {
+            console.error('[Stats] Book rating fetch error:', e)
+          }
 
           return {
             id: book.id,
             title: book.books?.title || '제목 없음',
             author: book.books?.author || '저자 미상',
             cover: book.books?.cover_url,
+            genre: book.books?.official_genre || book.books?.draft_genre,
             finishedAt: book.finished_at,
             avgRating,
             round
@@ -350,6 +376,7 @@ const fetchStats = async () => {
 
   } catch (error) {
     console.error('Stats fetch error:', error)
+    fetchError.value = true
   } finally {
     loading.value = false
   }
@@ -358,13 +385,30 @@ const fetchStats = async () => {
 const formatDate = (dateStr: string) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
-  return date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })
+  const year = String(date.getFullYear()).slice(-2)
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
+  return `${year}.${month}.${day}`
 }
 
-// Watch for modal open
+// Watch for modal open and prevent body scroll
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     fetchStats()
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = 'hidden'
+    }
+  } else {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = ''
+    }
+  }
+})
+
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
   }
 })
 </script>

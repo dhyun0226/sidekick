@@ -7,20 +7,20 @@
     <div class="w-full max-w-md space-y-8 relative z-10">
       <!-- Welcome Message -->
       <div class="text-center space-y-3">
-        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-lime-400 to-lime-600 mb-4 shadow-lg shadow-lime-400/20">
-          <span class="text-4xl">👋</span>
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-lime-400 to-lime-600 mb-4 shadow-apple">
+          <User :size="36" class="text-white" />
         </div>
-        <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">환영합니다!</h1>
+        <h1 class="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">환영합니다!</h1>
         <p class="text-zinc-600 dark:text-zinc-400">프로필을 설정하고 독서를 시작해보세요</p>
       </div>
 
       <!-- Profile Setup Form -->
-      <div class="space-y-6 bg-white dark:bg-zinc-900/50 backdrop-blur-sm border border-zinc-300 dark:border-zinc-800 rounded-2xl p-8">
+      <div class="space-y-6 bg-white dark:bg-zinc-900/50 backdrop-blur-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-2xl p-8">
 
         <!-- Avatar Section -->
         <div class="flex flex-col items-center space-y-4">
           <div class="relative group cursor-pointer" @click="handleAvatarClick">
-            <div class="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden border-2 border-zinc-300 dark:border-zinc-700 group-hover:border-lime-400 transition-colors">
+            <div class="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden ring-1 ring-black/[0.04] dark:ring-white/[0.06] group-hover:ring-2 group-hover:ring-lime-400 transition-colors">
               <!-- Preview Image -->
               <img
                 v-if="avatarPreview"
@@ -29,7 +29,7 @@
                 alt="Avatar Preview"
               />
               <!-- Default Icon -->
-              <div v-else class="w-full h-full flex items-center justify-center text-zinc-600 dark:text-zinc-500">
+              <div v-else class="w-full h-full flex items-center justify-center text-zinc-600 dark:text-zinc-400">
                 <User :size="40" />
               </div>
             </div>
@@ -51,7 +51,7 @@
 
           <div class="text-center space-y-1">
             <p class="text-sm text-zinc-600 dark:text-zinc-400">프로필 사진 선택 (선택 사항)</p>
-            <p class="text-xs text-zinc-600">클릭하여 이미지 업로드</p>
+            <p class="text-xs text-zinc-600 dark:text-zinc-400">클릭하여 이미지 업로드</p>
           </div>
 
           <!-- Upload Progress -->
@@ -64,29 +64,29 @@
         </div>
 
         <!-- Divider -->
-        <div class="border-t border-zinc-300 dark:border-zinc-800"></div>
+        <div class="border-t border-zinc-200/60 dark:border-zinc-800"></div>
 
         <!-- Nickname Input -->
         <div class="space-y-2">
-          <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300">닉네임 *</label>
+          <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">닉네임 *</label>
           <input
             v-model="nickname"
             type="text"
             placeholder="사용할 닉네임을 입력하세요"
             maxlength="20"
-            class="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-400/20 transition-all placeholder-zinc-600 dark:placeholder-zinc-500"
+            class="w-full bg-zinc-100 dark:bg-zinc-800 ring-1 ring-black/[0.04] dark:ring-white/[0.06] text-zinc-900 dark:text-white rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all placeholder-zinc-600 dark:placeholder-zinc-500"
             @keyup.enter="handleSubmit"
           />
           <div class="flex justify-between items-center text-xs">
-            <span class="text-zinc-600">2-20자 사이로 입력해주세요</span>
-            <span class="text-zinc-600 dark:text-zinc-500">{{ nickname.length }}/20</span>
+            <span class="text-zinc-600 dark:text-zinc-400">2-20자 사이로 입력해주세요</span>
+            <span class="text-zinc-600 dark:text-zinc-400">{{ nickname.length }}/20</span>
           </div>
         </div>
 
         <!-- Submit Button -->
         <button
           @click="handleSubmit"
-          class="w-full bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-300 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          class="w-full bg-lime-400 text-black font-semibold py-4 rounded-2xl hover:bg-lime-300 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           :disabled="!canSubmit || loading"
         >
           <span v-if="loading" class="flex items-center justify-center gap-2">
@@ -99,7 +99,7 @@
       </div>
 
       <!-- Skip Option (Optional) -->
-      <p class="text-center text-xs text-zinc-600">
+      <p class="text-center text-xs text-zinc-600 dark:text-zinc-400">
         나중에 프로필 페이지에서 수정할 수 있습니다
       </p>
     </div>
@@ -111,6 +111,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { User, Camera } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
+
+useHead({ title: '시작하기' })
 
 const router = useRouter()
 const client = useSupabaseClient()
@@ -147,7 +149,6 @@ onMounted(async () => {
     .maybeSingle()
 
   if (existingProfile && existingProfile.nickname) {
-    console.log('Profile already complete, redirecting to home')
     router.push('/')
     return
   }
@@ -176,13 +177,13 @@ const handleFileSelect = (event: Event) => {
 
   // 파일 크기 체크 (5MB 제한)
   if (file.size > 5 * 1024 * 1024) {
-    toast.error('파일 크기는 5MB 이하여야 합니다.')
+    toast.error('파일 크기는 5MB 이하여야 합니다')
     return
   }
 
   // 이미지 타입 체크
   if (!file.type.startsWith('image/')) {
-    toast.error('이미지 파일만 업로드 가능합니다.')
+    toast.error('이미지 파일만 업로드 가능합니다')
     return
   }
 
@@ -204,8 +205,7 @@ const handleSubmit = async () => {
 
   const { data: { user } } = await client.auth.getUser()
   if (!user) {
-    console.error('User not authenticated')
-    toast.error('로그인 정보가 없습니다. 다시 로그인해주세요.')
+    toast.error('로그인 정보가 없습니다. 다시 로그인해주세요')
     router.push('/login')
     return
   }
@@ -226,8 +226,6 @@ const handleSubmit = async () => {
         // RLS 정책에 맞게 사용자 ID 폴더 안에 저장
         const filePath = `${user.id}/${fileName}`
 
-        console.log('[Onboarding] Uploading avatar to:', filePath)
-
         const { data: uploadData, error: uploadError } = await client.storage
           .from('avatars')
           .upload(filePath, avatarFile.value, {
@@ -236,9 +234,7 @@ const handleSubmit = async () => {
           })
 
         if (uploadError) {
-          console.error('[Onboarding] Avatar upload error:', uploadError)
-          // Storage 버킷이 없거나 업로드 실패 → OAuth 아바타 사용
-          console.warn('[Onboarding] Using OAuth avatar as fallback')
+          toast.error('사진 업로드에 실패했습니다')
           uploading.value = false
         } else {
           // 업로드 성공: Public URL 생성
@@ -247,7 +243,6 @@ const handleSubmit = async () => {
             .getPublicUrl(filePath)
 
           finalAvatarUrl = publicUrl
-          console.log('[Onboarding] Avatar uploaded successfully:', publicUrl)
           uploading.value = false
         }
       } catch (err) {
@@ -257,7 +252,6 @@ const handleSubmit = async () => {
     }
 
     // 2. users 테이블의 프로필 UPDATE (트리거가 이미 row 생성함)
-    console.log('Updating profile for user:', user.id)
     const { error: updateError } = await client
       .from('users')
       .update({
@@ -271,7 +265,6 @@ const handleSubmit = async () => {
     }
 
     // 3. 성공 - 홈으로 이동
-    console.log('Profile updated successfully')
     router.push('/')
 
   } catch (error: any) {

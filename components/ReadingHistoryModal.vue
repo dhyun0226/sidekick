@@ -1,13 +1,13 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="closeModal">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center p-4" @click.self="closeModal" @keydown.esc="closeModal" tabindex="-1">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md"></div>
 
     <!-- Modal -->
-    <div class="relative w-full max-w-2xl max-h-[90vh] bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-300 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col">
+    <div class="relative w-full max-w-2xl max-h-[90vh] bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] shadow-apple-lg overflow-hidden flex flex-col">
       <!-- Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-300 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur sticky top-0 z-10">
-        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">내가 읽은 책</h2>
+      <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur sticky top-0 z-10">
+        <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">내가 읽은 책</h2>
         <button @click="closeModal" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <X :size="24" />
         </button>
@@ -18,13 +18,13 @@
         <!-- Loading State -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-12">
           <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p class="text-sm text-zinc-600 dark:text-zinc-500">불러오는 중...</p>
+          <p class="text-sm text-zinc-600 dark:text-zinc-400">불러오는 중...</p>
         </div>
 
         <!-- Empty State -->
         <div v-else-if="books.length === 0" class="flex flex-col items-center justify-center py-12">
-          <BookOpen :size="48" class="text-zinc-400 dark:text-zinc-700 mb-4" />
-          <p class="text-sm text-zinc-600 dark:text-zinc-500">아직 읽은 책이 없습니다</p>
+          <BookOpen :size="48" class="text-zinc-400 dark:text-zinc-300 mb-4" />
+          <p class="text-sm text-zinc-600 dark:text-zinc-400">아직 읽은 책이 없습니다</p>
         </div>
 
         <!-- Books List -->
@@ -35,27 +35,33 @@
               <div class="w-16 h-24 bg-zinc-200 dark:bg-zinc-700 rounded-lg overflow-hidden flex-shrink-0">
                 <img v-if="book.cover" :src="book.cover" class="w-full h-full object-cover" />
                 <div v-else class="w-full h-full flex items-center justify-center">
-                  <BookOpen :size="24" class="text-zinc-500 dark:text-zinc-600" />
+                  <BookOpen :size="24" class="text-zinc-500 dark:text-zinc-400" />
                 </div>
               </div>
               <div class="flex-1 min-w-0">
                 <h3 class="font-bold text-zinc-900 dark:text-white text-sm mb-1 line-clamp-2">{{ book.title }}</h3>
-                <p class="text-xs text-zinc-600 dark:text-zinc-400 mb-2">{{ book.author }}</p>
+                <div class="flex items-center gap-2 mb-2">
+                  <p class="text-xs text-zinc-600 dark:text-zinc-400 truncate">{{ book.author }}</p>
+                  <template v-if="book.genre">
+                    <span class="text-zinc-300 dark:text-zinc-700 text-[11px]">•</span>
+                    <GenreBadge :genre="book.genre" size="sm" />
+                  </template>
+                </div>
               </div>
             </div>
 
             <!-- Reading History -->
             <div v-if="book.readingHistory && book.readingHistory.length > 0" class="mb-4">
               <div class="flex items-center gap-2 mb-2">
-                <Calendar :size="14" class="text-zinc-600 dark:text-zinc-500" />
-                <span class="text-xs font-bold text-zinc-600 dark:text-zinc-500">독서 기록</span>
+                <Calendar :size="14" class="text-zinc-600 dark:text-zinc-400" />
+                <span class="text-xs font-bold text-zinc-600 dark:text-zinc-400">독서 기록</span>
               </div>
               <div class="space-y-1">
                 <div v-for="(history, idx) in book.readingHistory" :key="idx" class="text-xs text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
-                  <span class="text-zinc-500 dark:text-zinc-600">•</span>
+                  <span class="text-zinc-500 dark:text-zinc-400">•</span>
                   <span>{{ history.groupName }}</span>
                   <span v-if="history.round" class="text-lime-400">[{{ history.round }}회]</span>
-                  <span class="text-zinc-500 dark:text-zinc-700">·</span>
+                  <span class="text-zinc-500 dark:text-zinc-400">·</span>
                   <span>{{ formatDate(history.finishedAt) }} 완독</span>
                 </div>
               </div>
@@ -74,13 +80,13 @@
                       <Star :size="12" class="text-yellow-400 fill-yellow-400" />
                       <span class="text-xs font-bold text-yellow-400">{{ review.rating.toFixed(1) }}</span>
                     </div>
-                    <span class="text-xs text-zinc-500 dark:text-zinc-600">·</span>
-                    <span class="text-xs text-zinc-600 dark:text-zinc-500">{{ review.groupName }}</span>
+                    <span class="text-xs text-zinc-500 dark:text-zinc-400">·</span>
+                    <span class="text-xs text-zinc-600 dark:text-zinc-400">{{ review.groupName }}</span>
                   </div>
-                  <span class="text-[10px] text-zinc-500 dark:text-zinc-600">{{ formatDate(review.createdAt) }}</span>
+                  <span class="text-[11px] text-zinc-500 dark:text-zinc-400">{{ formatDate(review.createdAt) }}</span>
                 </div>
                 <p v-if="review.content" class="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{{ review.content }}</p>
-                <p v-else class="text-sm text-zinc-500 dark:text-zinc-600 italic">리뷰 내용 없음</p>
+                <p v-else class="text-sm text-zinc-500 dark:text-zinc-400">리뷰 내용 없음</p>
               </div>
             </div>
 
@@ -92,13 +98,13 @@
               </div>
               <div v-for="comment in book.comments.slice(0, 3)" :key="comment.id" class="bg-white dark:bg-zinc-900/50 rounded-lg p-3 border-l-2 border-blue-400/30">
                 <p class="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed mb-1">{{ comment.content }}</p>
-                <div class="flex items-center gap-2 text-[10px] text-zinc-500 dark:text-zinc-600">
+                <div class="flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400">
                   <span>{{ comment.groupName }}</span>
                   <span>•</span>
                   <span>{{ formatDate(comment.createdAt) }}</span>
                 </div>
               </div>
-              <button v-if="book.comments.length > 3" class="text-xs text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-400 mt-2">
+              <button v-if="book.comments.length > 3" class="text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-400 dark:text-zinc-300 mt-2">
                 +{{ book.comments.length - 3 }}개 더보기
               </button>
             </div>
@@ -109,7 +115,7 @@
       <!-- Footer Stats -->
       <div v-if="!loading && books.length > 0" class="px-6 py-4 border-t border-zinc-300 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur">
         <div class="flex items-center justify-between text-xs">
-          <span class="text-zinc-600 dark:text-zinc-500">총 {{ books.length }}권의 책을 읽었습니다</span>
+          <span class="text-zinc-600 dark:text-zinc-400">총 {{ books.length }}권의 책을 읽었습니다</span>
           <div class="flex items-center gap-4">
             <div class="flex items-center gap-1">
               <Star :size="12" class="text-yellow-400" />
@@ -127,7 +133,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onUnmounted } from 'vue'
 import { X, BookOpen, Star, MessageCircle, Calendar } from 'lucide-vue-next'
 
 interface BookHistory {
@@ -135,6 +141,7 @@ interface BookHistory {
   title: string
   author: string
   cover: string | null
+  genre?: string | null
   reviews: Array<{
     id: string
     rating: number
@@ -175,7 +182,21 @@ const totalComments = computed(() => books.value.reduce((sum, b) => sum + (b.com
 
 watch(() => props.isOpen, async (isOpen) => {
   if (isOpen) {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = 'hidden'
+    }
     await fetchReadingHistory()
+  } else {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = ''
+    }
+  }
+})
+
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
   }
 })
 
@@ -203,7 +224,9 @@ const fetchReadingHistory = async () => {
             isbn,
             title,
             author,
-            cover
+            cover_url,
+            official_genre,
+            draft_genre
           )
         )
       `)
@@ -211,7 +234,6 @@ const fetchReadingHistory = async () => {
       .order('created_at', { ascending: false })
 
     if (reviewsError) {
-      console.error('Reviews fetch error:', reviewsError)
       return
     }
 
@@ -232,7 +254,8 @@ const fetchReadingHistory = async () => {
           isbn,
           title: bookData?.title || '제목 없음',
           author: bookData?.author || '저자 미상',
-          cover: bookData?.cover || null,
+          cover: bookData?.cover_url || null,
+          genre: bookData?.official_genre || bookData?.draft_genre || null,
           reviews: [],
           readingHistory: [],
           comments: []
@@ -344,6 +367,9 @@ const formatDate = (dateStr: string) => {
   if (diffDays < 30) return `${Math.floor(diffDays / 7)}주 전`
   if (diffDays < 365) return `${Math.floor(diffDays / 30)}개월 전`
 
-  return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+  const year = String(date.getFullYear()).slice(-2)
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
+  return `${year}.${month}.${day}`
 }
 </script>

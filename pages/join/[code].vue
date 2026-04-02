@@ -5,7 +5,7 @@
 
     <div class="w-full max-w-sm space-y-8 relative z-10 text-center">
       <!-- Loading State -->
-      <div v-if="loading" class="text-zinc-600 dark:text-zinc-500">
+      <div v-if="loading" class="text-zinc-600 dark:text-zinc-400">
         <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-lime-400/20 animate-pulse mb-4">
           <div class="w-8 h-8 border-4 border-lime-400 border-t-transparent rounded-full animate-spin"></div>
         </div>
@@ -30,8 +30,8 @@
 
       <!-- Success State -->
       <div v-else-if="group" class="space-y-6">
-        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 shadow-xl">
-          <span class="text-4xl">📚</span>
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-lime-400 shadow-apple">
+          <span class="text-black text-xl font-black">CR</span>
         </div>
 
         <div>
@@ -77,6 +77,7 @@ const route = useRoute()
 const router = useRouter()
 const client = useSupabaseClient()
 const toast = useToastStore()
+const { canJoinGroup } = useSubscription()
 
 const code = route.params.code as string
 
@@ -102,7 +103,6 @@ onMounted(async () => {
   try {
     // DB stores codes in UPPERCASE, so normalize the input
     const normalizedCode = code.toUpperCase()
-    console.log('[Join] Fetching group with code:', normalizedCode)
 
     // 1. 초대 코드로 그룹 찾기
     const { data: groupData, error: groupError } = await client
@@ -112,7 +112,6 @@ onMounted(async () => {
       .single()
 
     if (groupError || !groupData) {
-      console.error('[Join] Group not found:', groupError)
       error.value = '유효하지 않은 초대 코드입니다.'
       loading.value = false
       return
@@ -137,7 +136,6 @@ onMounted(async () => {
       .maybeSingle()
 
     if (existingMember) {
-      console.log('[Join] Already a member, redirecting to group')
       router.push(`/group/${groupData.id}`)
       return
     }
@@ -158,7 +156,13 @@ const joinGroup = async () => {
   joining.value = true
 
   try {
-    console.log('[Join] Joining group:', group.value.id)
+    // 구독 제한 체크
+    const limitCheck = await canJoinGroup()
+    if (!limitCheck.allowed) {
+      toast.error(limitCheck.message)
+      joining.value = false
+      return
+    }
 
     // 그룹에 멤버로 추가
     const { error: joinError } = await client
@@ -170,18 +174,15 @@ const joinGroup = async () => {
       })
 
     if (joinError) {
-      console.error('[Join] Join error:', joinError)
       throw new Error('그룹 참여에 실패했습니다.')
     }
-
-    console.log('[Join] Successfully joined group')
 
     // 그룹 페이지로 이동
     router.push(`/group/${group.value.id}`)
 
   } catch (err: any) {
     console.error('[Join] Error:', err)
-    toast.error(err.message || '그룹 참여 중 오류가 발생했습니다.')
+    toast.error(err.message || '그룹 참여 중 오류가 발생했습니다')
   } finally {
     joining.value = false
   }

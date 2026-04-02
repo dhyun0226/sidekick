@@ -1,111 +1,170 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 pb-20">
     <!-- NOW READING -->
     <div v-if="readingBooks.length > 0">
       <!-- Header -->
       <div class="flex items-center justify-between px-1 mb-3">
-        <h3 class="text-xs font-bold uppercase">
-          <span class="text-lime-500 dark:text-lime-400 animate-pulse-lime">Now Reading</span>
+        <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">
+          읽는 중
         </h3>
-        <span class="text-[10px] text-zinc-400">{{ sortedReadingBooks.length }}권</span>
+        <span class="text-[11px] text-zinc-400 dark:text-zinc-300">{{ sortedReadingBooks.length }}권</span>
       </div>
 
       <!-- Card -->
-      <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
 
       <!-- Reading Books List (목표일 임박 순) -->
       <div class="p-3 space-y-2">
         <div
           v-for="book in sortedReadingBooks"
           :key="book.id"
-          class="p-4 cursor-pointer transition-all relative rounded-xl"
+          class="p-4 cursor-pointer transition-all relative rounded-2xl"
           :class="[
             selectedBookId === book.id
-              ? 'border-2 border-lime-500 dark:border-lime-400 bg-lime-50/30 dark:bg-lime-900/10 shadow-lime-200 dark:shadow-lime-900/30'
-              : 'border border-zinc-200 dark:border-zinc-800 hover:border-lime-300 dark:hover:border-lime-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/30',
+              ? 'ring-2 ring-lime-500 dark:ring-lime-400 bg-lime-50/30 dark:bg-lime-900/30'
+              : 'ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:ring-lime-300 dark:hover:ring-lime-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/30',
             activeBookMenu === book.id ? 'z-[10001]' : 'z-0'
           ]"
           @click="emit('selectBook', book.id)"
         >
-          <!-- Settings Menu (모든 사용자에게 표시) -->
-          <div class="absolute top-3 right-3 z-[9999]">
-            <button @click.stop="toggleBookMenu(book.id)" class="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors">
-              <MoreVertical :size="14" class="text-zinc-400" />
-            </button>
-            <div v-if="activeBookMenu === book.id" class="absolute right-0 top-6 min-w-[160px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-[10000] overflow-visible" @click.stop>
+          <!-- Settings Menu (Common Component) -->
+          <div v-if="!isArchived && !isReadOnlyMode" class="absolute top-3 right-3">
+            <DropdownMenu
+              :is-open="activeBookMenu === book.id"
+              @toggle="toggleBookMenu(book.id)"
+              @close="activeBookMenu = null"
+            >
               <!-- All Users -->
-              <button @click.stop="handleReview(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+              <button v-if="book.user_finished_at" @click.stop="handleReview(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
                 <Edit3 :size="12" /> {{ props.userReviewedBooks.has(book.id) ? '리뷰 수정' : '리뷰 작성' }}
               </button>
-              <button v-if="!book.user_finished_at" @click.stop="handleMarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+              <button v-if="!book.user_finished_at" @click.stop="handleMarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
                 <Check :size="12" /> 완독 처리
               </button>
-              <button v-else @click.stop="handleUnmarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+              <button v-else @click.stop="handleUnmarkFinished(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
                 <X :size="12" /> 완독 취소
               </button>
               <!-- Admin Only -->
               <template v-if="isAdmin">
-                <button @click.stop="handleEditDates(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap border-t border-zinc-100 dark:border-zinc-700/50">
+                <button @click.stop="handleEditDates(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap border-t border-zinc-100 dark:border-zinc-700/50 font-bold">
                   <Edit2 :size="12" /> 기간 수정
                 </button>
-                <button @click.stop="handleEditToc(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                <button @click.stop="handleEditGenre(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
+                  <Tag :size="12" /> 장르 수정
+                </button>
+                <button @click.stop="handleEditToc(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
                   <Settings :size="12" /> 목차 수정
                 </button>
-                <button @click.stop="handleMarkCompleted(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
-                  <UserCheck :size="12" /> 완주 처리
+                <button @click.stop="handleMarkCompleted(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold">
+                  <UserCheck :size="12" /> 종료 처리
                 </button>
-                <button @click.stop="handleDeleteBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap">
+                <button @click.stop="handleDeleteBook(book.id)" class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap font-bold">
                   <UserX :size="12" /> 책 삭제
                 </button>
               </template>
-            </div>
-            <div v-if="activeBookMenu === book.id" class="fixed inset-0 z-[9998]" @click.stop="activeBookMenu = null"></div>
+            </DropdownMenu>
           </div>
 
-          <div class="flex gap-3 mb-2">
-            <img :src="book.book?.cover_url" class="w-14 h-20 object-cover rounded shadow-sm bg-zinc-200 dark:bg-zinc-800 flex-shrink-0" />
-            <div class="flex-1 min-w-0">
-              <h3 class="font-bold text-zinc-900 dark:text-white line-clamp-2 text-sm mb-1 pr-8">{{ book.book?.title }}</h3>
-              <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-2">{{ book.book?.author }}</p>
-              <div class="text-[10px] text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded px-2 py-1 inline-block">
-                {{ formatBookDateRange(book) || '기간 미설정' }}
+          <div class="flex gap-3">
+            <img :src="book.book?.cover_url" class="w-14 h-20 object-cover rounded shadow-apple bg-zinc-200 dark:bg-zinc-800 flex-shrink-0" />
+            <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+              <div>
+                <h3 class="font-semibold text-zinc-900 dark:text-white line-clamp-1 text-sm mb-1 pr-8">{{ book.book?.title }}</h3>
+                <div class="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+                  <span class="truncate max-w-[80px]">{{ book.book?.author }}</span>
+                  <template v-if="book.book?.publisher || book.total_pages">
+                    <span class="text-zinc-300 dark:text-zinc-700">·</span>
+                    <span v-if="book.book?.publisher" class="truncate max-w-[60px]">{{ book.book?.publisher }}</span>
+                    <span v-if="book.book?.publisher && book.total_pages">·</span>
+                    <span v-if="book.total_pages">{{ book.total_pages }}p</span>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Badges Line -->
+              <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                <GenreBadge v-if="book.genre" :genre="book.genre" size="sm" />
+                
+                <RatingBadge v-if="props.userReviewedBooks.has(book.id)" :rating="props.userReviewedBooks.get(book.id)" size="sm" />
+
+                <Badge v-if="book.round && book.round > 1" size="sm">
+                  {{ book.round }}회차
+                </Badge>
+
+                <Badge v-if="book.target_start_date" size="sm">
+                  {{ formatBookDateRange(book) }}
+                </Badge>
+
+                <Badge v-if="getBookDaysRemaining(book) !== null" variant="lime" size="sm">
+                  {{ getBookDaysRemaining(book)! > 0 ? `D-${getBookDaysRemaining(book)}` : getBookDaysRemaining(book) === 0 ? 'D-Day' : `D+${Math.abs(getBookDaysRemaining(book)!)}` }}
+                </Badge>
               </div>
             </div>
-          </div>
-
-          <!-- D-Day (모든 책에 표시) -->
-          <div
-            v-if="getBookDaysRemaining(book) !== null"
-            class="bg-zinc-100 dark:bg-zinc-800 rounded-lg p-2 flex items-center justify-between"
-          >
-            <span class="text-xs text-zinc-500 dark:text-zinc-400">목표일까지</span>
-            <span class="text-xs font-bold text-lime-500 dark:text-lime-400">
-              {{ getBookDaysRemaining(book)! > 0 ? `${getBookDaysRemaining(book)}일 남음` : getBookDaysRemaining(book) === 0 ? '오늘까지!' : `+${Math.abs(getBookDaysRemaining(book)!)}일 지남` }}
-            </span>
           </div>
         </div>
       </div>
       </div>
 
       <!-- Chapter Navigation (선택된 책의 목차) -->
-      <div v-if="selectedBook && toc.length > 0 && isSelectedBookReading" class="mt-4">
+      <div v-if="selectedBook && toc.length > 0" class="mt-6">
         <div class="flex items-center justify-between px-1 mb-3">
-          <h3 class="text-xs font-bold text-zinc-500 uppercase">목차</h3>
-          <span class="text-[10px] text-zinc-400">{{ toc.length }}개</span>
+          <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">목차 이동</h3>
+          <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 opacity-60">{{ toc.length }}개</span>
         </div>
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden shadow-apple">
           <div class="divide-y divide-zinc-100 dark:divide-zinc-800/50">
             <button
               v-for="(chapter, index) in toc"
               :key="index"
               @click="emit('jumpToChapter', chapter.start)"
-              class="w-full text-left px-4 py-3 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800 flex justify-between items-center group transition-colors"
-              :class="{ 'bg-lime-50/50 dark:bg-lime-900/10': isCurrentChapter(chapter) }"
+              class="w-full flex items-center justify-between px-4 py-3.5 text-left transition-all group relative active:bg-zinc-50 dark:active:bg-zinc-800"
+              :class="{ 'bg-lime-50/30 dark:bg-lime-900/30': isCurrentChapter(chapter) }"
             >
-              <span class="text-zinc-700 dark:text-zinc-300 truncate pr-2" :class="{ 'font-bold text-lime-700 dark:text-lime-400': isCurrentChapter(chapter) }">
-                {{ chapter.title }}
-              </span>
-              <span class="text-[10px] text-zinc-400">{{ Math.round(chapter.start) }}%</span>
+              <!-- Current Indicator Bar -->
+              <div 
+                v-if="isCurrentChapter(chapter)" 
+                class="absolute left-0 top-0 bottom-0 w-1 bg-lime-400"
+              ></div>
+
+              <div class="flex items-center gap-3 min-w-0">
+                <span 
+                  class="text-[11px] font-black w-4 text-zinc-300 dark:text-zinc-500 group-hover:text-lime-500 transition-colors"
+                  :class="{ 'text-lime-500': isCurrentChapter(chapter) }"
+                >
+                  {{ (index + 1).toString().padStart(2, '0') }}
+                </span>
+                <span 
+                  class="text-xs truncate transition-colors"
+                  :class="[
+                    isCurrentChapter(chapter)
+                      ? 'font-bold text-zinc-900 dark:text-white'
+                      : 'text-zinc-600 dark:text-zinc-400 font-medium group-hover:text-zinc-900 dark:group-hover:text-zinc-200'
+                  ]"
+                >
+                  {{ chapter.title }}
+                </span>
+              </div>
+
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <div class="flex flex-col items-end gap-0.5">
+                  <span 
+                    v-if="chapter.page != null"
+                    class="text-[11px] font-black text-lime-600 dark:text-lime-400"
+                  >
+                    {{ chapter.page }}쪽
+                  </span>
+                  <span 
+                    class="text-[9px] font-bold text-zinc-400 dark:text-zinc-300"
+                  >
+                    {{ Math.round(chapter.start) }}%
+                  </span>
+                </div>
+                <ChevronRight 
+                  :size="14" 
+                  class="text-zinc-300 dark:text-zinc-500 transform transition-transform group-hover:translate-x-0.5 group-hover:text-lime-500" 
+                />
+              </div>
             </button>
           </div>
         </div>
@@ -116,7 +175,11 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { MoreVertical, Edit2, Settings, UserCheck, UserX, Edit3, Check, X } from 'lucide-vue-next'
+import { Edit2, Settings, UserCheck, UserX, Edit3, Check, X, Tag, Lock, ChevronRight } from 'lucide-vue-next'
+import DropdownMenu from '~/components/DropdownMenu.vue'
+import RatingBadge from '~/components/RatingBadge.vue'
+import GenreBadge from '~/components/GenreBadge.vue'
+import Badge from '~/components/Badge.vue'
 
 interface Book {
   id: string
@@ -124,17 +187,23 @@ interface Book {
   book?: {
     title: string
     author: string
+    publisher?: string
     cover_url: string
   }
+  genre?: string // ✅ Unified genre (snapshot → official → draft)
+  total_pages?: number // ✅ Unified pages (snapshot → official → draft)
   target_start_date?: string
   target_end_date?: string
   user_finished_at?: string
+  created_at: string
+  round?: number
 }
 
 interface TocChapter {
   title: string
   start: number
   end: number
+  page?: number
 }
 
 interface Props {
@@ -144,7 +213,9 @@ interface Props {
   readingBooks: Book[]
   viewProgress: number
   isAdmin: boolean
-  userReviewedBooks: Set<string>
+  isArchived: boolean
+  isReadOnlyMode?: boolean
+  userReviewedBooks: Map<string, number>
 }
 
 interface Emits {
@@ -152,11 +223,13 @@ interface Emits {
   (e: 'jumpToChapter', startPct: number): void
   (e: 'editDates', bookId: string): void
   (e: 'editToc', bookId: string): void
+  (e: 'editGenre', bookId: string): void
   (e: 'markCompleted', bookId: string): void
   (e: 'markFinished', bookId: string): void
   (e: 'unmarkFinished', bookId: string): void
   (e: 'deleteBook', bookId: string): void
   (e: 'openReview', bookId: string): void
+  (e: 'openUpgradeModal'): void
 }
 
 const props = defineProps<Props>()
@@ -188,7 +261,7 @@ const selectedBook = computed(() => {
   return props.readingBooks.find(book => book.id === props.selectedBookId) || props.readingBooks[0] || null
 })
 
-// 선택된 책이 실제로 읽는 중인 책인지 확인 (완주한 책이 아닌지)
+// 선택된 책이 실제로 읽는 중인 책인지 확인 (종료된 책이 아닌지)
 const isSelectedBookReading = computed(() => {
   return props.readingBooks.some(book => book.id === props.selectedBookId)
 })
@@ -200,8 +273,8 @@ const formatBookDateRange = (book: Book) => {
   const end = new Date(book.target_end_date)
   const formatDate = (date: Date) => {
     const year = date.getFullYear() % 100
-    const month = date.getMonth() + 1
-    const day = date.getDate()
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const day = date.getDate().toString().padStart(2, '0')
     return `${year}.${month}.${day}`
   }
   return `${formatDate(start)} - ${formatDate(end)}`
@@ -231,6 +304,11 @@ const handleEditDates = (bookId: string) => {
   emit('editDates', bookId)
 }
 
+const handleEditGenre = (bookId: string) => {
+  activeBookMenu.value = null
+  emit('editGenre', bookId)
+}
+
 const handleEditToc = (bookId: string) => {
   activeBookMenu.value = null
   emit('editToc', bookId)
@@ -242,25 +320,14 @@ const handleMarkCompleted = (bookId: string) => {
 }
 
 const handleMarkFinished = (bookId: string) => {
-  console.log('[InfoTab] Mark Finished clicked:', bookId)
   activeBookMenu.value = null
   emit('markFinished', bookId)
 }
 
 const handleUnmarkFinished = (bookId: string) => {
-  console.log('[InfoTab] Unmark Finished clicked:', bookId)
   activeBookMenu.value = null
   emit('unmarkFinished', bookId)
 }
-
-// Watch for changes to readingBooks to debug reactivity
-watch(() => props.readingBooks, (newBooks) => {
-  console.log('[InfoTab] readingBooks updated:', newBooks.map(b => ({
-    id: b.id,
-    title: b.book?.title,
-    user_finished_at: b.user_finished_at
-  })))
-}, { deep: true })
 
 const handleDeleteBook = (bookId: string) => {
   activeBookMenu.value = null

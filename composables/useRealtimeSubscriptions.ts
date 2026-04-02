@@ -35,30 +35,28 @@ export const useRealtimeSubscriptions = (
   /**
    * Setup comment realtime subscription for a specific book
    */
-  const setupCommentSubscription = () => {
-    commentChannel = client.channel('public:comments')
+  const setupCommentSubscription = (bookId?: string) => {
+    if (commentChannel) {
+      client.removeChannel(commentChannel)
+      commentChannel = null
+    }
+
+    const targetBookId = bookId || selectedBookId.value
+    if (!targetBookId) return
+
+    commentChannel = client.channel(`comments:${targetBookId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'comments' },
+        { event: 'INSERT', schema: 'public', table: 'comments', filter: `group_book_id=eq.${targetBookId}` },
         async (payload) => {
-          console.log('New comment received!', payload)
+          const { data: user } = await client
+            .from('users')
+            .select('*')
+            .eq('id', payload.new.user_id)
+            .single()
 
-          if (selectedBookId.value && payload.new.group_book_id === selectedBookId.value) {
-            // Fetch user info for the new comment
-            const { data: user } = await client
-              .from('users')
-              .select('*')
-              .eq('id', payload.new.user_id)
-              .single()
-
-            if (user) {
-              const newComment = {
-                ...payload.new,
-                user: user
-              }
-
-              onCommentAdded(newComment)
-            }
+          if (user) {
+            onCommentAdded({ ...payload.new, user })
           }
         }
       )
@@ -112,25 +110,28 @@ export const useRealtimeSubscriptions = (
   }
 
   /**
-   * Watch drawer opening to setup progress subscription
+   * Watch drawer and selectedBookId to manage progress subscription
    */
-  watch([drawerOpen, () => selectedBookId.value], async ([isOpen, bookId]) => {
-    if (isOpen && bookId) {
-      setupProgressSubscription(bookId)
+  // Re-subscribe comments when book changes
+  watch(() => selectedBookId.value, (bookId, oldBookId) => {
+    if (bookId && bookId !== oldBookId) {
+      setupCommentSubscription(bookId)
     }
   })
 
-  /**
-   * Watch selectedBookId changes to update progress subscription
-   */
-  watch(() => selectedBookId.value, async (newBookId, oldBookId) => {
-    if (oldBookId && progressChannel) {
+  watch([drawerOpen, () => selectedBookId.value], async ([isOpen, bookId], [wasOpen, oldBookId]) => {
+    if (oldBookId && oldBookId !== bookId && progressChannel) {
       client.removeChannel(progressChannel)
       progressChannel = null
     }
 
-    if (newBookId && drawerOpen.value) {
-      setupProgressSubscription(newBookId)
+    if (isOpen && bookId) {
+      if (!progressChannel || oldBookId !== bookId) {
+        setupProgressSubscription(bookId)
+      }
+    } else if (!isOpen && progressChannel) {
+      client.removeChannel(progressChannel)
+      progressChannel = null
     }
   })
 

@@ -10,7 +10,7 @@
           class="flex-1 px-4 py-3 text-sm font-medium transition-colors relative"
           :class="activePeriod === tab.value
             ? 'text-lime-400'
-            : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
+            : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'"
         >
           {{ tab.label }}
           <div v-if="activePeriod === tab.value" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400"></div>
@@ -23,7 +23,7 @@
       <!-- Loading State -->
       <div v-if="loading" class="flex flex-col items-center justify-center py-12">
         <div class="w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="text-sm text-zinc-500">통계를 불러오는 중...</p>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">통계를 불러오는 중...</p>
       </div>
 
       <!-- Stats Content -->
@@ -31,26 +31,26 @@
         <!-- Stats Summary -->
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-zinc-100 dark:bg-zinc-800/30 rounded-xl p-4">
-            <div class="text-xs text-zinc-500 mb-1">완독한 책</div>
+            <div class="text-xs text-zinc-500 dark:text-zinc-400 mb-1">완독한 책</div>
             <div class="text-2xl font-bold text-lime-400">{{ stats.booksCompleted }}</div>
           </div>
           <div class="bg-zinc-100 dark:bg-zinc-800/30 rounded-xl p-4">
-            <div class="text-xs text-zinc-500 mb-1">작성한 리뷰</div>
+            <div class="text-xs text-zinc-500 dark:text-zinc-400 mb-1">작성한 리뷰</div>
             <div class="text-2xl font-bold text-blue-400">{{ stats.reviewsWritten }}</div>
           </div>
           <div class="bg-zinc-100 dark:bg-zinc-800/30 rounded-xl p-4">
-            <div class="text-xs text-zinc-500 mb-1">작성한 코멘트</div>
+            <div class="text-xs text-zinc-500 dark:text-zinc-400 mb-1">작성한 코멘트</div>
             <div class="text-2xl font-bold text-purple-400">{{ stats.commentsWritten }}</div>
           </div>
           <div class="bg-zinc-100 dark:bg-zinc-800/30 rounded-xl p-4">
-            <div class="text-xs text-zinc-500 mb-1">평균 평점</div>
+            <div class="text-xs text-zinc-500 dark:text-zinc-400 mb-1">평균 평점</div>
             <div class="text-2xl font-bold text-yellow-400">{{ stats.avgRating }}</div>
           </div>
         </div>
 
         <!-- Activity Details -->
         <div class="space-y-4">
-          <h3 class="text-sm font-bold text-zinc-400 uppercase">활동 상세</h3>
+          <h3 class="text-sm font-bold text-zinc-400 dark:text-zinc-300 uppercase">활동 상세</h3>
 
           <!-- Books Completed -->
           <div v-if="activities.books.length > 0">
@@ -68,8 +68,16 @@
                 <div class="w-12 h-16 bg-zinc-300 dark:bg-zinc-700 rounded flex-shrink-0" v-else></div>
                 <div class="flex-1 min-w-0">
                   <div class="font-medium text-zinc-900 dark:text-zinc-200 text-sm line-clamp-1">{{ book.title }}</div>
-                  <div class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">{{ book.author }}</div>
-                  <div class="text-xs text-zinc-500">{{ formatDate(book.finishedAt) }} 완독</div>
+                  <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
+                    <div class="text-xs text-zinc-600 dark:text-zinc-400">{{ book.author }}</div>
+                    <div v-if="book.publisher || book.total_pages" class="text-[11px] text-zinc-400 dark:text-zinc-300">
+                      <span v-if="book.publisher">{{ book.publisher }}</span>
+                      <span v-if="book.publisher && book.total_pages"> · </span>
+                      <span v-if="book.total_pages">{{ book.total_pages }}p</span>
+                    </div>
+                    <GenreBadge v-if="book.genre" :genre="book.genre" size="sm" />
+                  </div>
+                  <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ formatDate(book.finishedAt) }} 완독</div>
                 </div>
               </div>
             </div>
@@ -89,13 +97,10 @@
               >
                 <div class="flex items-center justify-between mb-2">
                   <div class="font-medium text-zinc-900 dark:text-zinc-200 text-sm">{{ review.bookTitle }}</div>
-                  <div class="flex items-center gap-1">
-                    <Star :size="12" class="text-yellow-400 fill-yellow-400" />
-                    <span class="text-xs font-bold text-yellow-400">{{ review.rating.toFixed(1) }}</span>
-                  </div>
+                  <RatingBadge :rating="review.rating" size="sm" />
                 </div>
                 <p v-if="review.content" class="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2 mb-1">{{ review.content }}</p>
-                <div class="text-xs text-zinc-500">{{ formatDate(review.createdAt) }}</div>
+                <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ formatDate(review.createdAt) }}</div>
               </div>
             </div>
           </div>
@@ -114,7 +119,7 @@
               >
                 <div class="font-medium text-zinc-900 dark:text-zinc-200 text-sm mb-1">{{ comment.bookTitle }}</div>
                 <p class="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2 mb-1">{{ comment.content }}</p>
-                <div class="text-xs text-zinc-500">{{ formatDate(comment.createdAt) }}</div>
+                <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ formatDate(comment.createdAt) }}</div>
               </div>
             </div>
           </div>
@@ -122,7 +127,7 @@
           <!-- Empty State -->
           <div v-if="activities.books.length === 0 && activities.reviews.length === 0 && activities.comments.length === 0" class="text-center py-8">
             <div class="text-4xl mb-2">📭</div>
-            <p class="text-sm text-zinc-500">이 기간에는 활동이 없습니다</p>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">이 기간에는 활동이 없습니다</p>
           </div>
         </div>
       </div>
@@ -155,7 +160,7 @@ const stats = ref({
 })
 
 const activities = ref<{
-  books: Array<{ id: string; title: string; author: string; cover: string | null; finishedAt: string }>
+  books: Array<{ id: string; title: string; author: string; cover: string | null; genre?: string; finishedAt: string }>
   reviews: Array<{ id: string; bookTitle: string; rating: number; content: string; createdAt: string }>
   comments: Array<{ id: string; bookTitle: string; content: string; createdAt: string }>
 }>({
@@ -216,56 +221,22 @@ const fetchStats = async () => {
           books (
             title,
             author,
-            cover_url
+            publisher,
+            total_pages,
+            cover_url,
+            official_genre,
+            draft_genre
           )
-        )
-      `)
-      .eq('user_id', user.id)
-      .not('finished_at', 'is', null)
-      .gte('finished_at', dateRange.start.toISOString())
-      .lte('finished_at', dateRange.end.toISOString())
-
-    // Fetch reviews
-    const { data: reviewsData } = await client
-      .from('reviews')
-      .select(`
-        id,
-        rating,
-        content,
-        created_at,
-        group_books!inner (
-          books (
-            title
-          )
-        )
-      `)
-      .eq('user_id', user.id)
-      .gte('created_at', dateRange.start.toISOString())
-      .lte('created_at', dateRange.end.toISOString())
-
-    // Fetch comments
-    const { data: commentsData } = await client
-      .from('comments')
-      .select(`
-        id,
-        content,
-        created_at,
-        group_books!inner (
-          books (
-            title
-          )
-        )
-      `)
-      .eq('user_id', user.id)
-      .gte('created_at', dateRange.start.toISOString())
-      .lte('created_at', dateRange.end.toISOString())
-
+...
     // Process data
     activities.value.books = (booksData || []).map((item: any) => ({
       id: item.group_book_id,
       title: item.group_books.books?.title || '제목 없음',
       author: item.group_books.books?.author || '저자 미상',
       cover: item.group_books.books?.cover_url || null,
+      publisher: item.group_books.books?.publisher,
+      total_pages: item.group_books.books?.total_pages,
+      genre: item.group_books.books?.official_genre || item.group_books.books?.draft_genre,
       finishedAt: item.finished_at
     }))
 
@@ -315,6 +286,9 @@ const formatDate = (dateStr: string) => {
   if (diffDays === 1) return '어제'
   if (diffDays < 7) return `${diffDays}일 전`
 
-  return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+  const year = String(date.getFullYear()).slice(-2)
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
+  return `${year}.${month}.${day}`
 }
 </script>

@@ -3,11 +3,13 @@
     <Transition name="modal">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+        class="fixed inset-0 z-[100010] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
         @click.self="onCancel"
+        @keydown.esc="onCancel"
+        tabindex="-1"
       >
         <div
-          class="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl overflow-hidden animate-scale-up"
+          class="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden animate-scale-up"
           @click.stop
         >
           <!-- Header -->
@@ -19,7 +21,8 @@
                 :class="{
                   'bg-red-100 dark:bg-red-950/30': variant === 'danger',
                   'bg-yellow-100 dark:bg-yellow-950/30': variant === 'warning',
-                  'bg-blue-100 dark:bg-blue-950/30': variant === 'info'
+                  'bg-blue-100 dark:bg-blue-950/30': variant === 'info',
+                  'bg-lime-100 dark:bg-lime-950/30': variant === 'success'
                 }"
               >
                 <component
@@ -28,18 +31,19 @@
                   :class="{
                     'text-red-600 dark:text-red-400': variant === 'danger',
                     'text-yellow-600 dark:text-yellow-400': variant === 'warning',
-                    'text-blue-600 dark:text-blue-400': variant === 'info'
+                    'text-blue-600 dark:text-blue-400': variant === 'info',
+                    'text-lime-600 dark:text-lime-400': variant === 'success'
                   }"
                 />
               </div>
-              <h3 class="text-xl font-bold text-zinc-900 dark:text-white">
+              <h3 class="text-xl font-semibold text-zinc-900 dark:text-white">
                 {{ title }}
               </h3>
             </div>
             <p class="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
               {{ message }}
             </p>
-            <p v-if="description" class="text-xs text-zinc-500 dark:text-zinc-500 mt-2">
+            <p v-if="description" class="text-xs text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">
               {{ description }}
             </p>
           </div>
@@ -54,11 +58,12 @@
             </button>
             <button
               @click="onConfirm"
-              class="flex-1 px-4 py-3 rounded-xl font-bold transition-all hover:scale-[1.02]"
+              class="flex-1 px-4 py-3 rounded-xl font-bold transition-all hover:scale-[1.02] shadow-lg"
               :class="{
-                'bg-red-500 text-white hover:bg-red-600': variant === 'danger',
-                'bg-yellow-500 text-white hover:bg-yellow-600': variant === 'warning',
-                'bg-lime-400 text-black hover:bg-lime-300': variant === 'info'
+                'bg-red-500 text-white hover:bg-red-600 shadow-red-500/30': variant === 'danger',
+                'bg-yellow-500 text-white hover:bg-yellow-600 shadow-yellow-500/30': variant === 'warning',
+                'bg-blue-500 text-white hover:bg-blue-600 shadow-blue-500/30': variant === 'info',
+                'bg-lime-500 text-white hover:bg-lime-600 shadow-lime-500/30': variant === 'success'
               }"
             >
               {{ confirmText }}
@@ -71,8 +76,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { AlertTriangle, AlertCircle, Info } from 'lucide-vue-next'
+import { computed, watch, onUnmounted } from 'vue'
+import { AlertTriangle, AlertCircle, Info, CheckCircle } from 'lucide-vue-next'
 
 interface Props {
   isOpen: boolean
@@ -81,7 +86,7 @@ interface Props {
   description?: string
   confirmText?: string
   cancelText?: string
-  variant?: 'danger' | 'warning' | 'info'
+  variant?: 'danger' | 'warning' | 'info' | 'success'
 }
 
 interface Emits {
@@ -98,12 +103,32 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
+// Prevent body scroll when modal is open
+watch(() => props.isOpen, (isOpen) => {
+  if (typeof document !== 'undefined') {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  }
+})
+
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
+  }
+})
+
 const iconComponent = computed(() => {
   switch (props.variant) {
     case 'danger':
       return AlertTriangle
     case 'warning':
       return AlertCircle
+    case 'success':
+      return CheckCircle
     case 'info':
     default:
       return Info

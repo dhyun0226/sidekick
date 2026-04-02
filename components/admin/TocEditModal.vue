@@ -1,14 +1,16 @@
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 bg-black/50 flex items-center justify-center z-[10000] p-4"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100010] p-4"
     @click.self="close"
+    @keydown.esc="close"
+    tabindex="-1"
   >
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800">
         <div>
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-white">목차 수정</h2>
+          <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">목차 수정</h2>
           <p class="text-sm text-zinc-500 mt-1">
             {{ book?.title }}
             <span v-if="tocType === 'official'" class="ml-2 text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded">
@@ -128,9 +130,10 @@
         <button
           @click="save"
           :disabled="saving || !isValid"
-          class="flex-1 py-3 rounded-xl bg-lime-400 hover:bg-lime-500 text-black font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="flex-1 py-3 rounded-xl bg-lime-400 hover:bg-lime-300 text-black font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
-          {{ saving ? '저장 중...' : '저장하기' }}
+          <div v-if="saving" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+          <span v-else>저장하기</span>
         </button>
       </div>
     </div>
@@ -164,26 +167,50 @@ const saving = ref(false)
 // Initialize when modal opens
 watch(() => props.show, (show) => {
   if (show && props.book) {
-    totalPages.value = props.book.total_pages || 300
+    totalPages.value = props.book.total_pages || props.book.official_pages || props.book.draft_pages || 300
 
     // Parse the appropriate TOC based on tocType
     const tocSource = props.tocType === 'official' ? props.book.official_toc : props.book.draft_toc
     const toc = parseToc(tocSource)
-    editedToc.value = toc.map((chapter: any) => ({
-      title: chapter.title,
-      start: chapter.start,
-      end: chapter.end,
-      startPage: Math.round((chapter.start / 100) * totalPages.value)
-    }))
+    
+    editedToc.value = toc.map((chapter: any) => {
+      // ✅ 하위 호환성: startPage가 있으면 쓰고, 없으면 %로 계산
+      const startPage = chapter.startPage || Math.round((chapter.start / 100) * totalPages.value) || 1
+      
+      return {
+        title: chapter.title,
+        startPage,
+        start: (startPage / totalPages.value) * 100,
+        end: 0 // updatePercentages에서 계산됨
+      }
+    })
+
+    updatePercentages()
   }
 })
 
-const parseToc = (tocJson: string) => {
-  try {
-    return JSON.parse(tocJson)
-  } catch {
+const parseToc = (tocData: any) => {
+  // If already an object/array, return as is
+  if (Array.isArray(tocData)) {
+    return tocData
+  }
+
+  // If it's an object (but not array), might be invalid - return empty
+  if (typeof tocData === 'object' && tocData !== null) {
     return []
   }
+
+  // If it's a string, try to parse it
+  if (typeof tocData === 'string') {
+    try {
+      return JSON.parse(tocData)
+    } catch {
+      return []
+    }
+  }
+
+  // Fallback for null/undefined
+  return []
 }
 
 const getEndPage = (idx: number) => {
@@ -237,11 +264,10 @@ const save = async () => {
   saving.value = true
 
   try {
-    // Convert to final TOC format (without startPage)
-    const finalToc = editedToc.value.map(({ title, start, end }) => ({
+    // ✅ 퍼센트가 아닌 페이지 번호 기반으로 저장
+    const finalToc = editedToc.value.map(({ title, startPage }) => ({
       title,
-      start,
-      end
+      startPage
     }))
 
     emit('save', {

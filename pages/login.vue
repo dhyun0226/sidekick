@@ -7,11 +7,11 @@
     <div class="w-full max-w-sm space-y-8 relative z-10">
       <!-- Logo & Title -->
       <div class="text-center space-y-2">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-lime-400 to-lime-600 mb-4 shadow-lg shadow-lime-400/20">
-          <span class="text-3xl">📚</span>
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-lime-400 mb-4 shadow-apple">
+          <span class="text-black text-lg font-black">CR</span>
         </div>
-        <h1 class="text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Sidekick</h1>
-        <p class="text-zinc-600 dark:text-zinc-400">함께 읽는 즐거움, 사이드킥</p>
+        <h1 class="text-3xl font-semibold text-zinc-900 dark:text-white tracking-tight">치어리더스</h1>
+        <p class="text-zinc-500 dark:text-zinc-400">당신의 독서를 응원합니다</p>
       </div>
 
       <!-- Social Login Buttons -->
@@ -42,7 +42,7 @@
           </div>
           <div class="space-y-1">
             <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">간편하고 안전한 소셜 로그인</p>
-            <p class="text-xs text-zinc-600 dark:text-zinc-500">구글 계정으로 3초 만에 시작하세요. 별도의 비밀번호 관리가 필요 없습니다.</p>
+            <p class="text-xs text-zinc-600 dark:text-zinc-400">구글 계정으로 3초 만에 시작하세요. 별도의 비밀번호 관리가 필요 없습니다.</p>
           </div>
         </div>
       </div>
@@ -77,8 +77,8 @@
     </div>
 
     <!-- Footer -->
-    <div class="absolute bottom-6 text-center text-xs text-zinc-600">
-      <p>로그인하시면 <a href="#" class="text-zinc-600 dark:text-zinc-500 hover:text-lime-400 underline">서비스 이용약관</a> 및 <a href="#" class="text-zinc-600 dark:text-zinc-500 hover:text-lime-400 underline">개인정보처리방침</a>에 동의하게 됩니다.</p>
+    <div class="absolute bottom-6 text-center text-xs text-zinc-600 dark:text-zinc-400">
+      <p>로그인하시면 <NuxtLink to="/terms" class="text-zinc-600 dark:text-zinc-400 hover:text-lime-400 underline">서비스 이용약관</NuxtLink> 및 <NuxtLink to="/privacy" class="text-zinc-600 dark:text-zinc-400 hover:text-lime-400 underline">개인정보처리방침</NuxtLink>에 동의하게 됩니다.</p>
     </div>
   </div>
 </template>
@@ -88,6 +88,8 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
+
+useHead({ title: '로그인' })
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -126,11 +128,11 @@ const signInWithGoogle = async () => {
   } catch (e: any) {
     console.error('Google OAuth error:', e)
 
-    let errorMessage = '로그인에 실패했습니다.'
+    let errorMessage = '로그인에 실패했습니다'
     if (e.message.includes('popup')) {
-      errorMessage = '팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요.'
+      errorMessage = '팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요'
     } else if (e.message.includes('network')) {
-      errorMessage = '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.'
+      errorMessage = '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요'
     }
 
     toast.error(errorMessage)

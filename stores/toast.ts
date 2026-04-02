@@ -8,19 +8,21 @@ export interface Toast {
   message: string
   type: ToastType
   duration?: number
+  onUndo?: () => void
 }
 
 export const useToastStore = defineStore('toast', () => {
   const toasts = ref<Toast[]>([])
+  let toastCounter = 0
 
-  const add = (message: string, type: ToastType = 'info', duration = 3000) => {
-    const id = Date.now().toString()
-    toasts.value.push({ id, message, type, duration })
+  const add = (message: string, type: ToastType = 'info', duration = 3000, onUndo?: () => void) => {
+    const id = `${Date.now()}-${toastCounter++}`
+    toasts.value.push({ id, message, type, duration, onUndo })
 
     if (duration > 0) {
       setTimeout(() => {
         remove(id)
-      }, duration)
+      }, onUndo ? 5000 : duration)
     }
   }
 
@@ -31,8 +33,7 @@ export const useToastStore = defineStore('toast', () => {
     }
   }
 
-  // 헬퍼 함수들
-  const success = (msg: string) => add(msg, 'success')
+  const success = (msg: string, onUndo?: () => void) => add(msg, 'success', 3000, onUndo)
   const error = (msg: string) => add(msg, 'error')
   const info = (msg: string) => add(msg, 'info')
   const warning = (msg: string) => add(msg, 'warning')

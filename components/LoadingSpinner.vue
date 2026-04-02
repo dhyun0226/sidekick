@@ -47,8 +47,8 @@ const sizeClass = computed(() => {
 .spinner {
   width: 100%;
   height: 100%;
-  border: 3px solid rgba(163, 230, 53, 0.2);
-  border-top-color: #a3e635;
+  border: 3px solid rgba(161, 161, 170, 0.2);
+  border-top-color: #a1a1aa;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

@@ -1,7 +1,17 @@
 import { defineStore } from 'pinia'
 
+interface UserProfile {
+    id: string
+    email?: string
+    nickname?: string
+    avatar_url?: string
+    subscription_tier?: string
+    created_at?: string
+    updated_at?: string
+}
+
 export const useUserStore = defineStore('user', () => {
-    const profile = ref(null)
+    const profile = ref<UserProfile | null>(null)
     const isLoading = ref(false)
     const lastFetchTime = ref<number | null>(null)
     const CACHE_DURATION = 5 * 60 * 1000 // 5분 캐시
@@ -12,12 +22,9 @@ export const useUserStore = defineStore('user', () => {
     const getRouter = () => useRouter()
 
     const fetchProfile = async (force = false) => {
-        console.log('[User Store] fetchProfile called, force:', force)
-
         // 캐싱으로 중복 호출 방지
         // 1. 이미 로딩 중이면 대기
         if (isLoading.value && !force) {
-            console.log('[User Store] Already loading, skipping...')
             return
         }
 
@@ -25,7 +32,6 @@ export const useUserStore = defineStore('user', () => {
         if (!force && profile.value && lastFetchTime.value) {
             const timeSinceLastFetch = Date.now() - lastFetchTime.value
             if (timeSinceLastFetch < CACHE_DURATION) {
-                console.log('[User Store] Using cached profile (age:', timeSinceLastFetch, 'ms)')
                 return
             }
         }
@@ -36,15 +42,11 @@ export const useUserStore = defineStore('user', () => {
             const client = getClient()
             const { data: { user } } = await client.auth.getUser()
 
-            console.log('[User Store] Current user:', user)
-
             if (!user) {
-                console.log('[User Store] No user found, clearing profile')
                 profile.value = null
                 return
             }
 
-            console.log('[User Store] Fetching profile for user ID:', user.id)
             const { data, error } = await client
                 .from('users')
                 .select('*')
@@ -52,17 +54,12 @@ export const useUserStore = defineStore('user', () => {
                 .maybeSingle()
 
         if (error) {
-            console.error('[User Store] Error fetching profile:', error)
             return
         }
 
-            console.log('[User Store] Profile data:', data)
             if (data) {
                 profile.value = data
                 lastFetchTime.value = Date.now()
-                console.log('[User Store] Profile set successfully:', profile.value)
-            } else {
-                console.log('[User Store] No profile data returned')
             }
         } finally {
             isLoading.value = false
@@ -71,14 +68,12 @@ export const useUserStore = defineStore('user', () => {
 
     const signOut = async () => {
         try {
-            console.log('[User Store] Signing out...')
             const client = getClient()
 
             // 1. Supabase 세션 종료
             const { error } = await client.auth.signOut()
 
             if (error) {
-                console.error('[User Store] Sign out error:', error)
                 throw error
             }
 
@@ -87,9 +82,15 @@ export const useUserStore = defineStore('user', () => {
             lastFetchTime.value = null
             isLoading.value = false
 
-            console.log('[User Store] Sign out successful')
+            // 3. 구독 캐시 초기화
+            try {
+                const { resetLimitsCache } = useSubscription()
+                resetLimitsCache()
+            } catch (e) {
+                // Subscription cache clear failed, non-critical
+            }
 
-            // 3. 로그인 페이지로 리다이렉트
+            // 4. 로그인 페이지로 리다이렉트
             getRouter().push('/login')
         } catch (error) {
             console.error('[User Store] Sign out failed:', error)

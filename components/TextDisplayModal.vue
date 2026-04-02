@@ -1,12 +1,12 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center">
+  <div v-if="isOpen" class="fixed inset-0 z-[100010] flex items-center justify-center" @keydown.esc="$emit('close')" tabindex="-1">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="$emit('close')"></div>
 
     <!-- Modal Content -->
-    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 mx-4 shadow-2xl border border-zinc-300 dark:border-zinc-800 transition-all duration-300">
+    <div class="relative z-10 bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 mx-4 shadow-apple-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] transition-all duration-300">
       <div class="mb-4">
-        <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">{{ title }}</h3>
+        <h3 class="text-lg font-semibold text-zinc-900 dark:text-white mb-2">{{ title }}</h3>
         <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ message }}</p>
       </div>
 
@@ -17,17 +17,17 @@
             ref="textInput"
             :value="text"
             readonly
-            class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-4 py-3 pr-20 text-sm border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-lime-400"
+            class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-lg px-4 py-3 pr-20 text-sm border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10"
             @focus="$event.target.select()"
           />
           <button
             @click="copyToClipboard"
-            class="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-lime-400 text-black text-xs font-medium rounded-lg hover:bg-lime-300 transition-colors"
+            class="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-medium rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors"
           >
             {{ copied ? '복사됨!' : '복사' }}
           </button>
         </div>
-        <p class="text-xs text-zinc-500 dark:text-zinc-600 mt-2">
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
           위 텍스트를 길게 눌러 복사하거나, 복사 버튼을 눌러주세요
         </p>
       </div>
@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 interface Props {
   isOpen: boolean
@@ -55,6 +55,13 @@ interface Props {
 
 const props = defineProps<Props>()
 const emit = defineEmits(['close'])
+
+watch(() => props.isOpen, (open) => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = open ? 'hidden' : ''
+  }
+})
+
 
 const textInput = ref<HTMLInputElement | null>(null)
 const copied = ref(false)

@@ -51,26 +51,34 @@ export default defineEventHandler(async (event) => {
     console.log('[Naver API] Response:', response)
 
     // 응답 데이터 변환
-    const books = (response as any).items.map((item: any) => {
-      // ISBN 추출 (ISBN13 우선, 없으면 ISBN10)
-      const isbnFull = item.isbn || ''
-      const isbnParts = isbnFull.split(' ')
-      const isbn = isbnParts[1] || isbnParts[0] || 'unknown'
+    const books = (response as any).items
+      .map((item: any) => {
+        // ISBN 추출 (ISBN13 우선, 없으면 ISBN10)
+        const isbnFull = item.isbn || ''
+        const isbnParts = isbnFull.split(' ')
+        const isbn = isbnParts[1] || isbnParts[0] || ''
 
-      // HTML 태그 제거
-      const cleanTitle = item.title.replace(/<\/?b>/g, '')
-      const cleanAuthor = item.author.replace(/<\/?b>/g, '')
+        // ISBN 유효성 검사 (10자리 또는 13자리 숫자)
+        if (!isbn || !/^\d{10}(\d{3})?$/.test(isbn)) {
+          console.warn('[Naver API] Invalid ISBN, skipping book:', item.title, 'ISBN:', isbn)
+          return null
+        }
 
-      return {
-        isbn: isbn,
-        title: cleanTitle,
-        author: cleanAuthor,
-        publisher: item.publisher,
-        cover: item.image,
-        description: item.description,
-        pubdate: item.pubdate
-      }
-    })
+        // HTML 태그 제거
+        const cleanTitle = item.title.replace(/<\/?b>/g, '')
+        const cleanAuthor = item.author.replace(/<\/?b>/g, '')
+
+        return {
+          isbn: isbn,
+          title: cleanTitle,
+          author: cleanAuthor,
+          publisher: item.publisher,
+          cover: item.image,
+          description: item.description,
+          pubdate: item.pubdate
+        }
+      })
+      .filter((book: any) => book !== null) // 유효하지 않은 책 제거
 
     return {
       success: true,

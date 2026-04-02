@@ -1,259 +1,213 @@
 <template>
-  <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 px-4">
-    <div class="max-w-4xl mx-auto">
+  <div class="min-h-screen bg-gray-50 dark:bg-[#09090b] py-16 px-4">
+    <div class="max-w-5xl mx-auto">
       <!-- Header -->
-      <div class="text-center mb-12">
-        <h1 class="text-3xl font-bold text-zinc-900 dark:text-white mb-3">프리미엄으로 업그레이드</h1>
-        <p class="text-zinc-600 dark:text-zinc-400">더 많은 기능을 사용하고 독서 경험을 향상시키세요</p>
+      <div class="text-center mb-16 animate-in fade-in slide-in-from-top-4 duration-700">
+        <div class="inline-block px-3 py-1 bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 text-xs font-black rounded-full mb-4 uppercase">Premium Membership</div>
+        <h1 class="text-4xl font-semibold text-zinc-900 dark:text-white mb-4 tracking-tighter">독서의 가치를 더 깊게</h1>
+        <p class="text-zinc-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
+          치어리더스 프리미엄과 함께 제한 없는 독서 여행을 시작하고<br/>나만의 독서 인사이트를 정교하게 쌓아보세요.
+        </p>
       </div>
 
-      <!-- Current Plan (if subscribed) -->
-      <div v-if="currentSubscription" class="bg-gradient-to-br from-lime-50 via-emerald-50 to-teal-50 dark:from-lime-950/20 dark:via-emerald-950/20 dark:to-teal-950/20 border-2 border-lime-200 dark:border-lime-800 rounded-2xl p-6 mb-8 relative overflow-hidden">
-        <!-- Background pattern -->
-        <div class="absolute inset-0 opacity-5">
-          <div class="absolute inset-0" style="background-image: radial-gradient(circle, #84cc16 1px, transparent 1px); background-size: 20px 20px;"></div>
-        </div>
-
-        <div class="relative">
-          <!-- Header -->
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 bg-lime-400 rounded-full flex items-center justify-center">
-                <Check :size="24" class="text-black font-bold" />
+      <!-- Current Subscription Status (if active) -->
+      <div v-if="currentSubscription" class="mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl p-8 border border-lime-200 dark:border-lime-900/30 shadow-xl shadow-lime-500/5 relative overflow-hidden">
+          <div class="absolute -right-20 -top-20 w-64 h-64 bg-lime-400/10 blur-[100px] rounded-full"></div>
+          
+          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div class="flex items-center gap-5">
+              <div class="w-16 h-16 bg-gradient-to-tr from-lime-400 to-lime-500 rounded-2xl flex items-center justify-center shadow-lg shadow-lime-500/20">
+                <Crown :size="32" class="text-black" />
               </div>
               <div>
-                <h3 class="text-lg font-bold text-lime-900 dark:text-lime-100">{{ currentSubscription.plan?.display_name }}</h3>
-                <p class="text-xs text-lime-700 dark:text-lime-300">활성 구독</p>
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="text-xl font-black text-zinc-900 dark:text-white">{{ currentSubscription.plan?.display_name }}</h3>
+                  <span class="px-2 py-0.5 bg-lime-400 text-black text-[11px] font-black rounded uppercase">Active</span>
+                </div>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+                  {{ formatPrice(currentSubscription.plan?.price) }} / {{ currentSubscription.plan?.billing_period === 'monthly' ? '월' : '년' }}
+                </p>
               </div>
             </div>
-            <div v-if="currentSubscription.auto_renew" class="px-3 py-1 bg-lime-400/30 dark:bg-lime-400/20 rounded-full">
-              <span class="text-xs font-bold text-lime-900 dark:text-lime-100">자동 갱신</span>
-            </div>
-          </div>
 
-          <!-- Details -->
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div class="bg-white/50 dark:bg-black/20 rounded-xl p-3">
-              <p class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">다음 결제일</p>
-              <p class="text-sm font-bold text-zinc-900 dark:text-white">{{ formatDate(currentSubscription.end_date) }}</p>
-            </div>
-            <div class="bg-white/50 dark:bg-black/20 rounded-xl p-3">
-              <p class="text-xs text-zinc-600 dark:text-zinc-400 mb-1">갱신 상태</p>
-              <p class="text-sm font-bold text-zinc-900 dark:text-white">
-                {{ currentSubscription.auto_renew ? '자동 갱신' : '갱신 안 함' }}
-              </p>
-            </div>
-          </div>
+            <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
+              <!-- 결제일 표시 -->
+              <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl px-5 py-3 border border-zinc-100 dark:border-zinc-800">
+                <p class="text-[11px] text-zinc-400 dark:text-zinc-300 font-black uppercase mb-1">
+                  {{ currentSubscription.auto_renew ? '다음 결제일' : '만료일' }}
+                </p>
+                <p class="text-sm font-bold text-zinc-900 dark:text-white">{{ formatDate(currentSubscription.end_date) }}</p>
+                <p v-if="currentSubscription.auto_renew" class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
+                  {{ formatPrice(currentSubscription.plan?.price) }} 자동결제
+                </p>
+              </div>
 
-          <!-- Actions -->
-          <div class="flex gap-3">
-            <button
-              v-if="currentSubscription.auto_renew"
-              @click="handleCancelClick"
-              :disabled="canceling"
-              class="flex-1 py-3 bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-700 rounded-xl text-sm font-bold text-zinc-700 dark:text-zinc-300 hover:border-red-400 hover:text-red-600 dark:hover:border-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              <AlertCircle :size="18" />
-              {{ canceling ? '처리 중...' : '자동 갱신 취소' }}
-            </button>
-            <div v-else class="flex-1 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-3">
-              <p class="text-xs text-yellow-800 dark:text-yellow-200">
-                <strong>{{ formatDate(currentSubscription.end_date) }}</strong>까지 프리미엄 기능을 사용할 수 있습니다.
-              </p>
+              <!-- 자동갱신 상태 표시 -->
+              <div class="flex items-center gap-2 px-4 py-2 rounded-xl" :class="currentSubscription.auto_renew ? 'bg-lime-50 dark:bg-lime-900/30' : 'bg-orange-50 dark:bg-orange-900/20'">
+                <div class="w-2 h-2 rounded-full" :class="currentSubscription.auto_renew ? 'bg-lime-500 animate-pulse' : 'bg-orange-500'"></div>
+                <span class="text-xs font-bold" :class="currentSubscription.auto_renew ? 'text-lime-700 dark:text-lime-400' : 'text-orange-700 dark:text-orange-400'">
+                  {{ currentSubscription.auto_renew ? '자동갱신 ON' : '자동갱신 OFF' }}
+                </span>
+              </div>
+
+              <!-- 자동갱신 ON일 때: 끄기 버튼 -->
+              <button
+                v-if="currentSubscription.auto_renew"
+                @click="handleCancelClick"
+                :disabled="canceling"
+                class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-50 shadow-lg shadow-red-500/20"
+              >
+                {{ canceling ? '처리 중...' : '자동갱신 끄기' }}
+              </button>
+
+              <!-- 자동갱신 OFF일 때: 재개 버튼 -->
+              <button
+                v-else
+                @click="handleReactivateClick"
+                :disabled="reactivating"
+                class="px-6 py-3 bg-lime-400 hover:bg-lime-300 text-black rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-50 shadow-lg shadow-lime-400/30"
+              >
+                {{ reactivating ? '처리 중...' : '자동갱신 재개하기' }}
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Pricing Cards -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Free Plan -->
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8">
-          <h2 class="text-2xl font-bold text-zinc-900 dark:text-white mb-2">무료</h2>
-          <div class="text-3xl font-bold text-zinc-900 dark:text-white mb-6">
-            ₩0<span class="text-base font-normal text-zinc-500">/월</span>
+      <!-- Pricing Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
+        <!-- 1. Free Plan -->
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl p-8 border border-zinc-200 dark:border-zinc-800 flex flex-col hover:shadow-lg transition-all">
+          <div class="mb-8">
+            <h2 class="text-lg font-black text-zinc-900 dark:text-white mb-2">무료 플랜</h2>
+            <p class="text-zinc-500 dark:text-zinc-400 text-sm mb-6 font-medium">기본적인 독서 경험</p>
+            <div class="flex items-baseline gap-1">
+              <span class="text-4xl font-black text-zinc-900 dark:text-white">₩0</span>
+              <span class="text-zinc-400 dark:text-zinc-300 font-bold">/월</span>
+            </div>
           </div>
-          <ul class="space-y-3 mb-8">
-            <li class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-              <Check :size="16" class="text-lime-500" />
-              기본 독서 기능
+          
+          <ul class="space-y-4 mb-10 flex-1">
+            <li class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400 font-bold">
+              <Check :size="18" class="text-lime-500" />
+              독서 진도 추적
             </li>
-            <li class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-              <Check :size="16" class="text-lime-500" />
-              그룹 참여 가능
+            <li class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400 font-bold">
+              <Check :size="18" class="text-lime-500" />
+              내 서재에서 무제한 책 추가
             </li>
-            <li class="flex items-center gap-2 text-sm text-zinc-400 dark:text-zinc-600">
-              <X :size="16" class="text-zinc-400" />
-              그룹 생성 제한 (최대 2개)
+            <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-400 font-bold opacity-60 line-through">
+              <X :size="18" class="text-zinc-400 dark:text-zinc-300" />
+              소셜 그룹에서 책 추가 (읽기전용)
+            </li>
+            <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-400 font-bold opacity-60 line-through">
+              <X :size="18" class="text-zinc-400 dark:text-zinc-300" />
+              고급 통계 분석
             </li>
           </ul>
-          <button
-            v-if="userStore.profile?.subscription_tier !== 'free'"
-            disabled
-            class="w-full py-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 font-medium cursor-not-allowed"
-          >
+
+          <button v-if="userStore.profile?.subscription_tier === 'free'" disabled class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-300 font-black rounded-2xl cursor-not-allowed">
             현재 플랜
           </button>
+          <button v-else disabled class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-300 font-black rounded-2xl cursor-not-allowed">
+            기본 플랜
+          </button>
         </div>
 
-        <!-- Premium Monthly Plan -->
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border-2 border-lime-400 dark:border-lime-500 p-8 relative">
-          <h2 class="text-2xl font-bold text-zinc-900 dark:text-white mb-2">프리미엄 월간</h2>
-          <div class="text-3xl font-bold text-zinc-900 dark:text-white mb-6">
-            ₩2,500<span class="text-base font-normal text-zinc-500">/월</span>
+        <!-- 2. Premium Monthly -->
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl p-8 border-2 border-lime-400 dark:border-lime-500 flex flex-col shadow-xl shadow-lime-500/5 hover:scale-[1.02] transition-all relative">
+          <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-lime-400 text-black px-4 py-1 rounded-full text-xs font-black shadow-lg">POPULAR</div>
+          <div class="mb-8">
+            <h2 class="text-lg font-black text-zinc-900 dark:text-white mb-2">프리미엄 월간</h2>
+            <p class="text-zinc-500 dark:text-zinc-400 text-sm mb-6 font-medium">매달 가볍게 시작하기</p>
+            <div class="flex items-baseline gap-1">
+              <span class="text-4xl font-black text-zinc-900 dark:text-white">₩2,500</span>
+              <span class="text-zinc-400 dark:text-zinc-300 font-bold">/월</span>
+            </div>
           </div>
-          <ul class="space-y-3 mb-8">
-            <li class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-              <Check :size="16" class="text-lime-500" />
-              무제한 그룹 생성
-            </li>
-            <li class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-              <Check :size="16" class="text-lime-500" />
-              무제한 책 추가
-            </li>
-            <li class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-              <Check :size="16" class="text-lime-500" />
-              고급 통계 및 인사이트
-            </li>
-            <li class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-              <Check :size="16" class="text-lime-500" />
-              우선 지원
+          
+          <ul class="space-y-4 mb-10 flex-1">
+            <li v-for="item in ['무제한 그룹 생성', '무제한 책 추가', '고급 독서 통계 및 분석', '우선 고객 지원']" :key="item" class="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200 font-bold">
+              <Check :size="18" class="text-lime-500" />
+              {{ item }}
             </li>
           </ul>
+
           <button
-            v-if="!currentSubscription || currentSubscription.status !== 'active'"
+            v-if="!currentSubscription || currentSubscription.plan?.name === 'premium_monthly'"
             @click="startPayment('premium_monthly')"
-            :disabled="payingMonthly || payingYearly"
-            class="w-full py-3 rounded-xl bg-lime-400 hover:bg-lime-500 text-black font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="paying"
+            class="w-full py-4 bg-lime-400 hover:bg-lime-300 text-black font-black rounded-2xl transition-all shadow-lg shadow-lime-400/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ payingMonthly ? '처리 중...' : '월간 시작하기' }}
+            {{ payingMonthly ? '처리 중...' : (currentSubscription ? '연장하기' : '시작하기') }}
           </button>
           <button
             v-else
             disabled
-            class="w-full py-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 font-medium cursor-not-allowed"
+            class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-300 font-black rounded-2xl cursor-not-allowed"
           >
-            구독 중
+            다른 플랜 구독 중
           </button>
         </div>
 
-        <!-- Premium Yearly Plan -->
-        <div class="bg-gradient-to-br from-lime-400 to-lime-500 rounded-xl p-8 text-black relative overflow-hidden">
-          <div class="absolute top-4 right-4 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold">
-            37% 할인
+        <!-- 3. Premium Yearly -->
+        <div class="bg-zinc-900 rounded-3xl p-8 border border-zinc-800 flex flex-col shadow-2xl hover:scale-[1.02] transition-all relative overflow-hidden">
+          <div class="absolute -right-16 -top-16 w-48 h-48 bg-lime-400/10 blur-3xl rounded-full"></div>
+          <div class="absolute top-4 right-4 bg-lime-400 text-black px-3 py-1 rounded-full text-[11px] font-black shadow-lg animate-pulse">37% 할인</div>
+          
+          <div class="mb-8 relative z-10">
+            <h2 class="text-lg font-black text-white mb-2">프리미엄 연간</h2>
+            <p class="text-zinc-400 dark:text-zinc-300 text-sm mb-6 font-medium">최고의 효율로 즐기기</p>
+            <div class="flex items-baseline gap-1">
+              <span class="text-4xl font-black text-lime-400">₩19,000</span>
+              <span class="text-zinc-500 dark:text-zinc-400 font-bold">/년</span>
+            </div>
+            <div class="text-[11px] text-lime-400/60 font-bold mt-1">월 ₩1,583 꼴 (연 11,000원 절약)</div>
           </div>
-          <h2 class="text-2xl font-bold mb-2">프리미엄 연간</h2>
-          <div class="mb-1">
-            <span class="text-3xl font-bold">₩19,000</span>
-            <span class="text-base font-normal opacity-80">/년</span>
-          </div>
-          <div class="text-sm opacity-80 mb-6">
-            월 ₩1,583 (37% 할인)
-          </div>
-          <ul class="space-y-3 mb-8">
-            <li class="flex items-center gap-2 text-sm font-medium">
-              <Check :size="16" class="text-black" />
-              무제한 그룹 생성
-            </li>
-            <li class="flex items-center gap-2 text-sm font-medium">
-              <Check :size="16" class="text-black" />
-              무제한 책 추가
-            </li>
-            <li class="flex items-center gap-2 text-sm font-medium">
-              <Check :size="16" class="text-black" />
-              고급 통계 및 인사이트
-            </li>
-            <li class="flex items-center gap-2 text-sm font-medium">
-              <Check :size="16" class="text-black" />
-              우선 지원
-            </li>
-            <li class="flex items-center gap-2 text-sm font-medium">
-              <Check :size="16" class="text-black" />
-              <span class="font-bold">연간 ₩11,000 절약</span>
+          
+          <ul class="space-y-4 mb-10 flex-1 relative z-10">
+            <li v-for="item in ['무제한 그룹 생성', '무제한 책 추가', '고급 독서 통계 및 분석', '우선 고객 지원']" :key="item" class="flex items-center gap-3 text-sm text-zinc-300 font-bold">
+              <Check :size="18" class="text-lime-400" />
+              {{ item }}
             </li>
           </ul>
+
           <button
-            v-if="!currentSubscription || currentSubscription.status !== 'active'"
+            v-if="!currentSubscription || currentSubscription.plan?.name === 'premium_yearly'"
             @click="startPayment('premium_yearly')"
-            :disabled="payingMonthly || payingYearly"
-            class="w-full py-3 rounded-xl bg-black text-white font-bold hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="paying"
+            class="w-full py-4 bg-white hover:bg-zinc-100 text-black font-black rounded-2xl transition-all shadow-lg active:scale-95 relative z-10 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ payingYearly ? '처리 중...' : '연간 시작하기' }}
+            {{ payingYearly ? '처리 중...' : (currentSubscription ? '연장하기' : '연간 구독 시작') }}
           </button>
           <button
             v-else
             disabled
-            class="w-full py-3 rounded-xl bg-white/20 backdrop-blur-sm text-black font-bold cursor-not-allowed"
+            class="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-300 font-black rounded-2xl cursor-not-allowed relative z-10"
           >
-            구독 중
+            다른 플랜 구독 중
           </button>
         </div>
       </div>
 
-      <!-- Quick Feature Highlights -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 mb-8">
-        <div class="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-zinc-200 dark:border-zinc-800">
-          <div class="w-12 h-12 bg-lime-400/10 rounded-full flex items-center justify-center mb-4">
-            <Users :size="24" class="text-lime-500" />
-          </div>
-          <h4 class="font-bold text-zinc-900 dark:text-white mb-2">무제한 그룹 생성</h4>
-          <p class="text-sm text-zinc-600 dark:text-zinc-400">원하는 만큼 독서 모임을 만들고 관리하세요.</p>
-        </div>
-
-        <div class="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-zinc-200 dark:border-zinc-800">
-          <div class="w-12 h-12 bg-lime-400/10 rounded-full flex items-center justify-center mb-4">
-            <TrendingUp :size="24" class="text-lime-500" />
-          </div>
-          <h4 class="font-bold text-zinc-900 dark:text-white mb-2">고급 독서 분석</h4>
-          <p class="text-sm text-zinc-600 dark:text-zinc-400">연간 목표, 히트맵, 상세 통계로 습관을 파악하세요.</p>
-        </div>
-
-        <div class="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-zinc-200 dark:border-zinc-800">
-          <div class="w-12 h-12 bg-lime-400/10 rounded-full flex items-center justify-center mb-4">
-            <BookOpen :size="24" class="text-lime-500" />
-          </div>
-          <h4 class="font-bold text-zinc-900 dark:text-white mb-2">무제한 책 추가</h4>
-          <p class="text-sm text-zinc-600 dark:text-zinc-400">제한 없이 모든 그룹에서 책을 읽으세요.</p>
-        </div>
-      </div>
-
-      <!-- Features Comparison -->
-      <div class="mt-12 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8">
-        <h3 class="text-xl font-bold text-zinc-900 dark:text-white mb-6">기능 비교</h3>
-        <div class="space-y-4">
-          <div class="flex items-center justify-between py-3 border-b border-zinc-200 dark:border-zinc-800">
-            <span class="text-sm text-zinc-700 dark:text-zinc-300">독서 진도 추적</span>
-            <div class="flex gap-12">
-              <Check :size="20" class="text-lime-500" />
-              <Check :size="20" class="text-lime-500" />
+      <!-- Detailed Feature List -->
+      <div class="bg-white dark:bg-zinc-900 rounded-[40px] p-10 border border-zinc-200 dark:border-zinc-800 shadow-sm animate-in fade-in slide-in-from-bottom-8 duration-1000">
+        <h3 class="text-2xl font-semibold text-zinc-900 dark:text-white mb-10 text-center">왜 프리미엄인가요?</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div v-for="feat in [
+            { title: '무제한 독서 모임', desc: '참여 및 생성 그룹 수에 제한이 없습니다. 다양한 모임에서 여러 권의 책을 동시에 즐기세요.', icon: Users, color: 'blue' },
+            { title: '심도 있는 데이터 분석', desc: '독서 히트맵, 월별 패턴, 연간 목표 달성률 등 나만의 독서 데이터를 시각화해 드립니다.', icon: TrendingUp, color: 'lime' },
+            { title: '무제한 도서 추가', desc: '모든 그룹에서 제한 없이 새로운 책을 추가하고 목차를 관리할 수 있습니다.', icon: BookOpen, color: 'purple' },
+            { title: '신규 기능 우선 체험', desc: '앞으로 추가될 치어리더스의 다양한 신규 기능들을 누구보다 먼저 경험하고 제안할 수 있습니다.', icon: Sparkles, color: 'amber' }
+          ]" :key="feat.title" class="flex gap-5">
+            <div :class="`w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center bg-${feat.color}-50 dark:bg-${feat.color}-900/20 text-${feat.color}-500 shadow-sm`">
+              <component :is="feat.icon" :size="28" />
             </div>
-          </div>
-          <div class="flex items-center justify-between py-3 border-b border-zinc-200 dark:border-zinc-800">
-            <span class="text-sm text-zinc-700 dark:text-zinc-300">그룹 독서 참여</span>
-            <div class="flex gap-12">
-              <Check :size="20" class="text-lime-500" />
-              <Check :size="20" class="text-lime-500" />
-            </div>
-          </div>
-          <div class="flex items-center justify-between py-3 border-b border-zinc-200 dark:border-zinc-800">
-            <span class="text-sm text-zinc-700 dark:text-zinc-300">그룹 생성</span>
-            <div class="flex gap-12">
-              <span class="text-xs text-zinc-500">최대 2개</span>
-              <span class="text-xs font-bold text-lime-600">무제한</span>
-            </div>
-          </div>
-          <div class="flex items-center justify-between py-3 border-b border-zinc-200 dark:border-zinc-800">
-            <span class="text-sm text-zinc-700 dark:text-zinc-300">책 추가</span>
-            <div class="flex gap-12">
-              <span class="text-xs text-zinc-500">제한적</span>
-              <span class="text-xs font-bold text-lime-600">무제한</span>
-            </div>
-          </div>
-          <div class="flex items-center justify-between py-3">
-            <span class="text-sm text-zinc-700 dark:text-zinc-300">고급 통계</span>
-            <div class="flex gap-12">
-              <X :size="20" class="text-zinc-400" />
-              <Check :size="20" class="text-lime-500" />
+            <div>
+              <h4 class="text-base font-bold text-zinc-900 dark:text-white mb-2">{{ feat.title }}</h4>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{{ feat.desc }}</p>
             </div>
           </div>
         </div>
@@ -263,21 +217,34 @@
     <!-- Cancel Subscription Confirmation Modal -->
     <ConfirmModal
       :isOpen="showCancelConfirm"
-      title="구독 취소"
-      message="정말 자동 갱신을 취소하시겠습니까?"
-      description="취소해도 현재 결제 기간이 끝날 때까지 프리미엄 기능을 계속 사용할 수 있습니다. 기간 종료 후 무료 플랜으로 전환됩니다."
+      title="자동갱신 취소"
+      :message="`${currentSubscription?.plan?.display_name} 자동갱신을 취소하시겠습니까?`"
+      :description="`${formatDate(currentSubscription?.end_date)}까지 프리미엄 기능을 계속 사용할 수 있습니다. 이후 자동결제가 되지 않으며 무료 플랜으로 전환됩니다.`"
       confirmText="취소하기"
       cancelText="유지하기"
       variant="warning"
       @confirm="confirmCancelSubscription"
       @cancel="cancelCancelSubscription"
     />
+
+    <!-- Reactivate Subscription Confirmation Modal -->
+    <ConfirmModal
+      :isOpen="showReactivateConfirm"
+      title="자동갱신 재개"
+      :message="`${currentSubscription?.plan?.display_name} 자동갱신을 재개하시겠습니까?`"
+      :description="`${formatDate(currentSubscription?.end_date)} 만료 시 ${formatPrice(currentSubscription?.plan?.price)}가 자동으로 결제되어 프리미엄이 계속 유지됩니다.`"
+      confirmText="재개하기"
+      cancelText="취소"
+      variant="success"
+      @confirm="confirmReactivateSubscription"
+      @cancel="cancelReactivateSubscription"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Check, X, Users, TrendingUp, BookOpen, AlertCircle } from 'lucide-vue-next'
+import { Check, X, Users, TrendingUp, BookOpen, AlertCircle, Crown, Sparkles } from 'lucide-vue-next'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
 import { loadTossPayments } from '@tosspayments/payment-sdk'
@@ -286,6 +253,8 @@ import ConfirmModal from '~/components/ConfirmModal.vue'
 definePageMeta({
   middleware: 'auth'
 })
+
+useHead({ title: '구독' })
 
 const userStore = useUserStore()
 const toast = useToastStore()
@@ -296,7 +265,9 @@ const paying = ref(false)
 const payingMonthly = ref(false)
 const payingYearly = ref(false)
 const showCancelConfirm = ref(false)
+const showReactivateConfirm = ref(false)
 const canceling = ref(false)
+const reactivating = ref(false)
 
 onMounted(async () => {
   await userStore.fetchProfile()
@@ -305,7 +276,6 @@ onMounted(async () => {
 
 const fetchCurrentSubscription = async () => {
   if (!userStore.profile?.id) return
-
   try {
     const { data, error } = await client
       .from('subscriptions')
@@ -313,12 +283,7 @@ const fetchCurrentSubscription = async () => {
       .eq('user_id', userStore.profile.id)
       .eq('status', 'active')
       .maybeSingle()
-
-    if (error) {
-      console.error('[Subscription] Fetch error:', error)
-      return
-    }
-
+    if (error) throw error
     currentSubscription.value = data
   } catch (error) {
     console.error('[Subscription] Error:', error)
@@ -326,103 +291,91 @@ const fetchCurrentSubscription = async () => {
 }
 
 const startPayment = async (planName: string) => {
-  if (!userStore.profile) {
-    toast.error('로그인이 필요합니다.')
-    return
-  }
+  if (!userStore.profile) { toast.error('로그인이 필요합니다'); return }
 
-  // 개별 버튼 로딩 상태 설정
   const isMonthly = planName === 'premium_monthly'
-  if (isMonthly) {
-    payingMonthly.value = true
-  } else {
-    payingYearly.value = true
-  }
+  if (isMonthly) payingMonthly.value = true; else payingYearly.value = true
   paying.value = true
-
   try {
-    // 1. 플랜 정보 조회
-    const { data: plan } = await client
-      .from('subscription_plans')
-      .select('*')
-      .eq('name', planName)
-      .eq('is_active', true)
-      .single()
-
-    if (!plan) {
-      throw new Error('플랜을 찾을 수 없습니다.')
-    }
-
-    // 2. 주문 ID 생성 (서버에서 생성)
-    const orderResponse = await $fetch('/api/payments/create-order', {
-      method: 'POST',
-      body: {
-        planId: plan.id,
-        amount: plan.price
-      }
-    })
-
-    // 3. 토스 페이먼츠 SDK 로드
     const clientKey = useRuntimeConfig().public.tossClientKey
     const tossPayments = await loadTossPayments(clientKey)
-
-    // 4. 결제 위젯 실행
-    const orderName = plan.billing_period === 'yearly'
-      ? '프리미엄 구독 (연간)'
-      : '프리미엄 구독 (월간)'
-
-    await tossPayments.requestPayment('카드', {
-      amount: plan.price,
-      orderId: orderResponse.orderId,
-      orderName,
-      customerName: userStore.profile.username,
-      customerEmail: userStore.profile.email,
-      successUrl: `${window.location.origin}/payment/success`,
+    // 빌링키 발급 요청 (자동결제용 카드 등록)
+    await tossPayments.requestBillingAuth('카드', {
+      customerKey: userStore.profile.id,
+      successUrl: `${window.location.origin}/payment/success?planName=${planName}`,
       failUrl: `${window.location.origin}/payment/fail`
     })
   } catch (error: any) {
-    console.error('[Payment] Error:', error)
-    toast.error(error.data?.message || '결제 요청 중 오류가 발생했습니다.')
+    toast.error(error.data?.message || '결제 요청 중 오류가 발생했습니다')
   } finally {
-    paying.value = false
-    payingMonthly.value = false
-    payingYearly.value = false
+    paying.value = false; payingMonthly.value = false; payingYearly.value = false
   }
 }
 
-const handleCancelClick = () => {
-  showCancelConfirm.value = true
-}
-
+const handleCancelClick = () => { showCancelConfirm.value = true }
 const confirmCancelSubscription = async () => {
-  showCancelConfirm.value = false
-  canceling.value = true
-
+  showCancelConfirm.value = false; canceling.value = true
   try {
-    await $fetch('/api/payments/cancel-subscription', {
-      method: 'POST'
-    })
-
-    toast.success('구독이 취소되었습니다. 현재 기간 종료일까지 프리미엄 기능을 사용할 수 있습니다.')
+    await $fetch('/api/payments/cancel-subscription', { method: 'POST' })
+    toast.success('자동갱신이 취소되었습니다')
     await fetchCurrentSubscription()
+    await userStore.fetchProfile(true)
   } catch (error: any) {
-    console.error('[Subscription] Cancel error:', error)
-    toast.error('구독 취소 중 오류가 발생했습니다.')
-  } finally {
-    canceling.value = false
-  }
+    toast.error('구독 취소에 실패했습니다')
+  } finally { canceling.value = false }
 }
+const cancelCancelSubscription = () => { showCancelConfirm.value = false }
 
-const cancelCancelSubscription = () => {
-  showCancelConfirm.value = false
+const handleReactivateClick = () => { showReactivateConfirm.value = true }
+const confirmReactivateSubscription = async () => {
+  showReactivateConfirm.value = false; reactivating.value = true
+  try {
+    const response = await $fetch('/api/payments/reactivate-subscription', { method: 'POST' })
+
+    // 빌링키가 없어서 카드 재등록 필요
+    if (response.needsCardRegistration) {
+      toast.info('자동갱신을 위해 카드를 다시 등록해주세요')
+      const clientKey = useRuntimeConfig().public.tossClientKey
+      const tossPayments = await loadTossPayments(clientKey)
+      await tossPayments.requestBillingAuth('카드', {
+        customerKey: userStore.profile!.id,
+        successUrl: `${window.location.origin}/payment/success?reactivate=true`,
+        failUrl: `${window.location.origin}/payment/fail`
+      })
+      return
+    }
+
+    toast.success('자동갱신이 재개되었습니다')
+    await fetchCurrentSubscription()
+    await userStore.fetchProfile(true)
+  } catch (error: any) {
+    toast.error('자동갱신 재개에 실패했습니다')
+  } finally { reactivating.value = false }
 }
+const cancelReactivateSubscription = () => { showReactivateConfirm.value = false }
 
-const formatDate = (dateStr: string) => {
+const formatDate = (dateStr: string | null | undefined) => {
+  if (!dateStr) return ''
   const date = new Date(dateStr)
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
+  return `${String(date.getFullYear()).slice(-2)}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
+}
+
+const formatPrice = (price?: number) => {
+  if (!price) return '₩0'
+  return `₩${price.toLocaleString()}`
 }
 </script>
+
+<style scoped>
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slide-in-top { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes slide-in-bottom { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes zoom-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.animate-in { animation-fill-mode: both; }
+.fade-in { animation-name: fade-in; }
+.slide-in-from-top-4 { animation-name: slide-in-top; }
+.slide-in-from-bottom-4 { animation-name: slide-in-bottom; }
+.slide-in-from-bottom-8 { animation-name: slide-in-bottom; animation-duration: 1s; }
+.zoom-in-95 { animation-name: zoom-in; }
+</style>

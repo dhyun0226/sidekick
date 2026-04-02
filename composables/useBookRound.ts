@@ -34,7 +34,6 @@ export const useBookRound = () => {
         .order('created_at', { ascending: true })
 
       if (error) {
-        console.error('Error fetching book instances:', error)
         return null
       }
 
@@ -51,7 +50,6 @@ export const useBookRound = () => {
       const index = instances.findIndex(b => b.id === groupBookId)
 
       if (index === -1) {
-        console.warn('Group book ID not found in instances')
         return null
       }
 
@@ -82,7 +80,6 @@ export const useBookRound = () => {
         .eq('isbn', isbn)
 
       if (error) {
-        console.error('Error counting book instances:', error)
         return 0
       }
 
@@ -109,9 +106,82 @@ export const useBookRound = () => {
     return count >= 2
   }
 
+  /**
+   * Batch calculate rounds for multiple books (optimized to avoid N+1 queries)
+   *
+   * @param groupId - The group ID
+   * @param books - Array of books with isbn and id
+   * @returns Map of groupBookId -> round number
+   */
+  const getBatchBookRounds = async (
+    groupId: string,
+    books: Array<{ isbn: string; id: string }>
+  ): Promise<Map<string, number | null>> => {
+    try {
+      const result = new Map<string, number | null>()
+
+      if (books.length === 0) return result
+
+      // Get unique ISBNs
+      const uniqueIsbns = [...new Set(books.map(b => b.isbn))]
+
+      // Fetch all instances for all ISBNs in one query
+      const { data: allInstances, error } = await client
+        .from('group_books')
+        .select('id, isbn, created_at')
+        .eq('group_id', groupId)
+        .in('isbn', uniqueIsbns)
+        .order('created_at', { ascending: true })
+
+      if (error) {
+        // Return null for all books on error
+        books.forEach(b => result.set(b.id, null))
+        return result
+      }
+
+      if (!allInstances || allInstances.length === 0) {
+        books.forEach(b => result.set(b.id, null))
+        return result
+      }
+
+      // Group instances by ISBN
+      const instancesByIsbn = new Map<string, Array<{ id: string; created_at: string }>>()
+      allInstances.forEach(instance => {
+        if (!instancesByIsbn.has(instance.isbn)) {
+          instancesByIsbn.set(instance.isbn, [])
+        }
+        instancesByIsbn.get(instance.isbn)!.push(instance)
+      })
+
+      // Calculate round for each book
+      books.forEach(book => {
+        const instances = instancesByIsbn.get(book.isbn) || []
+
+        // If only one instance, no round number
+        if (instances.length <= 1) {
+          result.set(book.id, null)
+          return
+        }
+
+        // Find index of this book
+        const index = instances.findIndex(inst => inst.id === book.id)
+        result.set(book.id, index === -1 ? null : index + 1)
+      })
+
+      return result
+    } catch (error) {
+      console.error('Error calculating batch book rounds:', error)
+      // Return null for all books on error
+      const result = new Map<string, number | null>()
+      books.forEach(b => result.set(b.id, null))
+      return result
+    }
+  }
+
   return {
     getBookRound,
     getBookInstanceCount,
-    hasMultipleRounds
+    hasMultipleRounds,
+    getBatchBookRounds
   }
 }

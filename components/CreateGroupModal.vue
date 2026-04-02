@@ -1,13 +1,13 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[50] flex items-center justify-center px-4">
+  <div v-if="isOpen" class="fixed inset-0 z-[10000] flex items-center justify-center px-4" @keydown.esc="close" tabindex="-1">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="close"></div>
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="close"></div>
 
     <!-- Modal Content -->
-    <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-2xl p-6 shadow-2xl animate-scale-up">
+    <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-2xl p-6 shadow-apple-lg animate-scale-up">
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-zinc-900 dark:text-white">새 그룹 만들기</h2>
+        <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">새 그룹 만들기</h2>
         <button @click="close" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <X :size="24" />
         </button>
@@ -23,12 +23,12 @@
             type="text"
             placeholder="예: 판교 직장인 독서클럽"
             maxlength="50"
-            class="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-400/20 transition-all placeholder-zinc-600 dark:placeholder-zinc-500"
+            class="w-full bg-zinc-100 dark:bg-zinc-800 ring-1 ring-black/[0.04] dark:ring-white/[0.06] text-zinc-900 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all placeholder-zinc-600 dark:placeholder-zinc-500"
             @keyup.enter="handleCreate"
           />
           <div class="flex justify-between items-center text-xs">
-            <span class="text-zinc-600">그룹명은 나중에 수정할 수 있어요</span>
-            <span class="text-zinc-600 dark:text-zinc-500">{{ groupName.length }}/50</span>
+            <span class="text-zinc-600 dark:text-zinc-400">그룹명은 나중에 수정할 수 있어요</span>
+            <span class="text-zinc-600 dark:text-zinc-400">{{ groupName.length }}/50</span>
           </div>
         </div>
 
@@ -66,9 +66,9 @@
           <button
             @click="handleCreate"
             :disabled="!canSubmit || loading"
-            class="flex-1 py-3 bg-lime-400 text-black rounded-xl font-bold hover:bg-lime-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            class="flex-1 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            <div v-if="loading" class="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+            <div v-if="loading" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
             <span v-else>생성하기</span>
           </button>
         </div>
@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { X } from 'lucide-vue-next'
 import UpgradePromptModal from './UpgradePromptModal.vue'
 
@@ -98,6 +98,24 @@ const emit = defineEmits(['close', 'created'])
 
 const client = useSupabaseClient()
 const { canCreateGroup } = useSubscription()
+
+// Prevent body scroll when modal is open
+watch(() => props.isOpen, (isOpen) => {
+  if (typeof document !== 'undefined') {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  }
+})
+
+// Cleanup: restore body scroll when component unmounts
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
+  }
+})
 
 const groupName = ref('')
 const loading = ref(false)
@@ -125,42 +143,42 @@ const reset = () => {
 }
 
 const handleCreate = async () => {
-  if (!canSubmit.value) return
-
-  // 1. 그룹 생성 제한 체크 (구독 tier 기반)
-  const limitCheck = await canCreateGroup()
-
-  if (!limitCheck.allowed) {
-    groupLimitInfo.value = limitCheck
-    upgradePromptOpen.value = true
-    return // 그룹 생성 중단
-  }
-
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) return
+  if (!canSubmit.value || loading.value) return
 
   loading.value = true
   error.value = ''
 
   try {
-    console.log('[CreateGroup] Creating group:', groupName.value)
+    // 1. 그룹 생성 제한 체크 (구독 tier 기반)
+    const limitCheck = await canCreateGroup()
+
+    if (!limitCheck.allowed) {
+      groupLimitInfo.value = limitCheck
+      upgradePromptOpen.value = true
+      loading.value = false // 제한에 걸렸으므로 다시 버튼 활성화
+      return // 그룹 생성 중단
+    }
+
+    const { data: { user } } = await client.auth.getUser()
+    if (!user) {
+      loading.value = false
+      return
+    }
 
     // 1. 그룹 생성 (invite_code는 DB 기본값으로 자동 생성)
     const { data: newGroup, error: groupError } = await client
       .from('groups')
       .insert({
         name: groupName.value.trim(),
-        created_by: user.id
+        created_by: user.id,
+        group_type: 'social' // 공유 그룹 생성
       })
       .select()
       .single()
 
     if (groupError) {
-      console.error('[CreateGroup] Group creation error:', groupError)
       throw new Error('그룹 생성에 실패했습니다.')
     }
-
-    console.log('[CreateGroup] Group created:', newGroup)
 
     // 2. 생성자를 admin으로 자동 추가
     const { error: memberError } = await client
@@ -172,12 +190,8 @@ const handleCreate = async () => {
       })
 
     if (memberError) {
-      console.error('[CreateGroup] Member insert error:', memberError)
       // 그룹은 생성되었지만 멤버 추가 실패 → 일단 계속 진행
-      console.warn('[CreateGroup] Group created but member insert failed')
     }
-
-    console.log('[CreateGroup] Creator added as admin')
 
     // 3. 성공 - 모달 닫고 상위 컴포넌트에 알림
     emit('created', newGroup)
@@ -186,7 +200,6 @@ const handleCreate = async () => {
   } catch (err: any) {
     console.error('[CreateGroup] Error:', err)
     error.value = err.message || '그룹 생성 중 오류가 발생했습니다.'
-  } finally {
     loading.value = false
   }
 }
