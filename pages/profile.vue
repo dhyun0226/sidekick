@@ -26,8 +26,38 @@
           </div>
           <DesktopGroupSidePanel :group="selectedGroupForPanel" />
         </div>
-        <!-- 분석: 캘린더 한눈에 -->
-        <ProfileInsightTab v-if="activeTab === 'insight'" :timeline="fullActivities" :is-goal-achieved="isGoalAchieved" :last-year-books="lastYearBooks" :year-over-year-growth="yearOverYearGrowth" :editing-goal="editingGoal" v-model:temp-goal="tempGoal" :this-year-books="thisYearBooks" :yearly-goal="yearlyGoal" :days-left-in-year="daysLeftInYear" :books-needed-per-month="booksNeededPerMonth" :on-track="onTrack" :monthly-progress="monthlyProgress" :max-monthly-count="maxMonthlyCount" :current-streak="stats.streak" :longest-streak="longestStreak" :this-month-books="thisMonthBooks" :this-month-comments="thisMonthComments" :finishedBooks="finishedLibraryForStats" :include-comments="appSettings.calendar_include_comments" :desktop-compact="true" @start-edit-goal="startEditGoal" @save-goal="saveGoal" @cancel-edit-goal="cancelEditGoal" @day-click="handleDayClick" @year-change="handleYearChange" />
+        <!-- 분석: 캘린더 왼쪽(모바일 사이즈) + 우측 목표/통계 -->
+        <div v-if="activeTab === 'insight'" class="flex gap-8">
+          <div class="w-[360px] flex-shrink-0">
+            <ReadingHeatmap
+              :activities="fullActivities"
+              :currentStreak="stats.streak"
+              :longestStreak="longestStreak"
+              :finishedBooks="finishedLibraryForStats"
+              :include-comments="appSettings.calendar_include_comments"
+              @day-click="handleDayClick"
+              @year-change="handleYearChange"
+            />
+          </div>
+          <DesktopInsightSidePanel
+            :this-year-books="thisYearBooks"
+            :yearly-goal="yearlyGoal"
+            :days-left-in-year="daysLeftInYear"
+            :books-needed-per-month="booksNeededPerMonth"
+            :on-track="onTrack"
+            :is-goal-achieved="isGoalAchieved"
+            :current-streak="stats.streak"
+            :longest-streak="longestStreak"
+            :this-month-books="thisMonthBooks"
+            :this-month-comments="thisMonthComments"
+            :editing-goal="editingGoal"
+            :temp-goal="tempGoal"
+            @start-edit-goal="startEditGoal"
+            @save-goal="saveGoal"
+            @cancel-edit-goal="cancelEditGoal"
+            @update:temp-goal="tempGoal = $event"
+          />
+        </div>
       </div>
     </DesktopProfileView>
   </template>
@@ -224,6 +254,8 @@ import { Lock } from 'lucide-vue-next'
 const DesktopProfileView = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopProfileView.vue'))
 const DesktopTimelineSidePanel = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopTimelineSidePanel.vue'))
 const DesktopGroupSidePanel = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopGroupSidePanel.vue'))
+const DesktopInsightSidePanel = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopInsightSidePanel.vue'))
+import ReadingHeatmap from '~/components/ReadingHeatmap.vue'
 const { isDesktop } = useDevice()
 
 useHead({ title: '프로필' })
