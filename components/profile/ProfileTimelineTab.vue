@@ -18,7 +18,7 @@
     <div v-else class="space-y-8">
       <div v-for="monthGroup in timelineByMonth" :key="monthGroup.month" class="space-y-4">
         <!-- Monthly Divider (Matched with Library Tab Style) -->
-        <div class="flex items-center gap-3 sticky top-[49px] z-20 bg-gray-50/95 dark:bg-[#09090b]/95 py-2 backdrop-blur-sm">
+        <div class="flex items-center gap-3 sticky top-[49px] lg:top-0 z-20 bg-gray-50/95 dark:bg-[#09090b]/95 py-2 backdrop-blur-sm">
           <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">{{ monthGroup.month.replace('.', '년 ') }}월</h3>
           <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
           <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ monthlyTotals[monthGroup.month] || 0 }}개</span>
