@@ -34,18 +34,7 @@ export default defineNuxtConfig({
   supabase: {
     redirect: false,
     url: process.env.SUPABASE_URL,
-    key: process.env.SUPABASE_KEY,
-    // ✅ 쿠키 이름은 cookieOptions 밖에서 설정하거나 생략(기본값 sb) 가능
-    cookieName: 'sb', 
-
-    // ✅ cookieOptions 내부에는 '속성'들만 적습니다.
-    cookieOptions: {
-      domain: '.cheerreaders.com', // 👈 이 부분이 도메인 문제를 해결하는 핵심입니다!
-      path: '/',
-      sameSite: 'lax',
-      secure: true, // https 환경이므로 true 권장
-      maxAge: 60 * 60 * 8 // 초 단위 (8시간)
-    }
+    key: process.env.SUPABASE_KEY
   },
 
   // PWA 설정
