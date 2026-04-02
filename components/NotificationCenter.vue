@@ -3,7 +3,7 @@
     <!-- Bell Icon -->
     <button 
       @click="toggleOpen" 
-      class="relative w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-lime-500 dark:hover:text-lime-400 hover:border-lime-200 transition-all shadow-sm active:scale-95 z-[100015]"
+      class="relative w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-lime-500 dark:hover:text-lime-400 hover:border-lime-200 transition-all shadow-sm active:scale-95"
     >
       <Bell :size="20" />
       <span v-if="unreadCount > 0" class="absolute top-2.5 right-2.5 flex h-2 w-2">
@@ -13,13 +13,13 @@
     </button>
 
     <!-- Global Backdrop -->
-    <div v-if="isOpen" class="fixed inset-0 z-[100005]" @click="isOpen = false"></div>
+    <div v-if="isOpen" class="fixed inset-0 z-[50]" @click="isOpen = false"></div>
 
     <!-- Dropdown Modal -->
     <div
       v-if="isOpen"
-      class="absolute w-[340px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl z-[100010] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
-      :class="placement === 'right' ? 'left-0 bottom-12 origin-bottom-left' : 'right-0 top-12 origin-top-right'"
+      class="absolute w-[340px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl z-[60] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+      :class="placement === 'right' ? 'left-0 bottom-12 origin-bottom-left' : placement === 'sidebar' ? 'left-0 top-12 origin-top-left' : 'right-0 top-12 origin-top-right'"
       @keydown.esc="isOpen = false"
       tabindex="-1"
     >
@@ -120,7 +120,7 @@ import ConfirmModal from './ConfirmModal.vue'
 import { useToastStore } from '~/stores/toast'
 
 const props = withDefaults(defineProps<{
-  placement?: 'default' | 'right'
+  placement?: 'default' | 'right' | 'sidebar'
 }>(), {
   placement: 'default'
 })

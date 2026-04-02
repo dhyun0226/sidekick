@@ -3,7 +3,7 @@
     <!-- Logo + Notification -->
     <div class="px-6 pt-7 pb-5 flex items-center justify-between">
       <h1 class="text-[20px] font-bold tracking-tight text-zinc-900 dark:text-white select-none">치어리더스</h1>
-      <NotificationCenter />
+      <NotificationCenter placement="sidebar" />
     </div>
 
     <!-- Navigation -->
