@@ -1,11 +1,14 @@
 <template>
   <div class="max-w-4xl mx-auto px-8 py-12">
     <!-- Header -->
-    <div class="mb-14">
-      <h1 class="text-desktop-title font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight mb-2.5">
-        {{ greeting.text }}
-      </h1>
-      <p class="text-desktop-body text-zinc-400 dark:text-zinc-300 font-light">{{ greeting.sub }}</p>
+    <div class="mb-14 flex items-start justify-between">
+      <div>
+        <h1 class="text-desktop-title font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight mb-2.5">
+          {{ greeting.text }}
+        </h1>
+        <p class="text-desktop-body text-zinc-400 dark:text-zinc-300 font-light">{{ greeting.sub }}</p>
+      </div>
+      <NotificationCenter placement="sidebar" />
     </div>
 
     <!-- Loading -->
