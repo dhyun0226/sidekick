@@ -31,8 +31,6 @@
         />
         <!-- 기록 탭: 월별 요약 -->
         <DesktopTimelineSidePanel v-if="activeTab === 'timeline'" :timeline="timeline" :monthly-totals="monthlyTotals" />
-        <!-- 그룹 탭: 선택된 그룹 상세 -->
-        <DesktopGroupSidePanel v-if="activeTab === 'groups'" :group="selectedGroupForPanel" />
       </template>
 
       <!-- 우측 콘텐츠 -->
@@ -43,11 +41,11 @@
         <ProfileWishlistTab v-if="activeTab === 'wishlist'" :wishlist="wishlist" :loading="wishlistLoading" :desktop-wide="true" @refresh="fetchWishlistData" @start-book="handleStartBookFromWishlist" />
         <!-- 기록: 1열 (사이드 요약은 좌측 패널로 이동) -->
         <ProfileTimelineTab v-if="activeTab === 'timeline'" :timeline="timeline" :loading="loading" :is-loading-more="isLoadingMoreTimeline" :has-more="hasMoreTimeline" :monthly-totals="monthlyTotals" :is-book-finished="isBookFinished" @load-more="loadMoreTimeline" @navigate="navigateToItem" />
-        <!-- 그룹 (상세는 좌측 패널) -->
-        <ProfileGroupsTab v-if="activeTab === 'groups'" @refresh-stats="fetchData" @refresh-library="fetchData" @group-selected="selectedGroupForPanel = $event" />
-        <!-- 분석: 캘린더 최대 크기 (목표/통계는 좌측 패널) -->
-        <div v-if="activeTab === 'insight'" class="h-full flex items-center justify-center">
-          <div class="w-full max-w-[480px]">
+        <!-- 그룹 -->
+        <ProfileGroupsTab v-if="activeTab === 'groups'" @refresh-stats="fetchData" @refresh-library="fetchData" />
+        <!-- 분석: 캘린더 높이 최대 (목표/통계는 좌측 패널) -->
+        <div v-if="activeTab === 'insight'" class="h-full">
+          <div class="w-full max-w-[580px]">
             <ReadingHeatmap
               :activities="fullActivities"
               :currentStreak="stats.streak"
