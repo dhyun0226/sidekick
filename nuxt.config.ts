@@ -20,8 +20,6 @@ export default defineNuxtConfig({
     naverClientId: process.env.NAVER_CLIENT_ID,
     naverClientSecret: process.env.NAVER_CLIENT_SECRET,
     tossSecretKey: process.env.TOSS_SECRET_KEY,
-    tossWebhookSecret: process.env.TOSS_WEBHOOK_SECRET,
-    cronSecret: process.env.CRON_SECRET,
 
     // 클라이언트 사이드 (브라우저에 노출됨)
     public: {
@@ -37,14 +35,24 @@ export default defineNuxtConfig({
     redirect: false,
     url: process.env.SUPABASE_URL,
     key: process.env.SUPABASE_KEY,
-    serviceKey: process.env.SUPABASE_SECRET_KEY
+    // ✅ 쿠키 이름은 cookieOptions 밖에서 설정하거나 생략(기본값 sb) 가능
+    cookieName: 'sb', 
+
+    // ✅ cookieOptions 내부에는 '속성'들만 적습니다.
+    cookieOptions: {
+      domain: '.cheerreaders.com', // 👈 이 부분이 도메인 문제를 해결하는 핵심입니다!
+      path: '/',
+      sameSite: 'lax',
+      secure: true, // https 환경이므로 true 권장
+      maxAge: 60 * 60 * 8 // 초 단위 (8시간)
+    }
   },
 
   // PWA 설정
   pwa: {
     manifest: {
-      name: '치어리더스',
-      short_name: '치어리더스',
+      name: 'Sidekick',
+      short_name: 'Sidekick',
       description: 'Mobile-first shared reading companion',
       theme_color: '#09090b',
       background_color: '#09090b',
@@ -62,15 +70,7 @@ export default defineNuxtConfig({
     head: {
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-      title: 'Cheer Readers | 당신의 독서를 응원합니다',
-      titleTemplate: '%s | Cheer Readers'
-    }
-  },
-
-  // Vite 설정 - 프로덕션 빌드 시 console.log 제거
-  vite: {
-    esbuild: {
-      drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : []
+      title: 'Sidekick'
     }
   }
 })
