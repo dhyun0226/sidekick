@@ -68,10 +68,12 @@
               <!-- Right: Page Input Box (Compact on Mobile) -->
               <div class="flex items-center gap-1 px-2 sm:px-3 h-11 bg-zinc-100 dark:bg-zinc-800 rounded-xl transition-all focus-within:ring-2 focus-within:ring-inset focus-within:ring-lime-400 min-w-[85px] sm:min-w-[110px] justify-center flex-shrink-0">
                 <input
+                  :ref="el => setPageInputRef(idx, el)"
                   v-model.number="chapter.startPage"
                   type="number"
                   placeholder="0"
                   @blur="validateChapterPage(idx)"
+                  @keydown.tab="handlePageTab($event, idx)"
                   class="w-10 sm:w-12 bg-transparent border-none focus:ring-0 text-sm font-black text-center p-0 text-lime-600 dark:text-lime-400 no-spinner outline-none"
                 />
                 <span class="text-[11px] sm:text-[12px] text-zinc-400 dark:text-zinc-300 font-bold pointer-events-none whitespace-nowrap">쪽부터</span>
@@ -79,6 +81,7 @@
               
               <!-- Delete Button -->
               <button
+                tabindex="-1"
                 @click="removeChapter(idx)"
                 type="button"
                 class="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center text-zinc-400 dark:text-zinc-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all flex-shrink-0"
@@ -89,6 +92,7 @@
           </div>
           
           <button
+            tabindex="-1"
             @click="addChapter"
             type="button"
             class="w-full py-3 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-400 dark:text-zinc-300 hover:text-lime-500 hover:border-lime-200 dark:hover:border-lime-900/50 transition-all flex items-center justify-center gap-2"
@@ -103,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { X, Trash2, ListTree, Plus } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 
@@ -166,6 +170,29 @@ watch(localChapters, (newValue) => {
 const updateTotalPages = (e: Event) => {
   const value = (e.target as HTMLInputElement).value
   emit('update:totalPages', value ? parseInt(value) : null)
+}
+
+// Page input refs for Tab navigation
+const pageInputRefs = ref<Record<number, HTMLInputElement | null>>({})
+const setPageInputRef = (idx: number, el: any) => {
+  pageInputRefs.value[idx] = el as HTMLInputElement | null
+}
+
+const handlePageTab = (e: KeyboardEvent, idx: number) => {
+  if (e.shiftKey) return // Shift+Tab은 기본 동작 (이전으로)
+
+  if (idx === localChapters.value.length - 1) {
+    // 마지막 챕터에서 Tab → 새 챕터 추가 후 포커스
+    e.preventDefault()
+    addChapter()
+    nextTick(() => {
+      // 새로 추가된 챕터의 제목 input에 포커스
+      const newChapterInputs = document.querySelectorAll<HTMLInputElement>('[placeholder="챕터 제목"]')
+      const lastInput = newChapterInputs[newChapterInputs.length - 1]
+      lastInput?.focus()
+    })
+  }
+  // 마지막이 아니면 기본 Tab 동작 (다음 챕터 제목으로)
 }
 
 const addChapter = () => {
