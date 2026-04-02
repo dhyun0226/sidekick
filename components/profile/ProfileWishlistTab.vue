@@ -36,7 +36,7 @@
           </button>
         </div>
 
-        <div class="grid grid-cols-4 gap-2">
+        <div :class="desktopWide ? 'grid grid-cols-6 gap-3' : 'grid grid-cols-4 gap-2'">
           <div
             v-for="item in wishlist"
             :key="item.id"
@@ -86,6 +86,7 @@ import WishlistSearchModal from '~/components/WishlistSearchModal.vue'
 const props = defineProps<{
   wishlist: any[]
   loading: boolean
+  desktopWide?: boolean
 }>()
 
 const emit = defineEmits(['refresh', 'start-book'])

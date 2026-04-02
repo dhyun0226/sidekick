@@ -14,6 +14,7 @@
             v-for="group in activeGroups"
             :key="group.id"
             class="px-4 py-3"
+            @click="emit('group-selected', group)"
           >
             <!-- Row 1: Name + Badges -->
             <div class="flex items-center justify-between mb-2 cursor-pointer" @click="navigateToGroup(group.id)">
@@ -306,7 +307,7 @@ const userStore = useUserStore()
 const toast = useToastStore()
 const client = useSupabaseClient()
 
-const emit = defineEmits(['refresh-stats', 'refresh-library'])
+const emit = defineEmits(['refresh-stats', 'refresh-library', 'group-selected'])
 
 const loading = ref(true)
 const groups = ref<any[]>([])
@@ -401,6 +402,10 @@ const fetchGroups = async () => {
       book_count: bookCountMap.get(m.groups.id) || 0
     }))
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || []
+
+    // 첫 번째 활성 그룹을 사이드패널에 자동 선택
+    const firstActive = groups.value.find(g => !g.deleted_at && !g.left_at)
+    if (firstActive) emit('group-selected', firstActive)
 
   } catch (error) {
     console.error('[ProfileGroupsTab] Error fetching groups:', error)
@@ -615,6 +620,7 @@ const handleLeaveGroup = async () => {
 
     await fetchGroups()
     emit('refresh-stats')
+    emit('refresh-library')
   } catch (error) {
     console.error('Leave group error:', error)
     toast.error('처리에 실패했습니다')

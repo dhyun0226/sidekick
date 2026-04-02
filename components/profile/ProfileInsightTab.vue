@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4 pb-10">
+  <div :class="desktopCompact ? 'space-y-3 pb-4' : 'space-y-4 pb-10'">
     <!-- Compact but Readable Goal Widget -->
     <div class="bg-zinc-50 dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200/50 dark:border-zinc-800 select-none">
       <!-- Header -->
@@ -91,7 +91,8 @@ defineProps<{
   thisYearBooks: number, yearlyGoal: number, daysLeftInYear: number, booksNeededPerMonth: number | string, onTrack: boolean,
   monthlyProgress: any[], maxMonthlyCount: number, currentStreak: number, longestStreak: number, thisMonthBooks: number, thisMonthComments: number,
   finishedBooks: any[],
-  includeComments: boolean
+  includeComments: boolean,
+  desktopCompact?: boolean
 }>()
 
 defineEmits(['start-edit-goal', 'update:tempGoal', 'save-goal', 'cancel-edit-goal', 'day-click', 'year-change'])

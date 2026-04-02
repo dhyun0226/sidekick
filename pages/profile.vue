@@ -7,12 +7,27 @@
       :active-tab="activeTab"
       @tab-change="(t) => t === 'insight' ? handleInsightTabClick() : activeTab = t"
     >
-      <div class="min-h-[300px]">
-        <ProfileLibraryTab v-if="activeTab === 'library'" :library="library" :reading-books="readingBooks" :library-groups="libraryByYear" :loading="loading" @open-book="openBookDetail" />
-        <ProfileWishlistTab v-if="activeTab === 'wishlist'" :wishlist="wishlist" :loading="wishlistLoading" @refresh="fetchWishlistData" @start-book="handleStartBookFromWishlist" />
-        <ProfileTimelineTab v-if="activeTab === 'timeline'" :timeline="timeline" :loading="loading" :is-loading-more="isLoadingMoreTimeline" :has-more="hasMoreTimeline" :monthly-totals="monthlyTotals" :is-book-finished="isBookFinished" @load-more="loadMoreTimeline" @navigate="navigateToItem" />
-        <ProfileInsightTab v-if="activeTab === 'insight'" :timeline="fullActivities" :is-goal-achieved="isGoalAchieved" :last-year-books="lastYearBooks" :year-over-year-growth="yearOverYearGrowth" :editing-goal="editingGoal" v-model:temp-goal="tempGoal" :this-year-books="thisYearBooks" :yearly-goal="yearlyGoal" :days-left-in-year="daysLeftInYear" :books-needed-per-month="booksNeededPerMonth" :on-track="onTrack" :monthly-progress="monthlyProgress" :max-monthly-count="maxMonthlyCount" :current-streak="stats.streak" :longest-streak="longestStreak" :this-month-books="thisMonthBooks" :this-month-comments="thisMonthComments" :finishedBooks="finishedLibraryForStats" :include-comments="appSettings.calendar_include_comments" @start-edit-goal="startEditGoal" @save-goal="saveGoal" @cancel-edit-goal="cancelEditGoal" @day-click="handleDayClick" @year-change="handleYearChange" />
-        <ProfileGroupsTab v-if="activeTab === 'groups'" @refresh-stats="fetchData" @refresh-library="fetchData" />
+      <div class="min-h-[300px] px-8 py-6">
+        <!-- 서재: grid 확장 -->
+        <ProfileLibraryTab v-if="activeTab === 'library'" :library="library" :reading-books="readingBooks" :library-groups="libraryByYear" :loading="loading" :desktop-wide="true" @open-book="openBookDetail" />
+        <!-- 위시: grid 확장 -->
+        <ProfileWishlistTab v-if="activeTab === 'wishlist'" :wishlist="wishlist" :loading="wishlistLoading" :desktop-wide="true" @refresh="fetchWishlistData" @start-book="handleStartBookFromWishlist" />
+        <!-- 기록: 1열 + 우측 사이드패널 -->
+        <div v-if="activeTab === 'timeline'" class="flex gap-8">
+          <div class="flex-1 min-w-0">
+            <ProfileTimelineTab :timeline="timeline" :loading="loading" :is-loading-more="isLoadingMoreTimeline" :has-more="hasMoreTimeline" :monthly-totals="monthlyTotals" :is-book-finished="isBookFinished" @load-more="loadMoreTimeline" @navigate="navigateToItem" />
+          </div>
+          <DesktopTimelineSidePanel :timeline="timeline" :monthly-totals="monthlyTotals" />
+        </div>
+        <!-- 그룹: 리스트 + 우측 그룹 상세 -->
+        <div v-if="activeTab === 'groups'" class="flex gap-8">
+          <div class="flex-1 min-w-0">
+            <ProfileGroupsTab @refresh-stats="fetchData" @refresh-library="fetchData" @group-selected="selectedGroupForPanel = $event" />
+          </div>
+          <DesktopGroupSidePanel :group="selectedGroupForPanel" />
+        </div>
+        <!-- 분석: 캘린더 한눈에 -->
+        <ProfileInsightTab v-if="activeTab === 'insight'" :timeline="fullActivities" :is-goal-achieved="isGoalAchieved" :last-year-books="lastYearBooks" :year-over-year-growth="yearOverYearGrowth" :editing-goal="editingGoal" v-model:temp-goal="tempGoal" :this-year-books="thisYearBooks" :yearly-goal="yearlyGoal" :days-left-in-year="daysLeftInYear" :books-needed-per-month="booksNeededPerMonth" :on-track="onTrack" :monthly-progress="monthlyProgress" :max-monthly-count="maxMonthlyCount" :current-streak="stats.streak" :longest-streak="longestStreak" :this-month-books="thisMonthBooks" :this-month-comments="thisMonthComments" :finishedBooks="finishedLibraryForStats" :include-comments="appSettings.calendar_include_comments" :desktop-compact="true" @start-edit-goal="startEditGoal" @save-goal="saveGoal" @cancel-edit-goal="cancelEditGoal" @day-click="handleDayClick" @year-change="handleYearChange" />
       </div>
     </DesktopProfileView>
   </template>
@@ -207,6 +222,8 @@ import { useToastStore } from '~/stores/toast'
 import { Lock } from 'lucide-vue-next'
 
 const DesktopProfileView = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopProfileView.vue'))
+const DesktopTimelineSidePanel = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopTimelineSidePanel.vue'))
+const DesktopGroupSidePanel = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopGroupSidePanel.vue'))
 const { isDesktop } = useDevice()
 
 useHead({ title: '프로필' })
@@ -242,6 +259,7 @@ const activeTab = ref<'timeline' | 'library' | 'insight' | 'groups' | 'wishlist'
 const loading = ref(true)
 const timeline = ref<any[]>([])
 const library = ref<any[]>([])
+const selectedGroupForPanel = ref<any>(null)
 const stats = ref({ books: 0, wish: 0, comments: 0, streak: 0, groups: 0 })
 const longestStreak = ref(0)
 
@@ -453,9 +471,22 @@ const loadMoreTimeline = async () => {
   isLoadingMoreTimeline.value = true
   const from = timelineOffset.value, to = from + TIMELINE_PAGE_SIZE - 1
   try {
+    // 현재 멤버십이 있는 그룹의 group_book ID만 필터링
+    const { data: memberGroups } = await client
+      .from('group_members')
+      .select('group_id')
+      .eq('user_id', userId)
+    const memberGroupIds = (memberGroups || []).map((m: any) => m.group_id)
+
+    if (memberGroupIds.length === 0) {
+      hasMoreTimeline.value = false
+      isLoadingMoreTimeline.value = false
+      return
+    }
+
     const [ { data: cd }, { data: rd } ] = await Promise.all([
-      client.from('comments').select(`id, content, anchor_text, position_pct, created_at, parent_id, parent:parent_id (content, anchor_text, user:users (nickname, avatar_url)), group_book:group_books (id, group:groups (name, id), book:books (title, cover_url, isbn))`).eq('user_id', userId).order('created_at', { ascending: false }).range(from, to),
-      client.from('reviews').select(`id, content, rating, created_at, group_book_id, group_book:group_books (id, group:groups (name, id), book:books (title, cover_url, isbn))`).eq('user_id', userId).order('created_at', { ascending: false }).range(from, to)
+      client.from('comments').select(`id, content, anchor_text, position_pct, created_at, parent_id, parent:parent_id (content, anchor_text, user:users (nickname, avatar_url)), group_book:group_books!inner (id, group:groups (name, id), book:books (title, cover_url, isbn))`).eq('user_id', userId).in('group_book.group_id', memberGroupIds).order('created_at', { ascending: false }).range(from, to),
+      client.from('reviews').select(`id, content, rating, created_at, group_book_id, group_book:group_books!inner (id, group:groups (name, id), book:books (title, cover_url, isbn))`).eq('user_id', userId).in('group_book.group_id', memberGroupIds).order('created_at', { ascending: false }).range(from, to)
     ])
     const nc = (cd || []).map((c: any) => {
       const p = Array.isArray(c.parent) ? c.parent[0] : c.parent, pu = p ? (Array.isArray(p.user) ? p.user[0] : p.user) : null

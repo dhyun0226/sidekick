@@ -23,7 +23,7 @@
           <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
           <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ readingBooks.length }}권</span>
         </div>
-        <div class="grid grid-cols-4 gap-2">
+        <div :class="desktopWide ? 'grid grid-cols-6 gap-3' : 'grid grid-cols-4 gap-2'">
           <div
             v-for="book in readingBooks"
             :key="book.id"
@@ -68,7 +68,7 @@
           <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
           <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ group.books.length }}권</span>
         </div>
-        <div class="grid grid-cols-4 gap-2">
+        <div :class="desktopWide ? 'grid grid-cols-6 gap-3' : 'grid grid-cols-4 gap-2'">
           <div
             v-for="book in group.books"
             :key="book.id"
@@ -108,11 +108,12 @@
 import { useRouter } from 'vue-router'
 import { Star, BookOpen } from 'lucide-vue-next'
 
-defineProps<{
+const props = defineProps<{
   library: any[]
   readingBooks: any[]
   libraryGroups: any[]
   loading: boolean
+  desktopWide?: boolean
 }>()
 
 defineEmits(['open-book'])

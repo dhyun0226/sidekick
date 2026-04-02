@@ -73,16 +73,16 @@ export default defineEventHandler(async (event) => {
         .eq('id', userId)
         .single(),
 
-      // 5. 코멘트 날짜 (스트릭/히트맵)
+      // 5. 코멘트 날짜 (스트릭/히트맵) — group_book의 group_id로 멤버십 필터링
       client
         .from('comments')
-        .select('created_at')
+        .select('created_at, group_book:group_books!inner(group_id)')
         .eq('user_id', userId),
 
-      // 6. 리뷰 날짜 (스트릭/히트맵)
+      // 6. 리뷰 날짜 (스트릭/히트맵) — group_book의 group_id로 멤버십 필터링
       client
         .from('reviews')
-        .select('created_at')
+        .select('created_at, group_book:group_books!inner(group_id)')
         .eq('user_id', userId),
 
       // 7. 멤버십 (목록에서 제거된 그룹 필터링용)
@@ -200,9 +200,15 @@ export default defineEventHandler(async (event) => {
     const yearlyGoal = userRes.data?.yearly_reading_goal || 50
     const wishCount = wishCountRes.count || 0
 
-    // 코멘트 + 리뷰 날짜 합산
-    const allDatesC = commentsDateRes.data || []
-    const allDatesR = reviewsDateRes.data || []
+    // 코멘트 + 리뷰 날짜 합산 (멤버십이 있는 그룹만)
+    const allDatesC = (commentsDateRes.data || []).filter((c: any) => {
+      const gid = Array.isArray(c.group_book) ? c.group_book[0]?.group_id : c.group_book?.group_id
+      return memberGroupIds.has(gid)
+    })
+    const allDatesR = (reviewsDateRes.data || []).filter((r: any) => {
+      const gid = Array.isArray(r.group_book) ? r.group_book[0]?.group_id : r.group_book?.group_id
+      return memberGroupIds.has(gid)
+    })
     const commentsCount = allDatesC.length + allDatesR.length
 
     // 히트맵용 경량 활동 데이터
