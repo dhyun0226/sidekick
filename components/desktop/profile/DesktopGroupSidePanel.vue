@@ -1,8 +1,8 @@
 <template>
-  <div class="w-64 flex-shrink-0 sticky top-[120px] self-start space-y-4" v-if="group">
+  <div class="space-y-3" v-if="group">
     <!-- 그룹 정보 -->
-    <div class="bg-white dark:bg-zinc-900 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-5">
-      <h4 class="text-sm font-bold text-zinc-900 dark:text-white mb-4">{{ group.name }}</h4>
+    <div class="bg-zinc-50 dark:bg-zinc-900 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-3">
+      <h4 class="text-sm font-bold text-zinc-900 dark:text-white mb-3">{{ group.name }}</h4>
 
       <!-- 읽고 있는 책 -->
       <template v-if="books.length > 0">
@@ -37,7 +37,7 @@
     </div>
 
     <!-- 초대 코드 -->
-    <div v-if="group.invite_code" class="bg-white dark:bg-zinc-900 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-4">
+    <div v-if="group.invite_code" class="bg-zinc-50 dark:bg-zinc-900 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-3">
       <h5 class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-2">초대 코드</h5>
       <div class="flex items-center gap-2">
         <code class="text-xs bg-zinc-50 dark:bg-zinc-800 px-3 py-1.5 rounded-lg flex-1 text-center text-zinc-600 dark:text-zinc-300 font-mono tracking-wider">{{ group.invite_code }}</code>
