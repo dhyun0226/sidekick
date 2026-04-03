@@ -73,8 +73,8 @@
       </div>
     </nav>
 
-    <!-- Bottom: User -->
-    <div class="px-3 pb-5 pt-3">
+    <!-- Bottom: User + Footer -->
+    <div class="px-3 pb-4 pt-3">
       <NuxtLink to="/profile" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-100/70 dark:hover:bg-zinc-800/50 transition-all duration-200 ease-apple">
         <div class="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0">
           <img v-if="userStore.profile?.avatar_url" :src="userStore.profile.avatar_url" class="w-full h-full object-cover" />
@@ -86,6 +86,11 @@
           <p class="text-desktop-caption font-medium text-zinc-600 dark:text-zinc-300 truncate">{{ userStore.profile?.nickname }}</p>
         </div>
       </NuxtLink>
+      <div class="flex items-center gap-2 px-3 mt-2 text-[10px] text-zinc-400 dark:text-zinc-500">
+        <NuxtLink to="/privacy" class="hover:text-zinc-600 dark:hover:text-zinc-300 transition">개인정보</NuxtLink>
+        <span class="text-zinc-300 dark:text-zinc-700">·</span>
+        <NuxtLink to="/terms" class="hover:text-zinc-600 dark:hover:text-zinc-300 transition">이용약���</NuxtLink>
+      </div>
     </div>
   </aside>
 </template>
