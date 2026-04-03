@@ -45,11 +45,11 @@
     <div class="grid grid-cols-2 gap-2">
       <div class="bg-zinc-50 dark:bg-zinc-900 rounded-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-3 text-center">
         <p class="text-xl font-black text-lime-600 dark:text-lime-400 tabular-nums leading-none mb-1">{{ currentStreak }}</p>
-        <p class="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">현재</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400">현재</p>
       </div>
       <div class="bg-zinc-50 dark:bg-zinc-900 rounded-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-3 text-center">
         <p class="text-xl font-black text-zinc-900 dark:text-white tabular-nums leading-none mb-1">{{ longestStreak }}</p>
-        <p class="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">최장</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400">최장</p>
       </div>
     </div>
 
@@ -57,11 +57,11 @@
     <div class="grid grid-cols-2 gap-2">
       <div class="bg-zinc-50 dark:bg-zinc-900 rounded-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-3 text-center">
         <p class="text-xl font-black text-zinc-900 dark:text-white tabular-nums leading-none mb-1">{{ thisMonthBooks }}</p>
-        <p class="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">이달 완독</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400">이달 완독</p>
       </div>
       <div class="bg-zinc-50 dark:bg-zinc-900 rounded-lg ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-3 text-center">
         <p class="text-xl font-black text-zinc-900 dark:text-white tabular-nums leading-none mb-1">{{ thisMonthComments }}</p>
-        <p class="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">이달 기록</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400">이달 기록</p>
       </div>
     </div>
   </div>

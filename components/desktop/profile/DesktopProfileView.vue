@@ -25,7 +25,7 @@
           class="text-center flex-1 group cursor-pointer"
         >
           <p class="text-lg font-bold tabular-nums text-zinc-900 dark:text-white group-hover:text-lime-600 dark:group-hover:text-lime-400 transition">{{ stat.value }}</p>
-          <p class="text-xs text-zinc-400 dark:text-zinc-300 uppercase tracking-widest">{{ stat.label }}</p>
+          <p class="text-xs text-zinc-400 dark:text-zinc-300">{{ stat.label }}</p>
         </button>
       </div>
 

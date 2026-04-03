@@ -2,7 +2,7 @@
   <div class="space-y-3" v-if="currentData">
     <!-- 현재 보이는 월 요약 -->
     <div class="bg-zinc-50 dark:bg-zinc-900 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-4">
-      <h4 class="text-xs font-bold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-3">{{ currentData.label }} 요약</h4>
+      <h4 class="text-xs font-bold text-zinc-400 dark:text-zinc-300 mb-3">{{ currentData.label }} 요약</h4>
       <div class="space-y-2.5">
         <div class="flex justify-between">
           <span class="text-xs text-zinc-400 dark:text-zinc-300">코멘트</span>
@@ -21,7 +21,7 @@
     </div>
     <!-- 책별 기록 -->
     <div v-if="currentData.books.length > 0" class="bg-zinc-50 dark:bg-zinc-900 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-4">
-      <h4 class="text-xs font-bold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-3">책별 기록</h4>
+      <h4 class="text-xs font-bold text-zinc-400 dark:text-zinc-300 mb-3">책별 기록</h4>
       <div class="space-y-2">
         <div v-for="book in currentData.books" :key="book.title" class="flex items-center gap-2.5">
           <div class="w-5 h-7 bg-zinc-100 dark:bg-zinc-800 overflow-hidden rounded flex-shrink-0">
