@@ -122,8 +122,8 @@
         v-for="(day, index) in calendarDays"
         :key="index"
         @click="day.count > 0 ? emit('day-click', day) : null"
-        class="rounded-md flex flex-col items-center justify-center relative group transition-all overflow-hidden border border-zinc-100 dark:border-zinc-800/50"
-        :class="[compactYear && hassixWeeks ? 'aspect-[3/4]' : 'aspect-[2/3]', getDayClass(day), day.count > 0 ? 'cursor-pointer hover:ring-2 hover:ring-lime-400 hover:scale-105' : '']"
+        class="aspect-[2/3] rounded-md flex flex-col items-center justify-center relative group transition-all overflow-hidden border border-zinc-100 dark:border-zinc-800/50"
+        :class="[getDayClass(day), day.count > 0 ? 'cursor-pointer hover:ring-2 hover:ring-lime-400 hover:scale-105' : '']"
       >
         <div v-if="day.activities?.length > 0" class="absolute inset-0 z-0 text-left">
           <img v-if="getLatestCover(day.activities)" :src="getLatestCover(day.activities)" class="w-full h-full object-cover opacity-100 transition-opacity" />
@@ -317,11 +317,10 @@ const calendarDays = computed(() => {
   for (let i = 1; i <= ldom.getDate(); i++) { const d = new Date(yr, m, i), ds = getLocalDateString(d), items = amap[ds] || []; days.push({ date: d, dateString: ds, dayNumber: i, isCurrentMonth: true, count: items.length, activities: items }) }
   const remainingCells = 7 - (days.length % 7)
   if (remainingCells < 7) { for (let i = 1; i <= remainingCells; i++) { const d = new Date(yr, m + 1, i); days.push({ date: d, dateString: getLocalDateString(d), dayNumber: i, isCurrentMonth: false, count: 0, activities: [] }) } }
+  // 항상 6줄(42셀)로 패딩 — 5주↔6주 전환 시 높이 출렁임 방지
+  while (days.length < 42) { const nextIdx = days.length - (ldom.getDate() + startDayOfWeek); const d = new Date(yr, m + 1, nextIdx + 1); days.push({ date: d, dateString: getLocalDateString(d), dayNumber: d.getDate(), isCurrentMonth: false, count: 0, activities: [] }) }
   return days
 })
-
-// 6주 달인지 감지 (compactYear 모드에서 비율 조정용)
-const hassixWeeks = computed(() => calendarDays.value.length > 35)
 
 const getDayClass = (day: any) => {
   if (!day.isCurrentMonth) return 'bg-transparent opacity-30'
