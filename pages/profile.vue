@@ -43,20 +43,64 @@
         <ProfileTimelineTab v-if="activeTab === 'timeline'" :timeline="timeline" :loading="loading" :is-loading-more="isLoadingMoreTimeline" :has-more="hasMoreTimeline" :monthly-totals="monthlyTotals" :is-book-finished="isBookFinished" @load-more="loadMoreTimeline" @navigate="navigateToItem" @visible-month-change="visibleMonth = $event" />
         <!-- 그룹 -->
         <ProfileGroupsTab v-if="activeTab === 'groups'" @refresh-stats="fetchData" @refresh-library="fetchData" />
-        <!-- 분석: 캘린더 높이 고정 (목표/통계는 좌측 패널) -->
-        <div v-if="activeTab === 'insight'" class="h-full">
-          <ReadingHeatmap
-            :activities="fullActivities"
-            :currentStreak="stats.streak"
-            :longestStreak="longestStreak"
-            :finishedBooks="finishedLibraryForStats"
-            :include-comments="appSettings.calendar_include_comments"
-            :compact-year="true"
-            :hide-footer-stats="true"
-            :fixed-height="true"
-            @day-click="handleDayClick"
-            @year-change="handleYearChange"
-          />
+        <!-- 분석: 캘린더 + 우측 날짜 상세 -->
+        <div v-if="activeTab === 'insight'" class="h-full flex gap-6">
+          <div class="flex-1 min-w-0 h-full">
+            <ReadingHeatmap
+              :activities="fullActivities"
+              :currentStreak="stats.streak"
+              :longestStreak="longestStreak"
+              :finishedBooks="finishedLibraryForStats"
+              :include-comments="appSettings.calendar_include_comments"
+              :compact-year="true"
+              :hide-footer-stats="true"
+              :fixed-height="true"
+              @day-click="isDesktop ? handleDesktopDayClick($event) : handleDayClick($event)"
+              @year-change="handleYearChange"
+            />
+          </div>
+          <!-- 데스크탑: 날짜 클릭 시 우측에 활동 표시 -->
+          <div v-if="selectedDay" class="w-80 flex-shrink-0 overflow-y-auto h-full">
+            <div class="bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden h-full flex flex-col">
+              <div class="border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between flex-shrink-0">
+                <div>
+                  <h3 class="text-sm font-bold text-zinc-900 dark:text-white">{{ selectedDay.dateString }}</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400">{{ selectedDay.count }}개의 활동</p>
+                </div>
+                <button @click="selectedDay = null" class="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
+                  <X :size="16" class="text-zinc-400" />
+                </button>
+              </div>
+              <div class="flex-1 overflow-y-auto p-3 space-y-2">
+                <div
+                  v-for="item in selectedDay.activities"
+                  :key="item.id"
+                  @click="isBookFinished(item.groupBookId) ? navigateToItem(item) : null"
+                  class="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-3 transition-all"
+                  :class="[isBookFinished(item.groupBookId) ? 'cursor-pointer hover:ring-1 hover:ring-lime-400' : 'opacity-60']"
+                >
+                  <div class="flex items-start gap-2.5 mb-2">
+                    <div class="w-7 h-10 bg-zinc-200 dark:bg-zinc-700 overflow-hidden rounded flex-shrink-0">
+                      <img v-if="item.bookCover" :src="item.bookCover" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="text-xs font-bold text-zinc-900 dark:text-white truncate">{{ item.bookTitle }}</h4>
+                      <p class="text-[10px] text-zinc-500 dark:text-zinc-400">{{ item.groupName }}</p>
+                    </div>
+                    <span v-if="item.type === 'review'" class="text-[10px] text-amber-500">{{ '★'.repeat(item.rating) }}</span>
+                    <span v-else class="text-[9px] px-1.5 py-0.5 bg-lime-400/10 text-lime-600 dark:text-lime-400 rounded-full">{{ Math.round(item.position_pct) }}%</span>
+                  </div>
+                  <div v-if="item.anchor_text" class="pl-2.5 border-l-2 border-lime-400/50 mb-2">
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2">{{ item.anchor_text }}</p>
+                  </div>
+                  <p class="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed line-clamp-3">{{ item.content }}</p>
+                </div>
+                <div v-if="selectedDay.count === 0" class="text-center py-8">
+                  <p class="text-xs text-zinc-400">활동이 없습니다</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </DesktopProfileView>
@@ -249,7 +293,7 @@ import { ref, computed, onMounted, onActivated, watch, nextTick, defineAsyncComp
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { Lock } from 'lucide-vue-next'
+import { Lock, X } from 'lucide-vue-next'
 
 const DesktopProfileView = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopProfileView.vue'))
 const DesktopTimelineSidePanel = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopTimelineSidePanel.vue'))
@@ -557,6 +601,7 @@ const openBookDetail = (book: any) => { selectedBook.value = book; showBookDetai
 const closeBookDetail = () => { showBookDetailModal.value = false; selectedBook.value = null }
 const openSettings = () => settingsModalOpen.value = true
 const handleDayClick = (day: any) => { selectedDay.value = day; showDayActivityModal.value = true }
+const handleDesktopDayClick = (day: any) => { selectedDay.value = selectedDay.value?.dateString === day.dateString ? null : day }
 const closeDayActivity = () => { showDayActivityModal.value = false; selectedDay.value = null }
 const startEditGoal = () => { tempGoal.value = yearlyGoal.value; editingGoal.value = true }
 const cancelEditGoal = () => editingGoal.value = false
