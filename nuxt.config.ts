@@ -51,9 +51,9 @@ export default defineNuxtConfig({
   // PWA 설정
   pwa: {
     manifest: {
-      name: 'Sidekick',
-      short_name: 'Sidekick',
-      description: 'Mobile-first shared reading companion',
+      name: 'Cheer Readers',
+      short_name: 'Cheer Readers',
+      description: '당신의 독서를 응원합니다',
       theme_color: '#09090b',
       background_color: '#09090b',
       display: 'standalone',
@@ -70,7 +70,8 @@ export default defineNuxtConfig({
     head: {
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-      title: 'Sidekick'
+      title: 'Cheer Readers',
+      titleTemplate: '%s | Cheer Readers'
     }
   }
 })
