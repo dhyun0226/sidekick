@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-4xl mx-auto px-8 py-12">
+  <div class="max-w-4xl mx-auto px-8 py-12 min-h-full flex flex-col">
     <!-- Header -->
     <div class="mb-14 flex items-start justify-between">
       <div>
@@ -88,7 +88,7 @@
     </template>
 
     <!-- Footer -->
-    <footer class="mt-16 pt-6 border-t border-zinc-100 dark:border-zinc-800/50 text-center space-y-2">
+    <footer class="mt-auto pt-6 border-t border-zinc-100 dark:border-zinc-800/50 text-center space-y-2">
       <div class="flex items-center justify-center gap-3 text-[11px] text-zinc-400 dark:text-zinc-500">
         <NuxtLink to="/privacy" class="hover:text-zinc-600 dark:hover:text-zinc-300 transition">개인정보처리방침</NuxtLink>
         <span class="text-zinc-300 dark:text-zinc-700">·</span>
