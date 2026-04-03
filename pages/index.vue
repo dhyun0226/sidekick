@@ -8,6 +8,7 @@
     :idle-groups="desktopIdleGroups"
     @create-group="handleCreateGroupClick"
     @join-group="joinGroupModalOpen = true"
+    @open-inquiry="inquiryModalOpen = true"
   />
 
   <div v-else class="pb-24 pb-safe px-4 pt-safe min-h-screen bg-gray-50 dark:bg-[#09090b]">
@@ -318,7 +319,7 @@
         <span class="text-zinc-300 dark:text-zinc-700">·</span>
         <NuxtLink to="/terms" class="hover:text-zinc-600 dark:hover:text-zinc-300 transition">서비스 이용약관</NuxtLink>
         <span class="text-zinc-300 dark:text-zinc-700">·</span>
-        <NuxtLink to="/settings" class="hover:text-zinc-600 dark:hover:text-zinc-300 transition">문의하기</NuxtLink>
+        <button @click="inquiryModalOpen = true" class="hover:text-zinc-600 dark:hover:text-zinc-300 transition">문의하기</button>
       </div>
       <p class="text-[10px] text-zinc-300 dark:text-zinc-600">&copy; {{ new Date().getFullYear() }} Cheer Readers</p>
     </footer>
@@ -336,6 +337,10 @@
     @close="joinGroupModalOpen = false"
     @joined="handleGroupJoined"
   />
+  <InquiryModal
+    :is-open="inquiryModalOpen"
+    @close="inquiryModalOpen = false"
+  />
 </template>
 
 
@@ -348,6 +353,7 @@ import { User, Plus, KeyRound, ChevronRight, MessageCircle, Coffee, BookOpen, Co
 import NotificationCenter from '~/components/NotificationCenter.vue'
 import CreateGroupModal from '~/components/CreateGroupModal.vue'
 import JoinGroupModal from '~/components/JoinGroupModal.vue'
+import InquiryModal from '~/components/InquiryModal.vue'
 
 const DesktopHomeDashboard = defineAsyncComponent(() => import('~/components/desktop/home/DesktopHomeDashboard.vue'))
 
@@ -390,6 +396,7 @@ const groups = ref<any[]>([])
 const loading = ref(true)
 const createGroupModalOpen = ref(false)
 const joinGroupModalOpen = ref(false)
+const inquiryModalOpen = ref(false)
 
 // Computed for splitting groups
 // 나간 그룹(left_at이 있는 경우)은 아예 목록에서 제외

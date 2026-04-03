@@ -86,6 +86,18 @@
         </div>
       </div>
     </template>
+
+    <!-- Footer -->
+    <footer class="mt-16 pt-6 border-t border-zinc-100 dark:border-zinc-800/50 text-center space-y-2">
+      <div class="flex items-center justify-center gap-3 text-[11px] text-zinc-400 dark:text-zinc-500">
+        <NuxtLink to="/privacy" class="hover:text-zinc-600 dark:hover:text-zinc-300 transition">개인정보처리방침</NuxtLink>
+        <span class="text-zinc-300 dark:text-zinc-700">·</span>
+        <NuxtLink to="/terms" class="hover:text-zinc-600 dark:hover:text-zinc-300 transition">서비스 이용약관</NuxtLink>
+        <span class="text-zinc-300 dark:text-zinc-700">·</span>
+        <button @click="$emit('open-inquiry')" class="hover:text-zinc-600 dark:hover:text-zinc-300 transition">문의하기</button>
+      </div>
+      <p class="text-[10px] text-zinc-300 dark:text-zinc-600">&copy; {{ new Date().getFullYear() }} Cheer Readers</p>
+    </footer>
   </div>
 </template>
 
@@ -106,7 +118,7 @@ defineProps<{
   idleGroups: any[]
 }>()
 
-defineEmits(['create-group', 'join-group'])
+defineEmits(['create-group', 'join-group', 'open-inquiry'])
 
 const greeting = computed(() => {
   const hour = new Date().getHours()

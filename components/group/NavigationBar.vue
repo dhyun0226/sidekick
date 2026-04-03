@@ -45,7 +45,7 @@
             : 'bg-black/20 dark:bg-white/10 backdrop-blur-md text-white'
         ]"
       >
-        <Menu :size="22" class="group-hover:rotate-90 transition-transform" />
+        <Menu :size="22" />
       </button>
     </div>
   </nav>
