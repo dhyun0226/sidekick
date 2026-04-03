@@ -45,7 +45,7 @@
         <ProfileGroupsTab v-if="activeTab === 'groups'" @refresh-stats="fetchData" @refresh-library="fetchData" />
         <!-- 분석: 캘린더 + 우측 날짜 상세 -->
         <div v-if="activeTab === 'insight'" class="h-full flex gap-6">
-          <div class="flex-1 min-w-0 h-full">
+          <div class="w-[340px] flex-shrink-0 h-full">
             <ReadingHeatmap
               :activities="fullActivities"
               :currentStreak="stats.streak"
@@ -60,7 +60,7 @@
             />
           </div>
           <!-- 데스크탑: 날짜 클릭 시 우측에 활동 표시 -->
-          <div v-if="selectedDay" class="w-80 flex-shrink-0 overflow-y-auto h-full">
+          <div class="flex-1 min-w-0 overflow-y-auto h-full" v-if="selectedDay">
             <div class="bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden h-full flex flex-col">
               <div class="border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between flex-shrink-0">
                 <div>
