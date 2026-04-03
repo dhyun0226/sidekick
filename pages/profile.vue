@@ -60,7 +60,18 @@
             />
           </div>
           <!-- 데스크탑: 날짜 클릭 시 우측에 활동 표시 -->
-          <div class="flex-1 min-w-0 overflow-y-auto h-full" v-if="selectedDay">
+          <!-- 날짜 미선택: 안내 -->
+          <div v-if="!selectedDay" class="flex-1 min-w-0 h-full flex items-center justify-center">
+            <div class="text-center">
+              <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <CalendarDays :size="28" class="text-zinc-300 dark:text-zinc-600" />
+              </div>
+              <p class="text-sm font-medium text-zinc-400 dark:text-zinc-500">날짜를 선택하면</p>
+              <p class="text-sm font-medium text-zinc-400 dark:text-zinc-500">기록을 확인할 수 있어요</p>
+            </div>
+          </div>
+          <!-- 날짜 선택됨: 활동 표시 -->
+          <div v-else class="flex-1 min-w-0 overflow-y-auto h-full">
             <div class="bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden h-full flex flex-col">
               <div class="border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between flex-shrink-0">
                 <div>
@@ -293,7 +304,7 @@ import { ref, computed, onMounted, onActivated, watch, nextTick, defineAsyncComp
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { Lock, X } from 'lucide-vue-next'
+import { Lock, X, CalendarDays } from 'lucide-vue-next'
 
 const DesktopProfileView = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopProfileView.vue'))
 const DesktopTimelineSidePanel = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopTimelineSidePanel.vue'))
