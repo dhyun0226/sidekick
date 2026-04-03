@@ -37,7 +37,7 @@
           @click="$emit('tab-change', tab.key)"
           class="flex items-center gap-2.5 w-full px-3 py-2 text-sm rounded-lg transition-all"
           :class="activeTab === tab.key
-            ? 'text-zinc-900 dark:text-white bg-zinc-100/70 dark:bg-zinc-800/50'
+            ? 'text-zinc-900 dark:text-white bg-zinc-100/70 dark:bg-zinc-800/50 font-semibold'
             : 'text-zinc-400 dark:text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/30'"
         >
           <span
