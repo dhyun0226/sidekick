@@ -86,11 +86,6 @@
           <p class="text-desktop-caption font-medium text-zinc-600 dark:text-zinc-300 truncate">{{ userStore.profile?.nickname }}</p>
         </div>
       </NuxtLink>
-      <div class="flex items-center gap-2 px-3 mt-2 text-[10px] text-zinc-400 dark:text-zinc-500">
-        <NuxtLink to="/privacy" class="hover:text-zinc-600 dark:hover:text-zinc-300 transition">개인정보</NuxtLink>
-        <span class="text-zinc-300 dark:text-zinc-700">·</span>
-        <NuxtLink to="/terms" class="hover:text-zinc-600 dark:hover:text-zinc-300 transition">이용약���</NuxtLink>
-      </div>
     </div>
   </aside>
 </template>
