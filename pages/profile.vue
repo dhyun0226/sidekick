@@ -82,29 +82,29 @@
                   <X :size="16" class="text-zinc-400" />
                 </button>
               </div>
-              <div class="flex-1 overflow-y-auto p-3 space-y-2">
+              <div class="flex-1 overflow-y-auto p-4 space-y-3">
                 <div
                   v-for="item in selectedDay.activities"
                   :key="item.id"
                   @click="isBookFinished(item.groupBookId) ? navigateToItem(item) : null"
-                  class="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-3 transition-all"
+                  class="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4 transition-all"
                   :class="[isBookFinished(item.groupBookId) ? 'cursor-pointer hover:ring-1 hover:ring-lime-400' : 'opacity-60']"
                 >
-                  <div class="flex items-start gap-2.5 mb-2">
-                    <div class="w-7 h-10 bg-zinc-200 dark:bg-zinc-700 overflow-hidden rounded flex-shrink-0">
+                  <div class="flex items-start gap-3 mb-3">
+                    <div class="w-8 h-11 bg-zinc-200 dark:bg-zinc-700 overflow-hidden rounded flex-shrink-0">
                       <img v-if="item.bookCover" :src="item.bookCover" class="w-full h-full object-cover" />
                     </div>
                     <div class="min-w-0 flex-1">
-                      <h4 class="text-xs font-bold text-zinc-900 dark:text-white truncate">{{ item.bookTitle }}</h4>
-                      <p class="text-[10px] text-zinc-500 dark:text-zinc-400">{{ item.groupName }}</p>
+                      <h4 class="text-sm font-semibold text-zinc-900 dark:text-white truncate">{{ item.bookTitle }}</h4>
+                      <p class="text-[11px] text-zinc-500 dark:text-zinc-400">{{ item.groupName }}</p>
                     </div>
-                    <span v-if="item.type === 'review'" class="text-[10px] text-amber-500">{{ '★'.repeat(item.rating) }}</span>
-                    <span v-else class="text-[9px] px-1.5 py-0.5 bg-lime-400/10 text-lime-600 dark:text-lime-400 rounded-full">{{ Math.round(item.position_pct) }}%</span>
+                    <span v-if="item.type === 'review'" class="text-[11px] text-amber-500">{{ '★'.repeat(item.rating) }}</span>
+                    <span v-else class="text-[10px] px-2 py-0.5 bg-lime-400/10 text-lime-600 dark:text-lime-400 rounded-full">{{ Math.round(item.position_pct) }}%</span>
                   </div>
-                  <div v-if="item.anchor_text" class="pl-2.5 border-l-2 border-lime-400/50 mb-2">
-                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2">{{ item.anchor_text }}</p>
+                  <div v-if="item.anchor_text" class="pl-3 border-l-2 border-lime-400/50 mb-2">
+                    <p class="text-[13px] text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2">{{ item.anchor_text }}</p>
                   </div>
-                  <p class="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed line-clamp-3">{{ item.content }}</p>
+                  <p class="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed line-clamp-3">{{ item.content }}</p>
                 </div>
                 <div v-if="selectedDay.count === 0" class="text-center py-8">
                   <p class="text-xs text-zinc-400">활동이 없습니다</p>
