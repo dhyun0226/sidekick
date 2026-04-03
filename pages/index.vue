@@ -313,7 +313,7 @@
     </button>
 
     <!-- Footer -->
-    <footer class="mt-auto pt-8 pb-safe pb-6 text-center space-y-2">
+    <footer class="mt-auto pt-8 pb-safe pb-6 text-center space-y-2 pr-20">
       <div class="flex items-center justify-center gap-3 text-[11px] text-zinc-400 dark:text-zinc-500">
         <NuxtLink to="/privacy" class="hover:text-zinc-600 dark:hover:text-zinc-300 transition">개인정보처리방침</NuxtLink>
         <span class="text-zinc-300 dark:text-zinc-700">·</span>
