@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5">
+  <div :class="[fixedHeight ? 'h-full flex flex-col' : '', 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5']">
     <!-- Header with Navigation -->
     <div class="mb-4">
       <div class="flex items-center justify-between mb-2">
@@ -116,14 +116,13 @@
     </div>
 
     <!-- Calendar Grid - Daily View -->
-    <div v-if="viewMode === 'month'" class="grid grid-cols-7 gap-1 mb-4">
-      <div v-for="day in weekDays" :key="day" class="text-center text-[11px] text-zinc-400 dark:text-zinc-300 font-medium pb-2">{{ day }}</div>
+    <div v-if="viewMode === 'month'" :class="[fixedHeight ? 'flex-1 grid grid-cols-7 gap-1 auto-rows-fr' : 'grid grid-cols-7 gap-1 mb-4']">
+      <div v-for="day in weekDays" :key="day" class="text-center text-[11px] text-zinc-400 dark:text-zinc-300 font-medium flex items-end justify-center pb-1">{{ day }}</div>
       <div
         v-for="(day, index) in calendarDays"
         :key="index"
         @click="day.count > 0 ? emit('day-click', day) : null"
-        class="aspect-[2/3] rounded-md flex flex-col items-center justify-center relative group transition-all overflow-hidden border border-zinc-100 dark:border-zinc-800/50"
-        :class="[getDayClass(day), day.count > 0 ? 'cursor-pointer hover:ring-2 hover:ring-lime-400 hover:scale-105' : '']"
+        :class="[fixedHeight ? '' : 'aspect-[2/3]', 'rounded-md flex flex-col items-center justify-center relative group transition-all overflow-hidden border border-zinc-100 dark:border-zinc-800/50', getDayClass(day), day.count > 0 ? 'cursor-pointer hover:ring-2 hover:ring-lime-400 hover:scale-105' : '']"
       >
         <div v-if="day.activities?.length > 0" class="absolute inset-0 z-0 text-left">
           <img v-if="getLatestCover(day.activities)" :src="getLatestCover(day.activities)" class="w-full h-full object-cover opacity-100 transition-opacity" />
@@ -140,12 +139,12 @@
     </div>
 
     <!-- Calendar Grid - Monthly View -->
-    <div v-else class="grid grid-cols-3 gap-3 mb-4">
+    <div v-else :class="[fixedHeight ? 'flex-1 grid grid-cols-3 gap-3 auto-rows-fr' : 'grid grid-cols-3 gap-3 mb-4']">
       <div
         v-for="monthData in yearlyMonths"
         :key="monthData.month"
         @click="selectMonthFromYearView(monthData.month)"
-        :class="[compactYear ? 'aspect-[4/3]' : 'aspect-[2/3]', 'rounded-xl flex flex-col items-center justify-center relative group transition-all cursor-pointer hover:ring-2 hover:ring-lime-400 hover:scale-105 overflow-hidden border border-zinc-100 dark:border-zinc-800/50', getMonthClass(monthData)]"
+        :class="[fixedHeight ? '' : (compactYear ? 'aspect-[4/3]' : 'aspect-[2/3]'), 'rounded-xl flex flex-col items-center justify-center relative group transition-all cursor-pointer hover:ring-2 hover:ring-lime-400 hover:scale-105 overflow-hidden border border-zinc-100 dark:border-zinc-800/50', getMonthClass(monthData)]"
       >
         <div v-if="monthData.activities?.length > 0" class="absolute inset-0 z-0">
           <img v-if="getLatestCover(monthData.activities)" :src="getLatestCover(monthData.activities)" class="w-full h-full object-cover opacity-100 transition-opacity" />
@@ -187,6 +186,7 @@ const props = defineProps<{
   includeComments?: boolean
   compactYear?: boolean // 데스크탑: 년뷰 셀 높이 줄이기
   hideFooterStats?: boolean // 하단 통계 숨기기
+  fixedHeight?: boolean // 캘린더 높이 고정 (셀이 자동 조절)
   initialMonth?: number // 초기 월 (0-11)
   initialYear?: number // 초기 년도
 }>()

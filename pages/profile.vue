@@ -43,8 +43,8 @@
         <ProfileTimelineTab v-if="activeTab === 'timeline'" :timeline="timeline" :loading="loading" :is-loading-more="isLoadingMoreTimeline" :has-more="hasMoreTimeline" :monthly-totals="monthlyTotals" :is-book-finished="isBookFinished" @load-more="loadMoreTimeline" @navigate="navigateToItem" @visible-month-change="visibleMonth = $event" />
         <!-- 그룹 -->
         <ProfileGroupsTab v-if="activeTab === 'groups'" @refresh-stats="fetchData" @refresh-library="fetchData" />
-        <!-- 분석: 캘린더 1개, 높이 맞춤 (목표/통계는 좌측 패널) -->
-        <div v-if="activeTab === 'insight'" class="max-w-md mx-auto">
+        <!-- 분석: 캘린더 높이 고정 (목표/통계는 좌측 패널) -->
+        <div v-if="activeTab === 'insight'" class="h-full">
           <ReadingHeatmap
             :activities="fullActivities"
             :currentStreak="stats.streak"
@@ -53,6 +53,7 @@
             :include-comments="appSettings.calendar_include_comments"
             :compact-year="true"
             :hide-footer-stats="true"
+            :fixed-height="true"
             @day-click="handleDayClick"
             @year-change="handleYearChange"
           />
