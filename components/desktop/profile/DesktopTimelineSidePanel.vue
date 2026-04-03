@@ -1,34 +1,34 @@
 <template>
   <div class="space-y-3" v-if="currentData">
     <!-- 현재 보이는 월 요약 -->
-    <div class="bg-zinc-50 dark:bg-zinc-900 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-3">
-      <h4 class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-3">{{ currentData.label }} 요약</h4>
+    <div class="bg-zinc-50 dark:bg-zinc-900 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-4">
+      <h4 class="text-desktop-caption font-bold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-3">{{ currentData.label }} 요약</h4>
       <div class="space-y-2.5">
         <div class="flex justify-between">
-          <span class="text-xs text-zinc-400 dark:text-zinc-300">코멘트</span>
-          <span class="text-sm font-bold text-zinc-900 dark:text-white">{{ currentData.comments }}개</span>
+          <span class="text-desktop-caption-regular text-zinc-400 dark:text-zinc-300">코멘트</span>
+          <span class="text-desktop-callout font-bold text-zinc-900 dark:text-white">{{ currentData.comments }}개</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-xs text-zinc-400 dark:text-zinc-300">리뷰</span>
-          <span class="text-sm font-bold text-zinc-900 dark:text-white">{{ currentData.reviews }}개</span>
+          <span class="text-desktop-caption-regular text-zinc-400 dark:text-zinc-300">리뷰</span>
+          <span class="text-desktop-callout font-bold text-zinc-900 dark:text-white">{{ currentData.reviews }}개</span>
         </div>
         <div class="h-px bg-zinc-100 dark:bg-zinc-800"></div>
         <div class="flex justify-between">
-          <span class="text-xs text-zinc-400 dark:text-zinc-300">총</span>
-          <span class="text-sm font-bold text-lime-600 dark:text-lime-400">{{ currentData.total }}개</span>
+          <span class="text-desktop-caption-regular text-zinc-400 dark:text-zinc-300">총</span>
+          <span class="text-desktop-callout font-bold text-lime-600 dark:text-lime-400">{{ currentData.total }}개</span>
         </div>
       </div>
     </div>
     <!-- 책별 기록 -->
-    <div v-if="currentData.books.length > 0" class="bg-zinc-50 dark:bg-zinc-900 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-3">
-      <h4 class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-2">책별 기록</h4>
-      <div class="space-y-1.5">
-        <div v-for="book in currentData.books" :key="book.title" class="flex items-center gap-2">
-          <div class="w-4 h-6 bg-zinc-100 dark:bg-zinc-800 overflow-hidden rounded flex-shrink-0">
+    <div v-if="currentData.books.length > 0" class="bg-zinc-50 dark:bg-zinc-900 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-4">
+      <h4 class="text-desktop-caption font-bold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-3">책별 기록</h4>
+      <div class="space-y-2">
+        <div v-for="book in currentData.books" :key="book.title" class="flex items-center gap-2.5">
+          <div class="w-5 h-7 bg-zinc-100 dark:bg-zinc-800 overflow-hidden rounded flex-shrink-0">
             <img v-if="book.cover" :src="book.cover" class="w-full h-full object-cover" />
           </div>
-          <p class="text-[11px] truncate flex-1 text-zinc-600 dark:text-zinc-400">{{ book.title }}</p>
-          <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300">{{ book.count }}</span>
+          <p class="text-desktop-caption truncate flex-1 text-zinc-600 dark:text-zinc-400">{{ book.title }}</p>
+          <span class="text-desktop-caption font-bold text-zinc-400 dark:text-zinc-300">{{ book.count }}</span>
         </div>
       </div>
     </div>

@@ -6,13 +6,13 @@
       <div class="flex items-center gap-3 mb-5">
         <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0 ring-2 ring-zinc-200/50 dark:ring-zinc-700/40">
           <img v-if="profile?.avatar_url" :src="profile.avatar_url" class="w-full h-full object-cover" />
-          <div v-else class="w-full h-full flex items-center justify-center text-sm font-light text-zinc-400 dark:text-zinc-300">
+          <div v-else class="w-full h-full flex items-center justify-center text-desktop-caption font-light text-zinc-400 dark:text-zinc-300">
             {{ (profile?.nickname || 'U')[0] }}
           </div>
         </div>
         <div class="min-w-0">
-          <h1 class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight truncate">{{ profile?.nickname }}</h1>
-          <p class="text-[11px] text-zinc-400 dark:text-zinc-300 truncate">{{ profile?.email }}</p>
+          <h1 class="text-desktop-callout tracking-tight text-zinc-900 dark:text-white leading-tight truncate">{{ profile?.nickname }}</h1>
+          <p class="text-desktop-caption-regular text-zinc-400 dark:text-zinc-300 truncate">{{ profile?.email }}</p>
         </div>
       </div>
 
@@ -24,8 +24,8 @@
           @click="$emit('tab-change', stat.tab)"
           class="text-center flex-1 group cursor-pointer"
         >
-          <p class="text-base font-bold tabular-nums text-zinc-900 dark:text-white group-hover:text-lime-600 dark:group-hover:text-lime-400 transition">{{ stat.value }}</p>
-          <p class="text-[9px] text-zinc-400 dark:text-zinc-300 uppercase tracking-widest">{{ stat.label }}</p>
+          <p class="text-desktop-body font-bold tabular-nums text-zinc-900 dark:text-white group-hover:text-lime-600 dark:group-hover:text-lime-400 transition">{{ stat.value }}</p>
+          <p class="text-desktop-caption text-zinc-400 dark:text-zinc-300 uppercase tracking-widest">{{ stat.label }}</p>
         </button>
       </div>
 
@@ -35,7 +35,7 @@
           v-for="tab in tabs"
           :key="tab.key"
           @click="$emit('tab-change', tab.key)"
-          class="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] font-medium rounded-lg transition-all"
+          class="flex items-center gap-2.5 w-full px-3 py-2 text-desktop-callout rounded-lg transition-all"
           :class="activeTab === tab.key
             ? 'text-zinc-900 dark:text-white bg-zinc-100/70 dark:bg-zinc-800/50'
             : 'text-zinc-400 dark:text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/30'"
