@@ -71,7 +71,7 @@ export default defineNuxtConfig({
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
       title: 'Cheer Readers',
-      titleTemplate: '%s | Cheer Readers'
+      titleTemplate: (title) => title === 'Cheer Readers' ? title : `${title} | Cheer Readers`
     }
   }
 })
