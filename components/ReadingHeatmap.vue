@@ -158,7 +158,7 @@
     </div>
 
     <!-- Integrated Stats Summary -->
-    <div class="pt-5 mt-2 border-t border-zinc-100 dark:border-zinc-800/50 grid grid-cols-3 gap-4">
+    <div v-if="!hideFooterStats" class="pt-5 mt-2 border-t border-zinc-100 dark:border-zinc-800/50 grid grid-cols-3 gap-4">
       <div class="text-left">
         <p class="text-[11px] font-black text-zinc-400 dark:text-zinc-300 uppercase tracking-tighter mb-1">{{ statsLabel.books }}</p>
         <p class="text-lg font-black text-zinc-900 dark:text-white leading-none">{{ currentStats.books }}권</p>
@@ -186,6 +186,7 @@ const props = defineProps<{
   finishedBooks?: any[] // Array of books with finished_at date
   includeComments?: boolean
   compactYear?: boolean // 데스크탑: 년뷰 셀 높이 줄이기
+  hideFooterStats?: boolean // 하단 통계 숨기기
   initialMonth?: number // 초기 월 (0-11)
   initialYear?: number // 초기 년도
 }>()
