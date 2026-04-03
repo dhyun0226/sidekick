@@ -45,7 +45,7 @@
         <ProfileGroupsTab v-if="activeTab === 'groups'" @refresh-stats="fetchData" @refresh-library="fetchData" />
         <!-- 분석: 캘린더 + 우측 날짜 상세 -->
         <div v-if="activeTab === 'insight'" class="h-full flex gap-6">
-          <div class="w-[340px] flex-shrink-0 h-full">
+          <div class="min-w-[600px] flex-shrink-0 h-full">
             <ReadingHeatmap
               :activities="fullActivities"
               :currentStreak="stats.streak"
