@@ -11,7 +11,7 @@
     @open-inquiry="inquiryModalOpen = true"
   />
 
-  <div v-else class="pb-24 pb-safe px-4 pt-safe min-h-screen bg-gray-50 dark:bg-[#09090b] flex flex-col">
+  <div v-else class="px-4 pt-safe min-h-screen bg-gray-50 dark:bg-[#09090b] flex flex-col">
     <!-- Header -->
     <header class="flex justify-between items-center py-6 sticky top-0 z-20 bg-gray-50/80 dark:bg-[#09090b]/80 backdrop-blur-md">
       <div class="flex items-center gap-3">
@@ -313,7 +313,7 @@
     </button>
 
     <!-- Footer -->
-    <footer class="mt-auto pt-8 mb-4 text-center space-y-2">
+    <footer class="mt-auto pt-8 pb-safe pb-6 text-center space-y-2">
       <div class="flex items-center justify-center gap-3 text-[11px] text-zinc-400 dark:text-zinc-500">
         <NuxtLink to="/privacy" class="hover:text-zinc-600 dark:hover:text-zinc-300 transition">개인정보처리방침</NuxtLink>
         <span class="text-zinc-300 dark:text-zinc-700">·</span>
