@@ -71,24 +71,11 @@
             
             <template v-if="member.timeAgo">
               <span class="text-[11px] text-zinc-300 dark:text-zinc-500 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
-              <span class="text-[11px] text-zinc-400 dark:text-zinc-400 font-medium leading-none">{{ member.timeAgo }}</span>
+              <span class="text-[11px] text-zinc-400 dark:text-zinc-400 font-medium leading-none">{{ shortTimeAgo(member.timeAgo) }}</span>
             </template>
 
-            <template v-if="member.id === currentUserId">
-              <span class="text-[11px] text-zinc-300 dark:text-zinc-500 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
-              <Badge variant="lime" size="sm" class="!px-1 !py-0 !text-[9px] !h-3.5 relative -translate-y-[0.5px]">나</Badge>
-            </template>
-
-            <template v-if="member.role === 'admin'">
-              <span class="text-[11px] text-zinc-300 dark:text-zinc-500 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
-              <Badge variant="purple" size="sm" class="!px-1 !py-0 !text-[9px] !h-3.5 relative -translate-y-[0.5px]">그룹장</Badge>
-            </template>
-
-            <!-- Free user badge (read-only in social groups) -->
-            <template v-if="member.subscription_tier === 'free'">
-              <span class="text-[11px] text-zinc-300 dark:text-zinc-500 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
-              <Badge variant="zinc" size="sm" class="!px-1 !py-0 !text-[9px] !h-3.5 relative -translate-y-[0.5px]">읽기전용</Badge>
-            </template>
+            <Crown v-if="member.role === 'admin'" :size="11" class="text-amber-500 flex-shrink-0" />
+            <LockKeyhole v-if="member.subscription_tier === 'free'" :size="11" class="text-zinc-400 dark:text-zinc-500 flex-shrink-0" />
           </div>
           
           <!-- Slim Progress Bar -->
@@ -141,8 +128,14 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { User, Shield, UserX, Crown, Users, Clock, MoreVertical, Search } from 'lucide-vue-next'
+import { User, Shield, UserX, Crown, Users, Clock, MoreVertical, Search, LockKeyhole } from 'lucide-vue-next'
 import Badge from '~/components/Badge.vue'
+
+// 긴 시간 문자열에서 괄호 부분 제거 (예: "3일 전 (26.04.03 14:30)" → "3일 전")
+const shortTimeAgo = (timeAgo: string | null | undefined) => {
+  if (!timeAgo) return ''
+  return timeAgo.replace(/\s*\(.*\)$/, '')
+}
 import DropdownMenu from '~/components/DropdownMenu.vue'
 
 interface MemberWithProgress {
