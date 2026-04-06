@@ -54,7 +54,7 @@
 
       <!-- Spacer -->
       <div class="pt-5 pb-1">
-        <p class="px-3 text-desktop-micro font-medium text-zinc-400 dark:text-zinc-300 uppercase tracking-widest">그룹</p>
+        <p class="px-3 text-desktop-micro font-medium text-zinc-400 dark:text-zinc-300">그룹</p>
       </div>
 
       <NuxtLink

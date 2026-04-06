@@ -6,7 +6,7 @@
 
       <!-- 읽고 있는 책 -->
       <template v-if="books.length > 0">
-        <h5 class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-3">읽고 있는 책</h5>
+        <h5 class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 mb-3">읽고 있는 책</h5>
         <div class="grid grid-cols-3 gap-2 mb-5">
           <div v-for="book in books.slice(0, 6)" :key="book.id">
             <div class="aspect-[2/3] bg-zinc-100 dark:bg-zinc-800 overflow-hidden rounded ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
@@ -19,7 +19,7 @@
 
       <!-- 멤버 -->
       <template v-if="members.length > 0">
-        <h5 class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-3">멤버</h5>
+        <h5 class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 mb-3">멤버</h5>
         <div class="space-y-2">
           <div v-for="member in members.slice(0, 5)" :key="member.id" class="flex items-center gap-2">
             <div class="w-6 h-6 rounded-full bg-zinc-100 dark:bg-zinc-700 overflow-hidden flex items-center justify-center text-[10px] text-zinc-400 dark:text-zinc-300 flex-shrink-0">
@@ -38,7 +38,7 @@
 
     <!-- 초대 코드 -->
     <div v-if="group.invite_code" class="bg-zinc-50 dark:bg-zinc-900 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-3">
-      <h5 class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-2">초대 코드</h5>
+      <h5 class="text-[11px] font-bold text-zinc-400 dark:text-zinc-300 mb-2">초대 코드</h5>
       <div class="flex items-center gap-2">
         <code class="text-xs bg-zinc-50 dark:bg-zinc-800 px-3 py-1.5 rounded-lg flex-1 text-center text-zinc-600 dark:text-zinc-300 font-mono tracking-wider">{{ group.invite_code }}</code>
         <button

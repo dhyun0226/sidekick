@@ -2,7 +2,7 @@
   <div class="space-y-5">
     <!-- Header -->
     <div class="flex items-center justify-between">
-      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium">책장 {{ books.length }}</h4>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium">책장 {{ books.length }}</h4>
       <div v-if="books.length > 1" class="relative">
         <button
           @click.stop="showSortMenu = !showSortMenu"

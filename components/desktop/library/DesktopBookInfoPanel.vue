@@ -3,7 +3,7 @@
     <!-- Progress -->
     <div v-if="book" class="px-1">
       <div class="flex items-center justify-between mb-3">
-        <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium">진행률</h4>
+        <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium">진행률</h4>
         <span class="text-desktop-callout font-semibold tabular-nums" :class="viewProgress >= 100 ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-900 dark:text-white'">
           {{ Math.round(viewProgress) }}%
         </span>
@@ -31,7 +31,7 @@
 
     <!-- Book Details -->
     <div v-if="book" class="px-1 space-y-2.5">
-      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium mb-1">정보</h4>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium mb-1">정보</h4>
       <div v-if="book.total_pages" class="flex justify-between items-center">
         <span class="text-desktop-caption text-zinc-400 dark:text-zinc-300 flex items-center gap-1.5">
           <BookOpen :size="12" />
@@ -98,7 +98,7 @@
 
     <!-- TOC -->
     <div v-if="toc && toc.length > 0" class="px-1">
-      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium mb-3">목차</h4>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium mb-3">목차</h4>
       <div class="space-y-0.5 max-h-64 overflow-y-auto">
         <button
           v-for="(chapter, idx) in toc"

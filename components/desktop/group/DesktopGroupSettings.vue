@@ -2,7 +2,7 @@
   <div class="space-y-8">
     <!-- Group Info -->
     <div>
-      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium mb-4">그룹 정보</h4>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium mb-4">그룹 정보</h4>
       <div>
         <div v-if="isAdmin" class="flex items-center gap-2">
           <input
@@ -46,7 +46,7 @@
 
     <!-- Invite Code -->
     <div v-if="inviteCode">
-      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium mb-4">초대 코드</h4>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium mb-4">초대 코드</h4>
       <div class="flex items-center gap-3 px-4 py-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
         <code class="text-desktop-body font-mono text-zinc-900 dark:text-white tracking-widest flex-1">
           {{ inviteCode }}

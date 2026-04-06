@@ -8,7 +8,7 @@
     <template v-else>
       <!-- Active Groups -->
       <div v-if="activeGroups.length > 0">
-        <h3 class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-2 px-1">활성 그룹</h3>
+        <h3 class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-300 mb-2 px-1">활성 그룹</h3>
         <div class="bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] shadow-apple divide-y divide-zinc-100 dark:divide-zinc-800">
           <div
             v-for="group in activeGroups"
@@ -88,7 +88,7 @@
 
       <!-- Archived Groups -->
       <div v-if="archivedGroups.length > 0">
-        <h3 class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-300 uppercase tracking-wider mb-2 px-1">지난 그룹</h3>
+        <h3 class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-300 mb-2 px-1">지난 그룹</h3>
         <div class="bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] shadow-apple divide-y divide-zinc-200 dark:divide-zinc-800">
           <div
             v-for="group in archivedGroups"

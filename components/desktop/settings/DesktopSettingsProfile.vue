@@ -1,6 +1,6 @@
 <template>
   <div class="pt-6 border-t border-zinc-200/80 dark:border-zinc-800">
-    <h3 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium mb-5">프로필</h3>
+    <h3 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium mb-5">프로필</h3>
 
     <div class="flex items-center gap-5 mb-6">
       <div class="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0">

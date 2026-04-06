@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-5">
     <div class="flex items-center justify-between">
-      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium">멤버 ({{ members.length }})</h4>
+      <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium">멤버 ({{ members.length }})</h4>
       <button
         @click="showSearch = !showSearch; if (!showSearch) searchQuery = ''"
         class="p-1 rounded-lg transition-colors"

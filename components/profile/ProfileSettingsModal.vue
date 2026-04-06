@@ -14,7 +14,7 @@
         <!-- Profile Edit -->
         <section>
           <div class="flex items-center justify-between mb-4 px-1">
-            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">프로필 편집</h4>
+            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400">프로필 편집</h4>
           </div>
           
           <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-5 border border-zinc-100 dark:border-zinc-800/50">
@@ -50,7 +50,7 @@
         <!-- Display Settings -->
         <section>
           <div class="flex items-center justify-between mb-4 px-1">
-            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">화면 설정</h4>
+            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400">화면 설정</h4>
           </div>
           <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50 divide-y divide-zinc-100 dark:divide-zinc-800">
             <!-- Library View Mode -->
@@ -108,7 +108,7 @@
         <!-- App Settings (Theme & Notification) -->
         <section>
           <div class="flex items-center justify-between mb-4 px-1">
-            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">앱 설정</h4>
+            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400">앱 설정</h4>
           </div>
           <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50 divide-y divide-zinc-100 dark:divide-zinc-800">
             <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-white/50 dark:hover:bg-zinc-800/50 transition-colors" @click="$emit('toggle-theme')">
@@ -146,7 +146,7 @@
         <!-- Account -->
         <section>
           <div class="flex items-center justify-between mb-4 px-1">
-            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">계정</h4>
+            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400">계정</h4>
           </div>
           <div class="grid grid-cols-2 gap-3">
             <button @click="$emit('sign-out')" class="py-3.5 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 rounded-xl text-xs font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all flex items-center justify-center gap-2 border border-zinc-100 dark:border-zinc-800"><LogOut :size="14" /> 로그아웃</button>
@@ -157,7 +157,7 @@
         <!-- Support -->
         <section>
           <div class="flex items-center justify-between mb-4 px-1">
-            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">고객 지원</h4>
+            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400">고객 지원</h4>
           </div>
           <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50">
             <button @click="$emit('open-inquiry')" class="w-full flex items-center justify-between p-4 hover:bg-white/50 dark:hover:bg-zinc-800/50 transition-colors rounded-2xl">
@@ -175,7 +175,7 @@
         <!-- Legal -->
         <section class="pb-4">
           <div class="flex items-center justify-between mb-4 px-1">
-            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">약관 및 정책</h4>
+            <h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-400">약관 및 정책</h4>
           </div>
           <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50 divide-y divide-zinc-100 dark:divide-zinc-800">
             <NuxtLink to="/terms" class="flex items-center justify-between p-4 hover:bg-white/50 dark:hover:bg-zinc-800/50 transition-colors">

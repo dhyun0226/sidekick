@@ -53,7 +53,7 @@
           <div v-if="!saveCompleted" class="flex-1 overflow-y-auto px-8">
             <table class="w-full">
               <thead class="sticky top-0 bg-white dark:bg-zinc-900 z-10">
-                <tr class="text-desktop-micro font-medium text-zinc-400 dark:text-zinc-300 uppercase tracking-widest">
+                <tr class="text-desktop-micro font-medium text-zinc-400 dark:text-zinc-300">
                   <th class="text-left pb-3 w-10">#</th>
                   <th class="text-left pb-3 w-28">{{ inputMode === 'page' ? '페이지' : '위치(%)' }}</th>
                   <th class="text-left pb-3 w-[35%]">인용 구절</th>

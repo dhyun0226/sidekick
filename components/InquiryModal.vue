@@ -44,7 +44,7 @@
                   class="w-full text-left bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4 border border-zinc-100 dark:border-zinc-800/50 hover:border-zinc-200 dark:hover:border-zinc-700 transition-colors"
                 >
                   <div class="flex items-center justify-between mb-1.5">
-                    <span class="text-[11px] font-bold uppercase tracking-wider" :class="statusColor(inq.status)">
+                    <span class="text-[11px] font-bold" :class="statusColor(inq.status)">
                       {{ statusLabel(inq.status) }}
                     </span>
                     <span class="text-[11px] text-zinc-400 dark:text-zinc-300">{{ formatDate(inq.created_at) }}</span>
@@ -124,7 +124,7 @@
 
               <div>
                 <div class="flex items-center gap-2 mb-2">
-                  <span class="text-[11px] font-bold uppercase tracking-wider" :class="statusColor(selectedInquiry.status)">
+                  <span class="text-[11px] font-bold" :class="statusColor(selectedInquiry.status)">
                     {{ statusLabel(selectedInquiry.status) }}
                   </span>
                   <span class="text-[11px] text-zinc-400 dark:text-zinc-300">{{ categoryLabel(selectedInquiry.category) }}</span>

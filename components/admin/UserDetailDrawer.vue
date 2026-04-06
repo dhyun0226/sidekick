@@ -77,7 +77,7 @@
 
                     <!-- Recent Payments -->
                     <div>
-                      <h3 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">최근 결제</h3>
+                      <h3 class="text-xs font-semibold text-zinc-400 mb-3">최근 결제</h3>
                       <div v-if="loadingPayments" class="flex justify-center py-6">
                         <div class="w-5 h-5 border-2 border-lime-400/30 border-t-lime-400 rounded-full animate-spin"></div>
                       </div>
@@ -110,7 +110,7 @@
 
                     <!-- Actions -->
                     <div>
-                      <h3 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">관리</h3>
+                      <h3 class="text-xs font-semibold text-zinc-400 mb-3">관리</h3>
                       <button
                         @click="copyEmail"
                         class="w-full flex items-center gap-3 p-3.5 text-sm font-medium text-zinc-600 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"

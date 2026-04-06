@@ -17,15 +17,15 @@
           <div class="mt-auto pt-6 grid grid-cols-3 gap-4">
             <div v-if="book.avgRating" class="text-center">
               <p class="text-desktop-headline font-semibold text-zinc-900 dark:text-white tabular-nums leading-none">{{ book.avgRating.toFixed(1) }}</p>
-              <p class="mt-1 text-desktop-caption text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium">평점</p>
+              <p class="mt-1 text-desktop-caption text-zinc-400 dark:text-zinc-300 font-medium">평점</p>
             </div>
             <div v-if="book.count" class="text-center">
               <p class="text-desktop-headline font-semibold text-zinc-900 dark:text-white tabular-nums leading-none">{{ book.count }}<span class="text-desktop-callout font-light text-zinc-400 dark:text-zinc-300 ml-0.5">명</span></p>
-              <p class="mt-1 text-desktop-caption text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium">독자 수</p>
+              <p class="mt-1 text-desktop-caption text-zinc-400 dark:text-zinc-300 font-medium">독자 수</p>
             </div>
             <div v-if="book.completionRate" class="text-center">
               <p class="text-desktop-headline font-semibold text-lime-500 tabular-nums leading-none">{{ Math.round(book.completionRate) }}<span class="text-desktop-callout font-light">%</span></p>
-              <p class="mt-1 text-desktop-caption text-zinc-400 dark:text-zinc-300 uppercase tracking-widest font-medium">완독률</p>
+              <p class="mt-1 text-desktop-caption text-zinc-400 dark:text-zinc-300 font-medium">완독률</p>
             </div>
           </div>
         </div>
