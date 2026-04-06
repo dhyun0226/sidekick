@@ -224,8 +224,8 @@
   <ConfirmModal
     :is-open="modals.promoteMember"
     variant="warning"
-    title="관리자 승격"
-    :message="`${pendingMemberAction?.nickname || ''}님을 관리자로 승격하시겠습니까?`"
+    title="그룹장 승격"
+    :message="`${pendingMemberAction?.nickname || ''}님을 그룹장으로 승격하시겠습니까?`"
     confirm-text="승격"
     cancel-text="취소"
     @confirm="executePromoteMember"

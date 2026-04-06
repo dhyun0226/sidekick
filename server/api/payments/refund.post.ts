@@ -73,8 +73,7 @@ export default defineEventHandler(async (event) => {
 
   // 3. (옵션) 관련된 구독 처리
   // 이 결제 건으로 인해 시작된 구독이 있다면 만료 처리하거나 등급 하향
-  // TODO: 여러 활성 구독이 있을 경우 처리 로직 개선 필요
-  // TODO: 부분 환불 시나리오 고려 필요
+  // NOTE: 여러 활성 구독 / 부분 환불 시나리오는 v2.0에서 개선
   const { data: subscription } = await client
     .from('subscriptions')
     .select('*')
@@ -84,7 +83,7 @@ export default defineEventHandler(async (event) => {
 
   if (subscription) {
     // 가장 최근 결제 건인지 확인 로직이 필요할 수 있으나, 단순화하여 즉시 취소 처리
-    // TODO: payment.id와 subscription 간의 연관성 확인 필요
+    // NOTE: payment.id와 subscription 연관성은 v2.0에서 개선
     const { error: subCancelError } = await client
       .from('subscriptions')
       .update({

@@ -9,7 +9,7 @@
         :is-archived="isArchived"
         @select="selectBook"
         @select-history="selectBook"
-        @add-book="isAdmin ? openSearchModal() : toast.info('관리자만 책을 추가할 수 있어요')"
+        @add-book="isAdmin ? openSearchModal() : toast.info('그룹장만 책을 추가할 수 있어요')"
       />
     </div>
 

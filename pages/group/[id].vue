@@ -149,7 +149,7 @@
               어떤 책으로 시작해볼까요?<br />새로운 책을 검색해서 등록해보세요!
             </template>
             <template v-else>
-              관리자가 책을 등록하면<br />함께 독서를 시작할 수 있습니다.
+              그룹장이 책을 등록하면<br />함께 독서를 시작할 수 있습니다.
             </template>
           </p>
 
@@ -332,8 +332,8 @@
   <ConfirmModal
     :is-open="modals.promoteMember"
     variant="warning"
-    title="관리자 승격"
-    :message="`${pendingMemberAction?.nickname || ''}님을 관리자로 승격하시겠습니까?`"
+    title="그룹장 승격"
+    :message="`${pendingMemberAction?.nickname || ''}님을 그룹장으로 승격하시겠습니까?`"
     confirm-text="승격"
     cancel-text="취소"
     @confirm="executePromoteMember"
