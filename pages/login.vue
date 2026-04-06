@@ -10,10 +10,20 @@
     <div class="flex-1 flex items-center justify-center p-6 relative z-10">
       <div class="w-full max-w-sm">
         <!-- Logo -->
-        <div class="text-center mb-10">
-          <img src="/logo.svg" alt="Cheer Readers" class="w-16 h-16 mb-5" />
+        <div class="text-center mb-8">
+          <div class="inline-block mb-5">
+            <img src="/logo.svg" alt="Cheer Readers" class="w-16 h-16 mx-auto" />
+          </div>
           <h1 class="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">치어리더스</h1>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-2">당신의 독서를 응원합니다</p>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">함께 읽고, 기록하고, 응원하는<br/>소셜 독서 플랫폼</p>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="grid grid-cols-3 gap-2.5 mb-8">
+          <div v-for="feat in featureCards" :key="feat.title" class="bg-white dark:bg-zinc-900 rounded-xl p-3 ring-1 ring-black/[0.04] dark:ring-white/[0.06] text-center">
+            <component :is="feat.icon" :size="20" class="text-lime-500 mx-auto mb-2" />
+            <p class="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">{{ feat.title }}</p>
+          </div>
         </div>
 
         <!-- Login Button -->
@@ -32,13 +42,17 @@
           <span v-else>Google로 시작하기</span>
         </button>
 
-        <!-- Features -->
-        <div class="mt-8 space-y-3">
-          <div v-for="feature in features" :key="feature" class="flex items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
-            <div class="w-1 h-1 rounded-full bg-lime-400 flex-shrink-0"></div>
-            <span>{{ feature }}</span>
-          </div>
-        </div>
+        <!-- Demo Button -->
+        <button
+          @click="startDemo"
+          :disabled="demoLoading"
+          class="w-full mt-3 py-3.5 px-6 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-2xl font-semibold transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          <Eye :size="18" />
+          <span v-if="demoLoading">체험 준비 중...</span>
+          <span v-else>로그인 없이 체험하기</span>
+        </button>
+        <p class="text-center text-[11px] text-zinc-400 dark:text-zinc-500 mt-2">샘플 데이터로 주요 기능을 둘러볼 수 있어요</p>
       </div>
     </div>
 
@@ -59,6 +73,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
+import { Users, MessageCircle, CalendarDays, Eye } from 'lucide-vue-next'
 
 useHead({ title: '로그인' })
 
@@ -67,8 +82,13 @@ const userStore = useUserStore()
 const toast = useToastStore()
 const client = useSupabaseClient()
 const loading = ref(false)
+const demoLoading = ref(false)
 
-const features = ['함께 읽고 기록하는 소셜 독서', '위치별 코멘트와 토론', '독서 캘린더와 스트릭 추적']
+const featureCards = [
+  { title: '그룹 독서', icon: Users },
+  { title: '위치별 코멘트', icon: MessageCircle },
+  { title: '독서 캘린더', icon: CalendarDays }
+]
 
 onMounted(async () => {
   const { data: { user } } = await client.auth.getUser()
@@ -87,6 +107,21 @@ const signInWithGoogle = async () => {
   } catch (error: any) {
     toast.error(error.message || '로그인 중 오류 발생')
     loading.value = false
+  }
+}
+
+const startDemo = async () => {
+  demoLoading.value = true
+  try {
+    const { error } = await client.auth.signInWithPassword({
+      email: 'demo@cheerreaders.com',
+      password: 'demo1234'
+    })
+    if (error) throw error
+    router.replace('/')
+  } catch (error: any) {
+    toast.error('체험 모드 준비 중입니다. 잠시 후 다시 시도해주세요.')
+    demoLoading.value = false
   }
 }
 </script>
