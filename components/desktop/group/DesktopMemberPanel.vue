@@ -59,41 +59,38 @@
                 :style="{ width: `${member.progress}%` }"
               ></div>
             </div>
-            <span class="text-desktop-caption tabular-nums w-8 text-right" :class="member.isCompleted ? 'text-lime-600 dark:text-lime-400 font-semibold' : 'text-zinc-400 dark:text-zinc-300'">
-              {{ Math.round(member.progress) }}%
+            <span class="text-xs font-bold tabular-nums w-8 text-right" :class="member.isCompleted ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-300'">
+              {{ member.isCompleted ? '완독' : `${Math.round(member.progress)}%` }}
             </span>
           </div>
         </div>
 
-        <!-- Completed badge -->
-        <div v-if="member.isCompleted" class="flex-shrink-0">
-          <Check :size="14" class="text-lime-500" />
-        </div>
-
-        <!-- Admin actions menu -->
-        <div v-else-if="isAdmin && member.id !== currentUserId" class="relative flex-shrink-0">
-          <button
-            @click.stop="toggleMenu(member.id)"
-            class="p-1 rounded-lg text-zinc-400 dark:text-zinc-300 opacity-0 group-hover:opacity-100 hover:text-zinc-500 dark:hover:text-zinc-400 transition-all"
-          >
-            <MoreHorizontal :size="14" />
-          </button>
-          <div
-            v-if="openMenuId === member.id"
-            class="absolute right-0 top-full mt-1 w-36 bg-white dark:bg-zinc-900 rounded-lg shadow-apple ring-1 ring-black/[0.04] dark:ring-white/[0.06] py-1 z-10"
-          >
+        <!-- Menu (항상 공간 차지) -->
+        <div class="flex-shrink-0 w-6 flex items-center justify-center">
+          <div v-if="isAdmin && member.id !== currentUserId" class="relative">
             <button
-              @click="handleChangeRole(member)"
-              class="w-full px-3 py-2 text-left text-desktop-caption text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+              @click.stop="toggleMenu(member.id)"
+              class="p-1 rounded-lg text-zinc-400 dark:text-zinc-300 hover:text-zinc-500 dark:hover:text-zinc-400 transition-all"
             >
-              {{ member.role === 'admin' ? '그룹장 해제' : '그룹장 지정' }}
+              <MoreHorizontal :size="14" />
             </button>
-            <button
-              @click="handleKick(member)"
-              class="w-full px-3 py-2 text-left text-desktop-caption text-red-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            <div
+              v-if="openMenuId === member.id"
+              class="absolute right-0 top-full mt-1 w-36 bg-white dark:bg-zinc-900 rounded-lg shadow-lg ring-1 ring-black/[0.08] dark:ring-white/[0.08] py-1 z-50"
             >
-              추방
-            </button>
+              <button
+                @click="handleChangeRole(member)"
+                class="w-full px-3 py-2 text-left text-xs text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+              >
+                {{ member.role === 'admin' ? '그룹장 해제' : '그룹장 지정' }}
+              </button>
+              <button
+                @click="handleKick(member)"
+                class="w-full px-3 py-2 text-left text-xs text-red-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+              >
+                추방
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -115,7 +112,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { MoreHorizontal, Check, Search, Crown, LockKeyhole } from 'lucide-vue-next'
+import { MoreHorizontal, Search, Crown, LockKeyhole } from 'lucide-vue-next'
 
 const shortTimeAgo = (timeAgo: string | null | undefined) => {
   if (!timeAgo) return ''

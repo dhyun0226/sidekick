@@ -37,68 +37,56 @@
       <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">아직 멤버가 없어요</p>
     </div>
 
-    <!-- Members List (Slim Style) -->
-    <div v-else-if="filteredMembers.length > 0" class="space-y-1.5">
-      <div 
-        v-for="member in filteredMembers" 
-        :key="member.id" 
-        class="relative bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] p-2.5 shadow-apple transition-all group hover:ring-lime-200 dark:hover:ring-lime-900/50 active:scale-[0.99] flex items-center gap-3"
-        :class="{ 'z-20 ring-lime-300 dark:ring-lime-700': activeMemberMenu === member.id }"
+    <!-- Members List -->
+    <div v-else-if="filteredMembers.length > 0" class="space-y-0.5">
+      <div
+        v-for="member in filteredMembers"
+        :key="member.id"
+        class="relative flex items-center gap-3 px-2 py-2.5 rounded-xl transition-colors group"
+        :class="{ 'z-20': activeMemberMenu === member.id }"
       >
-        <!-- Avatar Section -->
-        <div class="relative flex-shrink-0">
-          <div class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
-            <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
-            <div v-else class="w-full h-full flex items-center justify-center text-zinc-400 dark:text-zinc-300">
-              <User :size="16" />
-            </div>
-          </div>
-          <!-- Status Dot -->
-          <div 
-            class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-zinc-900 flex items-center justify-center"
-            :class="member.inactive ? 'bg-zinc-300 dark:bg-zinc-600' : 'bg-lime-500'"
-          >
-            <span v-if="member.inactive" class="text-[5px] text-zinc-500 dark:text-zinc-400">z</span>
+        <!-- Avatar -->
+        <div class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0 ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
+          <img v-if="member.avatar_url" :src="member.avatar_url" class="w-full h-full object-cover" />
+          <div v-else class="w-full h-full flex items-center justify-center text-zinc-400 dark:text-zinc-300">
+            <User :size="16" />
           </div>
         </div>
 
-        <!-- Info Section (Main) -->
-        <div class="flex-1 min-w-0 flex flex-col justify-center">
-          <div class="flex items-center gap-1.5 mb-1.5 whitespace-nowrap overflow-hidden leading-none h-4">
-            <span class="text-[13px] font-bold text-zinc-900 dark:text-zinc-100 truncate max-w-[100px] leading-none">
-              {{ member.nickname }}
-            </span>
-            
-            <template v-if="member.timeAgo">
-              <span class="text-[11px] text-zinc-300 dark:text-zinc-500 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
-              <span class="text-[11px] text-zinc-400 dark:text-zinc-400 font-medium leading-none cursor-default" :title="member.timeAgo">{{ shortTimeAgo(member.timeAgo) }}</span>
-            </template>
-
-            <Crown v-if="member.role === 'admin'" :size="11" class="text-amber-500 flex-shrink-0" />
-            <LockKeyhole v-if="member.subscription_tier === 'free'" :size="11" class="text-zinc-400 dark:text-zinc-500 flex-shrink-0" />
+        <!-- Info -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-1 mb-1">
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="text-[13px] font-semibold text-zinc-900 dark:text-white truncate max-w-[100px]">{{ member.nickname }}</span>
+              <Crown v-if="member.role === 'admin'" :size="11" class="text-amber-500 flex-shrink-0" />
+              <LockKeyhole v-if="member.subscription_tier === 'free'" :size="11" class="text-zinc-400 dark:text-zinc-500 flex-shrink-0" />
+            </div>
+            <span v-if="member.isCompleted && member.finishedDate" class="text-[11px] text-zinc-400 dark:text-zinc-300 flex-shrink-0">{{ member.finishedDate }}</span>
+            <span v-else-if="member.timeAgo" class="text-[11px] text-zinc-400 dark:text-zinc-300 flex-shrink-0" :title="member.timeAgo">{{ shortTimeAgo(member.timeAgo) }}</span>
           </div>
-          
-          <!-- Slim Progress Bar -->
-          <div class="flex items-center gap-2" :class="isAdmin && member.id !== currentUserId && !isArchived ? 'pr-10' : ''">
+          <div class="flex items-center gap-2 pr-8">
             <div class="h-1.5 flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
               <div
                 class="h-full bg-lime-500 dark:bg-lime-400 rounded-full transition-all duration-700 ease-out"
                 :style="{ width: `${member.progress}%` }"
               ></div>
             </div>
-            <span class="text-[11px] font-black w-8 text-right" :class="member.isCompleted ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-500 dark:text-zinc-400'">
-              {{ member.isCompleted ? '완독' : `${member.progress}%` }}
+            <span class="text-[11px] font-bold w-8 text-right" :class="member.isCompleted ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-500 dark:text-zinc-400'">
+              {{ member.isCompleted ? '완독' : `${Math.round(member.progress)}%` }}
             </span>
           </div>
         </div>
 
-        <!-- Right Section: Menu (Common Component) -->
-        <div v-if="isAdmin && member.id !== currentUserId && !isArchived" class="absolute right-2 top-1/2 -translate-y-1/2">
+        <!-- Menu (항상 공간 차지, 관리 가능한 멤버만 클릭 가능) -->
+        <div class="flex-shrink-0 w-6 flex items-center justify-center">
           <DropdownMenu
+            v-if="isAdmin && member.id !== currentUserId && !isArchived"
             :is-open="activeMemberMenu === member.id"
+            :icon-size="14"
             @toggle="toggleMemberMenu(member.id)"
             @close="activeMemberMenu = null"
           >
+            <template #icon><MoreHorizontal :size="14" class="text-zinc-400" /></template>
             <button
               @click="handleChangeRole(member)"
               class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold"
@@ -118,6 +106,18 @@
       </div>
     </div>
 
+    <!-- Summary -->
+    <div v-if="sortedMembersWithProgress.length > 1" class="pt-3 mt-2 border-t border-zinc-100 dark:border-zinc-800/50">
+      <div class="flex items-center justify-between text-[11px] text-zinc-400 dark:text-zinc-300">
+        <span>평균 진행률</span>
+        <span class="tabular-nums text-zinc-500 dark:text-zinc-300">{{ avgProgress }}%</span>
+      </div>
+      <div v-if="completedCount > 0" class="flex items-center justify-between text-[11px] text-zinc-400 dark:text-zinc-300 mt-1.5">
+        <span>완독</span>
+        <span class="tabular-nums text-zinc-500 dark:text-zinc-300">{{ completedCount }}/{{ sortedMembersWithProgress.length }}명</span>
+      </div>
+    </div>
+
     <!-- Empty Search State -->
     <div v-else class="text-center py-12 text-xs text-zinc-400 dark:text-zinc-300 bg-white dark:bg-zinc-900 rounded-2xl ring-1 ring-dashed ring-black/[0.04] dark:ring-white/[0.06]">
       <Search :size="28" class="text-zinc-300 dark:text-zinc-500 mx-auto mb-3" />
@@ -128,8 +128,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { User, Shield, UserX, Crown, Users, Clock, MoreVertical, Search, LockKeyhole } from 'lucide-vue-next'
-import Badge from '~/components/Badge.vue'
+import { User, Shield, UserX, Crown, Users, Clock, MoreHorizontal, Search, LockKeyhole } from 'lucide-vue-next'
 
 // 긴 시간 문자열에서 괄호 부분 제거 (예: "3일 전 (26.04.03 14:30)" → "3일 전")
 const shortTimeAgo = (timeAgo: string | null | undefined) => {
@@ -177,6 +176,16 @@ const filteredMembers = computed(() => {
   return props.sortedMembersWithProgress.filter(member => 
     member.nickname.toLowerCase().includes(query)
   )
+})
+
+const avgProgress = computed(() => {
+  if (!props.sortedMembersWithProgress.length) return 0
+  const sum = props.sortedMembersWithProgress.reduce((s, m) => s + m.progress, 0)
+  return Math.round(sum / props.sortedMembersWithProgress.length)
+})
+
+const completedCount = computed(() => {
+  return props.sortedMembersWithProgress.filter(m => m.isCompleted).length
 })
 
 const toggleMemberMenu = (memberId: string) => {
