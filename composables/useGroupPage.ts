@@ -367,7 +367,7 @@ export function useGroupPage(config: GroupPageConfig) {
   /**
    * Hydrate all sub-composable refs from consolidated API response
    */
-  const hydrateFromApiResponse = (data: any) => {
+  const hydrateFromApiResponse = async (data: any) => {
     // Hydrate group
     group.value = data.group
     editingGroupName.value = data.group.name
@@ -390,6 +390,19 @@ export function useGroupPage(config: GroupPageConfig) {
 
     // Build historyBooks from done books (same format as useGroupBooks)
     const doneBooks = booksData.filter((b: any) => b.status === 'done')
+    // 완독 책 리뷰 카운트 조회
+    const doneBookIds = doneBooks.map((gb: any) => gb.id)
+    let reviewCountMap = new Map<string, number>()
+    if (doneBookIds.length > 0) {
+      const { data: allReviews } = await client
+        .from('reviews')
+        .select('group_book_id')
+        .in('group_book_id', doneBookIds)
+      allReviews?.forEach((r: any) => {
+        reviewCountMap.set(r.group_book_id, (reviewCountMap.get(r.group_book_id) || 0) + 1)
+      })
+    }
+
     historyBooks.value = doneBooks.map((gb: any) => ({
       id: gb.id,
       isbn: gb.isbn,
@@ -403,7 +416,7 @@ export function useGroupPage(config: GroupPageConfig) {
       draft_genre: gb.book?.draft_genre,
       date: gb.finished_at || gb.created_at,
       round: gb.round,
-      reviewCount: 0, // Review counts loaded separately when needed
+      reviewCount: reviewCountMap.get(gb.id) || 0,
       user_finished_at: gb.user_finished_at
     })).sort((a: any, b: any) =>
       new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -451,7 +464,7 @@ export function useGroupPage(config: GroupPageConfig) {
       const apiData = await $fetch('/api/pages/group', { query: queryParams })
 
       // Hydrate all refs from API response
-      hydrateFromApiResponse(apiData)
+      await hydrateFromApiResponse(apiData)
 
       // Handle bookId from query parameter (override default selection)
       if (route.query.bookId) {
