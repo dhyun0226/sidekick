@@ -63,7 +63,7 @@ import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
 import { BookOpen } from 'lucide-vue-next'
 
-useHead({ title: '로그인', titleTemplate: '' })
+useHead({ title: '로그인' })
 
 const router = useRouter()
 const userStore = useUserStore()
