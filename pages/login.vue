@@ -1,5 +1,18 @@
 <template>
   <div class="min-h-screen flex flex-col bg-gray-50 dark:bg-[#09090b] relative overflow-hidden">
+    <!-- Nav -->
+    <nav class="fixed top-0 inset-x-0 z-50 bg-gray-50/80 dark:bg-[#09090b]/80 backdrop-blur-xl border-b border-zinc-100 dark:border-zinc-800/50">
+      <div class="px-6 sm:px-10 h-14 flex items-center justify-between">
+        <NuxtLink to="/about" class="flex items-center gap-2.5">
+          <img src="/logo.svg" alt="Cheer Readers" class="w-6 h-6" />
+          <span class="text-sm font-bold tracking-tight text-zinc-900 dark:text-white">치어리더스</span>
+        </NuxtLink>
+        <NuxtLink to="/about" class="text-xs text-zinc-400 dark:text-zinc-500 hover:text-lime-500 transition font-medium">
+          서비스 소개
+        </NuxtLink>
+      </div>
+    </nav>
+
     <!-- Background -->
     <div class="absolute inset-0 pointer-events-none">
       <div class="absolute top-[-30%] left-[-10%] w-[600px] h-[600px] bg-lime-400/5 rounded-full blur-[120px]"></div>
@@ -7,7 +20,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="flex-1 flex items-center justify-center p-6 relative z-10">
+    <div class="flex-1 flex items-center justify-center p-6 pt-20 relative z-10">
       <div class="w-full max-w-sm">
         <!-- Logo -->
         <div class="text-center mb-8">
@@ -42,12 +55,6 @@
           <span v-else>Google로 시작하기</span>
         </button>
 
-        <!-- About Link -->
-        <div class="text-center mt-6">
-          <NuxtLink to="/about" class="text-xs text-zinc-400 dark:text-zinc-500 hover:text-lime-500 transition">
-            치어리더스가 처음이신가요? →
-          </NuxtLink>
-        </div>
       </div>
     </div>
 
