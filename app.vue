@@ -70,7 +70,7 @@ const appLoading = ref(true)
 
 // Check if current page is admin page or subscription page (needs full width)
 const isAdminPage = computed(() => {
-  return route.path.startsWith('/admin') || route.path === '/subscription'
+  return route.path.startsWith('/admin') || route.path === '/subscription' || route.path === '/about'
 })
 
 // Initialize app
