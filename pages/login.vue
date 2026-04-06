@@ -41,18 +41,6 @@
           <span v-if="loading">로그인 중...</span>
           <span v-else>Google로 시작하기</span>
         </button>
-
-        <!-- Demo Button -->
-        <button
-          @click="startDemo"
-          :disabled="demoLoading"
-          class="w-full mt-3 py-3.5 px-6 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-2xl font-semibold transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          <Eye :size="18" />
-          <span v-if="demoLoading">체험 준비 중...</span>
-          <span v-else>로그인 없이 체험하기</span>
-        </button>
-        <p class="text-center text-[11px] text-zinc-400 dark:text-zinc-500 mt-2">샘플 데이터로 주요 기능을 둘러볼 수 있어요</p>
       </div>
     </div>
 
@@ -73,7 +61,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { Users, MessageCircle, CalendarDays, Eye } from 'lucide-vue-next'
+import { Users, MessageCircle, CalendarDays } from 'lucide-vue-next'
 
 useHead({ title: '로그인' })
 
@@ -82,7 +70,6 @@ const userStore = useUserStore()
 const toast = useToastStore()
 const client = useSupabaseClient()
 const loading = ref(false)
-const demoLoading = ref(false)
 
 const featureCards = [
   { title: '그룹 독서', icon: Users },
@@ -107,21 +94,6 @@ const signInWithGoogle = async () => {
   } catch (error: any) {
     toast.error(error.message || '로그인 중 오류 발생')
     loading.value = false
-  }
-}
-
-const startDemo = async () => {
-  demoLoading.value = true
-  try {
-    const { error } = await client.auth.signInWithPassword({
-      email: 'demo@cheerreaders.com',
-      password: 'demo1234'
-    })
-    if (error) throw error
-    router.replace('/')
-  } catch (error: any) {
-    toast.error('체험 모드 준비 중입니다. 잠시 후 다시 시도해주세요.')
-    demoLoading.value = false
   }
 }
 </script>

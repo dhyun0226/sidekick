@@ -27,19 +27,11 @@ export function useGroupPage(config: GroupPageConfig) {
   const { formatDateRange, getDaysRemaining, getTotalDays, getDaysSinceStart } = useDateUtils()
   const {
     isPremium,
-    isDemo,
     limits,
     fetchLimits,
     isReadOnlyInGroup
   } = useSubscription()
 
-  const guardDemo = () => {
-    if (isDemo.value) {
-      toast.info('체험 모드에서는 사용할 수 없습니다. 로그인 후 이용해주세요!')
-      return true
-    }
-    return false
-  }
   const { validateComment } = useValidation()
 
   // ===== Core State =====
@@ -658,7 +650,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const handleSliderChange = async (val: number) => {
-    if (guardDemo()) return
     // Read-only mode check (social only, harmless no-op for solo)
     if (isReadOnlyMode.value) return
 
@@ -690,7 +681,6 @@ export function useGroupPage(config: GroupPageConfig) {
 
   // ===== Comment Handlers =====
   const handleWrite = () => {
-    if (guardDemo()) return
     if (isReadOnlyMode.value) {
       modals.upgradeReadOnly = true
       return
@@ -700,7 +690,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const handleWriteFromModal = (data: { anchorText: string, position: number }) => {
-    if (guardDemo()) return
     if (isReadOnlyMode.value) {
       modals.upgradeReadOnly = true
       return
@@ -723,7 +712,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const handleCommentSubmit = async (payload: { content: string, anchorText: string | null, position: number }) => {
-    if (guardDemo()) return
     if (!selectedBook.value || !currentUserId.value) return
 
     // Allow empty content when anchor text is provided (highlight-only)
@@ -785,7 +773,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const handleReviewSubmit = async (data: any) => {
-    if (guardDemo()) return
     if (!reviewingBookId.value || !userStore.user || !currentUserId.value) return
     try {
       const { error } = await client
@@ -907,7 +894,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const handleBookAdd = async (data: any) => {
-    if (guardDemo()) return
     if (isArchived.value) {
       toast.error('종료된 그룹에는 책을 추가할 수 없습니다')
       return
@@ -978,7 +964,6 @@ export function useGroupPage(config: GroupPageConfig) {
 
   // ===== Book Admin Save Handlers =====
   const saveEditedDates = async (dates: { startDate: string, endDate: string }) => {
-    if (guardDemo()) return
     if (!modals.editingBook || !dates.startDate || !dates.endDate) return
     if (!isAdmin.value) {
       toast.error('그룹장만 독서 기간을 수정할 수 있습니다')
@@ -1000,7 +985,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const saveEditedToc = async (tocData: { totalPages: number, chapters: { title: string, startPage: number }[] }) => {
-    if (guardDemo()) return
     if (!modals.editingBook || !tocData.totalPages || tocData.totalPages <= 0) return
     if (!isAdmin.value) {
       toast.error('그룹장만 목차를 수정할 수 있습니다')
@@ -1022,7 +1006,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const saveEditedGenre = async (genre: string) => {
-    if (guardDemo()) return
     if (!modals.editingBook || !genre) return
     if (!isAdmin.value) {
       toast.error('그룹장만 장르를 수정할 수 있습니다')
@@ -1044,7 +1027,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const saveEditedFinishedDate = async (finishedDate: string) => {
-    if (guardDemo()) return
     if (!modals.editingBook || !finishedDate) return
     if (!isAdmin.value) {
       toast.error('완독 날짜 수정 권한이 없습니다')
@@ -1092,7 +1074,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const deleteBook = async () => {
-    if (guardDemo()) return
     if (!modals.editingBook) return
     if (!isAdmin.value) {
       toast.error('그룹장만 책을 삭제할 수 있습니다')
@@ -1148,7 +1129,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const handleMarkFinished = async (bookId: string) => {
-    if (guardDemo()) return
     if (isReadOnlyMode.value) {
       modals.upgradeReadOnly = true
       return
@@ -1168,7 +1148,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const handleUnmarkFinished = async (bookId: string) => {
-    if (guardDemo()) return
     if (!currentUserId.value) return
     if (isReadOnlyMode.value) {
       modals.upgradeReadOnly = true
@@ -1213,7 +1192,6 @@ export function useGroupPage(config: GroupPageConfig) {
 
   // ===== History Book Handlers =====
   const handleDeleteHistoryBook = (bookId: string) => {
-    if (guardDemo()) return
     const book = allBooks.value.find((b: any) => b.id === bookId)
     if (!book) return
     if (!isAdmin.value) {
@@ -1262,7 +1240,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const handleRestartReading = async (bookId: string) => {
-    if (guardDemo()) return
     const book = allBooks.value.find((b: any) => b.id === bookId)
     if (!book) return
     if (!isAdmin.value) {
@@ -1355,7 +1332,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const promoteMember = (memberId: string) => {
-    if (guardDemo()) return
     const member = members.value.find(m => m.id === memberId)
     if (!member) return
     pendingMemberAction.value = { id: memberId, nickname: member.nickname }
@@ -1391,7 +1367,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const kickMember = (memberId: string) => {
-    if (guardDemo()) return
     const member = members.value.find(m => m.id === memberId)
     if (!member) return
     pendingMemberAction.value = { id: memberId, nickname: member.nickname }
@@ -1427,7 +1402,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const handleChangeMemberRole = async (member: any) => {
-    if (guardDemo()) return
     if (!isAdmin.value) {
       toast.error('그룹장만 권한을 변경할 수 있습니다')
       return
@@ -1463,7 +1437,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const leaveGroup = () => {
-    if (guardDemo()) return
     if (!currentUserId.value) return
     const admins = members.value.filter(m => m.role === 'admin')
     if (admins.length === 1 && admins[0].id === currentUserId.value && members.value.length > 1) {
@@ -1556,7 +1529,6 @@ export function useGroupPage(config: GroupPageConfig) {
   }
 
   const regenerateInviteCode = () => {
-    if (guardDemo()) return
     if (!isAdmin.value) {
       toast.error('그룹장만 초대 코드를 재생성할 수 있습니다')
       return
