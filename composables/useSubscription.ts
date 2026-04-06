@@ -51,12 +51,14 @@ export const useSubscription = () => {
   const tier = computed(() => userStore.profile?.subscription_tier || 'free')
 
   const isPremium = computed(() =>
-    tier.value === 'premium' || tier.value === 'admin'
+    tier.value === 'premium' || tier.value === 'admin' || tier.value === 'demo'
   )
 
   const isFree = computed(() => tier.value === 'free')
 
   const isAdmin = computed(() => tier.value === 'admin')
+
+  const isDemo = computed(() => tier.value === 'demo')
 
   // ============================================
   // DB로부터 제한 값 관리 ⭐
@@ -247,6 +249,7 @@ export const useSubscription = () => {
     isPremium,
     isFree,
     isAdmin,
+    isDemo,
 
     // ⭐ DB로부터 읽은 제한 값
     limits,
