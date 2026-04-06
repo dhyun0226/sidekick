@@ -98,7 +98,7 @@
                       <h4 class="text-sm font-semibold text-zinc-900 dark:text-white truncate">{{ item.bookTitle }}</h4>
                       <p class="text-[11px] text-zinc-500 dark:text-zinc-400">{{ item.groupName }}</p>
                     </div>
-                    <span v-if="item.type === 'review'" class="text-[11px] text-amber-500">{{ '★'.repeat(item.rating) }}</span>
+                    <RatingBadge v-if="item.type === 'review'" :rating="item.rating" size="sm" />
                     <span v-else class="text-[10px] px-2 py-0.5 bg-lime-400/10 text-lime-600 dark:text-lime-400 rounded-full">{{ Math.round(item.position_pct) }}%</span>
                   </div>
                   <div v-if="item.anchor_text" class="pl-3 border-l-2 border-lime-400/50 mb-2">
@@ -305,6 +305,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
 import { Lock, X, CalendarDays } from 'lucide-vue-next'
+import RatingBadge from '~/components/RatingBadge.vue'
 
 const DesktopProfileView = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopProfileView.vue'))
 const DesktopTimelineSidePanel = defineAsyncComponent(() => import('~/components/desktop/profile/DesktopTimelineSidePanel.vue'))
