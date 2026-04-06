@@ -193,5 +193,7 @@
 <script setup lang="ts">
 import { ChevronLeft } from 'lucide-vue-next'
 
+useHead({ title: '개인정보처리방침' })
+
 const contactEmail = 'dhyun0226@gmail.com'
 </script>

@@ -150,6 +150,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { Search, Users, ExternalLink, Activity } from 'lucide-vue-next'
+
+useHead({ title: '그룹 관리' })
 import { useToastStore } from '~/stores/toast'
 
 definePageMeta({

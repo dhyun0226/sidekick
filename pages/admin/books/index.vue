@@ -282,6 +282,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { BookOpen, FileText, CheckCircle, Search, Check, X } from 'lucide-vue-next'
+
+useHead({ title: '도서 관리' })
 import { useToastStore } from '~/stores/toast'
 import TocEditModal from '~/components/admin/TocEditModal.vue'
 import EditGenreModal from '~/components/admin/EditGenreModal.vue'

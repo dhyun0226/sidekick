@@ -153,6 +153,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { Search, Users, Shield } from 'lucide-vue-next'
+
+useHead({ title: '사용자 관리' })
 import { useToastStore } from '~/stores/toast'
 import UserDetailDrawer from '~/components/admin/UserDetailDrawer.vue'
 

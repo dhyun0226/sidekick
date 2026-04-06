@@ -424,6 +424,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { ArrowLeft, Search, Users, DollarSign, TrendingUp, Calendar, Check, X, Info } from 'lucide-vue-next'
+
+useHead({ title: '구독 관리' })
 import { useToastStore } from '~/stores/toast'
 
 definePageMeta({

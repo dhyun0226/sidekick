@@ -38,6 +38,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
+useHead({ title: '로그인 중...' })
+
 const router = useRouter()
 const client = useSupabaseClient()
 const error = ref<string | null>(null)

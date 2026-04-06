@@ -137,6 +137,8 @@
 import { ref, onMounted } from 'vue'
 import { FileText, BookOpen, Users } from 'lucide-vue-next'
 
+useHead({ title: '관리자' })
+
 definePageMeta({
   layout: 'admin',
   middleware: 'admin'

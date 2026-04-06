@@ -15,7 +15,7 @@ export const useValidation = () => {
    * - 2~15자 (창의적인 닉네임 가능)
    * - 공백만으로 구성 불가
    *
-   * TODO: DB 스키마와 동기화 필요
+   * NOTE: DB 스키마와 동기화 필요
    * users 테이블의 nickname 컬럼 제약 조건과 일치해야 함
    */
   const validateNickname = (nickname: string): ValidationResult => {
@@ -41,7 +41,7 @@ export const useValidation = () => {
    * - 2~20자 (모임 이름으로 충분)
    * - 공백만으로 구성 불가
    *
-   * TODO: DB 스키마와 동기화 필요
+   * NOTE: DB 스키마와 동기화 필요
    * groups 테이블의 name 컬럼 제약 조건과 일치해야 함
    */
   const validateGroupName = (groupName: string): ValidationResult => {

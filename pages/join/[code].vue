@@ -65,6 +65,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
+useHead({ title: '그룹 참여' })
 import { Users } from 'lucide-vue-next'
 import { useToastStore } from '~/stores/toast'
 

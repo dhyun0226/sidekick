@@ -149,6 +149,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { X } from 'lucide-vue-next'
+
+useHead({ title: '문의 관리' })
 import { useToastStore } from '~/stores/toast'
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })

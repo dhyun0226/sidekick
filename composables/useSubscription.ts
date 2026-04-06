@@ -17,7 +17,7 @@
 // ============================================
 // Global State (Singleton Pattern)
 // ⚠️ WARNING: 전역 상태로 인한 메모리 누수 위험
-// TODO: 추후 Pinia Store로 이동 권장
+// NOTE: 추후 Pinia Store로 이동 고려
 // ============================================
 
 const limits = ref({
