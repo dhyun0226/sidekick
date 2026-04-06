@@ -285,7 +285,7 @@ const steps = [
 ]
 </script>
 
-<style scoped>
+<style>
 @keyframes hero-in {
   to { opacity: 1; transform: translateY(0); }
 }
