@@ -24,7 +24,6 @@
         v-for="(member, index) in filteredMembers"
         :key="member.id"
         class="group relative flex items-center gap-3 px-2 py-2.5 rounded-xl transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
-        :class="{ 'opacity-60': member.inactive }"
       >
         <!-- Rank -->
         <div class="w-5 text-center flex-shrink-0 tabular-nums">
@@ -46,11 +45,11 @@
           <div class="flex items-center justify-between gap-1">
             <div class="flex items-center gap-1.5 min-w-0">
               <span class="text-desktop-caption font-medium text-zinc-900 dark:text-white truncate max-w-[100px]">{{ member.nickname }}</span>
-              <span v-if="member.id === currentUserId" class="text-desktop-footnote text-zinc-400 dark:text-zinc-300 font-normal flex-shrink-0">나</span>
-              <span v-if="member.role === 'admin'" class="text-desktop-footnote text-zinc-400 dark:text-zinc-300 font-normal flex-shrink-0">관리자</span>
+              <Crown v-if="member.role === 'admin'" :size="11" class="text-amber-500 flex-shrink-0" />
+              <LockKeyhole v-if="member.subscription_tier === 'free'" :size="11" class="text-zinc-400 dark:text-zinc-500 flex-shrink-0" />
             </div>
             <span v-if="member.isCompleted && member.finishedDate" class="text-desktop-footnote text-zinc-400 dark:text-zinc-300 flex-shrink-0">{{ member.finishedDate }}</span>
-            <span v-else-if="member.timeAgo" class="text-desktop-footnote text-zinc-400 dark:text-zinc-300 flex-shrink-0">{{ member.timeAgo }}</span>
+            <span v-else-if="member.timeAgo" class="text-desktop-footnote text-zinc-400 dark:text-zinc-300 flex-shrink-0 cursor-default" :title="member.timeAgo">{{ shortTimeAgo(member.timeAgo) }}</span>
           </div>
           <div class="flex items-center gap-2 mt-1">
             <div class="flex-1 h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
@@ -87,7 +86,7 @@
               @click="handleChangeRole(member)"
               class="w-full px-3 py-2 text-left text-desktop-caption text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
             >
-              {{ member.role === 'admin' ? '관리자 해제' : '관리자 지정' }}
+              {{ member.role === 'admin' ? '그룹장 해제' : '그룹장 지정' }}
             </button>
             <button
               @click="handleKick(member)"
@@ -116,7 +115,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { MoreHorizontal, Check, Search } from 'lucide-vue-next'
+import { MoreHorizontal, Check, Search, Crown, LockKeyhole } from 'lucide-vue-next'
+
+const shortTimeAgo = (timeAgo: string | null | undefined) => {
+  if (!timeAgo) return ''
+  return timeAgo.replace(/\s*\(.*\)$/, '')
+}
 import type { MemberWithProgress } from '~/types'
 
 const props = defineProps<{
