@@ -19,10 +19,9 @@
     <div
       v-else
       class="w-full bg-white dark:bg-[#09090b] relative"
-      :class="isAdminPage ? 'min-h-screen' : 'h-screen'"
       :class="[
-        isAdminPage ? '' : (isDesktop ? '' : 'max-w-[480px] shadow-2xl'),
-        isAdminPage ? 'overflow-y-auto' : (isDesktop ? 'overflow-hidden' : 'overflow-y-auto')
+        isAdminPage ? 'min-h-screen overflow-y-auto' : (isDesktop ? 'h-screen overflow-hidden' : 'h-screen overflow-y-auto'),
+        isAdminPage ? '' : (isDesktop ? '' : 'max-w-[480px] shadow-2xl')
       ]"
     >
       <NuxtLoadingIndicator color="#a3e635" />
