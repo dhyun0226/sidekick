@@ -11,9 +11,7 @@
       <div class="w-full max-w-sm">
         <!-- Logo -->
         <div class="text-center mb-10">
-          <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-zinc-900 dark:bg-white mb-5 shadow-lg">
-            <BookOpen :size="28" class="text-lime-400 dark:text-zinc-900" />
-          </div>
+          <img src="/logo.svg" alt="Cheer Readers" class="w-16 h-16 mb-5" />
           <h1 class="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">치어리더스</h1>
           <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-2">당신의 독서를 응원합니다</p>
         </div>
@@ -61,7 +59,6 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { BookOpen } from 'lucide-vue-next'
 
 useHead({ title: '로그인' })
 

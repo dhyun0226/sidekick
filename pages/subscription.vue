@@ -97,13 +97,13 @@
               <Check :size="18" class="text-lime-500" />
               내 서재에서 무제한 책 추가
             </li>
-            <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-400 font-bold opacity-60 line-through">
-              <X :size="18" class="text-zinc-400 dark:text-zinc-300" />
-              소셜 그룹에서 책 추가 (읽기전용)
+            <li class="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400 font-bold">
+              <Check :size="18" class="text-lime-500" />
+              독서 캘린더 및 통계
             </li>
             <li class="flex items-center gap-3 text-sm text-zinc-400 dark:text-zinc-400 font-bold opacity-60 line-through">
               <X :size="18" class="text-zinc-400 dark:text-zinc-300" />
-              고급 통계 분석
+              소셜 그룹에서 책 추가 (읽기전용)
             </li>
           </ul>
 
@@ -128,7 +128,7 @@
           </div>
           
           <ul class="space-y-4 mb-10 flex-1">
-            <li v-for="item in ['무제한 그룹 생성', '무제한 책 추가', '고급 독서 통계 및 분석', '우선 고객 지원']" :key="item" class="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200 font-bold">
+            <li v-for="item in ['무제한 그룹 생성', '무제한 책 추가', '소셜 그룹 완전 참여', '우선 고객 지원']" :key="item" class="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200 font-bold">
               <Check :size="18" class="text-lime-500" />
               {{ item }}
             </li>
@@ -167,7 +167,7 @@
           </div>
           
           <ul class="space-y-4 mb-10 flex-1 relative z-10">
-            <li v-for="item in ['무제한 그룹 생성', '무제한 책 추가', '고급 독서 통계 및 분석', '우선 고객 지원']" :key="item" class="flex items-center gap-3 text-sm text-zinc-300 font-bold">
+            <li v-for="item in ['무제한 그룹 생성', '무제한 책 추가', '소셜 그룹 완전 참여', '우선 고객 지원']" :key="item" class="flex items-center gap-3 text-sm text-zinc-300 font-bold">
               <Check :size="18" class="text-lime-400" />
               {{ item }}
             </li>
@@ -198,7 +198,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div v-for="feat in [
             { title: '무제한 독서 모임', desc: '참여 및 생성 그룹 수에 제한이 없습니다. 다양한 모임에서 여러 권의 책을 동시에 즐기세요.', icon: Users, color: 'blue' },
-            { title: '심도 있는 데이터 분석', desc: '독서 히트맵, 월별 패턴, 연간 목표 달성률 등 나만의 독서 데이터를 시각화해 드립니다.', icon: TrendingUp, color: 'lime' },
+            { title: '소셜 그룹 완전 참여', desc: '모든 소셜 그룹에서 책 추가, 코멘트, 리뷰 작성이 가능합니다. 무료 플랜은 읽기 전용입니다.', icon: TrendingUp, color: 'lime' },
             { title: '무제한 도서 추가', desc: '모든 그룹에서 제한 없이 새로운 책을 추가하고 목차를 관리할 수 있습니다.', icon: BookOpen, color: 'purple' },
             { title: '신규 기능 우선 체험', desc: '앞으로 추가될 치어리더스의 다양한 신규 기능들을 누구보다 먼저 경험하고 제안할 수 있습니다.', icon: Sparkles, color: 'amber' }
           ]" :key="feat.title" class="flex gap-5">
