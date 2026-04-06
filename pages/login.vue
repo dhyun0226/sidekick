@@ -41,6 +41,13 @@
           <span v-if="loading">로그인 중...</span>
           <span v-else>Google로 시작하기</span>
         </button>
+
+        <!-- About Link -->
+        <div class="text-center mt-6">
+          <NuxtLink to="/about" class="text-xs text-zinc-400 dark:text-zinc-500 hover:text-lime-500 transition">
+            치어리더스가 처음이신가요? →
+          </NuxtLink>
+        </div>
       </div>
     </div>
 
