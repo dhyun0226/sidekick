@@ -71,7 +71,7 @@
             
             <template v-if="member.timeAgo">
               <span class="text-[11px] text-zinc-300 dark:text-zinc-500 font-bold leading-none relative -translate-y-[0.5px] ml-0.5">·</span>
-              <span class="text-[11px] text-zinc-400 dark:text-zinc-400 font-medium leading-none">{{ shortTimeAgo(member.timeAgo) }}</span>
+              <span class="text-[11px] text-zinc-400 dark:text-zinc-400 font-medium leading-none cursor-default" :title="member.timeAgo">{{ shortTimeAgo(member.timeAgo) }}</span>
             </template>
 
             <Crown v-if="member.role === 'admin'" :size="11" class="text-amber-500 flex-shrink-0" />
