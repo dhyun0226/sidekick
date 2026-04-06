@@ -44,12 +44,38 @@
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between gap-1">
             <div class="flex items-center gap-1.5 min-w-0">
-              <span class="text-desktop-caption font-medium text-zinc-900 dark:text-white truncate max-w-[100px]">{{ member.nickname }}</span>
+              <span class="text-xs font-medium text-zinc-900 dark:text-white truncate max-w-[100px]">{{ member.nickname }}</span>
               <Crown v-if="member.role === 'admin'" :size="11" class="text-amber-500 flex-shrink-0" />
               <LockKeyhole v-if="member.subscription_tier === 'free'" :size="11" class="text-zinc-400 dark:text-zinc-500 flex-shrink-0" />
+              <span v-if="member.isCompleted && member.finishedDate" class="text-[11px] text-zinc-400 dark:text-zinc-300 flex-shrink-0">· {{ member.finishedDate }}</span>
+              <span v-else-if="member.timeAgo" class="text-[11px] text-zinc-400 dark:text-zinc-300 flex-shrink-0 cursor-default" :title="member.timeAgo">· {{ shortTimeAgo(member.timeAgo) }}</span>
             </div>
-            <span v-if="member.isCompleted && member.finishedDate" class="text-desktop-footnote text-zinc-400 dark:text-zinc-300 flex-shrink-0">{{ member.finishedDate }}</span>
-            <span v-else-if="member.timeAgo" class="text-desktop-footnote text-zinc-400 dark:text-zinc-300 flex-shrink-0 cursor-default" :title="member.timeAgo">{{ shortTimeAgo(member.timeAgo) }}</span>
+            <!-- Menu: 닉네임 줄 우측 -->
+            <div v-if="isAdmin && member.id !== currentUserId" class="relative flex-shrink-0">
+              <button
+                @click.stop="toggleMenu(member.id)"
+                class="p-1 rounded-lg text-zinc-400 dark:text-zinc-300 hover:text-zinc-500 dark:hover:text-zinc-400 transition-all"
+              >
+                <MoreHorizontal :size="14" />
+              </button>
+              <div
+                v-if="openMenuId === member.id"
+                class="absolute right-0 top-full mt-1 w-36 bg-white dark:bg-zinc-900 rounded-lg shadow-lg ring-1 ring-black/[0.08] dark:ring-white/[0.08] py-1 z-50"
+              >
+                <button
+                  @click="handleChangeRole(member)"
+                  class="w-full px-3 py-2 text-left text-xs text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  {{ member.role === 'admin' ? '그룹장 해제' : '그룹장 지정' }}
+                </button>
+                <button
+                  @click="handleKick(member)"
+                  class="w-full px-3 py-2 text-left text-xs text-red-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  추방
+                </button>
+              </div>
+            </div>
           </div>
           <div class="flex items-center gap-2 mt-1">
             <div class="flex-1 h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
@@ -62,35 +88,6 @@
             <span class="text-xs font-bold tabular-nums w-8 text-right" :class="member.isCompleted ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-300'">
               {{ member.isCompleted ? '완독' : `${Math.round(member.progress)}%` }}
             </span>
-          </div>
-        </div>
-
-        <!-- Menu (항상 공간 차지) -->
-        <div class="flex-shrink-0 w-6 flex items-center justify-center">
-          <div v-if="isAdmin && member.id !== currentUserId" class="relative">
-            <button
-              @click.stop="toggleMenu(member.id)"
-              class="p-1 rounded-lg text-zinc-400 dark:text-zinc-300 hover:text-zinc-500 dark:hover:text-zinc-400 transition-all"
-            >
-              <MoreHorizontal :size="14" />
-            </button>
-            <div
-              v-if="openMenuId === member.id"
-              class="absolute right-0 top-full mt-1 w-36 bg-white dark:bg-zinc-900 rounded-lg shadow-lg ring-1 ring-black/[0.08] dark:ring-white/[0.08] py-1 z-50"
-            >
-              <button
-                @click="handleChangeRole(member)"
-                class="w-full px-3 py-2 text-left text-xs text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-              >
-                {{ member.role === 'admin' ? '그룹장 해제' : '그룹장 지정' }}
-              </button>
-              <button
-                @click="handleKick(member)"
-                class="w-full px-3 py-2 text-left text-xs text-red-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-              >
-                추방
-              </button>
-            </div>
           </div>
         </div>
       </div>

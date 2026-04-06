@@ -898,7 +898,7 @@ export function useGroupPage(config: GroupPageConfig) {
       return
     }
     if (!isAdmin.value) {
-      toast.error('관리자만 책을 추가할 수 있습니다')
+      toast.error('그룹장만 책을 추가할 수 있습니다')
       return
     }
 
@@ -965,7 +965,7 @@ export function useGroupPage(config: GroupPageConfig) {
   const saveEditedDates = async (dates: { startDate: string, endDate: string }) => {
     if (!modals.editingBook || !dates.startDate || !dates.endDate) return
     if (!isAdmin.value) {
-      toast.error('관리자만 독서 기간을 수정할 수 있습니다')
+      toast.error('그룹장만 독서 기간을 수정할 수 있습니다')
       modals.editDates = false
       modals.editingBook = null
       return
@@ -986,7 +986,7 @@ export function useGroupPage(config: GroupPageConfig) {
   const saveEditedToc = async (tocData: { totalPages: number, chapters: { title: string, startPage: number }[] }) => {
     if (!modals.editingBook || !tocData.totalPages || tocData.totalPages <= 0) return
     if (!isAdmin.value) {
-      toast.error('관리자만 목차를 수정할 수 있습니다')
+      toast.error('그룹장만 목차를 수정할 수 있습니다')
       modals.editToc = false
       modals.editingBook = null
       return
@@ -1007,7 +1007,7 @@ export function useGroupPage(config: GroupPageConfig) {
   const saveEditedGenre = async (genre: string) => {
     if (!modals.editingBook || !genre) return
     if (!isAdmin.value) {
-      toast.error('관리자만 장르를 수정할 수 있습니다')
+      toast.error('그룹장만 장르를 수정할 수 있습니다')
       modals.editGenre = false
       modals.editingBook = null
       return
@@ -1075,7 +1075,7 @@ export function useGroupPage(config: GroupPageConfig) {
   const deleteBook = async () => {
     if (!modals.editingBook) return
     if (!isAdmin.value) {
-      toast.error('관리자만 책을 삭제할 수 있습니다')
+      toast.error('그룹장만 책을 삭제할 수 있습니다')
       modals.deleteBook = false
       modals.editingBook = null
       return
@@ -1194,7 +1194,7 @@ export function useGroupPage(config: GroupPageConfig) {
     const book = allBooks.value.find((b: any) => b.id === bookId)
     if (!book) return
     if (!isAdmin.value) {
-      toast.error('관리자만 책을 삭제할 수 있습니다')
+      toast.error('그룹장만 책을 삭제할 수 있습니다')
       return
     }
     pendingBookToDelete.value = { id: bookId, title: book.book?.title || '이 책' }
@@ -1242,7 +1242,7 @@ export function useGroupPage(config: GroupPageConfig) {
     const book = allBooks.value.find((b: any) => b.id === bookId)
     if (!book) return
     if (!isAdmin.value) {
-      toast.error('관리자만 책 상태를 변경할 수 있습니다')
+      toast.error('그룹장만 책 상태를 변경할 수 있습니다')
       return
     }
     try {
@@ -1263,7 +1263,7 @@ export function useGroupPage(config: GroupPageConfig) {
   // ===== Group Management =====
   const saveGroupName = async (newName: string) => {
     if (!isAdmin.value) {
-      toast.error('관리자만 그룹 이름을 변경할 수 있습니다')
+      toast.error('그룹장만 그룹 이름을 변경할 수 있습니다')
       return
     }
     const trimmedName = newName.trim()
@@ -1289,7 +1289,7 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const deleteGroup = () => {
     if (!isAdmin.value) {
-      toast.error('관리자만 그룹을 삭제할 수 있습니다')
+      toast.error('그룹장만 그룹을 삭제할 수 있습니다')
       return
     }
     modals.deleteGroup = true
@@ -1302,7 +1302,7 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const executeDeleteGroup = async (inputText: string) => {
     if (!isAdmin.value) {
-      toast.error('관리자만 그룹을 삭제할 수 있습니다')
+      toast.error('그룹장만 그룹을 삭제할 수 있습니다')
       modals.deleteGroupConfirm = false
       return
     }
@@ -1340,7 +1340,7 @@ export function useGroupPage(config: GroupPageConfig) {
   const executePromoteMember = async () => {
     if (!pendingMemberAction.value) return
     if (!isAdmin.value) {
-      toast.error('관리자만 권한을 변경할 수 있습니다')
+      toast.error('그룹장만 권한을 변경할 수 있습니다')
       modals.promoteMember = false
       pendingMemberAction.value = null
       return
@@ -1354,7 +1354,7 @@ export function useGroupPage(config: GroupPageConfig) {
       if (error) throw error
 
       await fetchData()
-      toast.success('관리자로 승격되었습니다')
+      toast.success('그룹장으로 승격되었습니다')
     } catch (error) {
       console.error('Promote member error:', error)
       toast.error('권한 변경에 실패했습니다')
@@ -1375,7 +1375,7 @@ export function useGroupPage(config: GroupPageConfig) {
   const executeKickMember = async () => {
     if (!pendingMemberAction.value) return
     if (!isAdmin.value) {
-      toast.error('관리자만 멤버를 강퇴할 수 있습니다')
+      toast.error('그룹장만 멤버를 강퇴할 수 있습니다')
       modals.kickMember = false
       pendingMemberAction.value = null
       return
@@ -1402,11 +1402,11 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const handleChangeMemberRole = async (member: any) => {
     if (!isAdmin.value) {
-      toast.error('관리자만 권한을 변경할 수 있습니다')
+      toast.error('그룹장만 권한을 변경할 수 있습니다')
       return
     }
     const newRole = member.role === 'admin' ? 'member' : 'admin'
-    const roleText = newRole === 'admin' ? '관리자' : '멤버'
+    const roleText = newRole === 'admin' ? '그룹장' : '멤버'
     try {
       const { error } = await client
         .from('group_members')
@@ -1428,7 +1428,7 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const handleKickMember = (member: any) => {
     if (!isAdmin.value) {
-      toast.error('관리자만 멤버를 강퇴할 수 있습니다')
+      toast.error('그룹장만 멤버를 강퇴할 수 있습니다')
       return
     }
     pendingMemberAction.value = { id: member.id, nickname: member.nickname }
@@ -1439,7 +1439,7 @@ export function useGroupPage(config: GroupPageConfig) {
     if (!currentUserId.value) return
     const admins = members.value.filter(m => m.role === 'admin')
     if (admins.length === 1 && admins[0].id === currentUserId.value && members.value.length > 1) {
-      toast.error('그룹의 유일한 관리자입니다. 다른 멤버를 관리자로 지정한 후 나가주세요')
+      toast.error('그룹의 유일한 그룹장입니다. 다른 멤버를 그룹장으로 지정한 후 나가주세요')
       return
     }
     modals.leaveGroup = true
@@ -1529,7 +1529,7 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const regenerateInviteCode = () => {
     if (!isAdmin.value) {
-      toast.error('관리자만 초대 코드를 재생성할 수 있습니다')
+      toast.error('그룹장만 초대 코드를 재생성할 수 있습니다')
       return
     }
     modals.regenerateInviteCode = true

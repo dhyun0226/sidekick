@@ -60,11 +60,35 @@
               <span class="text-[13px] font-semibold text-zinc-900 dark:text-white truncate max-w-[100px]">{{ member.nickname }}</span>
               <Crown v-if="member.role === 'admin'" :size="11" class="text-amber-500 flex-shrink-0" />
               <LockKeyhole v-if="member.subscription_tier === 'free'" :size="11" class="text-zinc-400 dark:text-zinc-500 flex-shrink-0" />
+              <span v-if="member.isCompleted && member.finishedDate" class="text-[11px] text-zinc-400 dark:text-zinc-300 flex-shrink-0">· {{ member.finishedDate }}</span>
+              <span v-else-if="member.timeAgo" class="text-[11px] text-zinc-400 dark:text-zinc-300 flex-shrink-0" :title="member.timeAgo">· {{ shortTimeAgo(member.timeAgo) }}</span>
             </div>
-            <span v-if="member.isCompleted && member.finishedDate" class="text-[11px] text-zinc-400 dark:text-zinc-300 flex-shrink-0">{{ member.finishedDate }}</span>
-            <span v-else-if="member.timeAgo" class="text-[11px] text-zinc-400 dark:text-zinc-300 flex-shrink-0" :title="member.timeAgo">{{ shortTimeAgo(member.timeAgo) }}</span>
+            <!-- Menu: 닉네임 줄 우측 -->
+            <DropdownMenu
+              v-if="isAdmin && member.id !== currentUserId && !isArchived"
+              :is-open="activeMemberMenu === member.id"
+              :icon-size="14"
+              @toggle="toggleMemberMenu(member.id)"
+              @close="activeMemberMenu = null"
+            >
+              <template #icon><MoreHorizontal :size="14" class="text-zinc-400" /></template>
+              <button
+                @click="handleChangeRole(member)"
+                class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold"
+              >
+                <Shield :size="12" />
+                {{ member.role === 'admin' ? '멤버로 변경' : '그룹장으로 변경' }}
+              </button>
+              <button
+                @click="handleKickMember(member)"
+                class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap font-bold"
+              >
+                <UserX :size="12" />
+                내보내기
+              </button>
+            </DropdownMenu>
           </div>
-          <div class="flex items-center gap-2 pr-8">
+          <div class="flex items-center gap-2">
             <div class="h-1.5 flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
               <div
                 class="h-full bg-lime-500 dark:bg-lime-400 rounded-full transition-all duration-700 ease-out"
@@ -75,33 +99,6 @@
               {{ member.isCompleted ? '완독' : `${Math.round(member.progress)}%` }}
             </span>
           </div>
-        </div>
-
-        <!-- Menu (항상 공간 차지, 관리 가능한 멤버만 클릭 가능) -->
-        <div class="flex-shrink-0 w-6 flex items-center justify-center">
-          <DropdownMenu
-            v-if="isAdmin && member.id !== currentUserId && !isArchived"
-            :is-open="activeMemberMenu === member.id"
-            :icon-size="14"
-            @toggle="toggleMemberMenu(member.id)"
-            @close="activeMemberMenu = null"
-          >
-            <template #icon><MoreHorizontal :size="14" class="text-zinc-400" /></template>
-            <button
-              @click="handleChangeRole(member)"
-              class="w-full text-left px-3 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-bold"
-            >
-              <Shield :size="12" />
-              {{ member.role === 'admin' ? '멤버로 변경' : '그룹장으로 변경' }}
-            </button>
-            <button
-              @click="handleKickMember(member)"
-              class="w-full text-left px-3 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-700/50 whitespace-nowrap font-bold"
-            >
-              <UserX :size="12" />
-              내보내기
-            </button>
-          </DropdownMenu>
         </div>
       </div>
     </div>
