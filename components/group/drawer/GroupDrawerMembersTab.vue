@@ -79,7 +79,7 @@
           </div>
           
           <!-- Slim Progress Bar -->
-          <div class="flex items-center gap-2 pr-10">
+          <div class="flex items-center gap-2" :class="isAdmin && member.id !== currentUserId && !isArchived ? 'pr-10' : ''">
             <div class="h-1.5 flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
               <div
                 class="h-full bg-lime-500 dark:bg-lime-400 rounded-full transition-all duration-700 ease-out"

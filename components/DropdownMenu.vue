@@ -13,7 +13,7 @@
     <!-- Dropdown Content -->
     <div
       v-if="isOpen"
-      class="absolute top-6 min-w-[160px] bg-white dark:bg-zinc-800 ring-1 ring-black/[0.04] dark:ring-white/[0.06] rounded-lg shadow-apple z-50 overflow-visible"
+      class="absolute top-6 min-w-[160px] bg-white dark:bg-zinc-800 ring-1 ring-black/[0.08] dark:ring-white/[0.08] rounded-lg shadow-lg z-50 overflow-visible"
       :class="align === 'left' ? 'left-0' : 'right-0'"
       @click.stop
     >
