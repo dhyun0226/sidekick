@@ -13,16 +13,16 @@ const getInitialTheme = (): Theme => {
     if (stored) {
       return stored
     }
-    // Check system preference
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     return prefersDark ? 'dark' : 'light'
   }
   return 'dark' // SSR default
 }
 
-export const useTheme = () => {
-  const theme = ref<Theme>(getInitialTheme())
+// 전역 싱글턴 state
+const theme = ref<Theme>(getInitialTheme())
 
+export const useTheme = () => {
   // Initialize theme from localStorage or system preference
   const initTheme = () => {
     if (process.client) {
@@ -31,7 +31,6 @@ export const useTheme = () => {
       if (stored) {
         theme.value = stored
       } else {
-        // Check system preference
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
         theme.value = prefersDark ? 'dark' : 'light'
       }
