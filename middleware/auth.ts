@@ -17,9 +17,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const { data: { session }, error } = await client.auth.getSession()
 
   if (error || !session) {
-    console.log('[Auth Middleware] No session, redirecting to login')
     return navigateTo('/login')
   }
-
-  console.log('[Auth Middleware] User authenticated:', session.user.id)
 })

@@ -8,7 +8,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   const { data: { user } } = await client.auth.getUser()
   if (!user) {
-    console.error('[Admin Middleware] No authenticated user')
     return navigateTo('/')
   }
 
@@ -20,15 +19,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     .single()
 
   if (userError || !userData) {
-    console.error('[Admin Middleware] User data error:', userError)
     return navigateTo('/')
   }
 
-  // admin이 아니면 접근 거부
   if (userData.subscription_tier !== 'admin') {
-    console.warn('[Admin Middleware] Access denied for user:', user.id)
     return navigateTo('/')
   }
-
-  console.log('[Admin Middleware] Admin access granted')
 })

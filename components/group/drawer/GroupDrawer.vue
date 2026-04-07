@@ -122,7 +122,7 @@
         />
       </div>
 
-      <!-- FAB: 새 책 추가 버튼 (관리자만) -->
+      <!-- FAB: 새 책 추가 버튼 (그룹장만) -->
       <button
         v-if="activeTab === 'info' && isAdmin && !isArchived && !isReadOnlyMode"
         @click="emit('openSearchModal')"
