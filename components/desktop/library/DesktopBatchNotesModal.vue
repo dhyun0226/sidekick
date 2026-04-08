@@ -381,7 +381,7 @@ const handleSave = async () => {
   const toSave = validRows.value.map(r => {
     let pct = r.position || 0
     if (inputMode.value === 'page' && props.totalPages && r.position) {
-      pct = Math.round((r.position / props.totalPages) * 100)
+      pct = (r.position / props.totalPages) * 100
     }
     pct = Math.min(100, Math.max(0, pct))
 

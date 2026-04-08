@@ -25,19 +25,18 @@ export const useReadingProgress = (
   const updateOptimistic = (progress: number) => {
     if (!groupBookId.value || !userId.value) return
 
-    const roundedProgress = Math.round(progress)
     const index = memberProgress.value.findIndex(p => p.user_id === userId.value)
 
     if (index >= 0) {
       // Update existing progress (finished_at은 그대로 유지)
-      memberProgress.value[index].progress_pct = roundedProgress
+      memberProgress.value[index].progress_pct = progress
       memberProgress.value[index].last_read_at = new Date().toISOString()
     } else {
       // Add new progress entry (first time recording, finished_at은 null)
       memberProgress.value.push({
         user_id: userId.value,
         group_book_id: groupBookId.value,
-        progress_pct: roundedProgress,
+        progress_pct: progress,
         last_read_at: new Date().toISOString(),
         finished_at: null
       })
@@ -61,8 +60,6 @@ export const useReadingProgress = (
       return
     }
 
-    const roundedProgress = Math.round(progress)
-
     // Backup current value for rollback
     const index = memberProgress.value.findIndex(p => p.user_id === userId.value)
     const previousProgress = index >= 0 ? memberProgress.value[index].progress_pct : 0
@@ -73,7 +70,7 @@ export const useReadingProgress = (
         .upsert({
           user_id: userId.value,
           group_book_id: groupBookId.value,
-          progress_pct: roundedProgress,
+          progress_pct: progress,
           last_read_at: new Date().toISOString()
           // finished_at은 건드리지 않음 (완독 처리는 별도 함수에서만)
         }, {
@@ -85,7 +82,7 @@ export const useReadingProgress = (
         // Rollback on error
         if (index >= 0) {
           memberProgress.value[index].progress_pct = previousProgress
-          toast.error(`진행도 저장 실패 - 이전 값(${previousProgress}%)으로 되돌렸습니다`)
+          toast.error(`진행도 저장 실패 - 이전 값(${Math.round(previousProgress)}%)으로 되돌렸습니다`)
         } else {
           toast.error('진행도 저장에 실패했습니다. 인터넷 연결을 확인해주세요')
         }
@@ -96,7 +93,7 @@ export const useReadingProgress = (
       // Rollback on exception
       if (index >= 0) {
         memberProgress.value[index].progress_pct = previousProgress
-        toast.error(`진행도 저장 실패 - 이전 값(${previousProgress}%)으로 되돌렸습니다`)
+        toast.error(`진행도 저장 실패 - 이전 값(${Math.round(previousProgress)}%)으로 되돌렸습니다`)
       } else {
         toast.error('진행도 저장에 실패했습니다')
       }

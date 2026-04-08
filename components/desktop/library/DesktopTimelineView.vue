@@ -55,10 +55,13 @@
           <textarea
             ref="anchorInputRef"
             v-model="anchorText"
-            placeholder="인용 구절 (선택)"
+            placeholder="인용 구절 (필수)"
             rows="1"
             maxlength="500"
-            class="w-full px-4 py-2.5 bg-transparent border-l-2 border-lime-400 dark:border-lime-500 text-desktop-callout-regular text-zinc-600 dark:text-zinc-300 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 focus:outline-none resize-none transition-all duration-200 ease-apple"
+            class="w-full px-4 py-2.5 bg-transparent border-l-2 border-lime-400 dark:border-lime-500 text-desktop-callout-regular text-zinc-600 dark:text-zinc-300 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 focus:outline-none resize-none overflow-hidden transition-all duration-200 ease-apple"
+            @input="autoResize($event.target as HTMLTextAreaElement)"
+            @keydown.meta.enter.prevent="submitComment"
+            @keydown.ctrl.enter.prevent="submitComment"
           ></textarea>
         </div>
 
@@ -70,9 +73,10 @@
             placeholder="느낀 점을 적어보세요 (선택)"
             rows="2"
             maxlength="2000"
-            class="w-full px-4 py-2.5 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-xl text-desktop-callout-regular text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-50 dark:focus:bg-zinc-800/50 resize-none transition-all duration-200 ease-apple"
-            @keydown.meta.enter="submitComment"
-            @keydown.ctrl.enter="submitComment"
+            class="w-full px-4 py-2.5 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-xl text-desktop-callout-regular text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-300 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 focus:bg-zinc-50 dark:focus:bg-zinc-800/50 resize-none overflow-hidden transition-all duration-200 ease-apple"
+            @input="autoResize($event.target as HTMLTextAreaElement)"
+            @keydown.meta.enter.prevent="submitComment"
+            @keydown.ctrl.enter.prevent="submitComment"
           ></textarea>
         </div>
 
@@ -93,7 +97,7 @@
             <kbd class="hidden sm:inline text-desktop-micro text-zinc-400 dark:text-zinc-300">{{ isMac ? '⌘' : 'Ctrl' }}↵</kbd>
             <button
               @click="submitComment"
-              :disabled="(!newComment.trim() && !anchorText.trim()) || isSubmitting"
+              :disabled="!anchorText.trim() || isSubmitting"
               class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full text-desktop-caption font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-200 ease-apple disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 flex items-center justify-center min-w-[72px]"
             >
               <div v-if="isSubmitting" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
@@ -182,11 +186,15 @@
                     <template v-else>
                       <div class="mt-1 space-y-2">
                         <textarea
+                          ref="editAnchorRef"
                           v-model="editAnchor"
-                          placeholder="인용 구절 (선택)"
+                          placeholder="인용 구절 (필수)"
                           rows="2"
                           maxlength="500"
-                          class="w-full px-3 py-2.5 bg-lime-50/60 dark:bg-lime-900/30 border-l-2 border-lime-400 rounded-r-xl text-desktop-callout-regular text-zinc-600 dark:text-zinc-300 resize-none focus:outline-none focus:ring-2 focus:ring-lime-400/20"
+                          class="w-full px-3 py-2.5 bg-lime-50/60 dark:bg-lime-900/30 border-l-2 border-lime-400 rounded-r-xl text-desktop-callout-regular text-zinc-600 dark:text-zinc-300 resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-lime-400/20"
+                          @input="autoResize($event.target as HTMLTextAreaElement)"
+                          @keydown.meta.enter.prevent="saveEdit(comment)"
+                          @keydown.ctrl.enter.prevent="saveEdit(comment)"
                           @keydown.escape="cancelEdit"
                         ></textarea>
                         <textarea
@@ -195,14 +203,15 @@
                           placeholder="코멘트 (선택)"
                           rows="3"
                           maxlength="2000"
-                          class="w-full px-3 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-callout-regular text-zinc-800 dark:text-zinc-200 resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10"
-                          @keydown.meta.enter="saveEdit(comment)"
-                          @keydown.ctrl.enter="saveEdit(comment)"
+                          class="w-full px-3 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-desktop-callout-regular text-zinc-800 dark:text-zinc-200 resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10"
+                          @input="autoResize($event.target as HTMLTextAreaElement)"
+                          @keydown.meta.enter.prevent="saveEdit(comment)"
+                          @keydown.ctrl.enter.prevent="saveEdit(comment)"
                           @keydown.escape="cancelEdit"
                         ></textarea>
                       </div>
                       <div class="flex items-center gap-2 mt-2">
-                        <button @click="saveEdit(comment)" :disabled="!editContent.trim() && !editAnchor.trim()" class="px-3.5 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50">저장</button>
+                        <button @click="saveEdit(comment)" :disabled="!editAnchor.trim()" class="px-3.5 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-black text-desktop-caption font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50">저장</button>
                         <button @click="cancelEdit" class="px-3.5 py-1.5 text-zinc-500 text-desktop-caption font-medium hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">취소</button>
                         <kbd class="ml-auto text-desktop-micro text-zinc-400 dark:text-zinc-300">{{ isMac ? '⌘' : 'Ctrl' }}↵</kbd>
                       </div>
@@ -354,43 +363,29 @@ const commentPosition = ref<number | null>(null)
 const positionMode = ref<'percent' | 'page'>(props.preferredMode || 'percent')
 
 const currentPositionPlaceholder = computed(() => {
-  const pct = Math.round(props.viewProgress)
+  const pct = props.viewProgress
   if (positionMode.value === 'page' && props.totalPages) {
     return `현재 ${Math.max(1, Math.round((pct / 100) * props.totalPages))}p`
   }
-  return `현재 ${pct}%`
+  return `현재 ${Math.round(pct)}%`
 })
 
 const positionMax = ref(positionMode.value === 'page' && props.totalPages ? props.totalPages : 100)
 
-watch(positionMode, (mode) => {
-  if (mode === 'page' && props.totalPages) {
-    positionMax.value = props.totalPages
-    commentPosition.value = Math.max(1, Math.round((commentPosition.value / 100) * props.totalPages))
-  } else {
-    if (props.totalPages && positionMode.value === 'percent') {
-      commentPosition.value = Math.round((commentPosition.value / props.totalPages) * 100)
-    }
-    positionMax.value = 100
-  }
-})
-
 const setMode = (mode: 'percent' | 'page') => {
-  positionMode.value = mode
-  if (mode === 'page' && props.totalPages) {
-    positionMax.value = props.totalPages
-  } else {
-    positionMax.value = 100
-  }
+  if (positionMode.value === mode) return
   // 값이 입력된 상태면 변환, 비어있으면 그대로 null
-  if (commentPosition.value !== null) {
-    const currentPct = getPositionAsPct()
-    if (mode === 'page' && props.totalPages) {
-      commentPosition.value = Math.max(1, Math.round((currentPct / 100) * props.totalPages))
+  if (commentPosition.value !== null && props.totalPages) {
+    if (mode === 'page') {
+      // percent → page
+      commentPosition.value = Math.max(1, Math.round((commentPosition.value / 100) * props.totalPages))
     } else {
-      commentPosition.value = currentPct
+      // page → percent (round 제거, 정밀 보존)
+      commentPosition.value = (commentPosition.value / props.totalPages) * 100
     }
   }
+  positionMode.value = mode
+  positionMax.value = mode === 'page' && props.totalPages ? props.totalPages : 100
 }
 
 const handlePositionInput = (e: Event) => {
@@ -406,10 +401,10 @@ const handlePositionInput = (e: Event) => {
 
 const getPositionAsPct = (): number => {
   if (commentPosition.value === null) {
-    return Math.round(props.viewProgress)
+    return props.viewProgress
   }
   if (positionMode.value === 'page' && props.totalPages) {
-    return Math.round((commentPosition.value / props.totalPages) * 100)
+    return (commentPosition.value / props.totalPages) * 100
   }
   return commentPosition.value
 }
@@ -423,11 +418,22 @@ const isSpoiler = (position: number) => {
   return Math.round(position) > Math.round(props.viewProgress)
 }
 
+// ===== Auto-grow textarea helper =====
+const autoResize = (el: HTMLTextAreaElement | null) => {
+  if (!el) return
+  el.style.height = 'auto'
+  el.style.height = el.scrollHeight + 'px'
+}
+
 // ===== Submit =====
 const submitComment = async () => {
   const hasContent = newComment.value.trim()
   const hasAnchor = anchorText.value.trim()
-  if ((!hasContent && !hasAnchor) || isSubmitting.value) return
+  if (isSubmitting.value) return
+  if (!hasAnchor) {
+    nextTick(() => anchorInputRef.value?.focus())
+    return
+  }
 
   isSubmitting.value = true
   const pct = getPositionAsPct()
@@ -435,7 +441,7 @@ const submitComment = async () => {
   try {
     emit('submit', {
       content: hasContent || '',
-      anchorText: hasAnchor || '',
+      anchorText: hasAnchor,
       positionPct: pct
     })
 
@@ -449,7 +455,11 @@ const submitComment = async () => {
 
     showSaved.value = true
     setTimeout(() => { showSaved.value = false }, 2000)
-    nextTick(() => contentInputRef.value?.focus())
+    nextTick(() => {
+      autoResize(anchorInputRef.value)
+      autoResize(contentInputRef.value)
+      anchorInputRef.value?.focus()
+    })
   } finally {
     isSubmitting.value = false
   }
@@ -459,20 +469,26 @@ const submitComment = async () => {
 const editingCommentId = ref<string | null>(null)
 const editContent = ref('')
 const editTextareaRef = ref<HTMLTextAreaElement | null>(null)
+const editAnchorRef = ref<HTMLTextAreaElement | null>(null)
 
 const editAnchor = ref('')
+
+const focusFirst = (refVal: any): HTMLTextAreaElement | null => {
+  if (!refVal) return null
+  if (Array.isArray(refVal)) return refVal[0] ?? null
+  return refVal
+}
 
 const startEdit = (comment: any) => {
   editContent.value = comment.content || ''
   editAnchor.value = comment.anchor_text || ''
   editingCommentId.value = comment.id
   nextTick(() => {
-    const el = editTextareaRef.value
-    if (Array.isArray(el)) {
-      el[0]?.focus()
-    } else {
-      el?.focus()
-    }
+    const anchorEl = focusFirst(editAnchorRef.value)
+    const contentEl = focusFirst(editTextareaRef.value)
+    autoResize(anchorEl)
+    autoResize(contentEl)
+    anchorEl?.focus()
   })
 }
 
@@ -485,8 +501,11 @@ const cancelEdit = () => {
 const saveEdit = (comment: any) => {
   const hasContent = editContent.value.trim()
   const hasAnchor = editAnchor.value.trim()
-  if (!hasContent && !hasAnchor) return
-  emit('edit', { ...comment, content: hasContent, anchor_text: hasAnchor || null })
+  if (!hasAnchor) {
+    nextTick(() => focusFirst(editAnchorRef.value)?.focus())
+    return
+  }
+  emit('edit', { ...comment, content: hasContent, anchor_text: hasAnchor })
   editingCommentId.value = null
   editContent.value = ''
   editAnchor.value = ''

@@ -16,20 +16,22 @@
       <!-- Anchor Text -->
       <div class="mb-3">
         <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">
-          인용 텍스트 {{ anchorTextLocked ? '' : '(선택사항)' }}
+          인용 텍스트 {{ anchorTextLocked ? '' : '*' }}
         </label>
         <div class="relative">
           <textarea
+            ref="anchorRef"
             v-model="anchorText"
-            rows="3"
+            rows="1"
             :readonly="anchorTextLocked"
             :placeholder="anchorTextLocked ? '' : '예: &quot;주인공은 결국 돌아왔다&quot;'"
             :class="[
-              'w-full rounded-lg px-3 py-2 text-sm focus:outline-none resize-y',
+              'w-full rounded-lg px-3 py-2 text-sm focus:outline-none resize-none overflow-hidden min-h-[44px]',
               anchorTextLocked
                 ? 'bg-lime-100 dark:bg-zinc-800/50 text-lime-600 dark:text-lime-400 cursor-not-allowed ring-1 ring-lime-400/30'
                 : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10'
             ]"
+            @input="autoResize($event.target as HTMLTextAreaElement)"
           ></textarea>
           <div v-if="anchorTextLocked" class="absolute right-2 top-2 text-xs text-zinc-600 dark:text-zinc-400 bg-white dark:bg-zinc-900 px-2 py-1 rounded">
             고정됨
@@ -40,12 +42,15 @@
 
       <!-- Content -->
       <div class="mb-3">
-        <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">댓글 내용 *</label>
+        <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">댓글 내용</label>
         <textarea
+          ref="contentRef"
           v-model="content"
           placeholder="이 부분에 대한 생각을 남겨보세요..."
-          class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl p-3 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 text-sm"
+          rows="3"
+          class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-2xl p-3 min-h-[80px] resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 text-sm"
           maxlength="500"
+          @input="autoResize($event.target as HTMLTextAreaElement)"
         ></textarea>
         <div class="flex justify-between items-center mt-1">
           <p class="text-[11px] text-zinc-500 dark:text-zinc-400">최대 500자</p>
@@ -80,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { X, Send } from 'lucide-vue-next'
 
 interface Props {
@@ -95,7 +100,7 @@ interface Emits {
   (e: 'close'): void
   (e: 'submit', payload: {
     content: string
-    anchorText: string | null
+    anchorText: string
     position: number
   }): void
 }
@@ -110,10 +115,23 @@ const emit = defineEmits<Emits>()
 const content = ref('')
 const anchorText = ref(props.initialAnchorText)
 const isSubmitting = ref(false)
+const anchorRef = ref<HTMLTextAreaElement | null>(null)
+const contentRef = ref<HTMLTextAreaElement | null>(null)
+
+const autoResize = (el: HTMLTextAreaElement | null) => {
+  if (!el) return
+  el.style.height = 'auto'
+  el.style.height = el.scrollHeight + 'px'
+}
 
 watch(() => props.isOpen, (isOpen) => {
   if (isOpen) {
     anchorText.value = props.initialAnchorText
+    nextTick(() => {
+      autoResize(anchorRef.value)
+      autoResize(contentRef.value)
+      if (!props.anchorTextLocked) anchorRef.value?.focus()
+    })
   } else {
     content.value = ''
     anchorText.value = ''
@@ -127,14 +145,18 @@ watch(() => props.initialAnchorText, (newValue) => {
 })
 
 const handleSubmit = () => {
+  if (!anchorText.value.trim()) {
+    nextTick(() => anchorRef.value?.focus())
+    return
+  }
   if (!isValid.value || isSubmitting.value) return
 
   isSubmitting.value = true
   try {
     emit('submit', {
       content: content.value.trim(),
-      anchorText: anchorText.value.trim() || null,
-      position: Math.round(props.position)
+      anchorText: anchorText.value.trim(),
+      position: props.position
     })
   } finally {
     isSubmitting.value = false
@@ -142,10 +164,9 @@ const handleSubmit = () => {
 }
 
 const isValid = computed(() => {
-  const hasContent = content.value.trim().length > 0
   const hasAnchor = anchorText.value.trim().length > 0
   const withinLimit = content.value.length <= 500
-  return (hasContent || hasAnchor) && withinLimit
+  return hasAnchor && withinLimit
 })
 </script>
 

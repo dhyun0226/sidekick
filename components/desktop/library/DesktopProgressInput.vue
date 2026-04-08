@@ -89,7 +89,7 @@ const handleInput = (e: Event) => {
   let pct: number
   if (inputMode.value === 'page' && props.totalPages) {
     const page = Math.min(Math.max(0, raw), props.totalPages)
-    pct = Math.round((page / props.totalPages) * 100)
+    pct = (page / props.totalPages) * 100
   } else {
     pct = Math.min(100, Math.max(0, raw))
   }

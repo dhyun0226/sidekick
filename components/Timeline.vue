@@ -74,7 +74,7 @@
               <textarea
                 ref="editAnchorRef"
                 v-model="editAnchor"
-                placeholder="인용 구절 (선택)"
+                placeholder="인용 구절 (필수)"
                 maxlength="500"
                 class="w-full bg-lime-50/60 dark:bg-lime-900/30 text-zinc-700 dark:text-zinc-300 text-sm rounded-2xl px-4 py-3 border-l-[3px] border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/20 resize-none overflow-hidden"
                 rows="1"
@@ -85,12 +85,13 @@
                 v-model="editContent"
                 placeholder="코멘트 (선택)"
                 maxlength="2000"
-                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
+                class="w-full bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none overflow-hidden ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
                 rows="4"
                 @keydown.esc="cancelEdit"
+                @input="autoResizeContent"
               ></textarea>
               <div class="flex gap-2 mt-3">
-                <button @click="saveEdit(comment.id)" :disabled="isSavingEdit || (!editContent.trim() && !editAnchor.trim())" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[56px] active:scale-95 transition-all">
+                <button @click="saveEdit(comment.id)" :disabled="isSavingEdit || !editAnchor.trim()" class="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[56px] active:scale-95 transition-all">
                   <div v-if="isSavingEdit" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                   <span v-else>저장</span>
                 </button>
@@ -599,6 +600,12 @@ const autoResizeAnchor = () => {
   }
 }
 
+const autoResizeContent = (e: Event) => {
+  const el = e.target as HTMLTextAreaElement
+  el.style.height = 'auto'
+  el.style.height = el.scrollHeight + 'px'
+}
+
 const startEdit = (comment: Comment) => {
   editingCommentId.value = comment.id
   editContent.value = comment.content || ''
@@ -609,7 +616,10 @@ const startEdit = (comment: Comment) => {
 const saveEdit = async (commentId: string) => {
   const hasContent = editContent.value.trim()
   const hasAnchor = editAnchor.value.trim()
-  if (!hasContent && !hasAnchor) return
+  if (!hasAnchor) {
+    nextTick(() => editAnchorRef.value?.focus())
+    return
+  }
   if (isSavingEdit.value) return
 
   isSavingEdit.value = true
@@ -618,7 +628,7 @@ const saveEdit = async (commentId: string) => {
       .from('comments')
       .update({
         content: editContent.value.trim(),
-        anchor_text: editAnchor.value.trim() || null
+        anchor_text: editAnchor.value.trim()
       })
       .eq('id', commentId)
 
@@ -632,7 +642,7 @@ const saveEdit = async (commentId: string) => {
       props.comments[idx] = {
         ...props.comments[idx],
         content: editContent.value.trim(),
-        anchor_text: editAnchor.value.trim() || null
+        anchor_text: editAnchor.value.trim()
       }
     }
 
