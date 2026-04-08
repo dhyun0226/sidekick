@@ -627,11 +627,23 @@ const groupedComments = computed(() => {
   return Array.from(posGroups.entries())
     .map(([position, anchorMap]) => ({
       position,
-      anchorGroups: Array.from(anchorMap.entries()).map(([anchorText, comments]) => ({
-        key: `${position}_${anchorText}`,
-        anchorText: anchorText || null,
-        comments
-      }))
+      anchorGroups: Array.from(anchorMap.entries())
+        .map(([anchorText, comments]) => {
+          // 그룹 안 코멘트도 정밀 position 오름차순 → 같으면 작성 시간 오름차순
+          const sortedComments = [...comments].sort((a, b) => {
+            if (a.position_pct !== b.position_pct) return a.position_pct - b.position_pct
+            return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          })
+          return {
+            key: `${position}_${anchorText}`,
+            anchorText: anchorText || null,
+            comments: sortedComments,
+            // 정렬용: 그룹 내 가장 빠른 정밀 position
+            minPct: Math.min(...comments.map(c => c.position_pct))
+          }
+        })
+        // 같은 % 버킷 안에서 책 진행 순서대로 anchor 그룹 정렬
+        .sort((a, b) => a.minPct - b.minPct)
     }))
     .sort((a, b) => a.position - b.position)
 })

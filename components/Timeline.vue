@@ -430,17 +430,22 @@ const groupedComments = computed(() => {
       return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     })
 
+    // 그룹 정렬용: 그룹 내 가장 빠른 정밀 position
+    const minPct = Math.min(...group.comments.map((c: any) => c.position_pct))
+
     return {
       ...group,
       allComments: sortedComments,
       previewComments: sortedComments.slice(0, 2),
       totalCount: sortedComments.length,
       hasMore: sortedComments.length > 2,
-      remainingCount: Math.max(0, sortedComments.length - 2)
+      remainingCount: Math.max(0, sortedComments.length - 2),
+      minPct
     }
   })
 
-  return groupArray.sort((a, b) => a.position - b.position)
+  // 같은 % 버킷 안에서도 책 진행 순서대로 (정밀 position) 정렬
+  return groupArray.sort((a, b) => a.minPct - b.minPct)
 })
 
 const isSpoiler = (position: number) => {
