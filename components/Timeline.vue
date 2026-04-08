@@ -281,7 +281,7 @@
     <CommentDetailModal
       :isOpen="detailModalOpen"
       :anchorText="selectedGroup?.anchorText || ''"
-      :position="selectedGroup?.position || 0"
+      :position="selectedGroup?.minPct ?? selectedGroup?.position ?? 0"
       :comments="selectedGroup?.allComments || []"
       :currentUserId="currentUserId"
       @close="closeDetailModal"
