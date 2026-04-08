@@ -276,7 +276,7 @@ export function useGroupPage(config: GroupPageConfig) {
         const isFinished = progressData?.finished_at != null
         progress = (isFinished || isArchived.value)
           ? (progressData?.progress_pct || 0)
-          : Math.round(viewProgress.value)
+          : viewProgress.value
       } else {
         progress = progressData?.progress_pct || 0
       }
