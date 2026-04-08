@@ -402,7 +402,7 @@ const groupedComments = computed(() => {
   const topLevelComments = props.comments.filter(c => !c.parent_id)
 
   topLevelComments.forEach(comment => {
-    const positionKey = Math.round(comment.position_pct)
+    const positionKey = Math.floor(comment.position_pct)
     const anchorKey = comment.anchor_text || 'no-anchor'
     const key = `${positionKey}_${anchorKey}`
 

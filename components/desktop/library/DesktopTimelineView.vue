@@ -611,7 +611,7 @@ const groupedComments = computed(() => {
   const posGroups = new Map<number, Map<string, any[]>>()
 
   props.comments.forEach(comment => {
-    const pos = Math.round(comment.position_pct)
+    const pos = Math.floor(comment.position_pct)
     const anchor = comment.anchor_text || ''
 
     if (!posGroups.has(pos)) {
