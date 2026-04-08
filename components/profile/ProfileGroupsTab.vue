@@ -245,7 +245,7 @@
                     <div class="flex items-center gap-1 mt-1.5 flex-wrap">
                       <GenreBadge v-if="book.genre" :genre="book.genre" size="sm" />
                       <Badge v-if="book.finished_at" variant="lime" size="sm">완독</Badge>
-                      <Badge v-else size="sm">{{ book.progress_pct }}%</Badge>
+                      <Badge v-else size="sm">{{ Math.floor(book.progress_pct) }}%</Badge>
                     </div>
                   </div>
 

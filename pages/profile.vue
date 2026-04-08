@@ -99,7 +99,7 @@
                       <p class="text-[11px] text-zinc-500 dark:text-zinc-400">{{ item.groupName }}</p>
                     </div>
                     <RatingBadge v-if="item.type === 'review'" :rating="item.rating" size="sm" />
-                    <span v-else class="text-[10px] px-2 py-0.5 bg-lime-400/10 text-lime-600 dark:text-lime-400 rounded-full">{{ Math.round(item.position_pct) }}%</span>
+                    <span v-else class="text-[10px] px-2 py-0.5 bg-lime-400/10 text-lime-600 dark:text-lime-400 rounded-full">{{ Math.floor(item.position_pct) }}%</span>
                   </div>
                   <div v-if="item.anchor_text" class="pl-3 border-l-2 border-lime-400/50 mb-2">
                     <p class="text-[13px] text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2">{{ item.anchor_text }}</p>
