@@ -3,7 +3,7 @@
     <div
       v-for="group in groupedComments"
       :key="group.key"
-      :data-position="Math.round(group.position)"
+      :data-position="group.position"
       class="relative pl-6 border-l border-zinc-200/80 dark:border-zinc-800/80 ml-2"
     >
       <!-- Timeline Dot -->
@@ -12,7 +12,7 @@
       <!-- Minimal Header -->
       <div class="flex items-baseline gap-2 mb-3 -mt-1.5">
         <span class="text-sm font-semibold text-lime-600 dark:text-lime-500">
-          {{ Math.round(group.position) }}%
+          {{ group.position }}%
         </span>
         <span class="text-[11px] text-zinc-400 dark:text-zinc-400 font-medium">
           {{ group.totalCount }}개의 기록
@@ -409,7 +409,7 @@ const groupedComments = computed(() => {
     if (!groups.has(key)) {
       groups.set(key, {
         key,
-        position: comment.position_pct,
+        position: positionKey,
         anchorText: comment.anchor_text,
         comments: []
       })

@@ -645,7 +645,7 @@ export function useGroupPage(config: GroupPageConfig) {
     if (scrollRAF !== null) cancelAnimationFrame(scrollRAF)
     scrollRAF = requestAnimationFrame(() => {
       scrollRAF = null
-      scrollToPosition(Math.round(val))
+      scrollToPosition(val)
     })
   }
 
@@ -658,12 +658,12 @@ export function useGroupPage(config: GroupPageConfig) {
 
     if (isArchived.value || isFinished) {
       // Navigation mode - scroll timeline but don't change progress display
-      nextTick(() => scrollToPosition(Math.round(val)))
+      nextTick(() => scrollToPosition(val))
       return
     }
 
     viewProgress.value = val
-    nextTick(() => scrollToPosition(Math.round(val)))
+    nextTick(() => scrollToPosition(val))
 
     {
       updateOptimistic(val)
@@ -735,7 +735,7 @@ export function useGroupPage(config: GroupPageConfig) {
 
       if (newComment?.id) {
         await nextTick()
-        scrollToPosition(Math.round(payload.position))
+        scrollToPosition(payload.position)
         highlightedCommentId.value = newComment.id
         if (highlightTimeout) clearTimeout(highlightTimeout)
         highlightTimeout = setTimeout(() => { highlightedCommentId.value = null }, 2000)
@@ -1593,7 +1593,7 @@ export function useGroupPage(config: GroupPageConfig) {
     if (isFinished || isArchived.value) {
       // 완독/보관: 스크롤만 이동, 진행률 변경 없음
       nextTick(() => {
-        scrollToPosition(Math.round(startPct))
+        scrollToPosition(startPct)
         modals.drawer = false
       })
     } else {
@@ -1601,7 +1601,7 @@ export function useGroupPage(config: GroupPageConfig) {
       viewProgress.value = startPct
       updateOptimistic(startPct)
       nextTick(() => {
-        scrollToPosition(Math.round(startPct))
+        scrollToPosition(startPct)
         modals.drawer = false
       })
       if (selectedBookId.value) {
@@ -1705,7 +1705,7 @@ export function useGroupPage(config: GroupPageConfig) {
     }
 
     if (viewProgress.value > 0) {
-      nextTick(() => scrollToPosition(Math.round(viewProgress.value)))
+      nextTick(() => scrollToPosition(viewProgress.value))
     }
   })
 

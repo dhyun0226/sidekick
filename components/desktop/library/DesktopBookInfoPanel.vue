@@ -4,7 +4,7 @@
     <div v-if="book" class="px-1">
       <div class="flex items-center justify-between mb-3">
         <h4 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium">진행률</h4>
-        <span class="text-desktop-callout font-semibold tabular-nums" :class="viewProgress >= 100 ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-900 dark:text-white'">
+        <span class="text-desktop-callout font-semibold tabular-nums" :class="Math.round(viewProgress) >= 100 ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-900 dark:text-white'">
           {{ Math.round(viewProgress) }}%
         </span>
       </div>
@@ -19,7 +19,7 @@
       <div class="mt-3 h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
         <div
           class="h-full rounded-full transition-all duration-500"
-          :class="viewProgress >= 100 ? 'bg-lime-500' : 'bg-lime-400'"
+          :class="Math.round(viewProgress) >= 100 ? 'bg-lime-500' : 'bg-lime-400'"
           :style="{ width: `${Math.min(viewProgress, 100)}%` }"
         ></div>
       </div>
