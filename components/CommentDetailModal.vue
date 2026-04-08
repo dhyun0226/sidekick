@@ -14,7 +14,7 @@
               <ChevronLeft :size="24" />
             </button>
             <div class="flex items-baseline gap-2">
-              <span class="text-desktop-callout font-semibold text-lime-600 dark:text-lime-500">{{ Math.round(position) }}%</span>
+              <span class="text-desktop-callout font-semibold text-lime-600 dark:text-lime-500">{{ Math.floor(position) }}%</span>
               <span class="text-desktop-footnote text-zinc-400 dark:text-zinc-300 font-medium">{{ comments.length }}개의 기록</span>
             </div>
           </div>

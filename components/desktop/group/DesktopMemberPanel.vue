@@ -142,7 +142,8 @@ const filteredMembers = computed(() => {
 const leader = computed(() => {
   if (props.members.length < 2) return null
   const sorted = sortedMembers.value
-  if (sorted[0]?.progress > sorted[1]?.progress && !sorted[0]?.isCompleted) {
+  // 표시값(round) 기준으로 비교 — 17.0과 17.3이 둘 다 "17%"인데 한 명만 1등 표시되는 혼란 방지
+  if (Math.round(sorted[0]?.progress ?? 0) > Math.round(sorted[1]?.progress ?? 0) && !sorted[0]?.isCompleted) {
     return sorted[0]
   }
   return null
