@@ -415,7 +415,7 @@ const isSpoiler = (position: number) => {
   if (props.isSolo) return false
   // 완독한 경우 스포일러 잠금 해제
   if (props.isFinished) return false
-  return Math.round(position) > Math.round(props.viewProgress)
+  return position > Math.floor(props.viewProgress)
 }
 
 // ===== Auto-grow textarea helper =====

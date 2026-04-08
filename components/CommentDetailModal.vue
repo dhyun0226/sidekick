@@ -406,7 +406,7 @@ const submitReply = async (parentId: string) => {
         user_id: user.id,
         parent_id: parentId,
         content: replyContent.value,
-        position_pct: Math.round(parentComment.position_pct)
+        position_pct: parentComment.position_pct
       })
       .select('*, user:users(*)')
       .single()

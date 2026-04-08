@@ -450,8 +450,8 @@ const isSpoiler = (position: number) => {
   // 완독한 경우 스포일러 잠금 해제
   if (props.isFinished) return false
 
-  // Round both values to match the displayed percentage
-  return Math.round(position) > Math.round(props.viewProgress)
+  // position은 이미 floor 버킷, viewProgress도 같은 버킷 기준으로 비교
+  return position > Math.floor(props.viewProgress)
 }
 
 const toggleLike = async (commentId: string) => {
@@ -534,7 +534,7 @@ const submitReply = async (parentId: string) => {
         user_id: user.id,
         parent_id: parentId,
         content: replyContent.value,
-        position_pct: Math.round(parentComment.position_pct)
+        position_pct: parentComment.position_pct
       })
       .select('*, user:users(*)')
       .single()

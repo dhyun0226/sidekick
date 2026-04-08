@@ -55,7 +55,7 @@
                 </span>
                 <span>·</span>
               </template>
-              <span>{{ Math.round(book.progress_pct) }}%</span>
+              <span>{{ Math.floor(book.progress_pct) }}%</span>
             </div>
           </div>
         </div>

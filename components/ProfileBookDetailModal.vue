@@ -113,7 +113,7 @@
                       <RatingBadge :rating="item.rating" size="sm" />
                     </template>
                     <Badge v-else variant="lime" size="sm">
-                      {{ Math.round(item.position_pct) }}%
+                      {{ Math.floor(item.position_pct) }}%
                     </Badge>
                   </div>
                 </div>
