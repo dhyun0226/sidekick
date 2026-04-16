@@ -15,8 +15,9 @@
           :value="totalPages"
           @input="updateTotalPages"
           @blur="validateTotalPages"
-          type="number"
-          min="1"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
           placeholder="책의 마지막 페이지 번호를 적어주세요"
           class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 py-3.5 pr-16 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 border-none transition-all no-spinner outline-none"
         />
@@ -69,8 +70,11 @@
               <div class="flex items-center gap-1 px-2 sm:px-3 h-11 bg-zinc-100 dark:bg-zinc-800 rounded-xl transition-all focus-within:ring-2 focus-within:ring-inset focus-within:ring-lime-400 min-w-[85px] sm:min-w-[110px] justify-center flex-shrink-0">
                 <input
                   :ref="el => setPageInputRef(idx, el)"
-                  v-model.number="chapter.startPage"
-                  type="number"
+                  :value="chapter.startPage || ''"
+                  @input="chapter.startPage = parseInt(($event.target as HTMLInputElement).value) || 0"
+                  type="text"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
                   placeholder="0"
                   @blur="validateChapterPage(idx)"
                   @keydown.tab="handlePageTab($event, idx)"
