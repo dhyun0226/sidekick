@@ -24,15 +24,33 @@ interface CommentPayload {
 export const useGroupComments = (userIdRef: Ref<string | null | undefined>) => {
   const client = useSupabaseClient()
   const comments = ref<Comment[]>([])
+  const loadedCommentRows = ref(0)
   const hasMore = ref(true)
   const isLoadingMore = ref(false)
   const COMMENTS_PER_PAGE = 30
+
+  const countNestedComments = (items: Comment[]) => {
+    return items.reduce((total, comment) => {
+      return total + 1 + (comment.replies?.length || 0)
+    }, 0)
+  }
+
+  const setCommentsFromApi = (
+    nextComments: Comment[],
+    nextHasMore: boolean,
+    nextOffset?: number
+  ) => {
+    comments.value = nextComments
+    hasMore.value = nextHasMore
+    loadedCommentRows.value = nextOffset ?? countNestedComments(nextComments)
+  }
 
   /**
    * Fetch initial comments for a specific book with likes and user data
    */
   const fetchComments = async (groupBookId: string) => {
     comments.value = [] // Reset comments
+    loadedCommentRows.value = 0
     hasMore.value = true
     await loadMoreComments(groupBookId)
   }
@@ -46,7 +64,7 @@ export const useGroupComments = (userIdRef: Ref<string | null | undefined>) => {
     isLoadingMore.value = true
 
     try {
-      const currentOffset = comments.value.length
+      const currentOffset = loadedCommentRows.value
 
       const { data, error } = await client
         .from('comments')
@@ -61,9 +79,15 @@ export const useGroupComments = (userIdRef: Ref<string | null | undefined>) => {
       }
 
       if (data) {
+        loadedCommentRows.value += data.length
+
         // Check if we've reached the end
         if (data.length < COMMENTS_PER_PAGE) {
           hasMore.value = false
+        }
+
+        if (data.length === 0) {
+          return
         }
 
         // 🎯 Collect ALL IDs including nested replies to fetch reactions
@@ -218,6 +242,7 @@ export const useGroupComments = (userIdRef: Ref<string | null | undefined>) => {
 
   return {
     comments,
+    setCommentsFromApi,
     fetchComments,
     loadMoreComments,
     submitComment,

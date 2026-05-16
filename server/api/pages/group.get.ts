@@ -155,6 +155,7 @@ export default defineEventHandler(async (event) => {
       selectedBookData = {
         comments: commentsResult.comments,
         hasMore: commentsResult.hasMore,
+        nextOffset: commentsResult.nextOffset,
         userProgress: userProgressEntry?.progress_pct || 0,
         memberProgress: memberProgressRes.data || []
       }
@@ -176,9 +177,12 @@ async function fetchCommentsForBook(client: any, groupBookId: string, userId: st
     .order('created_at', { ascending: true })
     .range(0, COMMENTS_PER_PAGE - 1)
 
-  if (!commentsData || commentsData.length === 0) return { comments: [], hasMore: false }
+  if (!commentsData || commentsData.length === 0) {
+    return { comments: [], hasMore: false, nextOffset: 0 }
+  }
 
   const hasMore = commentsData.length >= COMMENTS_PER_PAGE
+  const nextOffset = commentsData.length
   const commentIds = commentsData.map((c: any) => c.id)
 
   // 반응 병렬 조회
@@ -207,5 +211,5 @@ async function fetchCommentsForBook(client: any, groupBookId: string, userId: st
     }
   })
 
-  return { comments: roots, hasMore }
+  return { comments: roots, hasMore, nextOffset }
 }

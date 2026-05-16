@@ -27,6 +27,37 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'bookId가 필요합니다' })
     }
 
+    // Service role bypasses RLS, so explicitly verify the user belongs to
+    // the group that owns this book before returning comments/progress.
+    const { data: groupBook, error: groupBookError } = await client
+      .from('group_books')
+      .select('id, group_id, deleted_at')
+      .eq('id', bookId)
+      .maybeSingle()
+
+    if (groupBookError) {
+      throw groupBookError
+    }
+
+    if (!groupBook || groupBook.deleted_at) {
+      throw createError({ statusCode: 404, message: '책을 찾을 수 없습니다' })
+    }
+
+    const { data: membership, error: membershipError } = await client
+      .from('group_members')
+      .select('id')
+      .eq('group_id', groupBook.group_id)
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (membershipError) {
+      throw membershipError
+    }
+
+    if (!membership) {
+      throw createError({ statusCode: 403, message: '이 책에 접근할 권한이 없습니다' })
+    }
+
     // Fetch comments and all member progress in parallel
     const [commentsResult, memberProgressRes] = await Promise.all([
       fetchCommentsForBook(client, bookId, userId),
@@ -43,6 +74,7 @@ export default defineEventHandler(async (event) => {
     return {
       comments: commentsResult.comments,
       hasMore: commentsResult.hasMore,
+      nextOffset: commentsResult.nextOffset,
       userProgress,
       memberProgress: memberProgressRes.data || []
     }
@@ -70,15 +102,16 @@ async function fetchCommentsForBook(
     .range(0, COMMENTS_PER_PAGE - 1)
 
   if (commentsError || !commentsData) {
-    return { comments: [], hasMore: false }
+    return { comments: [], hasMore: false, nextOffset: 0 }
   }
 
   const hasMore = commentsData.length >= COMMENTS_PER_PAGE
+  const nextOffset = commentsData.length
 
   const allCommentIds = commentsData.map((c: any) => c.id)
 
   if (allCommentIds.length === 0) {
-    return { comments: [], hasMore: false }
+    return { comments: [], hasMore: false, nextOffset: 0 }
   }
 
   // Fetch reactions in parallel
@@ -128,5 +161,5 @@ async function fetchCommentsForBook(
     }
   })
 
-  return { comments: rootComments, hasMore }
+  return { comments: rootComments, hasMore, nextOffset }
 }

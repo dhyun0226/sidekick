@@ -20,6 +20,8 @@ export default defineNuxtConfig({
     naverClientId: process.env.NAVER_CLIENT_ID,
     naverClientSecret: process.env.NAVER_CLIENT_SECRET,
     tossSecretKey: process.env.TOSS_SECRET_KEY,
+    tossWebhookSecret: process.env.TOSS_WEBHOOK_SECRET,
+    cronSecret: process.env.CRON_SECRET,
 
     // 클라이언트 사이드 (브라우저에 노출됨)
     public: {

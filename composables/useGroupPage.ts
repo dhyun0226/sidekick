@@ -67,6 +67,7 @@ export function useGroupPage(config: GroupPageConfig) {
 
   const {
     comments,
+    setCommentsFromApi,
     fetchComments,
     loadMoreComments,
     submitComment,
@@ -439,8 +440,11 @@ export function useGroupPage(config: GroupPageConfig) {
 
     // Hydrate selectedBook data (comments, progress)
     if (data.selectedBookData) {
-      comments.value = data.selectedBookData.comments || []
-      hasMore.value = data.selectedBookData.hasMore ?? true
+      setCommentsFromApi(
+        data.selectedBookData.comments || [],
+        data.selectedBookData.hasMore ?? true,
+        data.selectedBookData.nextOffset
+      )
       viewProgress.value = data.selectedBookData.userProgress || 0
       memberProgress.value = data.selectedBookData.memberProgress || []
     }
@@ -479,8 +483,11 @@ export function useGroupPage(config: GroupPageConfig) {
               const bookData = await $fetch('/api/pages/group/book', {
                 query: { bookId: bookIdFromQuery }
               })
-              comments.value = (bookData as any).comments || []
-              hasMore.value = (bookData as any).hasMore ?? true
+              setCommentsFromApi(
+                (bookData as any).comments || [],
+                (bookData as any).hasMore ?? true,
+                (bookData as any).nextOffset
+              )
               viewProgress.value = (bookData as any).userProgress || 0
               memberProgress.value = (bookData as any).memberProgress || []
             } catch (bookErr) {
@@ -1628,8 +1635,11 @@ export function useGroupPage(config: GroupPageConfig) {
           query: { bookId }
         }) as any
 
-        comments.value = bookData.comments || []
-        hasMore.value = bookData.hasMore ?? true
+        setCommentsFromApi(
+          bookData.comments || [],
+          bookData.hasMore ?? true,
+          bookData.nextOffset
+        )
         viewProgress.value = bookData.userProgress || 0
         memberProgress.value = bookData.memberProgress || []
 
