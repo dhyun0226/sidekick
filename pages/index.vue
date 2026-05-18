@@ -50,6 +50,35 @@
       </div>
     </header>
 
+    <!-- v2 Quick Actions -->
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <button
+        @click="handleCreateGroupClick"
+        class="py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-semibold rounded-2xl hover:opacity-85 transition-opacity shadow-apple flex items-center justify-center gap-2"
+      >
+        <Plus :size="18" />
+        그룹 만들기
+      </button>
+      <button
+        @click="joinGroupModalOpen = true"
+        class="py-3 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white font-semibold rounded-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
+      >
+        <KeyRound :size="18" class="text-zinc-400 dark:text-zinc-300" />
+        초대 코드
+      </button>
+    </div>
+
+    <button
+      @click="router.push('/v2')"
+      class="mb-6 flex w-full items-center justify-between rounded-2xl bg-white p-4 text-left shadow-apple ring-1 ring-black/[0.04] transition hover:bg-zinc-50 dark:bg-zinc-900 dark:ring-white/[0.06] dark:hover:bg-zinc-800"
+    >
+      <span>
+        <span class="block text-sm font-black text-zinc-900 dark:text-white">v2 캐릭터 독서 허브</span>
+        <span class="mt-0.5 block text-xs font-semibold text-zinc-500 dark:text-zinc-400">공유 카드, 배지, 추천을 확인해요</span>
+      </span>
+      <Sparkles :size="19" class="text-lime-500" />
+    </button>
+
     <!-- 1. My Library Section (Solo Group) -->
     <div v-if="soloGroup" class="mt-2 mb-6">
       <div
@@ -300,7 +329,7 @@
 
     <!-- Loading State -->
     <div v-if="loading" class="px-5">
-      <SkeletonGroupCard :count="3" />
+      <GroupCardSkeleton :count="3" />
     </div>
 
     <!-- FAB (항상 표시) -->
@@ -338,11 +367,12 @@ import { ref, computed, onMounted, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
 import { useToastStore } from '~/stores/toast'
-import { User, Plus, KeyRound, ChevronRight, MessageCircle, Coffee, BookOpen, Compass } from 'lucide-vue-next'
+import { User, Plus, KeyRound, ChevronRight, MessageCircle, Coffee, BookOpen, Compass, Sparkles } from 'lucide-vue-next'
 import NotificationCenter from '~/components/NotificationCenter.vue'
 import CreateGroupModal from '~/components/CreateGroupModal.vue'
 import JoinGroupModal from '~/components/JoinGroupModal.vue'
 import InquiryModal from '~/components/InquiryModal.vue'
+import GroupCardSkeleton from '~/components/skeleton/GroupCardSkeleton.vue'
 
 const DesktopHomeDashboard = defineAsyncComponent(() => import('~/components/desktop/home/DesktopHomeDashboard.vue'))
 

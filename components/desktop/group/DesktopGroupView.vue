@@ -70,10 +70,10 @@
         <!-- Hero -->
         <div v-if="selectedBook" class="px-8 pt-10 pb-6">
           <div class="flex items-start gap-6">
-            <div class="w-24 h-34 rounded-xl overflow-hidden shadow-apple flex-shrink-0">
+            <div class="w-24 h-[136px] rounded-xl overflow-hidden shadow-apple flex-shrink-0">
               <img v-if="bookCover" :src="bookCover" class="w-full h-full object-cover" />
             </div>
-            <div class="pt-1">
+            <div class="pt-1 min-w-0">
               <p class="text-desktop-caption text-zinc-400 dark:text-zinc-300 mb-1">{{ groupName }}</p>
               <h1 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-1.5 leading-tight">{{ bookTitle }}</h1>
               <div class="flex flex-wrap items-center gap-1.5 mb-3 text-[16px] text-zinc-500 dark:text-zinc-300">
@@ -102,22 +102,34 @@
                   {{ formatShortDate(selectedBook.user_finished_at) }} 완독
                 </Badge>
               </div>
+              <button
+                v-if="selectedBookId && !isArchived && !isReadOnlyMode"
+                type="button"
+                class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-desktop-caption font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors"
+                @click="openReadingRoom"
+              >
+                <Timer :size="15" />
+                캐릭터랑 읽기
+              </button>
             </div>
           </div>
         </div>
 
         <!-- Empty State -->
         <div v-else-if="!isLoading" class="flex flex-col items-center justify-center h-full">
-          <div class="text-center">
+          <div class="text-center max-w-sm">
             <h2 class="text-desktop-body font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">
-              {{ isAdmin ? '함께 읽을 책을 정해주세요' : '읽을 책을 기다리고 있어요' }}
+              {{ isAdmin ? '함께 읽을 책을 정해주세요' : '그룹장이 책을 고르는 중이에요' }}
             </h2>
+            <p class="text-desktop-callout text-zinc-500 dark:text-zinc-400 font-light">
+              {{ isAdmin ? '책을 추가하면 멤버들이 같은 화면에서 진도와 코멘트를 남길 수 있어요.' : '책이 등록되면 이곳에서 진도와 기록을 함께 확인할 수 있어요.' }}
+            </p>
             <button
               v-if="isAdmin"
               @click="openSearchModal"
               class="mt-4 px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors duration-200 ease-apple text-desktop-callout"
             >
-              새 책 시작하기
+              책 추가하기
             </button>
           </div>
         </div>
@@ -244,7 +256,7 @@
 
 <script setup lang="ts">
 import { ref, inject } from 'vue'
-import { AlertCircle, Lock, Users } from 'lucide-vue-next'
+import { AlertCircle, Lock, Timer, Users } from 'lucide-vue-next'
 import { GroupPageKey } from '~/types'
 import { useToastStore } from '~/stores/toast'
 import { useUserStore } from '~/stores/user'
@@ -264,6 +276,7 @@ const ctx = inject(GroupPageKey)!
 const toast = useToastStore()
 const userStore = useUserStore()
 const client = useSupabaseClient()
+const router = useRouter()
 
 const {
   isLoading, loadError, selectedBook, selectedBookId, viewProgress,
@@ -292,6 +305,11 @@ const {
 const batchModalOpen = ref(false)
 const batchModalRef = ref<InstanceType<typeof DesktopBatchNotesModal> | null>(null)
 const activeRightTab = ref<'members' | 'book' | 'settings'>('members')
+
+const openReadingRoom = () => {
+  if (!selectedBookId.value) return
+  router.push(`/read/${selectedBookId.value}?from=/group/${group.value?.id || ''}`)
+}
 
 const rightTabs = [
   { key: 'members' as const, label: '멤버' },

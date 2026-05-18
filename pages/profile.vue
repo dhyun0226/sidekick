@@ -4,6 +4,7 @@
     <DesktopProfileView
       :profile="userStore.profile"
       :stats="stats"
+      :v2-summary="v2Summary"
       :active-tab="activeTab"
       @tab-change="(t) => t === 'insight' ? handleInsightTabClick() : activeTab = t"
     >
@@ -138,6 +139,10 @@
       :subscription-details="subscriptionDetails" 
     />
 
+    <div class="px-4 pt-3">
+      <ProfileV2Summary :summary="v2Summary" />
+    </div>
+
     <!-- 2. Sticky Tab Navigation -->
     <div class="sticky top-0 z-30 bg-gray-50/95 dark:bg-[#09090b]/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
       <div class="flex px-4">
@@ -231,6 +236,7 @@
     :notification-settings="notificationSettings"
     :app-settings="appSettings"
     :is-saving="isSaving"
+    :is-premium="isPremium"
     @close="settingsModalOpen = false"
     @handle-file="handleFileChange"
     @save-profile="saveProfile"
@@ -238,6 +244,7 @@
     @delete-account="handleDeleteAccount"
     @toggle-theme="toggleTheme"
     @open-inquiry="inquiryModalOpen = true"
+    @upgrade="router.push('/subscription')"
   />
 
   <InquiryModal
@@ -324,6 +331,7 @@ import ProfileTimelineTab from '~/components/profile/ProfileTimelineTab.vue'
 import ProfileInsightTab from '~/components/profile/ProfileInsightTab.vue'
 import ProfileGroupsTab from '~/components/profile/ProfileGroupsTab.vue'
 import ProfileWishlistTab from '~/components/profile/ProfileWishlistTab.vue'
+import ProfileV2Summary from '~/components/profile/ProfileV2Summary.vue'
 import ProfileSettingsModal from '~/components/profile/ProfileSettingsModal.vue'
 import ProfileDayActivityModal from '~/components/profile/ProfileDayActivityModal.vue'
 import ProfileBookDetailModal from '~/components/ProfileBookDetailModal.vue'
@@ -367,6 +375,7 @@ const handleCalNavigate = (payload: { month: number; year: number }) => {
 }
 const stats = ref({ books: 0, wish: 0, comments: 0, streak: 0, groups: 0 })
 const longestStreak = ref(0)
+const v2Summary = ref<any>(null)
 
 // Pagination & Totals
 const timelineOffset = ref(0)
@@ -490,6 +499,7 @@ const fetchData = async () => {
     longestStreak.value = data.longestStreak
     monthlyTotals.value = data.monthlyTotals
     fullActivities.value = data.lightweightActivities
+    v2Summary.value = data.v2Summary || null
 
     await loadMoreTimeline()
   } catch (err) { console.error(err) } finally { loading.value = false }

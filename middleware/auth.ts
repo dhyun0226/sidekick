@@ -1,9 +1,11 @@
+import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp } from '#imports'
+
 /**
  * 인증 미들웨어
  * 로그인하지 않은 사용자는 로그인 페이지로 리다이렉트
  */
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  const client = useSupabaseClient()
+  const client = useNuxtApp().$supabase.client
 
   // 로그인이 필요없는 공개 페이지들
   const publicPages = ['/login', '/auth/callback']

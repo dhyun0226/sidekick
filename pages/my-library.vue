@@ -55,6 +55,17 @@
         :is-solo="true"
       />
 
+      <div v-if="selectedBook && !isArchived" class="max-w-[480px] mx-auto px-4 -mt-2 mb-5">
+        <button
+          type="button"
+          class="w-full py-3 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold shadow-apple flex items-center justify-center gap-2 active:scale-[0.99] transition-transform"
+          @click="router.push(`/read/${selectedBookId}?from=/my-library`)"
+        >
+          <Timer :size="18" />
+          캐릭터랑 읽기
+        </button>
+      </div>
+
       <!-- Timeline Content (Flows naturally) -->
       <div class="px-safe max-w-[480px] mx-auto min-h-[50vh] pb-[200px]">
         <!-- 책이 없을 때 Empty State (개선된 온보딩) -->
@@ -333,7 +344,7 @@ import BookAdminModals from '~/components/group/BookAdminModals.vue'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import TextDisplayModal from '~/components/TextDisplayModal.vue'
 import TextInputModal from '~/components/TextInputModal.vue'
-import { Archive, Plus, BookOpen } from 'lucide-vue-next'
+import { Archive, Plus, BookOpen, Timer } from 'lucide-vue-next'
 import { GroupPageKey } from '~/types'
 
 const DesktopLibraryView = defineAsyncComponent(() => import('~/components/desktop/library/DesktopLibraryView.vue'))

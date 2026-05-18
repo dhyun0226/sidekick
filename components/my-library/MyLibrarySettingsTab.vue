@@ -1,34 +1,40 @@
 <template>
-  <div class="space-y-4">
-    <!-- Library Management -->
-    <div>
-      <div class="flex items-center justify-between px-1 mb-3">
+  <div class="space-y-5 pb-20">
+    <section>
+      <div class="px-1 mb-3">
         <h3 class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">내 서재 관리</h3>
+        <p class="mt-1 text-[11px] text-zinc-400 dark:text-zinc-500">개인 독서 흐름에 필요한 액션만 모았습니다.</p>
       </div>
-      <div class="bg-white dark:bg-zinc-900 rounded-2xl p-4 ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
 
-      <div class="flex items-center gap-2 mb-3">
-        <input
-          v-model="localGroupName"
-          type="text"
-          placeholder="서재 이름"
-          :disabled="isArchived"
-          class="flex-1 min-w-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg py-2 px-3 text-sm text-zinc-800 dark:text-zinc-200 ring-1 ring-black/[0.04] dark:ring-white/[0.06] focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-        />
-        <button v-if="!isArchived" @click="handleSaveGroupName" class="flex-shrink-0 p-2.5 bg-zinc-900 dark:bg-zinc-700 text-white rounded-lg hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-colors">
-          <Save :size="18" />
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl p-4 ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
+        <div class="flex items-center gap-2 mb-3">
+          <input
+            v-model="localGroupName"
+            type="text"
+            placeholder="서재 이름"
+            :disabled="isArchived"
+            class="flex-1 min-w-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg py-2 px-3 text-sm text-zinc-800 dark:text-zinc-200 ring-1 ring-black/[0.04] dark:ring-white/[0.06] focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+          <button
+            v-if="!isArchived"
+            @click="handleSaveGroupName"
+            class="flex-shrink-0 p-2.5 bg-zinc-900 dark:bg-zinc-700 text-white rounded-lg hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-colors"
+            title="서재 이름 저장"
+          >
+            <Save :size="18" />
+          </button>
+        </div>
+
+        <button
+          v-if="!isArchived"
+          @click="emit('openSearchModal')"
+          class="w-full py-2.5 ring-1 ring-lime-300/60 dark:ring-lime-700/60 text-lime-600 dark:text-lime-400 rounded-xl text-xs font-semibold hover:bg-lime-50 dark:hover:bg-lime-900/20 transition-colors flex items-center justify-center gap-2"
+        >
+          <Plus :size="14" />
+          책 추가
         </button>
       </div>
-      <button
-        v-if="!isArchived"
-        @click="emit('openSearchModal')"
-        class="w-full py-2.5 ring-1 ring-lime-300/60 dark:ring-lime-700/60 text-lime-600 dark:text-lime-400 rounded-xl text-xs font-semibold hover:bg-lime-50 dark:hover:bg-lime-900/20 transition-colors flex items-center justify-center gap-2"
-      >
-        <Plus :size="14" />
-        새 책 시작하기
-      </button>
-      </div>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -51,7 +57,6 @@ const emit = defineEmits<Emits>()
 
 const localGroupName = ref(props.groupName)
 
-// Watch for external changes to groupName
 watch(() => props.groupName, (newName) => {
   localGroupName.value = newName
 })

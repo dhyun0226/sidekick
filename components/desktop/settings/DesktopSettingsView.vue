@@ -17,6 +17,22 @@
         @change-input-mode="$emit('change-input-mode', $event)"
       />
 
+      <div class="pt-6 border-t border-zinc-100 dark:border-zinc-800/50">
+        <h3 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium mb-4">v2 읽기 동행</h3>
+        <div class="grid grid-cols-3 gap-2">
+          <NuxtLink
+            v-for="item in companionLinks"
+            :key="item.to"
+            :to="item.to"
+            class="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-3 text-left transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+          >
+            <component :is="item.icon" :size="16" class="mb-2 text-zinc-500 dark:text-zinc-400" />
+            <span class="block text-xs font-semibold text-zinc-800 dark:text-zinc-100">{{ item.label }}</span>
+            <span class="mt-0.5 block text-[11px] text-zinc-400 dark:text-zinc-500">{{ item.caption }}</span>
+          </NuxtLink>
+        </div>
+      </div>
+
       <DesktopSettingsNotifications
         :settings="notificationSettings"
         @toggle="$emit('toggle-notification', $event)"
@@ -27,18 +43,6 @@
         @upgrade="$emit('upgrade')"
         @manage="$emit('manage-subscription')"
       />
-
-      <!-- Support -->
-      <div class="pt-6 border-t border-zinc-100 dark:border-zinc-800/50">
-        <h3 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium mb-4">고객 지원</h3>
-        <button
-          @click="$emit('open-inquiry')"
-          class="w-full py-2 text-desktop-callout text-zinc-500 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors text-left flex items-center gap-2"
-        >
-          <MessageCircle :size="14" />
-          문의하기
-        </button>
-      </div>
 
       <!-- Account -->
       <div class="pt-6 border-t border-zinc-100 dark:border-zinc-800/50">
@@ -57,6 +61,18 @@
             계정 삭제
           </button>
         </div>
+      </div>
+
+      <!-- Support -->
+      <div class="pt-6 border-t border-zinc-100 dark:border-zinc-800/50">
+        <h3 class="text-desktop-micro text-zinc-400 dark:text-zinc-300 font-medium mb-4">문의</h3>
+        <button
+          @click="$emit('open-inquiry')"
+          class="w-full py-2 text-desktop-callout text-zinc-500 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors text-left flex items-center gap-2"
+        >
+          <MessageCircle :size="14" />
+          문의하기
+        </button>
       </div>
       <!-- Legal -->
       <div class="pt-6 border-t border-zinc-100 dark:border-zinc-800/50">
@@ -81,7 +97,7 @@ import DesktopSettingsProfile from './DesktopSettingsProfile.vue'
 import DesktopSettingsDisplay from './DesktopSettingsDisplay.vue'
 import DesktopSettingsNotifications from './DesktopSettingsNotifications.vue'
 import DesktopSettingsSubscription from './DesktopSettingsSubscription.vue'
-import { MessageCircle, FileText, Shield } from 'lucide-vue-next'
+import { BarChart3, BookOpen, Compass, MessageCircle, FileText, Shield } from 'lucide-vue-next'
 
 defineProps<{
   profile: any
@@ -97,4 +113,10 @@ defineEmits([
   'toggle-notification', 'upgrade', 'manage-subscription',
   'sign-out', 'delete-account', 'open-inquiry'
 ])
+
+const companionLinks = [
+  { to: '/v2', label: '동행 설정', caption: '캐릭터와 배경', icon: BookOpen },
+  { to: '/recap/v2', label: '리캡', caption: '월간/연간 요약', icon: BarChart3 },
+  { to: '/recommendations/v2', label: '추천', caption: '다음 책 후보', icon: Compass }
+]
 </script>

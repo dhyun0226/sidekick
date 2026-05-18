@@ -18,6 +18,7 @@
 
       <!-- Stats Summary -->
       <div class="flex items-center gap-2 mb-5 pb-5 border-b border-zinc-200/50 dark:border-zinc-800/50">
+        <p class="sr-only">내 활동 요약</p>
         <button
           v-for="stat in statCards"
           :key="stat.label"
@@ -28,6 +29,11 @@
           <p class="text-xs text-zinc-400 dark:text-zinc-300">{{ stat.label }}</p>
         </button>
       </div>
+
+      <ProfileV2Summary
+        :summary="v2Summary"
+        class="mb-5"
+      />
 
       <!-- Tabs -->
       <nav class="space-y-0.5 mb-5 pb-5 border-b border-zinc-200/50 dark:border-zinc-800/50">
@@ -63,17 +69,19 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import ProfileV2Summary from '~/components/profile/ProfileV2Summary.vue'
 
 const props = defineProps<{
   profile: any
   stats: { books: number; wish: number; comments: number; groups: number }
   activeTab: string
+  v2Summary?: any
 }>()
 
 defineEmits(['tab-change'])
 
 const tabs = [
-  { key: 'library', label: '서재' },
+  { key: 'library', label: '내 서재' },
   { key: 'wishlist', label: '위시' },
   { key: 'timeline', label: '기록' },
   { key: 'groups', label: '그룹' },

@@ -4,13 +4,19 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "build:local": "nuxt build --dotenv .env.local",
+    "build:prod": "nuxt build --dotenv .env.production",
+    "dev": "nuxt dev --dotenv .env.local",
+    "dev:local": "nuxt dev --dotenv .env.local",
+    "dev:prod-env": "nuxt dev --dotenv .env.production",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
+    "preview:local": "nuxt preview --dotenv .env.local",
+    "preview:prod": "nuxt preview --dotenv .env.production",
     "postinstall": "nuxt prepare",
     "clean": "rm -rf .nuxt node_modules/.vite node_modules/.cache",
     "clean:all": "rm -rf .nuxt node_modules/.vite node_modules/.cache node_modules package-lock.json",
-    "fresh": "npm run clean:all && npm install && npm run dev"
+    "fresh": "npm run clean:all && npm install && npm run dev:local"
   },
   "dependencies": {
     "@nuxtjs/supabase": "^2.0.2",

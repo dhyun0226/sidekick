@@ -35,6 +35,15 @@
       </NuxtLink>
 
       <NuxtLink
+        to="/v2"
+        class="sidebar-item"
+        :class="{ active: route.path === '/v2' }"
+      >
+        <Sparkles :size="17" :stroke-width="1.75" />
+        <span>v2 허브</span>
+      </NuxtLink>
+
+      <NuxtLink
         to="/profile"
         class="sidebar-item"
         :class="{ active: route.path === '/profile' }"
@@ -52,9 +61,27 @@
         <span>설정</span>
       </NuxtLink>
 
-      <!-- Spacer -->
-      <div class="pt-5 pb-1">
-        <p class="px-3 text-desktop-micro font-medium text-zinc-400 dark:text-zinc-300">그룹</p>
+      <!-- Groups -->
+      <div class="pt-5 pb-1 flex items-center justify-between px-3">
+        <p class="text-desktop-micro font-medium text-zinc-400 dark:text-zinc-300">그룹</p>
+        <div class="flex items-center gap-1">
+          <button
+            type="button"
+            @click="openJoinGroup"
+            class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            title="초대 코드 입력"
+          >
+            <KeyRound :size="14" :stroke-width="1.8" />
+          </button>
+          <button
+            type="button"
+            @click="openCreateGroup"
+            class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            title="공유 그룹 만들기"
+          >
+            <Plus :size="15" :stroke-width="1.8" />
+          </button>
+        </div>
       </div>
 
       <NuxtLink
@@ -87,22 +114,43 @@
         </div>
       </NuxtLink>
     </div>
+
+    <CreateGroupModal
+      :isOpen="createGroupModalOpen"
+      @close="createGroupModalOpen = false"
+      @created="handleGroupCreated"
+    />
+    <JoinGroupModal
+      :isOpen="joinGroupModalOpen"
+      @close="joinGroupModalOpen = false"
+      @joined="handleGroupJoined"
+    />
   </aside>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import { Home, BookOpen, Compass, User, Users, Settings } from 'lucide-vue-next'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { Home, BookOpen, Compass, User, Users, Settings, Plus, KeyRound, Sparkles } from 'lucide-vue-next'
 import { useUserStore } from '~/stores/user'
+import { useToastStore } from '~/stores/toast'
+import CreateGroupModal from '~/components/CreateGroupModal.vue'
+import JoinGroupModal from '~/components/JoinGroupModal.vue'
 
 const route = useRoute()
+const router = useRouter()
 const userStore = useUserStore()
+const toast = useToastStore()
 const client = useSupabaseClient()
+const { fetchLimits, isPremium } = useSubscription()
 
 const socialGroups = ref<any[]>([])
 const loading = ref(true)
+const createGroupModalOpen = ref(false)
+const joinGroupModalOpen = ref(false)
 
 const fetchGroups = async () => {
+  loading.value = true
+
   try {
     const { data: { user } } = await client.auth.getUser()
     if (!user) return
@@ -125,7 +173,39 @@ const fetchGroups = async () => {
   }
 }
 
-onMounted(fetchGroups)
+const openCreateGroup = () => {
+  if (!isPremium.value) {
+    toast.error('공유 그룹 생성은 프리미엄 구독이 필요합니다')
+    router.push('/subscription')
+    return
+  }
+
+  createGroupModalOpen.value = true
+}
+
+const openJoinGroup = () => {
+  joinGroupModalOpen.value = true
+}
+
+const handleGroupCreated = async (newGroup: any) => {
+  toast.success('새 그룹이 생성되었습니다')
+  createGroupModalOpen.value = false
+  await fetchGroups()
+  router.push(`/group/${newGroup.id}`)
+}
+
+const handleGroupJoined = async (groupId: string) => {
+  joinGroupModalOpen.value = false
+  await fetchGroups()
+  router.push(`/group/${groupId}`)
+}
+
+onMounted(async () => {
+  await Promise.all([
+    fetchGroups(),
+    fetchLimits(true)
+  ])
+})
 
 // 페이지 이동 시 그룹 목록 갱신 (새 그룹 생성/참여 반영, 디바운스)
 let fetchTimer: ReturnType<typeof setTimeout> | null = null

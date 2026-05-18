@@ -14,6 +14,31 @@
  * 9. user_wishlists count (위시 카운트)
  */
 import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
+import { listUserBadges } from '../../utils/v2Badges'
+
+const emptyV2Summary = () => ({
+  sessionCount: 0,
+  totalDurationSeconds: 0,
+  noteCount: 0,
+  activeDays: 0,
+  activeCompanion: 'pipi',
+  earnedBadges: 0,
+  recentSessions: [],
+  badges: []
+})
+
+const isMissingV2Table = (error: any) => {
+  const message = `${error?.code || ''} ${error?.message || ''}`
+  return message.includes('42P01')
+    || message.includes('reading_sessions')
+    || message.includes('user_companion')
+    || message.includes('badges')
+}
+
+const toLocalDay = (value: string) => {
+  const date = new Date(value)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
 
 export default defineEventHandler(async (event) => {
   try {
@@ -271,6 +296,52 @@ export default defineEventHandler(async (event) => {
 
     // ── 결과 반환 ──────────────────────────────────────────────────────
 
+    let v2Summary = emptyV2Summary()
+    try {
+      const [sessionsRes, settingsRes, badges] = await Promise.all([
+        client
+          .from('reading_sessions')
+          .select(`
+            id, group_book_id, companion_code, started_at, duration_seconds,
+            memo_count, quote_count, share_token, shared_at,
+            group_book:group_books(id, books(title, author, cover_url), groups(name, group_type))
+          `)
+          .eq('user_id', userId)
+          .order('started_at', { ascending: false })
+          .limit(30),
+        client
+          .from('user_companion_settings')
+          .select('active_companion_code')
+          .eq('user_id', userId)
+          .maybeSingle(),
+        listUserBadges(client, userId)
+      ])
+
+      if (sessionsRes.error || settingsRes.error) {
+        throw sessionsRes.error || settingsRes.error
+      }
+
+      const sessions = sessionsRes.data || []
+      const daySet = new Set(sessions.map((item: any) => toLocalDay(item.started_at)))
+      const noteCount = sessions.reduce((sum: number, item: any) => sum + (item.memo_count || 0) + (item.quote_count || 0), 0)
+      const totalDurationSeconds = sessions.reduce((sum: number, item: any) => sum + (item.duration_seconds || 0), 0)
+
+      v2Summary = {
+        sessionCount: sessions.length,
+        totalDurationSeconds,
+        noteCount,
+        activeDays: daySet.size,
+        activeCompanion: settingsRes.data?.active_companion_code || 'pipi',
+        earnedBadges: badges.filter((badge: any) => badge.earned).length,
+        recentSessions: sessions.slice(0, 3),
+        badges: badges.slice(0, 6)
+      }
+    } catch (error: any) {
+      if (!isMissingV2Table(error)) {
+        console.error('[/api/pages/profile] v2 summary error:', error)
+      }
+    }
+
     return {
       library: libraryData,
       stats: {
@@ -283,7 +354,8 @@ export default defineEventHandler(async (event) => {
       longestStreak,
       yearlyGoal,
       monthlyTotals,
-      lightweightActivities
+      lightweightActivities,
+      v2Summary
     }
   } catch (err: any) {
     if (err.statusCode) throw err

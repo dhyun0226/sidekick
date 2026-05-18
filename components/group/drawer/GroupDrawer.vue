@@ -21,7 +21,7 @@
           class="flex-1 py-3 text-sm font-medium transition-colors relative"
           :class="activeTab === 'info' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-400'"
         >
-          정보
+          현재 책
           <div v-if="activeTab === 'info'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-4"></div>
         </button>
         <button
@@ -37,7 +37,7 @@
           class="flex-1 py-3 text-sm font-medium transition-colors relative"
           :class="activeTab === 'bookshelf' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-400'"
         >
-          책장
+          책 목록
           <div v-if="activeTab === 'bookshelf'" class="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-400 mx-4"></div>
         </button>
         <button

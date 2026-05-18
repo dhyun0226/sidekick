@@ -20,8 +20,8 @@
       v-else
       class="w-full bg-white dark:bg-[#09090b] relative"
       :class="[
-        isAdminPage ? 'min-h-screen overflow-y-auto' : (isDesktop ? 'h-screen overflow-hidden' : 'h-screen overflow-y-auto'),
-        isAdminPage ? '' : (isDesktop ? '' : 'max-w-[480px] shadow-2xl')
+        isFullWidthPage ? 'min-h-screen overflow-y-auto' : (isDesktop ? 'h-screen overflow-hidden' : 'h-screen overflow-y-auto'),
+        isFullWidthPage ? '' : (isDesktop ? '' : 'max-w-[480px] shadow-2xl')
       ]"
     >
       <NuxtLoadingIndicator color="#a3e635" />
@@ -29,7 +29,7 @@
       <NuxtPwaManifest />
 
       <!-- Desktop Layout with Sidebar -->
-      <div v-if="isDesktop && !isAdminPage" class="flex h-full">
+      <div v-if="isDesktop && !isFullWidthPage" class="flex h-full">
         <DesktopSidebar />
         <main class="flex-1 overflow-y-auto">
           <NuxtLayout>
@@ -72,6 +72,10 @@ const appLoading = ref(true)
 const isAdminPage = computed(() => {
   return route.path.startsWith('/admin') || route.path === '/subscription'
 })
+
+const isReadingRoomPage = computed(() => route.path.startsWith('/read/'))
+const isSharePage = computed(() => route.path.startsWith('/share/'))
+const isFullWidthPage = computed(() => isAdminPage.value || isReadingRoomPage.value || isSharePage.value)
 
 // Initialize app
 onMounted(async () => {

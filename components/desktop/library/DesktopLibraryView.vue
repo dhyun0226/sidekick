@@ -22,7 +22,7 @@
           <div class="w-24 h-[136px] rounded-xl overflow-hidden shadow-apple flex-shrink-0">
             <img v-if="bookCover" :src="bookCover" class="w-full h-full object-cover" />
           </div>
-          <div class="pt-1">
+          <div class="pt-1 min-w-0">
             <h1 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-1.5 leading-tight">{{ bookTitle }}</h1>
             <div class="flex flex-wrap items-center gap-1.5 mb-3 text-[16px] text-zinc-500 dark:text-zinc-300">
               <span>{{ bookAuthor }}</span>
@@ -46,20 +46,29 @@
                 {{ formatShortDate(selectedBook.user_finished_at) }} 완독
               </Badge>
             </div>
+            <button
+              v-if="selectedBookId && !isArchived"
+              type="button"
+              class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-desktop-caption font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors"
+              @click="openReadingRoom"
+            >
+              <Timer :size="15" />
+              캐릭터랑 읽기
+            </button>
           </div>
         </div>
       </div>
 
       <!-- Empty State -->
       <div v-else-if="!isLoading" class="flex flex-col items-center justify-center h-full">
-        <div class="text-center">
-          <h2 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">읽을 책을 추가해주세요</h2>
-          <p class="text-desktop-callout text-zinc-500 dark:text-zinc-400 mb-6 font-light">독서 여정을 시작하세요</p>
+        <div class="text-center max-w-sm">
+          <h2 class="text-desktop-headline font-semibold tracking-tight text-zinc-900 dark:text-white mb-2">내 서재를 시작해보세요</h2>
+          <p class="text-desktop-callout text-zinc-500 dark:text-zinc-400 mb-6 font-light">책을 추가하면 진행률, 코멘트, 리뷰를 한 흐름에서 기록할 수 있어요.</p>
           <button
             @click="openSearchModal"
             class="px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors duration-200 ease-apple text-desktop-callout"
           >
-            새 책 추가하기
+            책 추가하기
           </button>
         </div>
       </div>
@@ -150,6 +159,7 @@
 
 <script setup lang="ts">
 import { ref, inject, computed } from 'vue'
+import { Timer } from 'lucide-vue-next'
 import { GroupPageKey } from '~/types'
 import { useToastStore } from '~/stores/toast'
 import { useUserStore } from '~/stores/user'
@@ -166,6 +176,7 @@ const ctx = inject(GroupPageKey)!
 const toast = useToastStore()
 const userStore = useUserStore()
 const client = useSupabaseClient()
+const router = useRouter()
 
 // Destructure from context
 const {
@@ -220,6 +231,11 @@ const batchModalOpen = ref(false)
 const batchModalRef = ref<InstanceType<typeof DesktopBatchNotesModal> | null>(null)
 const timelineRef = ref<any>(null)
 const sidebarRef = ref<any>(null)
+
+const openReadingRoom = () => {
+  if (!selectedBookId.value) return
+  router.push(`/read/${selectedBookId.value}?from=/my-library`)
+}
 
 // Keyboard shortcuts
 const isInputFocused = () => {

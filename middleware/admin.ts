@@ -1,10 +1,12 @@
+import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp } from '#imports'
+
 /**
  * Admin middleware - 관리자 권한 체크
  * /admin/* 경로 접근 시 subscription_tier = 'admin' 체크
  */
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  const client = useSupabaseClient()
+  const client = useNuxtApp().$supabase.client
 
   const { data: { user } } = await client.auth.getUser()
   if (!user) {
