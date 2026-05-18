@@ -153,6 +153,13 @@ export const downloadReadingShareCard = async (input: ReadingShareCardImageInput
   ctx.arc(980, 230, 240, 0, Math.PI * 2)
   ctx.fill()
 
+  ctx.fillStyle = 'rgba(24, 24, 27, 0.06)'
+  for (let x = 0; x < canvas.width; x += 36) {
+    for (let y = 0; y < canvas.height; y += 36) {
+      ctx.fillRect(x, y, 2, 2)
+    }
+  }
+
   ctx.fillStyle = '#18181b'
   ctx.font = '900 34px Pretendard, Arial, sans-serif'
   ctx.fillText('SIDEKICK READING SESSION', 78, 112)
@@ -179,9 +186,27 @@ export const downloadReadingShareCard = async (input: ReadingShareCardImageInput
     wrapText(ctx, `"${quote}"`, 124, 722, 820, 48, 3)
   }
 
+  const progress = Math.max(0, Math.min(100, Math.round(input.progress || 0)))
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.48)'
+  roundRect(ctx, 78, 916, 924, 58, 28)
+  ctx.fill()
+  ctx.fillStyle = 'rgba(24, 24, 27, 0.13)'
+  roundRect(ctx, 116, 946, 720, 10, 5)
+  ctx.fill()
+  ctx.fillStyle = '#18181b'
+  roundRect(ctx, 116, 946, Math.max(10, 720 * progress / 100), 10, 5)
+  ctx.fill()
+  ctx.font = '900 26px Pretendard, Arial, sans-serif'
+  ctx.fillStyle = 'rgba(24, 24, 27, 0.58)'
+  ctx.fillText('READING PROGRESS', 116, 936)
+  ctx.textAlign = 'right'
+  ctx.fillStyle = '#18181b'
+  ctx.fillText(`${progress}%`, 944, 946)
+  ctx.textAlign = 'left'
+
   const stats = [
     { label: '읽은 시간', value: formatDuration(input.durationSeconds) },
-    { label: '진행률', value: `${Math.round(input.progress || 0)}%` },
+    { label: '진행률', value: `${progress}%` },
     { label: '페이지', value: `${Math.max(0, Math.round(input.pagesRead || 0))}` }
   ]
 

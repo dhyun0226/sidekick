@@ -1,14 +1,20 @@
 <template>
   <div class="companion-wrap" :class="[companion.theme, companion.shape, stateClass]">
     <div class="aura"></div>
+    <div class="orbit orbit-one"></div>
+    <div class="orbit orbit-two"></div>
     <div class="spark spark-one"></div>
     <div class="spark spark-two"></div>
     <div class="spark spark-three"></div>
     <div class="mascot">
       <div class="ear ear-left"></div>
       <div class="ear ear-right"></div>
+      <div class="tail"></div>
+      <div class="arm arm-left"></div>
+      <div class="arm arm-right"></div>
       <div class="accent accent-left"></div>
       <div class="accent accent-right"></div>
+      <div class="body-shine"></div>
       <div class="face">
         <span class="eye eye-left"></span>
         <span class="eye eye-right"></span>
@@ -18,6 +24,11 @@
       </div>
       <div class="prop">
         <component :is="companion.icon" :size="22" :stroke-width="2.3" />
+      </div>
+      <div class="reading-dots">
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
       <div class="foot foot-left"></div>
       <div class="foot foot-right"></div>
@@ -100,6 +111,26 @@ const stateClass = computed(() => `state-${props.state}`)
   animation: aura-pulse 5.5s ease-in-out infinite;
 }
 
+.orbit {
+  position: absolute;
+  z-index: 1;
+  width: 64%;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  opacity: 0;
+  transform-origin: 50% 50%;
+}
+
+.orbit-one {
+  animation: orbit-drift 8s linear infinite;
+}
+
+.orbit-two {
+  width: 72%;
+  animation: orbit-drift 10s linear infinite reverse;
+}
+
 .spark {
   position: absolute;
   z-index: 3;
@@ -138,6 +169,17 @@ const stateClass = computed(() => `state-${props.state}`)
   z-index: 2;
 }
 
+.body-shine {
+  position: absolute;
+  inset: 10% auto auto 18%;
+  width: 34%;
+  height: 26%;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0));
+  transform: rotate(-18deg);
+  pointer-events: none;
+}
+
 .ear {
   position: absolute;
   top: -7%;
@@ -159,6 +201,41 @@ const stateClass = computed(() => `state-${props.state}`)
   right: 16%;
   transform: rotate(18deg) scaleX(-1);
   animation-delay: 0.18s;
+}
+
+.tail {
+  position: absolute;
+  right: -8%;
+  bottom: 20%;
+  width: 24%;
+  height: 18%;
+  border-radius: 999px 999px 999px 10px;
+  background: linear-gradient(145deg, var(--body-2), var(--body));
+  box-shadow: inset 0 8px 16px rgba(255, 255, 255, 0.24);
+  transform: rotate(-18deg);
+  transform-origin: 0 50%;
+  animation: tail-sway 4.8s ease-in-out infinite;
+  z-index: -1;
+}
+
+.arm {
+  position: absolute;
+  top: 55%;
+  width: 17%;
+  height: 11%;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  transform-origin: 50% 50%;
+}
+
+.arm-left {
+  left: 8%;
+  transform: rotate(18deg);
+}
+
+.arm-right {
+  right: 8%;
+  transform: rotate(-18deg);
 }
 
 .accent {
@@ -246,6 +323,32 @@ const stateClass = computed(() => `state-${props.state}`)
   animation: prop-breathe 4.2s ease-in-out infinite;
 }
 
+.reading-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 7%;
+  display: flex;
+  gap: 4px;
+  transform: translateX(-50%);
+  opacity: 0;
+}
+
+.reading-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(24, 24, 27, 0.42);
+  animation: dot-pulse 1.1s ease-in-out infinite;
+}
+
+.reading-dots span:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.reading-dots span:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
 .foot {
   position: absolute;
   bottom: -5%;
@@ -278,6 +381,10 @@ const stateClass = computed(() => `state-${props.state}`)
   animation: focus-breathe 5.4s ease-in-out infinite;
 }
 
+.state-focus .orbit {
+  opacity: 1;
+}
+
 .state-focus .aura {
   animation-duration: 7s;
 }
@@ -286,8 +393,20 @@ const stateClass = computed(() => `state-${props.state}`)
   animation: prop-focus 2.8s ease-in-out infinite;
 }
 
+.state-focus .reading-dots {
+  opacity: 1;
+}
+
 .state-thinking .mascot {
   animation: thinking 1.4s ease-in-out infinite;
+}
+
+.state-thinking .arm-left {
+  animation: arm-note-left 1.4s ease-in-out infinite;
+}
+
+.state-thinking .arm-right {
+  animation: arm-note-right 1.4s ease-in-out infinite;
 }
 
 .state-thinking .ear {
@@ -314,6 +433,11 @@ const stateClass = computed(() => `state-${props.state}`)
   animation-delay: 0.48s;
 }
 
+.state-celebrate .tail,
+.state-cheer .tail {
+  animation: tail-cheer 0.7s ease-in-out infinite;
+}
+
 .state-paused .mascot {
   animation: paused-sway 4.8s ease-in-out infinite;
 }
@@ -337,6 +461,10 @@ const stateClass = computed(() => `state-${props.state}`)
 .state-sleepy .mascot {
   animation-duration: 6s;
   opacity: 0.9;
+}
+
+.state-sleepy .tail {
+  animation-duration: 7s;
 }
 
 .shape-leaf .ear-left,
@@ -379,14 +507,40 @@ const stateClass = computed(() => `state-${props.state}`)
   50% { transform: scale(1.08); opacity: 1; }
 }
 
+@keyframes orbit-drift {
+  0% { transform: rotate(0deg) scale(0.92); }
+  50% { transform: rotate(180deg) scale(1.03); }
+  100% { transform: rotate(360deg) scale(0.92); }
+}
+
 @keyframes idle-bob {
   0%, 100% { transform: translateY(0) rotate(-1deg); }
   50% { transform: translateY(-8px) rotate(1deg); }
 }
 
+@keyframes tail-sway {
+  0%, 100% { transform: rotate(-18deg) translateY(0); }
+  50% { transform: rotate(-4deg) translateY(-3px); }
+}
+
+@keyframes tail-cheer {
+  0%, 100% { transform: rotate(-22deg); }
+  50% { transform: rotate(14deg); }
+}
+
 @keyframes shadow-bob {
   0%, 100% { transform: scale(1); opacity: 0.16; }
   50% { transform: scale(0.86); opacity: 0.1; }
+}
+
+@keyframes arm-note-left {
+  0%, 100% { transform: rotate(18deg) translateY(0); }
+  50% { transform: rotate(4deg) translateY(-4px); }
+}
+
+@keyframes arm-note-right {
+  0%, 100% { transform: rotate(-18deg) translateY(0); }
+  50% { transform: rotate(-4deg) translateY(-4px); }
 }
 
 @keyframes thinking {
@@ -428,6 +582,11 @@ const stateClass = computed(() => `state-${props.state}`)
 @keyframes prop-focus {
   0%, 100% { transform: translateX(-50%) translateY(0) scale(1); }
   50% { transform: translateX(-50%) translateY(-3px) scale(1.04); }
+}
+
+@keyframes dot-pulse {
+  0%, 100% { transform: translateY(0); opacity: 0.32; }
+  50% { transform: translateY(-4px); opacity: 0.9; }
 }
 
 @keyframes sparkle {

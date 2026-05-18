@@ -1,10 +1,12 @@
 <template>
   <main
-    class="min-h-[100dvh] overflow-hidden text-zinc-900 dark:text-white"
-    :class="wallpaperClass"
+    class="reading-room min-h-[100dvh] overflow-hidden text-zinc-900 dark:text-white"
+    :class="[wallpaperClass, timerPhaseClass]"
   >
     <div class="relative min-h-[100dvh]">
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.45),transparent_28%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.28),transparent_30%)] dark:bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.12),transparent_28%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.08),transparent_30%)]"></div>
+      <div class="wallpaper-motion wallpaper-motion-a"></div>
+      <div class="wallpaper-motion wallpaper-motion-b"></div>
 
       <div class="relative z-10 min-h-[100dvh] flex flex-col">
         <header class="flex items-center justify-between px-4 sm:px-8 py-4">
@@ -44,7 +46,7 @@
         </section>
 
         <template v-else>
-          <section class="flex-1 grid lg:grid-cols-[minmax(260px,0.8fr)_minmax(320px,1.15fr)_minmax(280px,0.9fr)] gap-4 lg:gap-8 px-4 sm:px-8 pb-6">
+          <section class="flex-1 grid lg:grid-cols-[minmax(260px,0.8fr)_minmax(320px,1.15fr)_minmax(280px,0.9fr)] gap-4 lg:gap-8 px-4 sm:px-8 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
             <aside class="hidden lg:flex flex-col justify-end">
               <div class="bg-white/58 dark:bg-zinc-950/42 backdrop-blur-xl rounded-2xl p-5 ring-1 ring-black/[0.04] dark:ring-white/[0.08]">
                 <div class="flex gap-4">
@@ -100,6 +102,18 @@
                 <p class="text-sm sm:text-base font-bold">{{ activeCompanionMeta.name }}</p>
                 <p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300">{{ activeCompanionMeta.short }}</p>
               </div>
+              <div class="mt-3 flex flex-wrap justify-center gap-2 lg:hidden">
+                <button
+                  v-for="item in companionOptions"
+                  :key="item.code"
+                  type="button"
+                  class="h-9 rounded-full px-3 text-xs font-black ring-1 transition"
+                  :class="activeCompanion === item.code ? 'bg-zinc-900 text-white ring-transparent dark:bg-white dark:text-zinc-900' : 'bg-white/55 text-zinc-700 ring-black/[0.04] dark:bg-white/10 dark:text-zinc-200 dark:ring-white/[0.08]'"
+                  @click="selectCompanion(item.code)"
+                >
+                  {{ item.name }}
+                </button>
+              </div>
             </section>
 
             <aside class="flex flex-col justify-end gap-4">
@@ -124,6 +138,17 @@
               </div>
 
               <div class="bg-white/70 dark:bg-zinc-950/55 backdrop-blur-xl rounded-3xl p-5 sm:p-6 ring-1 ring-black/[0.04] dark:ring-white/[0.08] shadow-apple">
+                <div class="mb-4 rounded-2xl bg-white/50 p-3 ring-1 ring-black/[0.04] dark:bg-white/5 dark:ring-white/[0.08]">
+                  <div class="mb-2 flex items-center justify-between gap-3">
+                    <p class="text-xs font-black uppercase tracking-wide text-zinc-500 dark:text-zinc-300">{{ timerStatusLabel }}</p>
+                    <p class="text-xs font-black tabular-nums text-zinc-500 dark:text-zinc-300">{{ timerProgressLabel }}</p>
+                  </div>
+                  <div class="h-2 overflow-hidden rounded-full bg-zinc-900/10 dark:bg-white/10">
+                    <div class="h-full rounded-full bg-zinc-900 transition-all duration-500 dark:bg-white" :style="{ width: `${timerProgressPercent}%` }"></div>
+                  </div>
+                  <p class="mt-2 text-xs font-semibold leading-5 text-zinc-500 dark:text-zinc-300">{{ timerHintText }}</p>
+                </div>
+
                 <div class="text-center mb-5">
                   <p class="text-xs font-bold text-zinc-500 dark:text-zinc-300 mb-1">READING TIMER</p>
                   <p class="text-5xl sm:text-6xl font-bold tabular-nums tracking-tight">{{ formattedTime }}</p>
@@ -141,6 +166,18 @@
                   <button class="timer-button primary" :disabled="elapsedSeconds === 0 || saving" @click="endSession">
                     <Square :size="15" />
                     종료
+                  </button>
+                </div>
+
+                <div class="mb-4 grid grid-cols-4 gap-2">
+                  <button
+                    v-for="preset in timerPresets"
+                    :key="preset.seconds"
+                    type="button"
+                    class="rounded-full bg-white/55 px-2 py-2 text-xs font-black text-zinc-600 ring-1 ring-black/[0.04] transition hover:bg-white dark:bg-white/5 dark:text-zinc-300 dark:ring-white/[0.08] dark:hover:bg-white/10"
+                    @click="applyTimerPreset(preset.seconds)"
+                  >
+                    +{{ preset.label }}
                   </button>
                 </div>
 
@@ -275,8 +312,12 @@ const companionProfiles: Record<string, any> = {
     lines: {
       idle: '첫 문장만 같이 열어볼까요?',
       focus: '좋아요. 지금 리듬을 그대로 지켜볼게요.',
+      deepFocus: '25분 넘게 같이 있었어요. 집중력이 반짝반짝해요.',
       thinking: '그 문장은 반짝였어요. 잊지 않게 잡아둘게요.',
+      memo: '생각이 튀어나왔네요. 작게 적어두면 나중에 빛나요.',
+      quote: '좋은 문장을 발견했어요. 책갈피처럼 꽂아둘게요.',
       paused: '잠깐 쉬어도 괜찮아요. 자리 지키고 있을게요.',
+      preset: '좋아요. 오늘 읽은 시간을 따뜻하게 더해둘게요.',
       cheer: '여기까지 읽은 것도 이미 좋은 기록이에요.',
       celebrate: '오늘의 읽기 조각을 예쁘게 저장했어요.'
     }
@@ -286,8 +327,12 @@ const companionProfiles: Record<string, any> = {
     lines: {
       idle: '조용히 앉아 있을게요. 준비되면 시작해요.',
       focus: '천천히, 깊게. 책 속으로 들어가는 중이에요.',
+      deepFocus: '충분히 깊게 들어왔어요. 이제 책의 결이 보이네요.',
       thinking: '좋은 생각은 천천히 적어도 괜찮아요.',
+      memo: '천천히 적어도 괜찮아요. 생각은 여기 안전하게 둘게요.',
+      quote: '그 문장은 오래 남을 것 같아요. 조용히 보관할게요.',
       paused: '차 한 모금 같은 쉬는 시간이에요.',
+      preset: '기록을 맞춰둘게요. 오늘의 흐름은 이어져 있어요.',
       cheer: '흐름을 놓치지 않았어요. 이어가면 됩니다.',
       celebrate: '오늘의 독서가 차분히 쌓였어요.'
     }
@@ -297,8 +342,12 @@ const companionProfiles: Record<string, any> = {
     lines: {
       idle: '오늘 마음에 남을 문장을 찾아볼까요?',
       focus: '문장 사이에서 빛나는 걸 같이 보고 있어요.',
+      deepFocus: '오래 머문 문장들이 마음 안쪽에 자리를 잡았어요.',
       thinking: '방금 생각, 좋아요. 더 다듬어 저장해볼까요?',
+      memo: '이 메모는 나중에 리뷰의 첫 문장이 될 수 있어요.',
+      quote: '그 문장 좋네요. 작은 액자에 넣어두는 기분이에요.',
       paused: '멈춘 자리에도 문장은 남아 있어요.',
+      preset: '놓친 시간도 이야기의 일부예요. 예쁘게 더해둘게요.',
       cheer: '메모 하나가 다음 리뷰의 씨앗이 될 거예요.',
       celebrate: '오늘의 문장을 예쁘게 품어뒀어요.'
     }
@@ -308,8 +357,12 @@ const companionProfiles: Record<string, any> = {
     lines: {
       idle: '타이머 준비 완료. 짧게라도 시작해볼까요?',
       focus: '집중 모드예요. 시간은 제가 보고 있을게요.',
+      deepFocus: '25분 목표 달성. 지금은 완성도 높은 집중 구간이에요.',
       thinking: '기록도 목표의 일부예요. 정확히 남겨둘게요.',
+      memo: '메모 입력 확인. 세션 데이터에 깔끔하게 붙여둘게요.',
+      quote: '인용구 저장 준비 완료. 나중에 바로 꺼낼 수 있어요.',
       paused: '타이머는 멈췄고, 기록은 안전해요.',
+      preset: '시간을 더했습니다. 누적 기록을 기준으로 계산할게요.',
       cheer: '좋아요. 이제 마무리하거나 조금 더 갈 수 있어요.',
       celebrate: '세션 완료. 오늘 목표에 한 칸 가까워졌어요.'
     }
@@ -319,8 +372,12 @@ const companionProfiles: Record<string, any> = {
     lines: {
       idle: '불빛을 낮추고 조용히 시작해볼까요?',
       focus: '책장 넘기는 소리만 남겨둘게요.',
+      deepFocus: '오래 머문 밤빛처럼 집중이 부드럽게 깊어졌어요.',
       thinking: '밤에 떠오른 생각은 더 오래 남더라고요.',
+      memo: '조용히 떠오른 생각을 접어서 옆에 놓아둘게요.',
+      quote: '그 문장은 작은 등불 같아요. 꺼지지 않게 저장해요.',
       paused: '잠깐 기대 쉬어도 돼요. 제가 옆에 있을게요.',
+      preset: '읽은 시간을 더해둘게요. 오늘 분위기와 잘 어울려요.',
       cheer: '오늘의 분위기가 기록에 잘 담기고 있어요.',
       celebrate: '밤공기 같은 독서 기록이 완성됐어요.'
     }
@@ -370,6 +427,7 @@ const activeWallpaper = ref('morning-desk')
 const showCompanions = ref(false)
 const isRunning = ref(false)
 const elapsedSeconds = ref(0)
+const lastInteraction = ref<'ready' | 'start' | 'pause' | 'note' | 'quote' | 'preset' | 'save'>('ready')
 const startedAt = ref<string | null>(null)
 const progress = ref(0)
 const startProgress = ref(0)
@@ -389,6 +447,13 @@ const lastSummary = ref({
 })
 
 let intervalId: ReturnType<typeof setInterval> | null = null
+const focusTargetSeconds = 25 * 60
+const timerPresets = [
+  { label: '5m', seconds: 5 * 60 },
+  { label: '10m', seconds: 10 * 60 },
+  { label: '15m', seconds: 15 * 60 },
+  { label: '25m', seconds: 25 * 60 }
+]
 
 const bookId = computed(() => route.params.bookId as string)
 const bookTitle = computed(() => roomData.value?.book?.book?.title || '독서방')
@@ -407,20 +472,18 @@ const companionState = computed(() => {
   if (summaryOpen.value) return 'celebrate'
   if (memo.value || quote.value) return 'thinking'
   if (isRunning.value) return 'focus'
-  if (elapsedSeconds.value > 0) return 'paused'
+  if (elapsedSeconds.value > 0) return elapsedSeconds.value >= focusTargetSeconds ? 'cheer' : 'paused'
   return 'idle'
-})
-
-const companionLine = computed(() => {
-  if (summaryOpen.value) return '오늘의 기록을 저장했어요.'
-  if (memo.value || quote.value) return '좋은 생각은 바로 잡아둘게요.'
-  if (isRunning.value) return '지금은 책에 머무르는 시간이에요.'
-  if (elapsedSeconds.value > 0) return '여기서 마무리해도 좋아요.'
-  return '책을 펼치면 같이 읽기 시작할게요.'
 })
 
 const enhancedCompanionLine = computed(() => {
   const lines = activeCompanionMeta.value?.lines || companionProfiles.pipi.lines
+  if (summaryOpen.value) return lines.celebrate || lines.cheer || lines.idle
+  if (quote.value) return lines.quote || lines.thinking || lines.idle
+  if (memo.value) return lines.memo || lines.thinking || lines.idle
+  if (isRunning.value && elapsedSeconds.value >= focusTargetSeconds) return lines.deepFocus || lines.focus
+  if (elapsedSeconds.value >= focusTargetSeconds) return lines.cheer || lines.paused
+  if (lastInteraction.value === 'preset') return lines.preset || lines.idle
   return lines[companionState.value] || lines.idle
 })
 
@@ -430,10 +493,30 @@ const companionMoodLabel = computed(() => ({
   thinking: 'memo',
   paused: 'pause',
   cheer: 'nice',
-  celebrate: 'saved'
+  celebrate: 'saved',
+  sleepy: 'rest'
 })[companionState.value] || 'ready')
 
 const stageClass = computed(() => `stage-${companionState.value}`)
+
+const timerStatusLabel = computed(() => {
+  if (summaryOpen.value) return 'saved'
+  if (isRunning.value && elapsedSeconds.value >= focusTargetSeconds) return 'deep focus'
+  if (isRunning.value) return 'reading'
+  if (elapsedSeconds.value > 0) return 'paused'
+  return 'ready'
+})
+
+const timerProgressPercent = computed(() => Math.min(100, Math.round((elapsedSeconds.value / focusTargetSeconds) * 100)))
+const timerProgressLabel = computed(() => `${timerProgressPercent.value}% / 25m`)
+const timerPhaseClass = computed(() => `timer-${timerStatusLabel.value.replace(/\s+/g, '-')}`)
+
+const timerHintText = computed(() => {
+  if (isRunning.value && elapsedSeconds.value >= focusTargetSeconds) return '25분 집중을 넘겼어요. 이대로 마무리해도 좋은 세션입니다.'
+  if (isRunning.value) return '캐릭터가 조용히 움직이며 집중 리듬을 따라갑니다.'
+  if (elapsedSeconds.value > 0) return '멈춘 상태입니다. 메모를 남기거나 종료해서 기록할 수 있어요.'
+  return '시작을 누르면 캐릭터가 집중 모드로 바뀌고 세션이 기록됩니다.'
+})
 
 const wallpaperClass = computed(() => {
   return wallpapers.find(item => item.code === activeWallpaper.value)?.className || wallpapers[0].className
@@ -477,6 +560,7 @@ const startTimer = () => {
     startedAt.value = new Date().toISOString()
     startProgress.value = progress.value
   }
+  lastInteraction.value = 'start'
   isRunning.value = true
   intervalId = setInterval(() => {
     elapsedSeconds.value += 1
@@ -484,10 +568,20 @@ const startTimer = () => {
 }
 
 const pauseTimer = () => {
+  lastInteraction.value = 'pause'
   isRunning.value = false
   if (intervalId) {
     clearInterval(intervalId)
     intervalId = null
+  }
+}
+
+const applyTimerPreset = (seconds: number) => {
+  elapsedSeconds.value += seconds
+  lastInteraction.value = 'preset'
+  if (!startedAt.value) {
+    startedAt.value = new Date(Date.now() - elapsedSeconds.value * 1000).toISOString()
+    startProgress.value = progress.value
   }
 }
 
@@ -514,6 +608,7 @@ const endSession = async () => {
       body: payload
     })
 
+    lastInteraction.value = 'save'
     lastSummary.value = {
       durationSeconds: elapsedSeconds.value,
       endProgress: progress.value,
@@ -659,6 +754,14 @@ watch(progress, (value) => {
   progress.value = Math.max(0, Math.min(100, Math.round(Number(value || 0))))
 })
 
+watch(memo, (value) => {
+  if (value) lastInteraction.value = 'note'
+})
+
+watch(quote, (value) => {
+  if (value) lastInteraction.value = 'quote'
+})
+
 onMounted(loadRoom)
 onBeforeUnmount(() => {
   if (intervalId) clearInterval(intervalId)
@@ -666,6 +769,48 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.wallpaper-motion {
+  position: absolute;
+  z-index: 0;
+  border-radius: 999px;
+  pointer-events: none;
+  filter: blur(22px);
+  opacity: 0.24;
+}
+
+.wallpaper-motion-a {
+  width: 28vw;
+  min-width: 180px;
+  max-width: 380px;
+  aspect-ratio: 1;
+  left: 7%;
+  top: 22%;
+  background: rgba(255, 255, 255, 0.62);
+  animation: wallpaper-drift-a 18s ease-in-out infinite;
+}
+
+.wallpaper-motion-b {
+  width: 24vw;
+  min-width: 160px;
+  max-width: 320px;
+  aspect-ratio: 1;
+  right: 8%;
+  bottom: 8%;
+  background: rgba(24, 24, 27, 0.18);
+  animation: wallpaper-drift-b 20s ease-in-out infinite;
+}
+
+.timer-deep-focus .wallpaper-motion-a,
+.timer-reading .wallpaper-motion-a {
+  animation-duration: 12s;
+}
+
+.timer-paused .wallpaper-motion-a,
+.timer-paused .wallpaper-motion-b {
+  animation-play-state: paused;
+  opacity: 0.16;
+}
+
 .companion-stage {
   position: relative;
   width: min(78vw, 390px);
@@ -769,6 +914,22 @@ onBeforeUnmount(() => {
   animation-duration: 2.4s;
 }
 
+.stage-cheer .ambient-one,
+.stage-cheer .ambient-two {
+  opacity: 0.64;
+  animation-duration: 3s;
+}
+
+@keyframes wallpaper-drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.95); }
+  50% { transform: translate3d(26px, -18px, 0) scale(1.08); }
+}
+
+@keyframes wallpaper-drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.02); }
+  50% { transform: translate3d(-22px, 16px, 0) scale(0.9); }
+}
+
 @keyframes bubble-in {
   from { transform: translateX(-50%) translateY(8px); opacity: 0; }
   to { transform: translateX(-50%) translateY(0); opacity: 1; }
@@ -868,5 +1029,24 @@ onBeforeUnmount(() => {
   font-size: 11px;
   font-weight: 700;
   color: #71717a;
+}
+
+@media (max-width: 1023px) {
+  .companion-stage {
+    width: min(88vw, 360px);
+    min-height: 310px;
+  }
+
+  .speech-bubble {
+    top: 0;
+    width: min(320px, 84vw);
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .companion-stage {
+    min-height: 288px;
+  }
 }
 </style>

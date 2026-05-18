@@ -1,5 +1,8 @@
 <template>
   <article class="share-card" :class="themeClass">
+    <div class="share-card__grain"></div>
+    <div class="share-card__orb share-card__orb-a"></div>
+    <div class="share-card__orb share-card__orb-b"></div>
     <div class="share-card__top">
       <div>
         <p class="share-card__eyebrow">{{ eyebrow }}</p>
@@ -10,6 +13,17 @@
     </div>
 
     <p v-if="quote" class="share-card__quote">"{{ quote }}"</p>
+    <p v-else class="share-card__quote share-card__quote--empty">{{ companionName }}와 함께한 조용한 독서 기록</p>
+
+    <div class="share-card__progress">
+      <div class="share-card__progress-top">
+        <span>Reading progress</span>
+        <strong>{{ progress }}%</strong>
+      </div>
+      <div class="share-card__progress-track">
+        <span :style="{ width: `${safeProgress}%` }"></span>
+      </div>
+    </div>
 
     <div class="share-card__stats">
       <div>
@@ -24,6 +38,10 @@
         <strong>{{ pagesRead }}</strong>
         <span>페이지</span>
       </div>
+    </div>
+    <div class="share-card__footer">
+      <span>with {{ companionName }}</span>
+      <span>cheerreaders.com</span>
     </div>
   </article>
 </template>
@@ -58,6 +76,15 @@ const durationText = computed(() => {
   return `${Math.max(1, minutes)}m`
 })
 
+const safeProgress = computed(() => Math.max(0, Math.min(100, Math.round(props.progress || 0))))
+const companionName = computed(() => ({
+  pipi: 'Pipi',
+  momo: 'Momo',
+  rumi: 'Rumi',
+  toto: 'Toto',
+  nori: 'Nori'
+})[props.companionCode || 'pipi'] || 'Sidekick')
+
 const metaText = computed(() => {
   const parts = [props.author, props.groupName].filter(Boolean)
   return parts.length > 0 ? parts.join(' · ') : '혼자 또는 그룹과 함께 읽는 중'
@@ -72,10 +99,43 @@ const themeClass = computed(() => `share-card--${props.companionCode || 'pipi'}`
   overflow: hidden;
   border-radius: 28px;
   padding: 22px;
-  min-height: 260px;
+  min-height: 360px;
   color: #18181b;
   background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 48%, #dcfce7 100%);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55), 0 24px 70px rgba(24, 24, 27, 0.16);
+}
+
+.share-card__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.42;
+  background-image: radial-gradient(rgba(24, 24, 27, 0.08) 1px, transparent 1px);
+  background-size: 18px 18px;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
+}
+
+.share-card__orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.share-card__orb-a {
+  width: 180px;
+  height: 180px;
+  right: -44px;
+  top: -38px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.share-card__orb-b {
+  width: 120px;
+  height: 120px;
+  left: -32px;
+  bottom: 80px;
+  background: rgba(24, 24, 27, 0.08);
 }
 
 .share-card--momo {
@@ -95,6 +155,8 @@ const themeClass = computed(() => `share-card--${props.companionCode || 'pipi'}`
 }
 
 .share-card__top {
+  position: relative;
+  z-index: 2;
   display: flex;
   justify-content: space-between;
   gap: 18px;
@@ -133,7 +195,9 @@ const themeClass = computed(() => `share-card--${props.companionCode || 'pipi'}`
 }
 
 .share-card__quote {
-  margin: 18px 0 0;
+  position: relative;
+  z-index: 2;
+  margin: 20px 0 0;
   padding-left: 14px;
   border-left: 3px solid rgba(24, 24, 27, 0.2);
   font-size: 15px;
@@ -142,14 +206,59 @@ const themeClass = computed(() => `share-card--${props.companionCode || 'pipi'}`
   color: rgba(24, 24, 27, 0.76);
 }
 
+.share-card__quote--empty {
+  color: rgba(24, 24, 27, 0.52);
+}
+
+.share-card__progress {
+  position: relative;
+  z-index: 2;
+  margin-top: 20px;
+  border-radius: 18px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.46);
+  backdrop-filter: blur(16px);
+}
+
+.share-card__progress-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(24, 24, 27, 0.56);
+}
+
+.share-card__progress-top strong {
+  color: #18181b;
+}
+
+.share-card__progress-track {
+  height: 8px;
+  margin-top: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(24, 24, 27, 0.12);
+}
+
+.share-card__progress-track span {
+  display: block;
+  height: 100%;
+  min-width: 8px;
+  border-radius: inherit;
+  background: #18181b;
+}
+
 .share-card__stats {
   position: absolute;
   left: 18px;
   right: 18px;
-  bottom: 18px;
+  bottom: 56px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
+  z-index: 2;
 }
 
 .share-card__stats div {
@@ -175,5 +284,40 @@ const themeClass = computed(() => `share-card--${props.companionCode || 'pipi'}`
   font-size: 11px;
   font-weight: 800;
   color: rgba(24, 24, 27, 0.55);
+}
+
+.share-card__footer {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 20px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(24, 24, 27, 0.46);
+}
+
+@media (max-width: 520px) {
+  .share-card {
+    min-height: 390px;
+    padding: 18px;
+  }
+
+  .share-card__title {
+    font-size: 22px;
+  }
+
+  .share-card__mascot {
+    width: 88px;
+    height: 88px;
+  }
+
+  .share-card__stats {
+    left: 14px;
+    right: 14px;
+  }
 }
 </style>

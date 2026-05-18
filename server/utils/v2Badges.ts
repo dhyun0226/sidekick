@@ -12,6 +12,7 @@ type BadgeRuleContext = {
   sessions: any[]
   companionStats: any[]
   finishedCount: number
+  sharedCount: number
 }
 
 const toLocalDay = (value: string) => {
@@ -22,11 +23,16 @@ const toLocalDay = (value: string) => {
 const computeStats = (sessions: any[]) => {
   const daySet = new Set(sessions.map((item: any) => toLocalDay(item.started_at)))
   const noteCount = sessions.reduce((sum: number, item: any) => sum + (item.memo_count || 0) + (item.quote_count || 0), 0)
-  return { daySet, noteCount }
+  const hourSet = new Set(sessions.map((item: any) => new Date(item.started_at).getHours()))
+  const earlyCount = sessions.filter((item: any) => new Date(item.started_at).getHours() < 9).length
+  const nightCount = sessions.filter((item: any) => new Date(item.started_at).getHours() >= 21).length
+  const totalSeconds = sessions.reduce((sum: number, item: any) => sum + Number(item.duration_seconds || 0), 0)
+  const longSessionCount = sessions.filter((item: any) => Number(item.duration_seconds || 0) >= 1500).length
+  return { daySet, noteCount, hourSet, earlyCount, nightCount, totalSeconds, longSessionCount }
 }
 
-export const evaluateBadgeRules = ({ sessions, companionStats, finishedCount }: BadgeRuleContext) => {
-  const { daySet, noteCount } = computeStats(sessions)
+export const evaluateBadgeRules = ({ sessions, companionStats, finishedCount, sharedCount }: BadgeRuleContext) => {
+  const { daySet, noteCount, hourSet, earlyCount, nightCount, totalSeconds, longSessionCount } = computeStats(sessions)
 
   return new Map<string, boolean>([
     ['first-session', sessions.length > 0],
@@ -34,7 +40,14 @@ export const evaluateBadgeRules = ({ sessions, companionStats, finishedCount }: 
     ['note-keeper', noteCount >= 5],
     ['steady-reader', daySet.size >= 3],
     ['companion-bond', companionStats.some((item: any) => (item.affinity_level || 1) >= 3)],
-    ['finisher', finishedCount > 0]
+    ['finisher', finishedCount > 0],
+    ['session-5', sessions.length >= 5],
+    ['deep-focus-3', longSessionCount >= 3],
+    ['hour-reader', totalSeconds >= 3600],
+    ['early-reader', earlyCount >= 2],
+    ['night-reader', nightCount >= 2],
+    ['time-traveler', hourSet.size >= 4],
+    ['share-maker', sharedCount > 0]
   ])
 }
 
@@ -52,7 +65,7 @@ export const fetchBadgeContext = async (client: any, userId: string) => {
   const [sessionsRes, statsRes, finishedRes] = await Promise.all([
     client
       .from('reading_sessions')
-      .select('id, duration_seconds, memo_count, quote_count, started_at')
+      .select('id, duration_seconds, memo_count, quote_count, started_at, shared_at')
       .eq('user_id', userId)
       .order('started_at', { ascending: false })
       .limit(500),
@@ -76,7 +89,8 @@ export const fetchBadgeContext = async (client: any, userId: string) => {
   return {
     sessions: sessionsRes.data || [],
     companionStats: statsRes.data || [],
-    finishedCount: finishedRes.data?.length || 0
+    finishedCount: finishedRes.data?.length || 0,
+    sharedCount: (sessionsRes.data || []).filter((item: any) => item.shared_at).length
   }
 }
 

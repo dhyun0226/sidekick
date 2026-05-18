@@ -112,6 +112,8 @@ export default defineEventHandler(async (event) => {
   const currentIsbns = new Set<string>()
   const wishlistIsbns = new Set<string>()
   const genreScores = new Map<string, number>()
+  const authorScores = new Map<string, number>()
+  const recentGenreScores = new Map<string, number>()
 
   for (const item of myProgressRes.data || []) {
     const groupBook = Array.isArray((item as any).group_book) ? (item as any).group_book[0] : (item as any).group_book
@@ -122,13 +124,20 @@ export default defineEventHandler(async (event) => {
     else currentIsbns.add(isbn)
     const genre = resolveGenre(groupBook?.genre_snapshot, book?.official_genre, book?.draft_genre)
     if (genre) genreScores.set(genre, (genreScores.get(genre) || 0) + ((item as any).finished_at ? 4 : 2))
+    if (book?.author) authorScores.set(book.author, (authorScores.get(book.author) || 0) + ((item as any).finished_at ? 4 : 2))
   }
 
-  for (const session of mySessionsRes.data || []) {
+  for (const [index, session] of (mySessionsRes.data || []).entries()) {
     const groupBook = Array.isArray((session as any).group_book) ? (session as any).group_book[0] : (session as any).group_book
     const book = groupBook?.books
     const genre = resolveGenre(groupBook?.genre_snapshot, book?.official_genre, book?.draft_genre)
-    if (genre) genreScores.set(genre, (genreScores.get(genre) || 0) + Math.max(1, Math.round(((session as any).duration_seconds || 0) / 600)))
+    const durationWeight = Math.max(1, Math.round(((session as any).duration_seconds || 0) / 600))
+    const recencyWeight = Math.max(1, 6 - Math.floor(index / 5))
+    if (genre) {
+      genreScores.set(genre, (genreScores.get(genre) || 0) + durationWeight)
+      recentGenreScores.set(genre, (recentGenreScores.get(genre) || 0) + recencyWeight)
+    }
+    if (book?.author) authorScores.set(book.author, (authorScores.get(book.author) || 0) + Math.ceil(durationWeight / 2))
   }
 
   for (const item of myWishlistRes.data || []) {
@@ -136,6 +145,7 @@ export default defineEventHandler(async (event) => {
     if (book?.isbn) wishlistIsbns.add(book.isbn)
     const genre = resolveGenre(null, book?.official_genre, book?.draft_genre)
     if (genre) genreScores.set(genre, (genreScores.get(genre) || 0) + 1)
+    if (book?.author) authorScores.set(book.author, (authorScores.get(book.author) || 0) + 1)
   }
 
   const preferredGenres = [...genreScores.entries()]
@@ -197,12 +207,20 @@ export default defineEventHandler(async (event) => {
     const rating = ratingCounts.get(book.isbn)
     const avgRating = rating?.count ? Math.round((rating.total / rating.count) * 10) / 10 : 0
     const completionRate = completion?.total ? Math.round((completion.finished / completion.total) * 100) : 0
+    const authorScore = book.author ? (authorScores.get(book.author) || 0) : 0
+    const recentGenreScore = genre ? (recentGenreScores.get(genre) || 0) : 0
 
     if (wishlistIsbns.has(book.isbn)) {
       addCandidate(candidates, base, 18, '위시리스트에 담아둔 책입니다.', { wishlist: 'mine' })
     }
     if (genre && preferredGenres.includes(genre)) {
       addCandidate(candidates, base, 12 + (genreScores.get(genre) || 0), `최근 ${genre} 흐름과 잘 맞습니다.`, { genre })
+    }
+    if (genre && recentGenreScore > 0) {
+      addCandidate(candidates, base, Math.min(18, recentGenreScore * 2), `최근 세션에서 자주 머문 ${genre} 계열입니다.`, { recentGenreScore })
+    }
+    if (authorScore > 0) {
+      addCandidate(candidates, base, Math.min(12, authorScore * 2), '이미 읽은 작가/관심 작가 흐름과 이어집니다.', { authorScore })
     }
     if (wishCount > 0) {
       addCandidate(candidates, base, Math.min(16, wishCount * 2), `${wishCount}명이 위시리스트에 담았습니다.`, { wishCount })
@@ -217,6 +235,11 @@ export default defineEventHandler(async (event) => {
 
   const ranked = [...candidates.values()]
     .filter(item => item.score > 0)
+    .map(item => ({
+      ...item,
+      score: Math.round(item.score * 10) / 10,
+      reasons: item.reasons.slice(0, 3)
+    }))
     .sort((a, b) => b.score - a.score)
     .slice(0, 24)
 

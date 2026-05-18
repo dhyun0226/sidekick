@@ -94,6 +94,10 @@ const RecommendationSection = defineComponent({
                 ]),
                 h(ChevronRight, { size: 17, class: 'mt-0.5 flex-shrink-0 text-zinc-400 transition group-hover:translate-x-0.5' })
               ]),
+              h('div', { class: 'mt-3 flex flex-wrap gap-1.5' }, [
+                item.genre ? h('span', { class: 'rounded-full bg-white px-2 py-1 text-[11px] font-black text-zinc-500 ring-1 ring-black/[0.04] dark:bg-zinc-900 dark:text-zinc-400 dark:ring-white/[0.06]' }, item.genre) : null,
+                h('span', { class: 'rounded-full bg-sky-50 px-2 py-1 text-[11px] font-black text-sky-700 ring-1 ring-sky-100 dark:bg-sky-400/10 dark:text-sky-300 dark:ring-sky-400/20' }, `match ${Math.round(item.score || 0)}`)
+              ]),
               h('div', { class: 'mt-3 grid gap-1.5' }, item.reasons.slice(0, 2).map((reason: string) =>
                 h('p', { class: 'rounded-xl bg-white px-3 py-2 text-xs font-semibold leading-5 text-zinc-500 ring-1 ring-black/[0.04] dark:bg-zinc-900 dark:text-zinc-400 dark:ring-white/[0.06]' }, reason)
               ))
