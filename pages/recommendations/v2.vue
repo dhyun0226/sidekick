@@ -58,6 +58,29 @@ useHead({ title: 'Recommendations v2' })
 
 const router = useRouter()
 const { data, pending } = await useFetch<any>('/api/pages/v2-recommendations')
+const feedbackSaving = ref<Record<string, boolean>>({})
+
+const sendRecommendationFeedback = async (isbn: string, feedback: 'want_to_read' | 'not_interested') => {
+  if (!isbn || feedbackSaving.value[isbn]) return
+  feedbackSaving.value = { ...feedbackSaving.value, [isbn]: true }
+  try {
+    await $fetch('/api/recommendations/feedback', {
+      method: 'POST',
+      body: { isbn, feedback }
+    })
+    if (feedback === 'not_interested') {
+      for (const key of ['forYou', 'wishlist', 'momentum']) {
+        if (Array.isArray(data.value?.[key])) {
+          data.value[key] = data.value[key].filter((item: any) => item.isbn !== isbn)
+        }
+      }
+    }
+  } finally {
+    const next = { ...feedbackSaving.value }
+    delete next[isbn]
+    feedbackSaving.value = next
+  }
+}
 
 const RecommendationSection = defineComponent({
   props: {
@@ -100,7 +123,27 @@ const RecommendationSection = defineComponent({
               ]),
               h('div', { class: 'mt-3 grid gap-1.5' }, item.reasons.slice(0, 2).map((reason: string) =>
                 h('p', { class: 'rounded-xl bg-white px-3 py-2 text-xs font-semibold leading-5 text-zinc-500 ring-1 ring-black/[0.04] dark:bg-zinc-900 dark:text-zinc-400 dark:ring-white/[0.06]' }, reason)
-              ))
+              )),
+              h('div', { class: 'mt-3 grid grid-cols-2 gap-2' }, [
+                h('button', {
+                  type: 'button',
+                  disabled: feedbackSaving.value[item.isbn],
+                  class: 'rounded-full bg-zinc-900 px-3 py-2 text-xs font-black text-white disabled:opacity-50 dark:bg-white dark:text-zinc-900',
+                  onClick: (event: Event) => {
+                    event.preventDefault()
+                    sendRecommendationFeedback(item.isbn, 'want_to_read')
+                  }
+                }, '읽고 싶음'),
+                h('button', {
+                  type: 'button',
+                  disabled: feedbackSaving.value[item.isbn],
+                  class: 'rounded-full bg-white px-3 py-2 text-xs font-black text-zinc-500 ring-1 ring-black/[0.04] disabled:opacity-50 dark:bg-zinc-900 dark:text-zinc-400 dark:ring-white/[0.06]',
+                  onClick: (event: Event) => {
+                    event.preventDefault()
+                    sendRecommendationFeedback(item.isbn, 'not_interested')
+                  }
+                }, '관심 없음')
+              ])
             ]
           })
         ))

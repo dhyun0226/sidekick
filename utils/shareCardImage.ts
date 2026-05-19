@@ -8,6 +8,7 @@ type ReadingShareCardImageInput = {
   progress?: number
   pagesRead?: number
   quote?: string
+  format?: 'story' | 'square' | 'feed'
 }
 
 const themes: Record<string, { from: string; mid: string; to: string; accent: string }> = {
@@ -133,8 +134,14 @@ export const downloadReadingShareCard = async (input: ReadingShareCardImageInput
   if (typeof document === 'undefined') return
 
   const canvas = document.createElement('canvas')
-  canvas.width = 1080
-  canvas.height = 1350
+  const format = input.format || 'story'
+  const size = format === 'square'
+    ? { width: 1080, height: 1080 }
+    : format === 'feed'
+      ? { width: 1200, height: 1500 }
+      : { width: 1080, height: 1920 }
+  canvas.width = size.width
+  canvas.height = size.height
   const ctx = canvas.getContext('2d')
   if (!ctx) return
 
@@ -150,7 +157,7 @@ export const downloadReadingShareCard = async (input: ReadingShareCardImageInput
   ctx.fillStyle = 'rgba(255, 255, 255, 0.42)'
   ctx.beginPath()
   ctx.arc(140, 130, 210, 0, Math.PI * 2)
-  ctx.arc(980, 230, 240, 0, Math.PI * 2)
+  ctx.arc(canvas.width - 100, 230, 240, 0, Math.PI * 2)
   ctx.fill()
 
   ctx.fillStyle = 'rgba(24, 24, 27, 0.06)'
@@ -164,7 +171,7 @@ export const downloadReadingShareCard = async (input: ReadingShareCardImageInput
   ctx.font = '900 34px Pretendard, Arial, sans-serif'
   ctx.fillText('SIDEKICK READING SESSION', 78, 112)
 
-  drawMascot(ctx, 772, 112, 210, theme)
+  drawMascot(ctx, canvas.width - 308, 112, 210, theme)
 
   ctx.font = '950 72px Pretendard, Arial, sans-serif'
   ctx.fillStyle = '#18181b'
@@ -176,32 +183,34 @@ export const downloadReadingShareCard = async (input: ReadingShareCardImageInput
   if (meta) wrapText(ctx, meta, 78, titleBottom + 28, 760, 40, 2)
 
   const quote = (input.quote || '').trim()
+  const quoteY = format === 'square' ? 560 : 650
   if (quote) {
     ctx.fillStyle = 'rgba(24, 24, 27, 0.16)'
-    roundRect(ctx, 78, 650, 924, 238, 36)
+    roundRect(ctx, 78, quoteY, canvas.width - 156, 238, 36)
     ctx.fill()
 
     ctx.fillStyle = 'rgba(24, 24, 27, 0.78)'
     ctx.font = '800 34px Pretendard, Arial, sans-serif'
-    wrapText(ctx, `"${quote}"`, 124, 722, 820, 48, 3)
+    wrapText(ctx, `"${quote}"`, 124, quoteY + 72, canvas.width - 260, 48, 3)
   }
 
   const progress = Math.max(0, Math.min(100, Math.round(input.progress || 0)))
+  const progressY = format === 'square' ? 818 : format === 'feed' ? 916 : 1340
   ctx.fillStyle = 'rgba(255, 255, 255, 0.48)'
-  roundRect(ctx, 78, 916, 924, 58, 28)
+  roundRect(ctx, 78, progressY, canvas.width - 156, 58, 28)
   ctx.fill()
   ctx.fillStyle = 'rgba(24, 24, 27, 0.13)'
-  roundRect(ctx, 116, 946, 720, 10, 5)
+  roundRect(ctx, 116, progressY + 30, canvas.width - 360, 10, 5)
   ctx.fill()
   ctx.fillStyle = '#18181b'
-  roundRect(ctx, 116, 946, Math.max(10, 720 * progress / 100), 10, 5)
+  roundRect(ctx, 116, progressY + 30, Math.max(10, (canvas.width - 360) * progress / 100), 10, 5)
   ctx.fill()
   ctx.font = '900 26px Pretendard, Arial, sans-serif'
   ctx.fillStyle = 'rgba(24, 24, 27, 0.58)'
-  ctx.fillText('READING PROGRESS', 116, 936)
+  ctx.fillText('READING PROGRESS', 116, progressY + 20)
   ctx.textAlign = 'right'
   ctx.fillStyle = '#18181b'
-  ctx.fillText(`${progress}%`, 944, 946)
+  ctx.fillText(`${progress}%`, canvas.width - 136, progressY + 30)
   ctx.textAlign = 'left'
 
   const stats = [
@@ -210,25 +219,28 @@ export const downloadReadingShareCard = async (input: ReadingShareCardImageInput
     { label: '페이지', value: `${Math.max(0, Math.round(input.pagesRead || 0))}` }
   ]
 
+  const statsY = format === 'square' ? 906 : format === 'feed' ? 996 : 1430
+  const statWidth = (canvas.width - 156 - 48) / 3
   stats.forEach((stat, index) => {
-    const x = 78 + index * 316
+    const x = 78 + index * (statWidth + 24)
     ctx.fillStyle = 'rgba(255, 255, 255, 0.58)'
-    roundRect(ctx, x, 996, 292, 164, 34)
+    roundRect(ctx, x, statsY, statWidth, 164, 34)
     ctx.fill()
 
     ctx.fillStyle = '#18181b'
     ctx.font = '950 48px Pretendard, Arial, sans-serif'
-    ctx.fillText(stat.value, x + 34, 1062)
+    ctx.fillText(stat.value, x + 34, statsY + 66)
     ctx.fillStyle = 'rgba(24, 24, 27, 0.56)'
     ctx.font = '850 26px Pretendard, Arial, sans-serif'
-    ctx.fillText(stat.label, x + 34, 1114)
+    ctx.fillText(stat.label, x + 34, statsY + 118)
   })
 
+  const footerY = canvas.height - 110
   ctx.fillStyle = 'rgba(24, 24, 27, 0.56)'
   ctx.font = '850 30px Pretendard, Arial, sans-serif'
-  ctx.fillText(`with ${input.companionName || companionLabels[code] || 'Sidekick'}`, 78, 1240)
+  ctx.fillText(`with ${input.companionName || companionLabels[code] || 'Sidekick'}`, 78, footerY)
   ctx.textAlign = 'right'
-  ctx.fillText('cheerreaders.com', 1002, 1240)
+  ctx.fillText('cheerreaders.com', canvas.width - 78, footerY)
   ctx.textAlign = 'left'
 
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png', 0.95))
@@ -237,7 +249,7 @@ export const downloadReadingShareCard = async (input: ReadingShareCardImageInput
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
   anchor.href = url
-  anchor.download = `sidekick-reading-card-${Date.now()}.png`
+  anchor.download = `sidekick-reading-card-${format}-${Date.now()}.png`
   document.body.appendChild(anchor)
   anchor.click()
   anchor.remove()

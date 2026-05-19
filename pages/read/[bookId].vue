@@ -149,6 +149,37 @@
                   <p class="mt-2 text-xs font-semibold leading-5 text-zinc-500 dark:text-zinc-300">{{ timerHintText }}</p>
                 </div>
 
+                <div class="mb-4 rounded-2xl bg-white/50 p-3 ring-1 ring-black/[0.04] dark:bg-white/5 dark:ring-white/[0.08]">
+                  <div class="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p class="text-xs font-black text-zinc-500 dark:text-zinc-300">SESSION GOAL</p>
+                      <p class="mt-0.5 text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">{{ goalSummary }}</p>
+                    </div>
+                    <button
+                      type="button"
+                      class="rounded-full bg-zinc-900 px-3 py-1.5 text-xs font-black text-white disabled:opacity-50 dark:bg-white dark:text-zinc-900"
+                      :disabled="savingGoal"
+                      @click="saveGoal"
+                    >
+                      저장
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2">
+                    <label>
+                      <span class="text-[11px] font-bold text-zinc-500 dark:text-zinc-300">분</span>
+                      <input v-model.number="targetMinutes" type="number" min="1" max="600" class="room-input mt-1" />
+                    </label>
+                    <label>
+                      <span class="text-[11px] font-bold text-zinc-500 dark:text-zinc-300">페이지</span>
+                      <input v-model.number="targetPages" type="number" min="0" class="room-input mt-1" />
+                    </label>
+                    <label>
+                      <span class="text-[11px] font-bold text-zinc-500 dark:text-zinc-300">목표%</span>
+                      <input v-model.number="targetProgress" type="number" min="0" max="100" class="room-input mt-1" />
+                    </label>
+                  </div>
+                </div>
+
                 <div class="text-center mb-5">
                   <p class="text-xs font-bold text-zinc-500 dark:text-zinc-300 mb-1">READING TIMER</p>
                   <p class="text-5xl sm:text-6xl font-bold tabular-nums tracking-tight">{{ formattedTime }}</p>
@@ -234,14 +265,14 @@
               </p>
               <div
                 v-if="lastSummary.badges.length > 0"
-                class="mb-5 rounded-2xl bg-lime-50 p-4 ring-1 ring-lime-200 dark:bg-lime-400/10 dark:ring-lime-400/20"
+                class="badge-award-panel mb-5 rounded-2xl bg-lime-50 p-4 ring-1 ring-lime-200 dark:bg-lime-400/10 dark:ring-lime-400/20"
               >
                 <p class="text-xs font-black text-lime-700 dark:text-lime-300">새 배지</p>
                 <div class="mt-3 grid gap-2 sm:grid-cols-2">
                   <div
                     v-for="badge in lastSummary.badges"
                     :key="badge.code"
-                    class="rounded-xl bg-white/70 p-3 dark:bg-white/10"
+                    class="badge-award-card rounded-xl bg-white/70 p-3 dark:bg-white/10"
                   >
                     <p class="text-sm font-black">{{ badge.title }}</p>
                     <p class="mt-1 text-xs font-semibold text-zinc-500 dark:text-zinc-300">{{ badge.description }}</p>
@@ -268,10 +299,17 @@
                 <button class="flex-1 py-3 rounded-full bg-zinc-100 dark:bg-zinc-800 font-bold disabled:opacity-50" :disabled="sharing" @click="createShareLink">
                   {{ lastSummary.shareUrl ? '링크 복사' : (sharing ? '생성 중' : '공유 링크') }}
                 </button>
-                <button class="flex-1 py-3 rounded-full bg-zinc-100 dark:bg-zinc-800 font-bold inline-flex items-center justify-center gap-2" @click="downloadShareImage">
-                  <Download :size="17" />
-                  이미지 저장
-                </button>
+                <div class="grid grid-cols-3 gap-2 sm:col-span-1">
+                  <button
+                    v-for="format in shareImageFormats"
+                    :key="format.code"
+                    class="py-3 rounded-full bg-zinc-100 dark:bg-zinc-800 font-bold inline-flex items-center justify-center gap-1.5"
+                    @click="downloadShareImage(format.code)"
+                  >
+                    <Download :size="15" />
+                    {{ format.label }}
+                  </button>
+                </div>
                 <button class="flex-1 py-3 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold" @click="goBack">나가기</button>
               </div>
             </div>
@@ -420,6 +458,7 @@ const wallpapers = [
 const loading = ref(true)
 const saving = ref(false)
 const sharing = ref(false)
+const savingGoal = ref(false)
 const errorMessage = ref('')
 const roomData = ref<any>(null)
 const activeCompanion = ref('pipi')
@@ -431,6 +470,9 @@ const lastInteraction = ref<'ready' | 'start' | 'pause' | 'note' | 'quote' | 'pr
 const startedAt = ref<string | null>(null)
 const progress = ref(0)
 const startProgress = ref(0)
+const targetMinutes = ref(25)
+const targetPages = ref(0)
+const targetProgress = ref<number | null>(null)
 const pagesRead = ref(0)
 const memo = ref('')
 const quote = ref('')
@@ -447,7 +489,11 @@ const lastSummary = ref({
 })
 
 let intervalId: ReturnType<typeof setInterval> | null = null
-const focusTargetSeconds = 25 * 60
+const shareImageFormats = [
+  { code: 'story', label: 'Story' },
+  { code: 'square', label: 'Square' },
+  { code: 'feed', label: 'Feed' }
+] as const
 const timerPresets = [
   { label: '5m', seconds: 5 * 60 },
   { label: '10m', seconds: 10 * 60 },
@@ -472,7 +518,7 @@ const companionState = computed(() => {
   if (summaryOpen.value) return 'celebrate'
   if (memo.value || quote.value) return 'thinking'
   if (isRunning.value) return 'focus'
-  if (elapsedSeconds.value > 0) return elapsedSeconds.value >= focusTargetSeconds ? 'cheer' : 'paused'
+  if (elapsedSeconds.value > 0) return elapsedSeconds.value >= focusTargetSeconds.value ? 'cheer' : 'paused'
   return 'idle'
 })
 
@@ -481,8 +527,8 @@ const enhancedCompanionLine = computed(() => {
   if (summaryOpen.value) return lines.celebrate || lines.cheer || lines.idle
   if (quote.value) return lines.quote || lines.thinking || lines.idle
   if (memo.value) return lines.memo || lines.thinking || lines.idle
-  if (isRunning.value && elapsedSeconds.value >= focusTargetSeconds) return lines.deepFocus || lines.focus
-  if (elapsedSeconds.value >= focusTargetSeconds) return lines.cheer || lines.paused
+  if (isRunning.value && elapsedSeconds.value >= focusTargetSeconds.value) return lines.deepFocus || lines.focus
+  if (elapsedSeconds.value >= focusTargetSeconds.value) return lines.cheer || lines.paused
   if (lastInteraction.value === 'preset') return lines.preset || lines.idle
   return lines[companionState.value] || lines.idle
 })
@@ -501,18 +547,26 @@ const stageClass = computed(() => `stage-${companionState.value}`)
 
 const timerStatusLabel = computed(() => {
   if (summaryOpen.value) return 'saved'
-  if (isRunning.value && elapsedSeconds.value >= focusTargetSeconds) return 'deep focus'
+  if (isRunning.value && elapsedSeconds.value >= focusTargetSeconds.value) return 'deep focus'
   if (isRunning.value) return 'reading'
   if (elapsedSeconds.value > 0) return 'paused'
   return 'ready'
 })
 
-const timerProgressPercent = computed(() => Math.min(100, Math.round((elapsedSeconds.value / focusTargetSeconds) * 100)))
-const timerProgressLabel = computed(() => `${timerProgressPercent.value}% / 25m`)
+const focusTargetSeconds = computed(() => Math.max(60, Number(targetMinutes.value || 25) * 60))
+const timerProgressPercent = computed(() => Math.min(100, Math.round((elapsedSeconds.value / focusTargetSeconds.value) * 100)))
+const timerProgressLabel = computed(() => `${timerProgressPercent.value}% / ${targetMinutes.value || 25}m`)
 const timerPhaseClass = computed(() => `timer-${timerStatusLabel.value.replace(/\s+/g, '-')}`)
 
+const goalSummary = computed(() => {
+  const parts = [`${targetMinutes.value || 25}분`]
+  if (targetPages.value > 0) parts.push(`${targetPages.value}p`)
+  if (targetProgress.value != null && targetProgress.value > 0) parts.push(`${targetProgress.value}%까지`)
+  return parts.join(' · ')
+})
+
 const timerHintText = computed(() => {
-  if (isRunning.value && elapsedSeconds.value >= focusTargetSeconds) return '25분 집중을 넘겼어요. 이대로 마무리해도 좋은 세션입니다.'
+  if (isRunning.value && elapsedSeconds.value >= focusTargetSeconds.value) return '목표 집중 시간을 넘겼어요. 이대로 마무리해도 좋은 세션입니다.'
   if (isRunning.value) return '캐릭터가 조용히 움직이며 집중 리듬을 따라갑니다.'
   if (elapsedSeconds.value > 0) return '멈춘 상태입니다. 메모를 남기거나 종료해서 기록할 수 있어요.'
   return '시작을 누르면 캐릭터가 집중 모드로 바뀌고 세션이 기록됩니다.'
@@ -547,6 +601,9 @@ const loadRoom = async () => {
     activeWallpaper.value = (data as any).settings?.active_wallpaper_code || 'morning-desk'
     progress.value = (data as any).progress?.progress_pct || 0
     startProgress.value = progress.value
+    targetMinutes.value = (data as any).goal?.target_minutes || 25
+    targetPages.value = (data as any).goal?.target_pages || 0
+    targetProgress.value = (data as any).goal?.target_progress ?? null
   } catch (error: any) {
     errorMessage.value = error?.data?.message || error?.message || '독서방 데이터를 불러오지 못했습니다.'
   } finally {
@@ -582,6 +639,30 @@ const applyTimerPreset = (seconds: number) => {
   if (!startedAt.value) {
     startedAt.value = new Date(Date.now() - elapsedSeconds.value * 1000).toISOString()
     startProgress.value = progress.value
+  }
+}
+
+const saveGoal = async () => {
+  if (savingGoal.value) return
+  savingGoal.value = true
+  try {
+    const result = await $fetch<any>('/api/reading-goals/upsert', {
+      method: 'POST',
+      body: {
+        groupBookId: bookId.value,
+        targetMinutes: targetMinutes.value || 25,
+        targetPages: targetPages.value || 0,
+        targetProgress: targetProgress.value || null
+      }
+    })
+    targetMinutes.value = result?.goal?.target_minutes || targetMinutes.value
+    targetPages.value = result?.goal?.target_pages || targetPages.value
+    targetProgress.value = result?.goal?.target_progress ?? targetProgress.value
+    toast.success('세션 목표를 저장했습니다.')
+  } catch (error: any) {
+    toast.error(error?.data?.message || error?.message || '세션 목표 저장에 실패했습니다.')
+  } finally {
+    savingGoal.value = false
   }
 }
 
@@ -626,6 +707,9 @@ const endSession = async () => {
     startedAt.value = null
     startProgress.value = progress.value
     summaryOpen.value = true
+    if (lastSummary.value.badges.length > 0) {
+      toast.success(`${lastSummary.value.badges.length}개의 새 배지를 획득했습니다.`)
+    }
   } catch (error: any) {
     toast.error(error?.data?.message || error?.message || '독서 세션 저장에 실패했습니다.')
   } finally {
@@ -724,7 +808,7 @@ const createShareLink = async () => {
   }
 }
 
-const downloadShareImage = async () => {
+const downloadShareImage = async (format: 'story' | 'square' | 'feed' = 'story') => {
   try {
     await downloadReadingShareCard({
       title: bookTitle.value,
@@ -735,7 +819,8 @@ const downloadShareImage = async () => {
       durationSeconds: lastSummary.value.durationSeconds,
       progress: lastSummary.value.endProgress,
       pagesRead: lastSummary.value.pagesRead,
-      quote: lastSummary.value.quote
+      quote: lastSummary.value.quote,
+      format
     })
     toast.success('공유 카드 이미지를 저장했습니다.')
   } catch {
@@ -1029,6 +1114,57 @@ onBeforeUnmount(() => {
   font-size: 11px;
   font-weight: 700;
   color: #71717a;
+}
+
+.badge-award-panel {
+  position: relative;
+  overflow: hidden;
+  animation: badge-panel-in 0.36s ease both;
+}
+
+.badge-award-panel::before,
+.badge-award-panel::after {
+  content: "";
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 999px;
+  background: rgba(163, 230, 53, 0.32);
+  filter: blur(18px);
+  animation: badge-burst 1.2s ease both;
+}
+
+.badge-award-panel::before {
+  right: -34px;
+  top: -42px;
+}
+
+.badge-award-panel::after {
+  left: -46px;
+  bottom: -54px;
+  animation-delay: 0.12s;
+}
+
+.badge-award-card {
+  position: relative;
+  z-index: 1;
+  animation: badge-card-pop 0.42s ease both;
+}
+
+@keyframes badge-panel-in {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes badge-card-pop {
+  0% { transform: scale(0.94); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes badge-burst {
+  0% { transform: scale(0.3); opacity: 0; }
+  45% { opacity: 1; }
+  100% { transform: scale(1.2); opacity: 0; }
 }
 
 @media (max-width: 1023px) {

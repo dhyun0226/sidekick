@@ -62,6 +62,14 @@ export default defineEventHandler(async (event) => {
     .order('started_at', { ascending: false })
     .limit(5)
 
+  const { data: goal } = await client
+    .from('reading_goals')
+    .select('id, target_minutes, target_pages, target_progress, target_date, status, updated_at')
+    .eq('user_id', userId)
+    .eq('group_book_id', bookId)
+    .eq('status', 'active')
+    .maybeSingle()
+
   return {
     book: {
       ...groupBook,
@@ -81,6 +89,7 @@ export default defineEventHandler(async (event) => {
       reaction_intensity: 'normal',
       sound_enabled: true
     },
+    goal: goal || null,
     recentSessions: recentSessions || []
   }
 })

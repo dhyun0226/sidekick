@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
   const client = serverSupabaseServiceRole(event)
   const userId = user.sub
 
-  const [myProgressRes, mySessionsRes, myWishlistRes, globalProgressRes, globalWishlistRes, globalReviewsRes] = await Promise.all([
+  const [myProgressRes, mySessionsRes, myWishlistRes, globalProgressRes, globalWishlistRes, globalReviewsRes, feedbackRes] = await Promise.all([
     client
       .from('user_reading_progress')
       .select(`
@@ -98,7 +98,11 @@ export default defineEventHandler(async (event) => {
           books(isbn, title, author, publisher, cover_url, official_genre, draft_genre)
         )
       `)
-      .limit(1000)
+      .limit(1000),
+    client
+      .from('recommendation_feedback')
+      .select('isbn, feedback')
+      .eq('user_id', userId)
   ])
 
   if (myProgressRes.error) throw myProgressRes.error
@@ -107,13 +111,21 @@ export default defineEventHandler(async (event) => {
   if (globalProgressRes.error) throw globalProgressRes.error
   if (globalWishlistRes.error) throw globalWishlistRes.error
   if (globalReviewsRes.error) throw globalReviewsRes.error
+  if (feedbackRes.error && feedbackRes.error.code !== '42P01') throw feedbackRes.error
 
   const completedIsbns = new Set<string>()
   const currentIsbns = new Set<string>()
   const wishlistIsbns = new Set<string>()
+  const ignoredIsbns = new Set<string>()
+  const wantedIsbns = new Set<string>()
   const genreScores = new Map<string, number>()
   const authorScores = new Map<string, number>()
   const recentGenreScores = new Map<string, number>()
+
+  for (const item of feedbackRes.data || []) {
+    if ((item as any).feedback === 'not_interested') ignoredIsbns.add((item as any).isbn)
+    if ((item as any).feedback === 'want_to_read') wantedIsbns.add((item as any).isbn)
+  }
 
   for (const item of myProgressRes.data || []) {
     const groupBook = Array.isArray((item as any).group_book) ? (item as any).group_book[0] : (item as any).group_book
@@ -199,7 +211,7 @@ export default defineEventHandler(async (event) => {
 
   for (const row of seenSourceRows) {
     const book = row.book
-    if (!book?.isbn || completedIsbns.has(book.isbn) || currentIsbns.has(book.isbn)) continue
+    if (!book?.isbn || completedIsbns.has(book.isbn) || currentIsbns.has(book.isbn) || ignoredIsbns.has(book.isbn)) continue
     const genre = resolveGenre(row.genreSnapshot, book.official_genre, book.draft_genre)
     const base = normalizeBook(book, genre)
     const wishCount = wishCounts.get(book.isbn) || 0
@@ -212,6 +224,9 @@ export default defineEventHandler(async (event) => {
 
     if (wishlistIsbns.has(book.isbn)) {
       addCandidate(candidates, base, 18, '위시리스트에 담아둔 책입니다.', { wishlist: 'mine' })
+    }
+    if (wantedIsbns.has(book.isbn)) {
+      addCandidate(candidates, base, 22, '읽고 싶다고 표시한 책입니다.', { feedback: 'want_to_read' })
     }
     if (genre && preferredGenres.includes(genre)) {
       addCandidate(candidates, base, 12 + (genreScores.get(genre) || 0), `최근 ${genre} 흐름과 잘 맞습니다.`, { genre })

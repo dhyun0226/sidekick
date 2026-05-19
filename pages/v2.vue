@@ -85,6 +85,34 @@
                 </button>
               </div>
             </div>
+
+            <div class="mt-5 border-t border-zinc-100 pt-5 dark:border-zinc-800">
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-black text-zinc-400">AFFINITY</p>
+                  <h3 class="text-sm font-black">캐릭터 성장</h3>
+                </div>
+                <p class="text-xs font-bold text-zinc-400">읽을수록 친밀도가 올라갑니다</p>
+              </div>
+              <div class="grid gap-2 sm:grid-cols-5">
+                <div
+                  v-for="card in companionGrowthCards"
+                  :key="card.code"
+                  class="rounded-2xl bg-zinc-50 p-3 dark:bg-zinc-950"
+                >
+                  <div class="mb-2 flex items-center justify-between">
+                    <p class="text-sm font-black">{{ card.name }}</p>
+                    <p class="text-xs font-black text-lime-600 dark:text-lime-400">Lv.{{ card.level }}</p>
+                  </div>
+                  <div class="h-2 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+                    <div class="h-full rounded-full bg-lime-400" :style="{ width: `${card.progress}%` }"></div>
+                  </div>
+                  <p class="mt-2 text-[11px] font-semibold leading-4 text-zinc-500 dark:text-zinc-400">
+                    {{ card.sessions }}회 · {{ formatDuration(card.duration) }}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <ReadingShareCard
@@ -303,6 +331,22 @@ const activeCompanion = computed(() => data.value?.activeCompanion || 'pipi')
 const companionName = computed(() => companionLabels[activeCompanion.value]?.name || 'Pipi')
 const companionCopy = computed(() => companionLabels[activeCompanion.value]?.copy || companionLabels.pipi.copy)
 const companionState = computed(() => (data.value?.stats?.sessionCount || 0) > 0 ? 'cheer' : 'idle')
+const companionStatsByCode = computed(() => new Map((data.value?.companionStats || []).map((item: any) => [item.companion_code, item])))
+const companionGrowthCards = computed(() => companionOptions.map((option) => {
+  const stat: any = companionStatsByCode.value.get(option.code) || {}
+  const duration = Number(stat.total_duration_seconds || 0)
+  const level = Math.max(1, Number(stat.affinity_level || 1))
+  const nextLevelSeconds = level * 3600
+  const previousLevelSeconds = Math.max(0, (level - 1) * 3600)
+  const progress = Math.min(100, Math.round(((duration - previousLevelSeconds) / Math.max(1, nextLevelSeconds - previousLevelSeconds)) * 100))
+  return {
+    ...option,
+    level,
+    progress,
+    duration,
+    sessions: Number(stat.session_count || 0)
+  }
+}))
 
 const formatDuration = (seconds: number) => {
   const safe = Math.max(0, Math.round(seconds || 0))
